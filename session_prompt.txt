@@ -1,0 +1,46 @@
+# SESSION PROMPT — The Signal
+# Read this FIRST at the start of every Claude session.
+# Update ticket statuses during work. Append new issues as they arise.
+
+## PROJECT STATE
+- Phase: Pre-prototype setup
+- Branch: main (switch to proto/corridor-v1 before any real work)
+- Last session: Initial project scaffold and CLAUDE.md creation
+- Date: 2026-02-27
+
+## CURRENT PRIORITIES
+1. UE5 project created (Blank C++ template)
+2. Folder structure scaffolded
+3. CLAUDE.md written and reviewed
+4. Next: Set up git, create proto/corridor-v1 branch, install BlueprintMCP
+
+## OPEN TICKETS
+
+### TICKET-001 — Set up BlueprintMCP plugin
+- Status: PLANNED
+- Priority: HIGH
+- Notes: Port from NightShadow or install fresh. Required for Claude-assisted BP work.
+
+### TICKET-002 — Enable UE5 Python plugin
+- Status: PLANNED
+- Priority: HIGH
+- Notes: Edit > Plugins > Python Editor Script Plugin. Required for automation scripts.
+
+### TICKET-003 — Create Python naming validation script
+- Status: PLANNED
+- Priority: MEDIUM
+- Notes: Enforce naming conventions from CLAUDE.md on all assets.
+
+### TICKET-004 — Create base C++ classes
+- Status: PLANNED
+- Priority: HIGH
+- Notes: PlayerCharacter, GameMode, GameInstance base classes in C++. Blueprint extends.
+
+## BLOCKERS
+- None
+
+## RECENTLY FIXED
+- (none yet)
+
+## DEAD ENDS LOG
+- (none yet — reference CLAUDE.md DEAD ENDS table)
