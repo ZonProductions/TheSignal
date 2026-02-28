@@ -8,3 +8,5 @@ Build/
 *.suo
 Binaries/
 _DEPRECATED/
+captures/
+checkpoints/
