@@ -29,6 +29,24 @@ class THESIGNAL_API UZP_GraceMovementConfig : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	// --- Capsule / Mesh ---
+
+	/** Capsule collision radius (cm). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")
+	float CapsuleRadius = 34.0f;
+
+	/** Capsule half-height (cm). Average male, slightly hunched from anxiety. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")
+	float CapsuleHalfHeight = 88.0f;
+
+	/** Crouched capsule half-height (cm). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")
+	float CrouchedHalfHeight = 58.0f;
+
+	/** PlayerMesh Z offset from capsule origin (cm). Lines up mesh feet with capsule bottom. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")
+	float PlayerMeshOffsetZ = -90.0f;
+
 	// --- Walk / Sprint ---
 
 	/** Base walk speed. Grace is not a soldier — keep this grounded. */
@@ -75,23 +93,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|HeadBob")
 	float HeadBobFrequency = 1.6f;
 
-	/** Head bob vertical amplitude in cm. */
+	/** Head bob vertical amplitude in cm. How much the view rises/falls per step. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|HeadBob")
-	float HeadBobVerticalAmplitude = 1.2f;
+	float HeadBobVerticalAmplitude = 0.8f;
 
-	/** Head bob horizontal sway amplitude in cm. */
+	/** Head bob horizontal sway amplitude in cm. Side-to-side weight shift. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|HeadBob")
-	float HeadBobHorizontalAmplitude = 0.6f;
+	float HeadBobHorizontalAmplitude = 0.4f;
 
 	/** Sprint multiplier for head bob frequency. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|HeadBob")
 	float SprintBobFrequencyMultiplier = 1.4f;
 
-	/** Sprint multiplier for head bob amplitude. */
+	/** Sprint multiplier for head bob amplitude. Grace panics — bob gets worse. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|HeadBob")
-	float SprintBobAmplitudeMultiplier = 1.3f;
+	float SprintBobAmplitudeMultiplier = 1.5f;
 
-	/** Interpolation speed when returning camera to rest position. */
+	/** Interpolation speed when returning camera to rest rotation. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|HeadBob")
 	float HeadBobReturnSpeed = 6.0f;
 

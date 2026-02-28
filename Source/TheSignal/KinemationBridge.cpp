@@ -45,6 +45,29 @@ void FKinemationBridge::UpdatePlayerMesh(UObject* CameraComp, USkeletalMeshCompo
 	CameraComp->ProcessEvent(Func, &Params);
 }
 
+void FKinemationBridge::RefreshOwnerAnimInstance(UObject* CameraComp, USkeletalMeshComponent* Mesh)
+{
+	if (!CameraComp || !Mesh) return;
+
+	UAnimInstance* AnimInst = Mesh->GetAnimInstance();
+
+	FProperty* Prop = CameraComp->GetClass()->FindPropertyByName(FName("OwnerAnimInstance"));
+	if (!Prop)
+	{
+		UE_LOG(LogKinemation, Warning, TEXT("OwnerAnimInstance property not found on %s"), *CameraComp->GetClass()->GetName());
+		return;
+	}
+
+	FObjectPropertyBase* ObjProp = CastField<FObjectPropertyBase>(Prop);
+	if (!ObjProp) return;
+
+	void* ValuePtr = Prop->ContainerPtrToValuePtr<void>(CameraComp);
+	ObjProp->SetObjectPropertyValue(ValuePtr, AnimInst);
+
+	UE_LOG(LogKinemation, Log, TEXT("RefreshOwnerAnimInstance on %s → %s"),
+		*CameraComp->GetName(), AnimInst ? *AnimInst->GetClass()->GetName() : TEXT("NULL"));
+}
+
 void FKinemationBridge::UpdateTargetFOV(UObject* CameraComp, float NewFOV, float InterpSpeed)
 {
 	if (!CameraComp) return;

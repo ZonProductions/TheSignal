@@ -32,6 +32,8 @@ struct FKinemationBridge
 
 	static void UpdateTargetCamera(UObject* CameraComp, UCameraComponent* Camera);
 	static void UpdatePlayerMesh(UObject* CameraComp, USkeletalMeshComponent* Mesh);
+	/** Force-update OwnerAnimInstance on AC_FirstPersonCamera from the current Mesh. */
+	static void RefreshOwnerAnimInstance(UObject* CameraComp, USkeletalMeshComponent* Mesh);
 	static void UpdateTargetFOV(UObject* CameraComp, float NewFOV, float InterpSpeed);
 	static void EnableFreeLook(UObject* CameraComp);
 	static void DisableFreeLook(UObject* CameraComp);

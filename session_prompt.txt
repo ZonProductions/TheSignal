@@ -3,9 +3,9 @@
 # Update ticket statuses during work. Append new issues as they arise.
 
 ## PROJECT STATE
-- Phase: Kinemation integration — upper body STABLE, lower body deferred to GASP
+- Phase: Kinemation integration — camera-weapon tracking FIXED, peek/headbob need repair
 - Branch: main (switch to proto/corridor-v1 before gameplay work)
-- Last session: Reverted K002/K004, added reload input, confirmed stable
+- Last session: C++ config consolidation — all tuning values in ZP_GraceMovementConfig.h, no DataAsset required
 - Date: 2026-02-28
 
 ## CURRENT PRIORITIES
@@ -40,34 +40,61 @@
 - Status: IN PROGRESS
 - Priority: HIGH
 - Notes:
-  - Phase 1 (Camera): DONE — AC_FirstPersonCamera wired, camera shake/FOV API
+  - Phase 1 (Camera): DONE — AC_FirstPersonCamera wired, camera at FPCamera socket
   - Phase 2 (Full stack): DONE — 4 SCS components, BPI interface, weapon spawn, ABP set
   - K001 (fire input): DONE — IA_Fire + LMB, confirmed working in PIE
   - Reload input: DONE — IA_Reload + R key, confirmed working in PIE
+  - Camera-weapon divergence: FIXED — camera attached to FPCamera socket on PlayerMesh
   - K002 (body clipping): DEFERRED → GASP dual-mesh architecture
   - K003 (no lower body/locomotion): DEFERRED → GASP dual-mesh architecture
   - K004 (no shadow): DEFERRED → GASP dual-mesh architecture
   - Phase 3 (GASP locomotion + dual-mesh): PLANNED — solves K002/K003/K004
 
 ### TICKET-007 — Cover peek system
+- Status: NEEDS FIX
+- Notes: Was working, now broken after camera-to-socket change. Camera goes up-right instead of leaning. UpdatePeek offsets are in capsule space but camera is now in socket space. Need to transform peek offsets to account for socket orientation.
+
+### TICKET-008 — Fix peek system after socket change
 - Status: DONE
-- Notes: Context-sensitive cover peek. Direction locking. 5-ray fan detection. Confirmed working.
+- Notes: Fixed — peek and head bob offsets now transformed to socket space via ToSocketSpace() helper in UpdatePeek.
+
+### TICKET-009 — Fix head bob
+- Status: DONE
+- Notes: Fixed — head bob re-enabled, coordinate space issue resolved alongside TICKET-008.
 
 ## BLOCKERS
 - **BLOCKER 002:** Cannot override parent BP functions via MCP (blocks GASP camera override)
 - **BLOCKER 003:** Cannot set pin default object references reliably (partial)
 
 ## RECENTLY COMPLETED
-- Reverted K002/K004 broken fixes, restored last-known-good state (arms + weapon visible)
-- Added reload input (IA_Reload, R key, Input_ReloadStarted → KinemationBridge::WeaponOnReload)
-- Fixed Python Rotator bug (positional args are roll/pitch/yaw, not pitch/yaw/roll)
-- K001 fire + reload both confirmed working in PIE
-- K002/K003/K004 deferred to GASP — accepted prototype limitations
-- IMC_Grace now has 12 mappings (WASD + Mouse2D + Shift + Space + E + RMB + LCtrl + LMB + R)
-- Checkpoint: `kinemation_reload_working_20260228.md`
+- **C++ config consolidation** — All movement/capsule/headbob tuning in ZP_GraceMovementConfig.h. Self-constructing default via NewObject<>() when no DataAsset assigned. Removed 16 ternary fallbacks. Checkpoint: `cpp_config_consolidation_20260228.md`
+- **Camera-to-socket fix** — camera attached to PlayerMesh at FPCamera socket. Gun now follows pitch correctly. Root cause: camera at fixed capsule position caused parallax when spine rotated.
+- Component extraction (GASP Phase 1) — ZP_GraceGameplayComponent + ZP_KinemationComponent
+- AnimBP pipeline fully verified — Pitch, Character, ShooterComponent all working
+- BaseCameraZ = 0, CameraHeightOffset no longer applied to camera position (socket drives it)
+- Checkpoint: `camera_socket_fix_20260228.md`
+
+## COMPONENT HIERARCHY (current)
+```
+Capsule (root)
+  ├── PlayerMesh (RelLoc=0,0,-90, SKM_Operator_Mono, ABP_TacticalShooter_UE5)
+  │   └── FirstPersonCamera (at FPCamera socket, bUsePawnControlRotation=false)
+  ├── ZP_GraceGameplayComponent (stamina, peek, headbob, interaction)
+  ├── ZP_KinemationComponent (Kinemation wiring, weapon lifecycle)
+  └── Kinemation SCS components (AC_FirstPersonCamera, AC_TacticalShooterAnimation, etc.)
+```
+
+## KEY ARCHITECTURE NOTES
+- Camera MUST be on FPCamera socket (not capsule) — socket attachment prevents parallax
+- AC_FirstPersonCamera drives camera ROTATION only (K2_SetWorldRotation), never position
+- BaseCameraZ = 0 — camera position driven by socket, peek/bob are offsets from socket origin
+- CameraHeightOffset (64.0f in DataAsset) is now UNUSED for camera — may be repurposed or removed
+- AnimBP (ABP_TacticalShooter_UE5) computes Pitch from control rotation → UE5_ABP_IK_Main rotates spine bones
 
 ## DEAD ENDS LOG
 - (check CLAUDE.md DEAD ENDS table + previous checkpoint session5b)
+- Camera on capsule root (0,0,0) matching reference BP — parallax makes gun leave FOV when pitching
+- Camera on capsule with CameraHeightOffset=64 — same parallax, gun above socket
 - IA_Move/IA_Look Axis2D callbacks never firing (session 5b) — not yet resolved, may recur
 - FPP arms-only mesh without AnimBP — invisible (bind pose not in view) — NOW RESOLVED with ABP
 - SetVisibilityBasedAnimTickOption() — not a function in UE 5.4, use direct property assignment

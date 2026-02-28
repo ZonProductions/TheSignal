@@ -1,21 +1,17 @@
 import unreal
 
-bp_path = '/Game/Player/Blueprints/BP_GraceTactical'
-bp = unreal.load_asset(bp_path)
+world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_game_world()
+pawn = unreal.GameplayStatics.get_player_pawn(world, 0)
 
-# Access SCS via get_editor_property
-scs = bp.get_editor_property('simple_construction_script')
-print(f"SCS: {scs}")
+for c in pawn.get_components_by_class(unreal.ActorComponent):
+    cname = c.get_class().get_name()
+    if cname == 'ZP_GraceGameplayComponent':
+        c.set_component_tick_enabled(False)
+        unreal.log('[FIX] Disabled ZP_GraceGameplayComponent tick')
+    elif not c.is_component_tick_enabled():
+        c.set_component_tick_enabled(True)
+        unreal.log(f'[FIX] Re-enabled {cname}')
 
-for node in scs.get_all_nodes():
-    comp = node.component_template
-    name = comp.get_name()
-    if isinstance(comp, unreal.CameraComponent):
-        loc = comp.get_editor_property('relative_location')
-        print(f"Found camera '{name}' at relative_location={loc}")
-        comp.set_editor_property('relative_location', unreal.Vector(0.0, 0.0, 76.0))
-        new_loc = comp.get_editor_property('relative_location')
-        print(f"Set '{name}' to relative_location={new_loc}")
-
-unreal.EditorAssetLibrary.save_loaded_asset(bp)
-print("Saved")
+cam = [c for c in pawn.get_components_by_class(unreal.CameraComponent) if 'FirstPersonCamera' in c.get_name()][0]
+cam.set_editor_property('relative_location', unreal.Vector(0, 0, 0))
+unreal.log('[FIX] Camera Z=0. Look up/down - does gun stay in view?')
