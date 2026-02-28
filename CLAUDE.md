@@ -206,7 +206,10 @@ Document every failed approach here so no session re-attempts them.
 
 | Date | Approach | Why It Failed |
 |------|----------|---------------|
-| — | (none yet) | — |
+| 2026-02-28 | `HideBoneByName("pelvis")` on PlayerMesh | Hides entire body recursively — no per-bone override control |
+| 2026-02-28 | `SK_Shirt_01a_FPP` + `ABP_TacticalShooter_UE5` | Invisible — confirmed dead end x2 |
+| 2026-02-28 | `SetLeaderPoseComponent` across camera/capsule attachment parents | Broken bone orientation — different transform hierarchies |
+| 2026-02-28 | Shadow-only inherited Mesh without GASP AnimBP | T-pose or broken orientation — needs GASP dual-mesh architecture |
 
 ---
 

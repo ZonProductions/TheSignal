@@ -3,23 +3,20 @@
 # Update ticket statuses during work. Append new issues as they arise.
 
 ## PROJECT STATE
-- Phase: Pre-prototype setup
-- Branch: main (switch to proto/corridor-v1 before any real work)
-- Last session: Initial project scaffold and CLAUDE.md creation
-- Date: 2026-02-27
+- Phase: Kinemation integration — upper body STABLE, lower body deferred to GASP
+- Branch: main (switch to proto/corridor-v1 before gameplay work)
+- Last session: Reverted K002/K004, added reload input, confirmed stable
+- Date: 2026-02-28
 
 ## CURRENT PRIORITIES
-1. UE5 project created (Blank C++ template)
-2. Folder structure scaffolded
-3. CLAUDE.md written and reviewed
-4. Next: Set up git, create proto/corridor-v1 branch, install BlueprintMCP
+1. GASP integration for locomotion + dual-mesh (TICKET-006 Phase 3) — solves K002/K003/K004
+2. Corridor prototype gameplay (TICKET-006 complete → proto/corridor-v1)
 
 ## OPEN TICKETS
 
 ### TICKET-001 — Set up BlueprintMCP plugin
-- Status: PLANNED
-- Priority: HIGH
-- Notes: Port from NightShadow or install fresh. Required for Claude-assisted BP work.
+- Status: DONE
+- Notes: Installed at Plugins/BlueprintMCP/
 
 ### TICKET-002 — Enable UE5 Python plugin
 - Status: PLANNED
@@ -31,16 +28,50 @@
 - Priority: MEDIUM
 - Notes: Enforce naming conventions from CLAUDE.md on all assets.
 
-### TICKET-004 — Create base C++ classes
-- Status: PLANNED
+### TICKET-004 — Create base C++ classes (ZP_ foundation)
+- Status: DONE
+- Notes: All 7 ZP_ classes created, compiled clean. Old files deleted.
+
+### TICKET-005 — Create Blueprint assets for player character
+- Status: DONE
+- Notes: All assets created. PIE tested. Peek system working. IA_Aim, IA_Crouch, IA_Fire added.
+
+### TICKET-006 — Kinemation integration
+- Status: IN PROGRESS
 - Priority: HIGH
-- Notes: PlayerCharacter, GameMode, GameInstance base classes in C++. Blueprint extends.
+- Notes:
+  - Phase 1 (Camera): DONE — AC_FirstPersonCamera wired, camera shake/FOV API
+  - Phase 2 (Full stack): DONE — 4 SCS components, BPI interface, weapon spawn, ABP set
+  - K001 (fire input): DONE — IA_Fire + LMB, confirmed working in PIE
+  - Reload input: DONE — IA_Reload + R key, confirmed working in PIE
+  - K002 (body clipping): DEFERRED → GASP dual-mesh architecture
+  - K003 (no lower body/locomotion): DEFERRED → GASP dual-mesh architecture
+  - K004 (no shadow): DEFERRED → GASP dual-mesh architecture
+  - Phase 3 (GASP locomotion + dual-mesh): PLANNED — solves K002/K003/K004
+
+### TICKET-007 — Cover peek system
+- Status: DONE
+- Notes: Context-sensitive cover peek. Direction locking. 5-ray fan detection. Confirmed working.
 
 ## BLOCKERS
-- None
+- **BLOCKER 002:** Cannot override parent BP functions via MCP (blocks GASP camera override)
+- **BLOCKER 003:** Cannot set pin default object references reliably (partial)
 
-## RECENTLY FIXED
-- (none yet)
+## RECENTLY COMPLETED
+- Reverted K002/K004 broken fixes, restored last-known-good state (arms + weapon visible)
+- Added reload input (IA_Reload, R key, Input_ReloadStarted → KinemationBridge::WeaponOnReload)
+- Fixed Python Rotator bug (positional args are roll/pitch/yaw, not pitch/yaw/roll)
+- K001 fire + reload both confirmed working in PIE
+- K002/K003/K004 deferred to GASP — accepted prototype limitations
+- IMC_Grace now has 12 mappings (WASD + Mouse2D + Shift + Space + E + RMB + LCtrl + LMB + R)
+- Checkpoint: `kinemation_reload_working_20260228.md`
 
 ## DEAD ENDS LOG
-- (none yet — reference CLAUDE.md DEAD ENDS table)
+- (check CLAUDE.md DEAD ENDS table + previous checkpoint session5b)
+- IA_Move/IA_Look Axis2D callbacks never firing (session 5b) — not yet resolved, may recur
+- FPP arms-only mesh without AnimBP — invisible (bind pose not in view) — NOW RESOLVED with ABP
+- SetVisibilityBasedAnimTickOption() — not a function in UE 5.4, use direct property assignment
+- HideBoneByName("pelvis") hides entire body recursively — no per-bone control
+- SK_Shirt_01a_FPP + ABP_TacticalShooter_UE5 = invisible (confirmed dead end x2)
+- SetLeaderPoseComponent across camera/capsule attachment parents = broken bone orientation
+- Shadow-only inherited Mesh without GASP AnimBP = T-pose or broken

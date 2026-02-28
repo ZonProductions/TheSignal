@@ -1,0 +1,71 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__blueprint-mcp__server_status",
+      "mcp__blueprint-mcp__create_blueprint",
+      "mcp__blueprint-mcp__set_blueprint_default",
+      "mcp__blueprint-mcp__get_blueprint_summary",
+      "mcp__blueprint-mcp__describe_graph",
+      "mcp__blueprint-mcp__list_blueprints",
+      "mcp__blueprint-mcp__list_components",
+      "mcp__blueprint-mcp__get_blueprint_graph",
+      "mcp__blueprint-mcp__get_component_properties",
+      "mcp__blueprint-mcp__list_interfaces",
+      "mcp__blueprint-mcp__get_blueprint",
+      "mcp__blueprint-mcp__add_component",
+      "mcp__blueprint-mcp__set_component_property",
+      "mcp__blueprint-mcp__search_blueprints",
+      "mcp__blueprint-mcp__list_classes",
+      "mcp__blueprint-mcp__validate_blueprint",
+      "mcp__blueprint-mcp__add_interface",
+      "mcp__blueprint-mcp__add_node",
+      "mcp__blueprint-mcp__connect_pins"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" post_tool_use"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" pre_compact"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" session_start"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" stop"
+          }
+        ]
+      }
+    ]
+  }
+}
