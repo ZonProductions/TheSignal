@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-02-28T15:49:56",
+  "created": "2026-02-28T19:43:46",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -1571,9 +1571,21 @@
       "hash": "sha256:219144f947f13b8eb98f836506a750011748f536ae63615d8a37e780398f5613",
       "size": 1384
     },
+    "Content/Core/Player/ABP_GraceLocomotion.uasset": {
+      "hash": "sha256:b6e00f6ef2841a5f115d46d2543967d9a73fa6bef3260e1e832f68e03acf96f5",
+      "size": 33137
+    },
+    "Content/Core/Player/ABP_GracePlayer.uasset": {
+      "hash": "sha256:29b17a7f96e0833778b5db3830e04c871c6ca9ddacf68ceb9d29bf9cef9ef9c6",
+      "size": 61656
+    },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:badff64c9735364f132dd912ada74a5928f632698eabb24a3d4657796a3bd36d",
-      "size": 67011
+      "hash": "sha256:03b5b892158ee7e8005fa5c49d24e7528fc506934e951402410b2dfaa23ccda9",
+      "size": 84145
+    },
+    "Content/Core/Player/BS_Grace_Locomotion.uasset": {
+      "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
+      "size": 9525
     },
     "Content/Core/Player/PC_Grace.uasset": {
       "hash": "sha256:08ff92e9e9accbaa37d391d99fc079c30e16e7108bbd757e1b88410dae413446",

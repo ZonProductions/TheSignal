@@ -4,20 +4,34 @@
 #include "ZP_GraceGameplayComponent.h"
 #include "ZP_KinemationComponent.h"
 #include "ZP_GraceMovementConfig.h"
+#include "ZP_GracePlayerAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Animation/AnimSingleNodeInstance.h"
+#include "Animation/AnimSequenceBase.h"
 #include "EnhancedInputComponent.h"
 
 AZP_GraceCharacter::AZP_GraceCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	// Capsule — average male, slightly hunched from anxiety
 	GetCapsuleComponent()->InitCapsuleSize(34.0f, 88.0f);
 
+	// --- Hidden inherited Mesh (GASP motion-matching source) ---
+	// This mesh runs ABP_GraceLocomotion (duplicated from GASP's ABP_SandboxCharacter)
+	// to generate full-body motion-matching poses. It is invisible — PlayerMesh
+	// retargets its lower body and Kinemation drives its upper body.
+	// Skeletal mesh + AnimClass are set via MCP/Blueprint (can't reference BP assets from C++).
+	GetMesh()->SetVisibility(false);
+	GetMesh()->SetComponentTickEnabled(true);
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+
 	// Visible first-person arms — attached to capsule.
+	// Bone transforms copied from hidden Mesh in C++ (ZP_GracePlayerAnimInstance).
 	// Must be created BEFORE camera so camera can attach to its FPCamera socket.
 	PlayerMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PlayerMesh"));
 	PlayerMesh->SetupAttachment(GetCapsuleComponent());
@@ -35,6 +49,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	PlayerMesh->SetOnlyOwnerSee(true);
 	PlayerMesh->bCastDynamicShadow = false;
 	PlayerMesh->CastShadow = false;
+	PlayerMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	// Gameplay component — stamina, peek, head bob, interaction trace
 	GameplayComp = CreateDefaultSubobject<UZP_GraceGameplayComponent>(TEXT("GameplayComp"));
@@ -79,6 +94,12 @@ void AZP_GraceCharacter::PostInitializeComponents()
 	MoveComp->AirControl = MovementConfig->AirControl;
 	MoveComp->SetCrouchedHalfHeight(MovementConfig->CrouchedHalfHeight);
 
+	// Apply locomotion skeletal mesh to the hidden inherited Mesh
+	if (LocomotionSkeletalMesh)
+	{
+		GetMesh()->SetSkeletalMeshAsset(LocomotionSkeletalMesh);
+	}
+
 	// Propagate config from character to components
 	// This runs BEFORE BeginPlay, so components see the config when they initialize
 	if (GameplayComp)
@@ -99,6 +120,27 @@ void AZP_GraceCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// PlayerMesh must evaluate AFTER hidden Mesh, so NativePostEvaluateAnimation
+	// reads fresh source bone data when copying lower body.
+	PlayerMesh->AddTickPrerequisiteComponent(GetMesh());
+
+	// --- Hidden Mesh: SingleNode mode with direct anim sequences ---
+	// Speed-based switching in Tick. Start with idle.
+	{
+		USkeletalMeshComponent* LocoMesh = GetMesh();
+		LocoMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+		UAnimSequenceBase* StartAnim = IdleAnimation ? IdleAnimation : WalkAnimation;
+		if (StartAnim)
+		{
+			if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(LocoMesh->GetAnimInstance()))
+			{
+				SNI->SetAnimationAsset(StartAnim, true, 1.0f);
+				SNI->SetPlaying(true);
+				UE_LOG(LogTemp, Log, TEXT("[TheSignal] Hidden Mesh: SingleNode with %s"), *StartAnim->GetName());
+			}
+		}
+	}
+
 	// Initialize Kinemation AFTER Super::BeginPlay() — all SCS Blueprint components
 	// (AC_FirstPersonCamera, AC_TacticalShooterAnimation, etc.) have had their
 	// BeginPlay by now. Wiring before that gets overwritten by their init.
@@ -117,6 +159,31 @@ void AZP_GraceCharacter::BeginPlay()
 		MovementConfig ? *MovementConfig->GetName() : TEXT("NONE"),
 		KinemationComp && KinemationComp->ActiveWeapon ? *KinemationComp->ActiveWeapon->GetName() : TEXT("NONE"),
 		KinemationComp && KinemationComp->IsKinemationActive() ? TEXT("ACTIVE") : TEXT("OFF"));
+}
+
+void AZP_GraceCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// Switch hidden Mesh animation based on ground speed
+	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
+	{
+		const float Speed = GetVelocity().Size2D();
+
+		UAnimSequenceBase* DesiredAnim = IdleAnimation;
+		if (Speed > 150.0f && RunAnimation)
+			DesiredAnim = RunAnimation;
+		else if (Speed > 10.0f && WalkAnimation)
+			DesiredAnim = WalkAnimation;
+
+		if (DesiredAnim && SNI->GetCurrentAsset() != DesiredAnim)
+		{
+			SNI->SetAnimationAsset(DesiredAnim, true, 1.0f);
+			SNI->SetPlaying(true);
+		}
+	}
+
+	// Bone copy now happens in NativePostEvaluateAnimation (inside animation pipeline).
 }
 
 // --- Input Setup ---

@@ -19,7 +19,17 @@
       "mcp__blueprint-mcp__validate_blueprint",
       "mcp__blueprint-mcp__add_interface",
       "mcp__blueprint-mcp__add_node",
-      "mcp__blueprint-mcp__connect_pins"
+      "mcp__blueprint-mcp__connect_pins",
+      "mcp__blueprint-mcp__add_variable",
+      "mcp__blueprint-mcp__search_by_type",
+      "mcp__blueprint-mcp__change_variable_type",
+      "mcp__blueprint-mcp__find_asset_references",
+      "mcp__blueprint-mcp__list_functions",
+      "mcp__blueprint-mcp__list_properties",
+      "mcp__blueprint-mcp__get_pin_info",
+      "mcp__blueprint-mcp__snapshot_graph",
+      "mcp__blueprint-mcp__delete_node",
+      "mcp__blueprint-mcp__refresh_all_nodes"
     ]
   },
   "hooks": {

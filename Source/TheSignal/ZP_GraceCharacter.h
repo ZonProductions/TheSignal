@@ -32,6 +32,8 @@
 
 class UCameraComponent;
 class USkeletalMeshComponent;
+class USkeletalMesh;
+class UAnimSequenceBase;
 class UInputAction;
 class UZP_GraceMovementConfig;
 class UZP_GraceGameplayComponent;
@@ -69,6 +71,22 @@ public:
 	/** Blueprint class of weapon to spawn. Set in BP child. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
 	TSubclassOf<AActor> WeaponClass;
+
+	/** Skeletal mesh for hidden locomotion Mesh. Set in BP child. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
+	TObjectPtr<USkeletalMesh> LocomotionSkeletalMesh;
+
+	/** Idle animation for hidden locomotion mesh. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
+	TObjectPtr<UAnimSequenceBase> IdleAnimation;
+
+	/** Walk animation for hidden locomotion mesh. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
+	TObjectPtr<UAnimSequenceBase> WalkAnimation;
+
+	/** Run animation for hidden locomotion mesh. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
+	TObjectPtr<UAnimSequenceBase> RunAnimation;
 
 	// --- Input Actions (set in Blueprint child, e.g. BP_GraceCharacter) ---
 
@@ -122,6 +140,7 @@ public:
 protected:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 private:

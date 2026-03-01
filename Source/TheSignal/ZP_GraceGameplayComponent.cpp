@@ -95,6 +95,7 @@ void UZP_GraceGameplayComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	UpdatePeek(DeltaTime);
 	UpdateStamina(DeltaTime);
 	UpdateInteractionTrace();
+	UpdateGASPState();
 }
 
 // --- Config Application ---
@@ -234,6 +235,25 @@ void UZP_GraceGameplayComponent::UpdateStamina(float DeltaTime)
 	if (EventBroadcaster && MaxStam > 0.0f)
 	{
 		EventBroadcaster->BroadcastStaminaChanged(CurrentStamina / MaxStam);
+	}
+}
+
+// --- GASP State ---
+
+void UZP_GraceGameplayComponent::UpdateGASPState()
+{
+	// Compute gait for GASP AnimBP: 0=Walk, 1=Run, 2=Sprint (matches E_Gait enum order)
+	if (bIsSprinting)
+	{
+		GASPGait = 2;
+	}
+	else
+	{
+		// Use walk speed as threshold — below it we're walking, above we're running.
+		// CharacterMovementComponent controls actual speed; we just classify it.
+		const float Speed = GetOwner() ? GetOwner()->GetVelocity().Size2D() : 0.0f;
+		const float WalkThreshold = MovementConfig ? MovementConfig->WalkSpeed : 200.0f;
+		GASPGait = (Speed > WalkThreshold * 0.5f) ? 1 : 0;
 	}
 }
 

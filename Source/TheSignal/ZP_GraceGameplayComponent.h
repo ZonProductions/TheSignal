@@ -62,6 +62,11 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsSprinting = false;
 
+	/** GASP gait state: 0=Walk, 1=Run, 2=Sprint. Matches E_Gait enum order.
+	 *  Read by BP_GraceCharacter EventGraph → written to BP Gait variable for AnimBP. */
+	UPROPERTY(BlueprintReadOnly, Category = "Movement|GASP")
+	uint8 GASPGait = 1;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float CurrentStamina = 100.0f;
 
@@ -139,6 +144,9 @@ private:
 	// --- Stamina ---
 	float StaminaRegenTimer = 0.0f;
 	void UpdateStamina(float DeltaTime);
+
+	// --- GASP State ---
+	void UpdateGASPState();
 
 	// --- Interaction ---
 	void UpdateInteractionTrace();
