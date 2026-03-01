@@ -4,7 +4,12 @@
 #include "KinemationBridge.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/DecalComponent.h"
 #include "Engine/World.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Controller.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 UZP_KinemationComponent::UZP_KinemationComponent()
 {
@@ -248,9 +253,67 @@ void UZP_KinemationComponent::SpawnAndEquipWeapon()
 
 void UZP_KinemationComponent::FirePressed()
 {
+	if (bIsReloading || bFireCooldown)
+	{
+		return;
+	}
+
 	if (ActiveWeapon)
 	{
 		FKinemationBridge::WeaponOnFirePressed(ActiveWeapon);
+	}
+
+	PerformHitscan();
+
+	// Semi-auto lockout — block next shot until animation cycles
+	bFireCooldown = true;
+	GetWorld()->GetTimerManager().SetTimer(FireCooldownHandle, [this]()
+	{
+		bFireCooldown = false;
+	}, FireCooldownTime, false);
+}
+
+void UZP_KinemationComponent::PerformHitscan()
+{
+	if (BulletDecalMaterials.Num() == 0)
+	{
+		return;
+	}
+
+	// Use controller's control rotation for trace direction — always matches
+	// where the player is looking, regardless of camera tick ordering.
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	AController* PC = OwnerPawn ? OwnerPawn->GetController() : nullptr;
+	if (!PC || !CameraComponent)
+	{
+		return;
+	}
+
+	const FVector Start = CameraComponent->GetComponentLocation();
+	const FRotator AimRot = PC->GetControlRotation();
+	const FVector End = Start + AimRot.Vector() * HitscanRange;
+
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwner());
+	Params.AddIgnoredActor(ActiveWeapon);
+
+	if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+	{
+		return;
+	}
+
+	UMaterialInterface* DecalMat = BulletDecalMaterials[FMath::RandRange(0, BulletDecalMaterials.Num() - 1)];
+
+	// Decal projects along its local X — must face INTO the surface (opposite of impact normal)
+	const FRotator DecalRotation = (-Hit.ImpactNormal).Rotation();
+
+	UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(
+		GetWorld(), DecalMat, DecalSize, Hit.ImpactPoint, DecalRotation, DecalLifetime);
+
+	if (Decal)
+	{
+		Decal->SetFadeOut(DecalLifetime - 2.0f, 2.0f);
 	}
 }
 
@@ -264,8 +327,16 @@ void UZP_KinemationComponent::FireReleased()
 
 void UZP_KinemationComponent::Reload()
 {
-	if (ActiveWeapon)
+	if (bIsReloading || !ActiveWeapon)
 	{
-		FKinemationBridge::WeaponOnReload(ActiveWeapon);
+		return;
 	}
+
+	FKinemationBridge::WeaponOnReload(ActiveWeapon);
+
+	bIsReloading = true;
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
+	{
+		bIsReloading = false;
+	}, 3.0f, false);
 }

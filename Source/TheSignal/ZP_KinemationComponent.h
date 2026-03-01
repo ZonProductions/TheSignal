@@ -29,6 +29,7 @@
 
 class UCameraComponent;
 class USkeletalMeshComponent;
+class UMaterialInterface;
 
 UCLASS(ClassGroup=(TheSignal), meta=(BlueprintSpawnableComponent))
 class THESIGNAL_API UZP_KinemationComponent : public UActorComponent
@@ -51,6 +52,24 @@ public:
 	/** Blueprint class of weapon to spawn at BeginPlay. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
 	TSubclassOf<AActor> WeaponClass;
+
+	// --- Hitscan Config ---
+
+	/** Decal materials for bullet impacts. Randomly chosen per shot. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	TArray<TObjectPtr<UMaterialInterface>> BulletDecalMaterials;
+
+	/** Maximum range for hitscan traces (cm). Default 10000 = 100m. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	float HitscanRange = 10000.0f;
+
+	/** Size of bullet hole decals (cm). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	FVector DecalSize = FVector(2.0f, 3.0f, 3.0f);
+
+	/** How long decals remain before fading (seconds). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	float DecalLifetime = 30.0f;
 
 	// --- Weapon State ---
 
@@ -116,4 +135,16 @@ private:
 	void InitKinemationCamera();
 	void InitKinemationAnimation();
 	void SpawnAndEquipWeapon();
+	void PerformHitscan();
+
+	/** True while reload animation is playing — blocks firing. */
+	bool bIsReloading = false;
+	FTimerHandle ReloadTimerHandle;
+
+	/** True while fire animation is cycling — blocks next shot (semi-auto lockout). */
+	bool bFireCooldown = false;
+	FTimerHandle FireCooldownHandle;
+
+	/** Minimum time between shots in seconds. Semi-auto pistol ~0.25s. */
+	float FireCooldownTime = 0.25f;
 };

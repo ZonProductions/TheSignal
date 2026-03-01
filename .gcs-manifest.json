@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-02-28T20:33:53",
+  "created": "2026-02-28T21:42:10",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -1571,6 +1571,10 @@
       "hash": "sha256:219144f947f13b8eb98f836506a750011748f536ae63615d8a37e780398f5613",
       "size": 1384
     },
+    "Content/Core/Materials/M_BulletHole.uasset": {
+      "hash": "sha256:278b1f1a9295fd6b1afd94ddc038a56cc3b2536247f825d06f6387a52d0c368e",
+      "size": 10032
+    },
     "Content/Core/Player/ABP_GraceLocomotion.uasset": {
       "hash": "sha256:b6e00f6ef2841a5f115d46d2543967d9a73fa6bef3260e1e832f68e03acf96f5",
       "size": 33137
@@ -1580,8 +1584,8 @@
       "size": 61656
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:574e20f662eba1e452ce0f135b4aa7566ba5bb27ac9fefc8c5f5ae8a7aaf935c",
-      "size": 84460
+      "hash": "sha256:a04fdc68375127ed34d05f40c2f91b70ba083e5dcf22749adeca9c834e32f1f2",
+      "size": 84829
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -13798,6 +13802,2262 @@
     "Content/TreatmentStation/Textures/Trim_Textures/T_Wall_Trim_2_N.uasset": {
       "hash": "sha256:283688ddd6ff97209466fce1dade7daed155a8ead9a603f029e875c2f2aa003f",
       "size": 20898824
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Asphalt/MI_Asphalt_1.uasset": {
+      "hash": "sha256:c4c7cabe7a26737bd6e3c771b9d904c736020d1d771cbee41656b08b3321cdc9",
+      "size": 125869
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Asphalt/MI_Asphalt_2.uasset": {
+      "hash": "sha256:8ee42adc60e545008c75b83c931bf4842a316ebec72cd4b67ca9871e07d182ff",
+      "size": 115097
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Asphalt/MI_Asphalt_3.uasset": {
+      "hash": "sha256:a4fbc0946a377567205a406b9c621f4f51d1b22652ac50a8fc9ba2bf686ad7dc",
+      "size": 106266
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Asphalt/MI_Asphalt_4.uasset": {
+      "hash": "sha256:35da152d367a92aff15952ccbc4a141ba4af795009c42ed25078069fce486abf",
+      "size": 133936
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Asphalt/MI_Asphalt_5.uasset": {
+      "hash": "sha256:48ff2f152a2035b5ec28bed559ac7617b7dadb5e2bd2fb6ee80051473d0acfff",
+      "size": 138309
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/MI_Blasted_1.uasset": {
+      "hash": "sha256:b7430995ba22628d73255ae8fb0d871a96e3afb07557d42b9d841f9beec8a6c8",
+      "size": 136925
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/MI_Blasted_2.uasset": {
+      "hash": "sha256:2eaa389a95dc92985e4539e6648bc020e8f2e219aa7881cf747e4ccb6b647da0",
+      "size": 133003
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/MI_Blasted_3.uasset": {
+      "hash": "sha256:5d41abc98948b81bc3310747ce114769f0521dbe0576bc034b1f4608f6f5aafa",
+      "size": 144178
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/MI_Blasted_4.uasset": {
+      "hash": "sha256:e913bee81009f95016d6675479eaff3315d155029579e867c8a6935f6e1c1263",
+      "size": 159618
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/MI_Blasted_5.uasset": {
+      "hash": "sha256:4c6d93802245dfafef37d8db48d5bd246e8ac55cd1ad31884fe7e24e636b6431",
+      "size": 130139
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/Mesh_For_POM/SM_Mesh_1.uasset": {
+      "hash": "sha256:81caa8ccd01e17bca935b509d1f57baadbaf227ab444afe924ded109310ca15c",
+      "size": 81271
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/Mesh_For_POM/SM_Mesh_2.uasset": {
+      "hash": "sha256:392faf56f07a15223c8ca8baae974d95273b5ef5f5f81cf9b1318776c07369b2",
+      "size": 80096
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/Mesh_For_POM/SM_Mesh_3.uasset": {
+      "hash": "sha256:f7b0cbff5599307fe3f7a8fcd2e3e48ae40bf48712aceef5015fd8fd79988ca6",
+      "size": 81568
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/Mesh_For_POM/SM_Mesh_4.uasset": {
+      "hash": "sha256:69e7d73f5acb0eb222956b1a23ead5ba3495b760bb1ee9a5f308f277e29fc1a9",
+      "size": 83806
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Blasted_Mesh_Decals/Mesh_For_POM/SM_Mesh_5.uasset": {
+      "hash": "sha256:04c9b8dcad3b0fd69f9258d42a0b0f8d6958267a3b41d38f7fd18252ca074ee4",
+      "size": 81213
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_1.uasset": {
+      "hash": "sha256:a196775d673a2fc269f37ea60280854538e664e0399da926af7de0eac1462b4c",
+      "size": 129337
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_10.uasset": {
+      "hash": "sha256:692729d82c312d311a643b839bb2ab320e7c00c43aa79b742b0e4a977fc48b8d",
+      "size": 127484
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_2.uasset": {
+      "hash": "sha256:4bc7178855b4f9359df0dc32d6e1842592c5345ae9e0019c643d9ede51e2c424",
+      "size": 127549
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_3.uasset": {
+      "hash": "sha256:59ce45c6f97eabaf333119d4ec23976b56b426eb0656176930547d0845da575e",
+      "size": 132805
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_4.uasset": {
+      "hash": "sha256:055ce150e440fd6a680edf96bc355a828b135fdb1b741cf4ede500ca873b12f8",
+      "size": 130053
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_5.uasset": {
+      "hash": "sha256:6fded0c5b881cff214f7e866b3ed2944077a801f8d7f783c677d92777e228e06",
+      "size": 129927
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_6.uasset": {
+      "hash": "sha256:253337c71985935cb56966655d02d10b11d37ef9e9a9d294b04700ce0844335e",
+      "size": 120970
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_7.uasset": {
+      "hash": "sha256:20e130525ac2bdc80d3392fbee5b9768657b492fa61917c268680e86831014b4",
+      "size": 126534
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_8.uasset": {
+      "hash": "sha256:72532f7e8c92d277320df3a8916d6379c58dd84f4eee2c680ef4e1d36179be86",
+      "size": 130217
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Bricks/MI_Brick_9.uasset": {
+      "hash": "sha256:23c74992f2934bdf2b4f96ccf147338468a2d4c5bfd991fa0ea8a5fa0861a535",
+      "size": 115474
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Burnt/MI_Burnt_1.uasset": {
+      "hash": "sha256:c5d8c0d7a816000f0e1e12be0e081da7628e013158e144b4fac9a0e6d0af2805",
+      "size": 115055
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Burnt/MI_Burnt_2.uasset": {
+      "hash": "sha256:de62d9822f8ed0d805d0ba0669ae67ea101c92b9addea18f1f30572e963cf8e2",
+      "size": 141380
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Burnt/MI_Burnt_3.uasset": {
+      "hash": "sha256:970916d59a19a3431b6f2fc0c583ef0c64991f22acec0906b3a49658460f50c1",
+      "size": 111767
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Burnt/MI_Burnt_4.uasset": {
+      "hash": "sha256:8a0d4d1b4c6891d4b2b49028b00fd3af259b0f27ff69b183604f0e6bd89f0081",
+      "size": 135083
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Burnt/MI_Burnt_5.uasset": {
+      "hash": "sha256:dcc1644a4b2706da16839b825c22fbd17ac992a4110d2144d1445ca0f2822483",
+      "size": 115428
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_1.uasset": {
+      "hash": "sha256:c83ae1443464e66f59071aebcc1bad5a63e848a2af077432f22ca007b6777290",
+      "size": 139790
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_10.uasset": {
+      "hash": "sha256:2ba434b310ae5b1518e3049d3b540c98196888ec866d5ca2429595b1cf278da8",
+      "size": 130564
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_2.uasset": {
+      "hash": "sha256:778f83e77594f0a4760aed50581543ec770400332e1d0e59043415811909e19c",
+      "size": 132002
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_3.uasset": {
+      "hash": "sha256:02bdd202d37c7750c7503b5dc909b097179109f4c10984d5be60f8d639e13193",
+      "size": 144087
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_4.uasset": {
+      "hash": "sha256:fc34d120f863fce5e92797a4de31c8d943bb972579f63347231e39a9850ef9fb",
+      "size": 146569
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_5.uasset": {
+      "hash": "sha256:0769921c5327834eb650fb6a7056f512fb34f32da0867f8dc16bef47fcbfd768",
+      "size": 148358
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_6.uasset": {
+      "hash": "sha256:b0cee2b224ec5b2c3447ff1c7029dc394b9fbdbce42153217b48fcb067cd2a56",
+      "size": 147196
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_7.uasset": {
+      "hash": "sha256:f374dc6b280ea23eac48312e597f62dc7758640db51e259c6a76526b50e28d7a",
+      "size": 143848
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_8.uasset": {
+      "hash": "sha256:57052ab98bd0731dce84dc2de2586002c028f50a3ee435acc31d0b557ce05e8a",
+      "size": 141525
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ceramics/MI_Ceramic_9.uasset": {
+      "hash": "sha256:06012fa8b522598c946b4562fd52409cc4a5bd2f17eb53d1aaca002b576b4192",
+      "size": 137864
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_1.uasset": {
+      "hash": "sha256:c81e19826b86868a7833e390e2110649814a8aa0c227fa5210cd75eb180a4314",
+      "size": 142935
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_10.uasset": {
+      "hash": "sha256:9ecc99eca33d3363368841c6df06bbe8a147967950a8ce2acdc54764d4109e1e",
+      "size": 151605
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_2.uasset": {
+      "hash": "sha256:bc319c2c0f98c861e48b0d650d13164c3bbc57f36b5bf22c132ed7872f55b34b",
+      "size": 149367
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_3.uasset": {
+      "hash": "sha256:536265e287bf1a3a10b2c54579d51807ee427c214c50a48d4783dde149e8a0a7",
+      "size": 131610
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_4.uasset": {
+      "hash": "sha256:c9e76e2c756593ca77435c3e5d1fe4a02a7e1119cca029f017801f47841b6710",
+      "size": 149253
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_5.uasset": {
+      "hash": "sha256:1b39c1599a5d9aa2f43c24715ab8be0ff4fa3356026ebec849a442808cc86686",
+      "size": 138873
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_6.uasset": {
+      "hash": "sha256:587e191501aaa9c67db5517f73662ea558f8975f5ef9bdb2e502a7a52b15ce45",
+      "size": 133135
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_7.uasset": {
+      "hash": "sha256:0766f18f7ef15d62208e4a19eede68599c632bb22b7ec81623581e668891557e",
+      "size": 122166
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_8.uasset": {
+      "hash": "sha256:48fafb824bd685a2bac3a93954bc0e699c6d45f97b2403b787b7ffed83f3f709",
+      "size": 116939
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Concrete/MI_Concrete_9.uasset": {
+      "hash": "sha256:448f27ae412cdfa8f1d64a894ba0bb1628d35933ad4e137b46f3e7448fdc2a74",
+      "size": 146293
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_1.uasset": {
+      "hash": "sha256:973b127edef514c56842030d4ccb49ac166a3e291a9ebf3dd21ee55400dca558",
+      "size": 116656
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_10.uasset": {
+      "hash": "sha256:57b5ec81e16b84701f60f1128d2a335055d4a47c49ba2b94bdf518263476bebb",
+      "size": 117564
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_2.uasset": {
+      "hash": "sha256:ef9e750f463415173ca7fc814488943b8cd19e67123f7f3921d18e17f27ff5d5",
+      "size": 115483
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_3.uasset": {
+      "hash": "sha256:4d2183468aca9ad13d5db023e393f0bcaedf5902dd04e34b03b128a25ba91dea",
+      "size": 133978
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_4.uasset": {
+      "hash": "sha256:e216048970d61584b5edf5c8881b88521df05c1e55928bd9c6ee27b365979c65",
+      "size": 118309
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_5.uasset": {
+      "hash": "sha256:7b86cceb228310e066e8638772ca977d922fb3618540d74e5205978bcb4b5a84",
+      "size": 111674
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_6.uasset": {
+      "hash": "sha256:6cab9b0ffa23ea4c0453066b88cecb7bed2a6550544d5f303eae0a2a3fee872e",
+      "size": 121774
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_7.uasset": {
+      "hash": "sha256:35c498eb8728737e0308b868a9072d8ab6e3b2bbcdb513f71988b06e8daaac38",
+      "size": 121817
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_8.uasset": {
+      "hash": "sha256:abc468e5868418b0301ef93799c0fe678675554ad0de407212f89295f6fa050f",
+      "size": 109660
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Cracks/MI_Crack_9.uasset": {
+      "hash": "sha256:577168683b2401616065244b238e008a2250ea262a208fb304347198661feb41",
+      "size": 121631
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Dirt/MI_Dirt_1.uasset": {
+      "hash": "sha256:e41d464a130033d6d7b5b2cd1efff1bb2b7b005283633fdd74b413ee3c0a35c5",
+      "size": 111703
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Dirt/MI_Dirt_2.uasset": {
+      "hash": "sha256:c3dae4280a3005f34c34b6e195299a53732532fd9d3011f13227c8c65d9d60ba",
+      "size": 111979
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Dirt/MI_Dirt_3.uasset": {
+      "hash": "sha256:a1452fec50ca5aa994ac0e761f2154a4a5d1ba67ea6502905e0873446a3bf367",
+      "size": 111516
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Dirt/MI_Dirt_4.uasset": {
+      "hash": "sha256:23e8376f5f6939511fcc157cfb35bf7fd298c8f796d38168e38c4cd0b5b62238",
+      "size": 120089
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Dirt/MI_Dirt_5.uasset": {
+      "hash": "sha256:638d59dbfde5d4a336c88762907bd7f949f11fc794b6fa251a3a5084f4ebdb58",
+      "size": 120078
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Fabric/MI_Fabric_1.uasset": {
+      "hash": "sha256:3ea2ca86dac3e81006806b430c4654e5d875ad8bea3f6449601baeac8b6f74f6",
+      "size": 126753
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Fabric/MI_Fabric_2.uasset": {
+      "hash": "sha256:91dd6ef8d1d36f40769241dd0a55c19d5a7d8276df78b9a9715927ce476bb5a2",
+      "size": 129030
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Fabric/MI_Fabric_3.uasset": {
+      "hash": "sha256:38df69aa7c63cb14dd8b50f60e96755dd40976486d6a46f6a327284355293e8b",
+      "size": 131293
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Fabric/MI_Fabric_4.uasset": {
+      "hash": "sha256:97887a288b3071f7ef9d04af432842bd2ed8c3fcfb52a5fa30fb6d41859f01c7",
+      "size": 117681
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Fabric/MI_Fabric_5.uasset": {
+      "hash": "sha256:ea36e3a5546b7d9cd1945c6af14fdcb93c738784b20ce2dfd997603ca7fa0db5",
+      "size": 119075
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Flesh/MI_Flesh_1.uasset": {
+      "hash": "sha256:b837ad86b91f317651dab9ddee8b51ecc60c81b4329207c8bd157cc93dc153aa",
+      "size": 116567
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Flesh/MI_Flesh_2.uasset": {
+      "hash": "sha256:8974cd50a88ec39efb50738cca9b0e83d7296155985ea9ea94ed58d9429cc6ac",
+      "size": 121074
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Flesh/MI_Flesh_3.uasset": {
+      "hash": "sha256:74bdceb9a1af7e3acda4f4e48216ac3ad513ffbe1bc68259dc7a21165d39f74f",
+      "size": 119505
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Flesh/MI_Flesh_4.uasset": {
+      "hash": "sha256:05918650fb9663ff4dbf751469c28e63761d77890534a66d6848e6451f263960",
+      "size": 124811
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Flesh/MI_Flesh_5.uasset": {
+      "hash": "sha256:b1b1a1865a34a29825b27740133b2b8eb6a9bcf4263e90dbcdc5e46cfe580f2e",
+      "size": 117627
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Generic/MI_Generic_1.uasset": {
+      "hash": "sha256:e861b0b7f55d5320b3eadd520d249af58777de94a9319f76d5086d11029eed30",
+      "size": 103516
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Generic/MI_Generic_2.uasset": {
+      "hash": "sha256:6eb103b640572f1794bf56dbe8a336c4efcb7830aff2b86afda3a88d98cb54c5",
+      "size": 106429
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Generic/MI_Generic_3.uasset": {
+      "hash": "sha256:c92da14e35ec73e2f59d82463bc7ed7726a8a212e064a3141145aeb56dbfbb37",
+      "size": 107626
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Generic/MI_Generic_4.uasset": {
+      "hash": "sha256:f47f7e94c0649a9bed779b87be50af565733578ee2488400d0090a7a5f6cd9f4",
+      "size": 110083
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Generic/MI_Generic_5.uasset": {
+      "hash": "sha256:c1ae0a3e58213e68fcb797174698ceba132b474211464e154dad63dd5ed5daaf",
+      "size": 106694
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Bulletproof_Mesh_Decals/MI_Glass_Bulletproof_1.uasset": {
+      "hash": "sha256:72ed979c0388e29bb0b4b53d4f831d52c83a5d323429e86d9f3c7750f621ec06",
+      "size": 131753
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Bulletproof_Mesh_Decals/MI_Glass_Bulletproof_2.uasset": {
+      "hash": "sha256:bbe557a5c2d82ea7b63ea869fc5d4059f7b42229054099eb29880a321ab99831",
+      "size": 122994
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Bulletproof_Mesh_Decals/MI_Glass_Bulletproof_3.uasset": {
+      "hash": "sha256:21ac271a49f06891655fa648b01b171a7a235cbe387144bff71dc75aa11ede1f",
+      "size": 140973
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Bulletproof_Mesh_Decals/MI_Glass_Bulletproof_4.uasset": {
+      "hash": "sha256:1177c3209b0bf640a7ae0200f140781ea7fa58c2ae260b7965c3d671aa222209",
+      "size": 122829
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Bulletproof_Mesh_Decals/MI_Glass_Bulletproof_5.uasset": {
+      "hash": "sha256:113b6f7520ae96c3b755778abb5ecd613c608d687ef800ab991ed03a0a61fd1f",
+      "size": 140797
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Bulletproof_Mesh_Decals/Mesh_For_POM_Glass/SM_Mesh_For_Glass.uasset": {
+      "hash": "sha256:caac0f7c26bd120de525a04bf8fa08e2bad8cf92b37510cd8fc28205034b444b",
+      "size": 79980
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Common_Mesh_Decals/MI_Glass_Common_1.uasset": {
+      "hash": "sha256:e6e43bff3cfcd03f8901e27d04db8f46b9a6e14286b15ddacf6608d3b0c1b0e1",
+      "size": 114558
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Common_Mesh_Decals/MI_Glass_Common_2.uasset": {
+      "hash": "sha256:42cb87eb218ab3fd5c733ab4a248025737588cb795e4a1c8b779e7085ab7f689",
+      "size": 124710
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Common_Mesh_Decals/MI_Glass_Common_3.uasset": {
+      "hash": "sha256:a6b9364df89932cc1def7b96584a0526369e510c85ddefb149acd6cac015c97c",
+      "size": 125362
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Common_Mesh_Decals/MI_Glass_Common_4.uasset": {
+      "hash": "sha256:275cbfd3cd7495d57a81f35b842a2ab78d6fbfc46ab7412cf67fd84d998b5d21",
+      "size": 114641
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Common_Mesh_Decals/MI_Glass_Common_5.uasset": {
+      "hash": "sha256:dba5b51bbd49a5aeb730d652b67526507c4cdcc4cdd959e0f4e55c0c8fa40309",
+      "size": 109878
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Windshield_Mesh_Decals/MI_Glass_Windshield_1.uasset": {
+      "hash": "sha256:d22562478789fd7b1085f4c1d8e8bb578a636f870a8c90e8d3cfa660a50cf956",
+      "size": 144991
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Windshield_Mesh_Decals/MI_Glass_Windshield_2.uasset": {
+      "hash": "sha256:c75952d98f16f6b772c9db122e25b2641bd1c179e3a5e0faaea79c35040d4a6e",
+      "size": 114167
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Windshield_Mesh_Decals/MI_Glass_Windshield_3.uasset": {
+      "hash": "sha256:3e6d61983d73a77cca3e1a70ae9777049cb2e8023b22995053b0d970a1731941",
+      "size": 133214
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Windshield_Mesh_Decals/MI_Glass_Windshield_4.uasset": {
+      "hash": "sha256:5277b77a1145502d21422b22be4a52f4edfd3f9e87f4838558c1eb879b5a6960",
+      "size": 138524
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Glass_Windshield_Mesh_Decals/MI_Glass_Windshield_5.uasset": {
+      "hash": "sha256:8679d7cb6f07f3d6b3514a077ce7c5369006a2881b750302713b80c706063cdf",
+      "size": 130853
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ground/MI_Ground_1.uasset": {
+      "hash": "sha256:e05119e9f5981ed343fe34b561fda48586b046adfd5834e14a512ea2646e4f52",
+      "size": 136232
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ground/MI_Ground_2.uasset": {
+      "hash": "sha256:77fc2c7d6d28748d73290e33dcecb802aaab0e5de3c88dfdaba946b2d00f0ad9",
+      "size": 141274
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ground/MI_Ground_3.uasset": {
+      "hash": "sha256:f1d3fed19d12aa7f88f876795432a83d1c0c06264ed2ce886cf8e6176ddaa2a8",
+      "size": 143246
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ground/MI_Ground_4.uasset": {
+      "hash": "sha256:4982e6788a231e1a40a41b43f0972a97d4e78ff9d7c2572cfa2760c0ba705be8",
+      "size": 140090
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Ground/MI_Ground_5.uasset": {
+      "hash": "sha256:17f603e9b54d68726f2bf91c9a5aac134e076546ee451aa06797d01fca10e11c",
+      "size": 141559
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Axe_1.uasset": {
+      "hash": "sha256:2b66a621220984378e819a068e3021fe2bb6368ec3f15f9b6ed4143cbe053d23",
+      "size": 100571
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Axe_2.uasset": {
+      "hash": "sha256:37c63f263b4f4e4a9a10e8ae75c38075bef0b0ac600d911962fd4a6dd074ac78",
+      "size": 104934
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Axe_3.uasset": {
+      "hash": "sha256:177681941c6e3e07792ab4b761cb81952de800929c02b4b1e95f039768d556f8",
+      "size": 102747
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Axe_4.uasset": {
+      "hash": "sha256:9f6a27f502087536f04801a347f04b38a3325dcfc2591944d57976e26285849f",
+      "size": 105401
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Axe_5.uasset": {
+      "hash": "sha256:ccad4e6fda83bfc8aa05e8189befc16f2e86aedc897db947e6015dc567ede201",
+      "size": 111664
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Knife_1.uasset": {
+      "hash": "sha256:9d58e8c6a4e01e87a0c12516d84878c2c1c952091de7e395ee894d323ddd62c2",
+      "size": 97303
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Knife_2.uasset": {
+      "hash": "sha256:fcc7bc24c6eed05075e0785ca31e8eb6802576d988efded7864835e03c0933b7",
+      "size": 97058
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Knife_3.uasset": {
+      "hash": "sha256:7430c5d38309a31b0e8ae12676cf02d067421e8d8dfed3a01d009f7b12b59aed",
+      "size": 94458
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Knife_4.uasset": {
+      "hash": "sha256:c613f9e28e79f3d3810e3c9588e4e4ee34a3df8ce6ee5c6e5f3c4a74959b57b7",
+      "size": 92946
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Hits/MI_Knife_5.uasset": {
+      "hash": "sha256:b927bbc6c26023154c664cb89452d12804b4adf849407eb1fa05d612b21ac806",
+      "size": 94223
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Armored/MI_Metal_Armored_1.uasset": {
+      "hash": "sha256:c5d08b4dd6d952f5ff605778f9a778bc9f2fa16a771bc9fd8cf01892ca3c081b",
+      "size": 137892
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Armored/MI_Metal_Armored_2.uasset": {
+      "hash": "sha256:0f4bf71f43d970c897f075b5f214a667b0dbf26e02825782c81ba008a08f4e6d",
+      "size": 136683
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Armored/MI_Metal_Armored_3.uasset": {
+      "hash": "sha256:4b5518df0b630c536729bd8bd4677d7bd586368ac5a7199f01155ddae92656b5",
+      "size": 138779
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Armored/MI_Metal_Armored_4.uasset": {
+      "hash": "sha256:d9d27190f37d2284970b1ff77e41802194c6bdff4a0af9e03b4677efc63ecd07",
+      "size": 149174
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Armored/MI_Metal_Armored_5.uasset": {
+      "hash": "sha256:e10195a05573aef1c4a02c3a51c56f568935b94948c93ca5766574322f602a85",
+      "size": 133354
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Solid/MI_Metal_Solid_1.uasset": {
+      "hash": "sha256:48259a1a937107c764e0cb5e1ba2270f8c61d5c4de17446d75478a48244fc34d",
+      "size": 125740
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Solid/MI_Metal_Solid_2.uasset": {
+      "hash": "sha256:391d356be497bdac9ef9ae401b95b611f98c8c2dd1fe6d4cf397da52334d7547",
+      "size": 121615
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Solid/MI_Metal_Solid_3.uasset": {
+      "hash": "sha256:388ce52b47e59ba139fa1c1d63d02017d81dae9d9ff081a81ab65d7e8a24214e",
+      "size": 134909
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Solid/MI_Metal_Solid_4.uasset": {
+      "hash": "sha256:b83531478d64a03b30bf7efdd2ef04452fe1a84572962f976b4a5f172bf98846",
+      "size": 129866
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Solid/MI_Metal_Solid_5.uasset": {
+      "hash": "sha256:55d7c549f81e67065cd3d5dab351a3123b8acc99272fdb313f9bea17dd012e53",
+      "size": 132342
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_1.uasset": {
+      "hash": "sha256:a2e80cf85723126b335c7bc91c0cdc1ec9d036214b9117d34b1d9cc2e5206d29",
+      "size": 136277
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_10.uasset": {
+      "hash": "sha256:88f9084c8c9aba4c3ba5903e44d784c3fb266247e200b1cd7ee3654be94b45a9",
+      "size": 115372
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_2.uasset": {
+      "hash": "sha256:b0a4f7ab0e28338040fe0764ccfc80460571f1b5ac48ce0679d2b65b6952680b",
+      "size": 135413
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_3.uasset": {
+      "hash": "sha256:e3fd713f7363c8cf0c90bfd72c10ef5b6c8bcbf50506ac1b9379786600d84584",
+      "size": 133090
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_4.uasset": {
+      "hash": "sha256:3e801e42a9659e74dfc18d03f50c9994a9f2a1dd7f30dbec486287c98b68f8c1",
+      "size": 129918
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_5.uasset": {
+      "hash": "sha256:4f1ef69776539e033809e5db64332a962c64ad6e2e6747f40e7b2cc72fccc3b5",
+      "size": 122771
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_6.uasset": {
+      "hash": "sha256:98914756a57fd77d24bc31d59efed65608b06ca1685f885f2b24ac9937aaf59d",
+      "size": 121010
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_7.uasset": {
+      "hash": "sha256:e88cf8c79d3e58ce175897a0960e6e2417165fba5f467ec4a09a016682ffde97",
+      "size": 117249
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_8.uasset": {
+      "hash": "sha256:13262aaff8ab3e48c6fe89df57a0f238be4fe8b7efd80ee27aec7b57207f29fa",
+      "size": 119543
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Metal_Thin/MI_Metal_Thin_9.uasset": {
+      "hash": "sha256:553e1396644abe0b2449c91950e66686ff8d76b56ee278fb9658e74617a0b72f",
+      "size": 117472
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Plastic/MI_Plastic_1.uasset": {
+      "hash": "sha256:90afbeb147bfce08cd393e5a53e0b8d5876cb5e51bf095b94e695e57e4a44eba",
+      "size": 101557
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Plastic/MI_Plastic_2.uasset": {
+      "hash": "sha256:9ba804c6163b271b45e13bfd79a141b3b296348ee1baca09c4cb5e1ef9023dd9",
+      "size": 96213
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Plastic/MI_Plastic_3.uasset": {
+      "hash": "sha256:26ec203bb0d0382bace1e039a6231b7335a0a0f24569a39e22eff13f4a05484f",
+      "size": 99671
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Plastic/MI_Plastic_4.uasset": {
+      "hash": "sha256:12600a04d7f6a8161a9abfb3d7a7f83d7af9377de4a813570d7d997c1717aceb",
+      "size": 100524
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Plastic/MI_Plastic_5.uasset": {
+      "hash": "sha256:86b974cc419755f2ddc75ab5214a568d1054bb5ea513f7f3d9b23b46f5a757ea",
+      "size": 99769
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Reinforced/MI_Reinforced_1.uasset": {
+      "hash": "sha256:ff880071c384e8e5d33e13df569480d98be112841779ad91308bbff6a6eb2cea",
+      "size": 142383
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Reinforced/MI_Reinforced_2.uasset": {
+      "hash": "sha256:c0f43f48a9c6480d08b20cd212e1cf1873d2afab2277e0656e8a9af8acf1c3bc",
+      "size": 130972
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Reinforced/MI_Reinforced_3.uasset": {
+      "hash": "sha256:25f2580aa39f5717de924a30b11bad4ede9c7e7fcbeae123453d8ef6181ac33f",
+      "size": 140439
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Reinforced/MI_Reinforced_4.uasset": {
+      "hash": "sha256:0c301cd8d20ff9e4694291ffefddbcf87f6dbe92419b5b0bbbb9d0d6997e8a38",
+      "size": 147307
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Reinforced/MI_Reinforced_5.uasset": {
+      "hash": "sha256:c43b8385f175a27e685f6eb7d2a8b9d96d6d7364c1c939393fe438c8a0a6e0c1",
+      "size": 140839
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rock/MI_Rock_1.uasset": {
+      "hash": "sha256:d6a5fd13f286dad86bebe3cc5824743643c8eaa33192764df9c9a69b769ac2aa",
+      "size": 130043
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rock/MI_Rock_2.uasset": {
+      "hash": "sha256:8e9f3a44e361abb9f2354d5da9eef055887cde35dbe9efff8d34015a2a31cf1a",
+      "size": 124296
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rock/MI_Rock_3.uasset": {
+      "hash": "sha256:ed2a85d9edce142ce99c68cd54e7c49d0deca269daaa28ceae880f90aca26104",
+      "size": 124105
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rock/MI_Rock_4.uasset": {
+      "hash": "sha256:bb2785bc29ddd01a630791956d81e25ef22256d8bd918e3ea6a88cd13bf6972c",
+      "size": 133546
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rock/MI_Rock_5.uasset": {
+      "hash": "sha256:8baf0d2d639c236d7c851e93f78d2176ba3b51bccdb66e948ce96a1594ac568f",
+      "size": 132290
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rubber/MI_Rubber_1.uasset": {
+      "hash": "sha256:1ea06de45e646151e43c1e0ecdfee99578e1242985d25a8fea0392a511b4dc5d",
+      "size": 92624
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rubber/MI_Rubber_2.uasset": {
+      "hash": "sha256:44bcedffcf56bc0e42cdfa31cf21a0b31a7bdcfcf11e306b6a716a58274596ab",
+      "size": 98176
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rubber/MI_Rubber_3.uasset": {
+      "hash": "sha256:01ec2efbb9dc63fe3cb6262667e1dc8eebc5c48c04a1f3fe102d64aeb95eb6ae",
+      "size": 96493
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rubber/MI_Rubber_4.uasset": {
+      "hash": "sha256:4572c3e03c0313742f858e2e4126a89405161db6210813f229b5838780970aee",
+      "size": 96825
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Rubber/MI_Rubber_5.uasset": {
+      "hash": "sha256:a3243299b859abffb3cfb38ab939b1a31e6db2847bacb425ab787f623bff2f7e",
+      "size": 100178
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sand/MI_Sand_1.uasset": {
+      "hash": "sha256:9e07943953d8be315e4ff1610052ac4f139a2612268f4ac07ec361e17ad0d9fd",
+      "size": 126326
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sand/MI_Sand_2.uasset": {
+      "hash": "sha256:cf92fcb4d4bbe16a9fa38c8693c67ecf44ae26c21a7898d92711086fe243f470",
+      "size": 128740
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sand/MI_Sand_3.uasset": {
+      "hash": "sha256:f1c54175f49fe22354d177bacb6d183210d0872ac0cbd7207396c7cb795cafe1",
+      "size": 133351
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sand/MI_Sand_4.uasset": {
+      "hash": "sha256:80ab4d73531122d7acebf20112c66e12e1faa8a602aa48c8dc807869a609c14a",
+      "size": 121490
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sand/MI_Sand_5.uasset": {
+      "hash": "sha256:79faa85ee4cabc1a625c2a1795f1afb6a461f485ece4dfa559ea881cb59c4307",
+      "size": 135043
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Scratches/MI_Scratch_1.uasset": {
+      "hash": "sha256:d6ce5cc751007206beca4730220e1129417661cbcc5d9be9a26b75737e16d5f0",
+      "size": 104667
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Scratches/MI_Scratch_2.uasset": {
+      "hash": "sha256:6c97ff2d85979c4620682439990177fe281d97f98ad0dfb66491358336fa8156",
+      "size": 94612
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Scratches/MI_Scratch_3.uasset": {
+      "hash": "sha256:60d3100bce99d4490d5d4a3880ca89489d2519c79c5ba8cb9e381c5dd7aeaba4",
+      "size": 95359
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Scratches/MI_Scratch_4.uasset": {
+      "hash": "sha256:635e76745aac0a8e60f1bb82d06d97de509bf2997d87951e849b6e4a1485de28",
+      "size": 102659
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Scratches/MI_Scratch_5.uasset": {
+      "hash": "sha256:3b8bae26be3bea9b9bd9374688f7a0ff393055236e02b742ecf5779a17bc21b8",
+      "size": 101579
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sheetrock/MI_Sheetrock_1.uasset": {
+      "hash": "sha256:fd8cae3ab22eaea8201d2a09da3132bfe34be0893d0a797b5e89aa8b5a0b1adf",
+      "size": 109913
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sheetrock/MI_Sheetrock_2.uasset": {
+      "hash": "sha256:4aaa0f1c3fee671bfefca5c9e7353958eb2e2c6315a10af4ac0eaca04d07013c",
+      "size": 105993
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sheetrock/MI_Sheetrock_3.uasset": {
+      "hash": "sha256:ac29291fb1cd8ac54af08f0901385e745b8d57b06b53ca399ecfd8d786294954",
+      "size": 113281
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sheetrock/MI_Sheetrock_4.uasset": {
+      "hash": "sha256:d8e5935f0f75422159278a4c29a94035ff55dfdf2e93a481ffd15987925b949c",
+      "size": 112210
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Sheetrock/MI_Sheetrock_5.uasset": {
+      "hash": "sha256:4b231d8fcd067a7b49fc8422a104f9b3c38b9d92dff0bd1fa9469790da121619",
+      "size": 105519
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_1.uasset": {
+      "hash": "sha256:6c685831ed8b1ab9b075965637e7da7bfe9609f42d3bbfaa016f1489d07e276f",
+      "size": 140508
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_10.uasset": {
+      "hash": "sha256:898c580edfece6c0445b4df10b237ba971cfea81e8a7cf71314a13ad0f22a045",
+      "size": 156813
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_2.uasset": {
+      "hash": "sha256:20229614ccbb4ee778b4fa7784a9dfa250942bafc0e71f3023c2874bf589bdbf",
+      "size": 146068
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_3.uasset": {
+      "hash": "sha256:0f0797adebc49a452340e9aca39777c9c6ffa1c063bde6028e0bfb9ced7823c7",
+      "size": 150876
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_4.uasset": {
+      "hash": "sha256:cabacc9e470ab5049de9777280410b3c516aa6c27bb88ce79d315726bbe91ad0",
+      "size": 145124
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_5.uasset": {
+      "hash": "sha256:9187f52b1daaf46c2ced83e2e2e55f79e725a8d0923a6caf8895560cd78b4e53",
+      "size": 140041
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_6.uasset": {
+      "hash": "sha256:a3b21bef4a0ddffa748af4768b2b58ac38d5a6a8e52f45fc0db0ce815f5c715e",
+      "size": 140369
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_7.uasset": {
+      "hash": "sha256:0a1b9c62fe849dd3c50de7e5a8af53c2afe66a7faf5f210f099f4e04736d01e0",
+      "size": 140118
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_8.uasset": {
+      "hash": "sha256:a373b7e123bbc044b029f88eb9fa0ecf149baf6650dc71d90126d791d598544c",
+      "size": 135346
+    },
+    "Content/UWC_Bullet_Holes/Instances/Decals/Wood/MI_Wood_9.uasset": {
+      "hash": "sha256:be2246bd7dd35843ad2c6d4aa022b8f978e7b7dbef3df109c2c793af66ed7f74",
+      "size": 155555
+    },
+    "Content/UWC_Bullet_Holes/Maps/OverviewMap.umap": {
+      "hash": "sha256:c6b916b675fb1ccb15ae38bbe420861addf2aebb17755292ba55b8f70a4d54e4",
+      "size": 1924155
+    },
+    "Content/UWC_Bullet_Holes/Maps/OverviewMap_BuiltData.uasset": {
+      "hash": "sha256:dc39810afcfdc2589e74d4ee9868f6da1ad9fcdaa811e90d6a879b37d80a4fb5",
+      "size": 37150838
+    },
+    "Content/UWC_Bullet_Holes/Materials/M_Master_Decal_Glass.uasset": {
+      "hash": "sha256:411b2b4a1a78af3b9bd81096c4715a7c9a4717fa98053acf7714202f8d40facc",
+      "size": 145866
+    },
+    "Content/UWC_Bullet_Holes/Materials/M_Master_Normal.uasset": {
+      "hash": "sha256:2b2ecfd73a869881f50ca128738a2853eef67e9101f5f356be81d72848da7fb6",
+      "size": 134612
+    },
+    "Content/UWC_Bullet_Holes/Materials/M_Master_Normal_Texture.uasset": {
+      "hash": "sha256:520262e8ec27a8eb2df7c490a1b9bcf14180008ca3a3a5bb1589ebce2b7579bf",
+      "size": 153484
+    },
+    "Content/UWC_Bullet_Holes/Materials/M_Master_POM_Decal.uasset": {
+      "hash": "sha256:a310a31da1afcb9d4a69e520d8d1c79bd575370110f74d8c543aeaa4a6d2d8ad",
+      "size": 159522
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_01_M.uasset": {
+      "hash": "sha256:5c3997e4c5d76f87bee4872c2d2cfcaf8c01c74552ab95723317f42e05ea4bdd",
+      "size": 104211
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_01_N.uasset": {
+      "hash": "sha256:ab3129eb032e05ce8969082f2f4042e3484eb6259e2e33e49435ba947424cd51",
+      "size": 4840723
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_02_M.uasset": {
+      "hash": "sha256:09130f748126449211bb25bf859c1eb5ff34847a02106917bbcf5e21665a1d70",
+      "size": 90841
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_02_N.uasset": {
+      "hash": "sha256:a40717234ee9210a76822c9c77f650457024343a71b28aed4b0f7da1436321d1",
+      "size": 4635518
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_03_M.uasset": {
+      "hash": "sha256:d2db3fd85fc8b2335ea4e90c532d482c8c8d6b849bfafa4db1bcef1e6052174f",
+      "size": 70407
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_03_N.uasset": {
+      "hash": "sha256:1a46a738fb71b7d068eef22b28717ec21c22f11fad5df2c38bb48f1ea6e36c4f",
+      "size": 4201167
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_04_M.uasset": {
+      "hash": "sha256:1c9d20ce77dcdb1f1493953ff9528a47acbd18bc952b80c958542c2b3005fd8d",
+      "size": 118903
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_04_N.uasset": {
+      "hash": "sha256:545f9f628ce09fac5a294562e9baa32161088794bd2c1ea8c2973a6eec98540f",
+      "size": 5424086
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_05_M.uasset": {
+      "hash": "sha256:6065c10c2701a5f2710543ada3b07146aa5918e3b9ca593aae63707d38924031",
+      "size": 111488
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Asphalt/T_Asphalt_05_N.uasset": {
+      "hash": "sha256:1873086f4453b9e83e0c061cc0044a1873b7117de0d1fe4b58bc428bad515200",
+      "size": 5452101
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_01_DP.uasset": {
+      "hash": "sha256:6991d8bbfa85c6a3826c0aa76a2c5d337025e9f14dc154bc92d749314029f14d",
+      "size": 258272
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_01_M.uasset": {
+      "hash": "sha256:b3aa43adb2985db748881471f2d8103a7498acea95a4d1fac7698fc31465ab98",
+      "size": 138975
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_01_N.uasset": {
+      "hash": "sha256:c3fd3d123018bdd3e29a55161de595d91127994ca0794cde965d7ab699aed2bb",
+      "size": 4950268
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_02_DP.uasset": {
+      "hash": "sha256:c63989f2e86a2139b48c49ea7205a27d327f4a06f0bc8030773b51e55f9c7fe7",
+      "size": 264249
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_02_M.uasset": {
+      "hash": "sha256:bcf553c1a1b765a9b003689dd5064a776d80d5bd7e6f0b92d3fa491e6eb2d1e0",
+      "size": 117899
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_02_N.uasset": {
+      "hash": "sha256:773d57ed73c01bd34ab2f90cedbeb5a7b7b92eb98b5cb82713c6a669f33e14cd",
+      "size": 4807207
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_03_DP.uasset": {
+      "hash": "sha256:eddd04d343d7bb09e0e9751091308302e75be0b75514cfc52a9e188f974b34d7",
+      "size": 244586
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_03_M.uasset": {
+      "hash": "sha256:675d9e27e49ef17fd5538ed4f053d6657416b949eea00786a27c5ddc5fd7b876",
+      "size": 122731
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_03_N.uasset": {
+      "hash": "sha256:dc9901dbcf2fd6c2c925bff653b76897803464081a9df35a2164f0c007824d02",
+      "size": 4591309
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_04_DP.uasset": {
+      "hash": "sha256:51b452167bc721e7893294a2e5c1d9942f77215a08eb806355f328ee48ef14f7",
+      "size": 539667
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_04_M.uasset": {
+      "hash": "sha256:82ebe0c5c732793fcba4ed8b319f63460811af071b6739fa8e5497b893bc8c55",
+      "size": 147171
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_04_N.uasset": {
+      "hash": "sha256:30b69f15dc79f210b6cfe0c0dd339a4d90316a2f0a2a1bc5da20464b758ec9f9",
+      "size": 6327338
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_05_DP.uasset": {
+      "hash": "sha256:d6edccb7d4daf9d51cf69bc0f9944d5889ed19ff57dfacd8a6c76c2c2d0bb73e",
+      "size": 217043
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_05_M.uasset": {
+      "hash": "sha256:5aaa4b52e85372fd6275a1ae7fb663bb54f4e6cd4483c8ae66684d2a5e69aca9",
+      "size": 161364
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Blasted_05_N.uasset": {
+      "hash": "sha256:2a313635cd8637fb07deadc6321851afccb84802af391221235d2ba3b4b186d8",
+      "size": 4557459
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Blasted/T_Decal_Blasted_BC.uasset": {
+      "hash": "sha256:933d0c6e6ca51f8ad3b55e2547341ee6ebb1be213bc9038ee37207cdedff95ac",
+      "size": 9617041
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_01_M.uasset": {
+      "hash": "sha256:3ca5bfaf429b67615f3a94e2063aece3bbb92d5c118585291d14685a6cca1244",
+      "size": 76297
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_01_N.uasset": {
+      "hash": "sha256:36beb7c8cf3cbf9b1c27e637b4e60e9bc55a50440db9cef4019ef48ef0fed18e",
+      "size": 5084809
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_02_M.uasset": {
+      "hash": "sha256:0d2e3a1bbb5371ff83a62ca00864926989c802d20d4c3956182cafd0ec971467",
+      "size": 72427
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_02_N.uasset": {
+      "hash": "sha256:45ffa4979e0ab5548ea29f0790c64cc1ee7bcd1f2ce965d08b84c514891f8321",
+      "size": 4918143
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_03_M.uasset": {
+      "hash": "sha256:57854b9618651eedd4d58fa2fe3e81c2228f0f1546fb639277b288631d18afc0",
+      "size": 104045
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_03_N.uasset": {
+      "hash": "sha256:ee72cd8199e32e7a3cbc0438f595714ae6511d10f4d501f816eff47c35938946",
+      "size": 5050922
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_04_M.uasset": {
+      "hash": "sha256:02ce3a89f95fae91316b01bef37f244c67c7a79b5ba32b6918ad2daae58183ea",
+      "size": 242158
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_04_N.uasset": {
+      "hash": "sha256:7d03b51f064581c5809f249211f8f4bb5d16a5fe717ada63daa79a5a4f3c076f",
+      "size": 5139510
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_05_M.uasset": {
+      "hash": "sha256:3a79e069c498e935b9cf570c92b05f024c16dc21ea044a2fbe484d87e619f97d",
+      "size": 89287
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_05_N.uasset": {
+      "hash": "sha256:47be84a37dfeb39bfd32a00e8e1cfeda5fb639d4d5939981f3f01f234ebd1687",
+      "size": 5155242
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_06_M.uasset": {
+      "hash": "sha256:dde48a9a0d4f5de992df670cf57a3190dc3c986cfe309bc2ce14fc82829fabd3",
+      "size": 99134
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_06_N.uasset": {
+      "hash": "sha256:cc32c09766713c9cef6ceb066acaa923ebcb48c03cc310265be2dc386d86ac9f",
+      "size": 4826613
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_07_M.uasset": {
+      "hash": "sha256:d401cded855c9458a87cf3ea2802d29e87c8f8409e4eba56116006f709d962e9",
+      "size": 82273
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_07_N.uasset": {
+      "hash": "sha256:efd073e8495706a276cf8f82aa5b959a9b16544c887439eb18db65037a19bbeb",
+      "size": 4695883
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_08_M.uasset": {
+      "hash": "sha256:8c32e49b132e335e7b8085ab617fe39eb3602c2fd7b4b7dedb8f31becc6d396a",
+      "size": 117940
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_08_N.uasset": {
+      "hash": "sha256:d4f47a3eff01ede5b16f7e188f25dc8f2fc787ab6bcbe9db9d147737d9fb36fa",
+      "size": 5196946
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_09_M.uasset": {
+      "hash": "sha256:8724d104d69c53cb8c24600756126b9720cb89d996ab9a341e28b009e6b1687a",
+      "size": 62466
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_09_N.uasset": {
+      "hash": "sha256:67bb50ab4030ce56f23b5fc3eb8449bb2f4bd97f15f76752615b58283c6c9931",
+      "size": 4320922
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_10_M.uasset": {
+      "hash": "sha256:74bf88c6484a2aa4451848ed718fe50b7b3bb90d28c186fbef84694f7645f966",
+      "size": 146314
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Brick/T_Brick_10_N.uasset": {
+      "hash": "sha256:bf23d0f9e1137a6c313135c781fd9300039b7500729829b78982a2bfc86f6d90",
+      "size": 5172152
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_01_M.uasset": {
+      "hash": "sha256:4db5540abf11c7e927b07d30195c41c881049e0e9273c6a3689d74d68a835d11",
+      "size": 941071
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_01_N.uasset": {
+      "hash": "sha256:63f5cbd9c2f48eb0a3b465994ecde7fd5a94a1fdf3f3509602da0b2146ae4511",
+      "size": 6269222
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_02_M.uasset": {
+      "hash": "sha256:dbdee19c0aa20ccffd258b80cea675a265739280129d051467906c49e605a1e2",
+      "size": 1101542
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_02_N.uasset": {
+      "hash": "sha256:ff422fec808ea240421fbc1214b288710d4feef67b87762d94446de5f1e10cff",
+      "size": 5272413
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_03_M.uasset": {
+      "hash": "sha256:ec57e186fe7cc6acb8b8d930bc951f541f5e2a74251cbfa1cdf9d138d5d638c9",
+      "size": 427471
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_03_N.uasset": {
+      "hash": "sha256:62c5ebbe3f1cf66a69a9987f257a4ee52c739c98cdb497c8c0e66c3152527eba",
+      "size": 5592320
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_04_M.uasset": {
+      "hash": "sha256:c8001ea66d69da6285278b426e3258dbc499d142cc9283fef5cd641c3cf017c9",
+      "size": 227775
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_04_N.uasset": {
+      "hash": "sha256:4cc68bcfd873afce69dc675209d07a8a711463bbbfa34552cc06bc439063dcbd",
+      "size": 5396030
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_05_M.uasset": {
+      "hash": "sha256:2ab9819a1973451cc553bc35002c177a7979fc4abca8e61c82e25567197aaea1",
+      "size": 124015
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Burnt_05_N.uasset": {
+      "hash": "sha256:4c923616d3f96fade42dfc48b9141a3eebfb05478b85325b69d1315c77e3f061",
+      "size": 4967778
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Decal_Burnt_01_BC.uasset": {
+      "hash": "sha256:8e84307339ac180b74361189b4966b1192251b95bfa862df0e6c14f02bdbb696",
+      "size": 5922439
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Decal_Burnt_02_BC.uasset": {
+      "hash": "sha256:8a27ec0c137c737628bd2ef0f83f1c3e8552abf95fa4e7fb37ef4d21affd05fa",
+      "size": 4630801
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Burnt/T_Decal_Burnt_03_BC.uasset": {
+      "hash": "sha256:33c7ae7291dca1f0e67a5eb84b4705c7b06adda3d86e3a449d9930a1a0ae8927",
+      "size": 9110671
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_01_M.uasset": {
+      "hash": "sha256:81835a0a224c6816a3a20cb5d9f6730ae382d49d2cd92e0d39ff994f3a95e975",
+      "size": 233466
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_01_N.uasset": {
+      "hash": "sha256:ab3098e03b2c33121bcf19642f2dd84b1b0938de4b55114ac81fbf217a28ea16",
+      "size": 6070276
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_02_M.uasset": {
+      "hash": "sha256:fc125e58737d429f8170f450b709073c46cdb110a42abe666c66cd17fb4a7aef",
+      "size": 241616
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_02_N.uasset": {
+      "hash": "sha256:e36a2ccf3464ce0cbd88f3b6259af86d18bc64cfce1204e22f90432dfd3efc99",
+      "size": 5611729
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_03_M.uasset": {
+      "hash": "sha256:299b8904f4f755940e759cb68a9869476a76600d9c2a2859f658a259c474414d",
+      "size": 222616
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_03_N.uasset": {
+      "hash": "sha256:2db488dd1a71e6868e670c7061026883b971433dd5d2ccf498f9afa91806614e",
+      "size": 6293790
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_04_M.uasset": {
+      "hash": "sha256:96d3405d14d2fd6f390521be92d297f670220a84f7ba0276724d974918a5af57",
+      "size": 265383
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_04_N.uasset": {
+      "hash": "sha256:dc52b0cbb54546876aaf8895bd585ad18bfc614cc4d2ebfd1cf82d3bd33658bb",
+      "size": 5594864
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_05_M.uasset": {
+      "hash": "sha256:d8b56f24142de0862be4ac66b8025418a00176e804853a43b7209af93e877c2b",
+      "size": 244097
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_05_N.uasset": {
+      "hash": "sha256:2b3890ba274343562f6c6f3efe70be702597378ec474efd8b2f675ce9e05dab0",
+      "size": 6741532
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_06_M.uasset": {
+      "hash": "sha256:0d1ddd576170ca54b35f77a611aa64a0db214b824e8a8f00824656d713837fbe",
+      "size": 249558
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_06_N.uasset": {
+      "hash": "sha256:8b938cb0151b4ad44301eee0985db2369a98a88802c431fb3ab3097df2951d2b",
+      "size": 6371878
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_07_M.uasset": {
+      "hash": "sha256:88d138ef4469e61341852bbc38e703bde3756160845aa514a242b1ada81ebdf0",
+      "size": 233350
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_07_N.uasset": {
+      "hash": "sha256:3aea0b61564e930067f37ad40170d8f1db4e1640743d5c954160d774e678705d",
+      "size": 6684040
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_08_M.uasset": {
+      "hash": "sha256:a87d266732bd4e7c8ceb5351a75344adfa90a1a1a8afb68f3937396aa3c57efb",
+      "size": 184017
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_08_N.uasset": {
+      "hash": "sha256:c7c9b53afa78a373e8ef3295ef9e66121f9e882b048facae22d607fe324e6403",
+      "size": 6518151
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_09_M.uasset": {
+      "hash": "sha256:482cf667981afa1463f517e67865b321bb9471f541850e844cd826d4687b1a97",
+      "size": 161464
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_09_N.uasset": {
+      "hash": "sha256:b3a06fce0977183955ad681cd69c763a3e3620a9471b1c50c2227f462abae6a4",
+      "size": 5734971
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_10_M.uasset": {
+      "hash": "sha256:d375795889ec933b31d71f1107a1abcd6a92dc2630b41ea697c69c9309a17e58",
+      "size": 232342
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_10_N.uasset": {
+      "hash": "sha256:f17f4a5876688b6ea6e96c8ca697b2a2ebb660e2be022fb38cb062300496a048",
+      "size": 5485391
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ceramics/T_Ceramics_BC.uasset": {
+      "hash": "sha256:0a184e76cd33f19b16be5d1ad866a361ff59cb090fd1b6a38d83b9d58d58e014",
+      "size": 6322370
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_01_M.uasset": {
+      "hash": "sha256:48320fd9efee65d2989fbefc45f80ed5984d18b4221d772a7b8c7fc6e448ca88",
+      "size": 512844
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_01_N.uasset": {
+      "hash": "sha256:fbf81a3eb012747094c905b395e131cbf29dd4601cf181c56dd823cffe45ca60",
+      "size": 8578272
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_02_M.uasset": {
+      "hash": "sha256:a746beffd7612c91af62883513d0a35ef2394be15806b6140d956c1468cfda43",
+      "size": 640618
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_02_N.uasset": {
+      "hash": "sha256:2ea66765c2480647a1c5d920c0c28a5bdfc43342fe57696586c1d115f803747a",
+      "size": 7306129
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_03_M.uasset": {
+      "hash": "sha256:14a1bce0d77a5d5613d8cae51b1a0d06145256885a13444ba42365dec06ce7eb",
+      "size": 489842
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_03_N.uasset": {
+      "hash": "sha256:3cc836e568a2b3a4f59cd7f94f4a84a8ce622d9764f85590a2995105d3c4b698",
+      "size": 7000489
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_04_M.uasset": {
+      "hash": "sha256:345bf6b5408565066732629b6e5d473403fb4ffa2f52a20f9ef2787aa990718f",
+      "size": 979812
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_04_N.uasset": {
+      "hash": "sha256:b9943bb27580c9a8203ec15f70b07e47179682771da17e28f48d3b3bf181fd10",
+      "size": 7748484
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_05_M.uasset": {
+      "hash": "sha256:479ef593576ccb51299ea99478de03507632280ee2de65a5630f9c6de3a45e57",
+      "size": 164755
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_05_N.uasset": {
+      "hash": "sha256:b0fe13a5f83d0ce3bfba2c1c5ecad2a40ab4663841e3395c0e4f3fd6fe0380e0",
+      "size": 5668011
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_06_M.uasset": {
+      "hash": "sha256:63ce59c5eb5e5a9f44a6598dc7dbd26f48c17c505439cad5d7b9ce07553aac1f",
+      "size": 81955
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_06_N.uasset": {
+      "hash": "sha256:29d393e5381a9835558c53d5fd4b75996415823610f117269fcbbf0d47a510bf",
+      "size": 5538690
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_07_M.uasset": {
+      "hash": "sha256:d4038f0e700837158433f4b372c295c3aa4f94c877d81322e3340ae177f5a9cc",
+      "size": 75460
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_07_N.uasset": {
+      "hash": "sha256:016c67e10f452eed3a5c9ae8344ab8bb79448a3843b65cad8b0697aadfd0c86f",
+      "size": 4645236
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_08_M.uasset": {
+      "hash": "sha256:f557a2c2a09800714b0ecb0b50fe91d7fdd4ea4717a86b25b3c28d25edc96e60",
+      "size": 62345
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_08_N.uasset": {
+      "hash": "sha256:5a24708356aee0f903ab4dbad677739d2e3bcdf16c0afd7185b6abe8014d5d1c",
+      "size": 4670395
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_09_M.uasset": {
+      "hash": "sha256:13d70df65935743c017184bcadc1e344751ef20a114429e91919fe7d72c5103f",
+      "size": 76454
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_09_N.uasset": {
+      "hash": "sha256:2edd17b54b5161387b0c1f93c6f4ed259172b13dda92376db8b563e7c87484c4",
+      "size": 5989038
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_10_M.uasset": {
+      "hash": "sha256:503f9901d0ff2815cb70c4e9a96be51f9fb86503e0c6129da921fd5c5e25ea9b",
+      "size": 98726
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Concrete/T_Concrete_10_N.uasset": {
+      "hash": "sha256:ac4415dbb49d9eff6fd47228505d90e1c2f57913ecf471779655da6e84889400",
+      "size": 6703499
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_01_M.uasset": {
+      "hash": "sha256:69a27217bb8feca66c195913081ca0d0f668ad42106b7d27ee2c5487bb1571fa",
+      "size": 131033
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_01_N.uasset": {
+      "hash": "sha256:5df055a3277a1e0bfbc111fdf32b687f1d06c0db7fb6ad47163f6d6641edb3b7",
+      "size": 4322978
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_02_M.uasset": {
+      "hash": "sha256:1a1d850b6d8caff289853bd29ba7fc02fbaae39481fe46f89708db6dbba2ac85",
+      "size": 139115
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_02_N.uasset": {
+      "hash": "sha256:483ce2c86245c540f86957eb4a3de4f8cab164f3e431e63c26c1af19b9575246",
+      "size": 4375511
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_03_M.uasset": {
+      "hash": "sha256:1f5f9cafc7a31c180917b31f0e23e7a769b2a210d5cf21a563e5ac443eb87e51",
+      "size": 183705
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_03_N.uasset": {
+      "hash": "sha256:5c7ba41ea485e0dcc7b899e448dccf651da940d2817f9bc58d8875a9c94aabbf",
+      "size": 5099001
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_04_M.uasset": {
+      "hash": "sha256:bb3ee4cf1a9445266dec146c0e3b6adb42c075a9921a8b1043f068cd56b7f360",
+      "size": 223581
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_04_N.uasset": {
+      "hash": "sha256:55128237629dc0751aa16e48e9db9ae82632ddee62795416cad1d18cc21e7e34",
+      "size": 4663130
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_05_M.uasset": {
+      "hash": "sha256:99ebc9ffc933bd74ec89e6d0aa4fd5e1466a1109decfd49cda69098fe4196784",
+      "size": 324381
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_05_N.uasset": {
+      "hash": "sha256:22290ac93182898cbb181b0dbb0110df17957acbac5267243c791a4575e0fd26",
+      "size": 4427893
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_06_M.uasset": {
+      "hash": "sha256:967e838bd748b1794d94a5c0ea260720f36bd4423f925c7147470ec0f41aa264",
+      "size": 242321
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_06_N.uasset": {
+      "hash": "sha256:66f6c63c2b8e91580ac3c93cf87a725c43cee9099532d9c670f8aecd31a5106a",
+      "size": 4607737
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_07_M.uasset": {
+      "hash": "sha256:30696812bbe4074a201dc09ad67f5bf9f27ea42082936f367ca55448be4a8232",
+      "size": 259705
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_07_N.uasset": {
+      "hash": "sha256:9c97aecaf28074caedd1375a60d9f8d79180cacd9ad0ef5f6802ba62a1b8c03c",
+      "size": 4547336
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_08_M.uasset": {
+      "hash": "sha256:ffd8e7ff130ea79255541393e6dfd59692035e031e304b7b7eb7c64f26494674",
+      "size": 116210
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_08_N.uasset": {
+      "hash": "sha256:f9506c17fa888603f33708106d7087538624246cfc9e643f87d997e01496057d",
+      "size": 4427587
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_09_M.uasset": {
+      "hash": "sha256:17de034a690b7bb6da090ea0fa91495413e72e80f166cc77ff1dbdd62e7790a9",
+      "size": 214756
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_09_N.uasset": {
+      "hash": "sha256:603e39a80680e9f4dccea1c7af13aa05de49cb57205f30831f0e063437df5d8e",
+      "size": 4760669
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_10_M.uasset": {
+      "hash": "sha256:eb08e8078d6668f02d25aea17e6c98fe87894ea69876d72a636584f20f2866c2",
+      "size": 138885
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Cracks/T_Cracks_10_N.uasset": {
+      "hash": "sha256:3d10a237a2777549c7b46b691ee048ff59acd67a77115000494d235d138795ce",
+      "size": 4521230
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_01_M.uasset": {
+      "hash": "sha256:76c1e2bf088aa8e520d11385b6759f3abee15ac5bf6ac7f1d2048fcfd8871191",
+      "size": 170419
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_01_N.uasset": {
+      "hash": "sha256:5d56f84998c4553f1198e79efb0f8f083f8bf2a8b2feb67269b6830bdef84ea1",
+      "size": 4288921
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_02_M.uasset": {
+      "hash": "sha256:979e6b953b2ebcdac546177dc115dcb9f4c57ac18cdeec773be798f9cf73ed4e",
+      "size": 157192
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_02_N.uasset": {
+      "hash": "sha256:fa6ab1dddce991658a51e6b6a5a1466a78714ebb95aacd1e485f2524840d952a",
+      "size": 4211293
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_03_M.uasset": {
+      "hash": "sha256:a437dda174815d1cec0127da4a00bcde28c6169e65ab3f22b273e0c39a4191bc",
+      "size": 171581
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_03_N.uasset": {
+      "hash": "sha256:391fe8f9087ce8edfd4638b0a0a53c436b4730d276474150c3baf7ad5c2370c1",
+      "size": 4188763
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_04_M.uasset": {
+      "hash": "sha256:7ef15bc5f89b9dc544f5c61176c25e123f965382e40e19931150e38eab64228a",
+      "size": 156491
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_04_N.uasset": {
+      "hash": "sha256:51f35aec6583c1630089d6c65faab1b9468ccdd41869cbe5c780b3b8e7d746b7",
+      "size": 4556160
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_05_M.uasset": {
+      "hash": "sha256:5e0297292b700f03acf9cf7a26692acec5ede90f22d05cfad1a10b8e94b3a01c",
+      "size": 137687
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Dirt/T_Dirt_05_N.uasset": {
+      "hash": "sha256:246c3e0422ec9a5b87b6ae01473e99630a10db5842afc7ff82305eeb5304ae57",
+      "size": 4473861
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_01_BC.uasset": {
+      "hash": "sha256:ba4249737a9eac362a3a3ead53dacef4746392c1982ca109615a78da34a0201f",
+      "size": 3961044
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_01_M.uasset": {
+      "hash": "sha256:dcb5fe8a2d9e479f81ae04f9aba68a36913b4384576a3ad6334fc0ba4f79055f",
+      "size": 592574
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_01_N.uasset": {
+      "hash": "sha256:0faa11022d993cc5423f13467631ff94e0fa22471d1f80a7340016582fa0aa15",
+      "size": 5194263
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_02_BC.uasset": {
+      "hash": "sha256:e996dd191e2bc6a973683d8e4340818611f16440cb44dda9848d0cfc2cc23739",
+      "size": 3974929
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_02_M.uasset": {
+      "hash": "sha256:6481d2c10ef18b48374c9ab9dc211ce49600112790f392d4d1b8000fa8141a57",
+      "size": 685898
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_02_N.uasset": {
+      "hash": "sha256:68dc94cce9d1f80ef1c1c783958d52639f4dedd930daeb8a41ac146bd017318a",
+      "size": 4862296
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_03_BC.uasset": {
+      "hash": "sha256:953d741ecb48dd03b3187d4ab70f8dd80f4f8bc06cb3216862900a929bf9d679",
+      "size": 3971135
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_03_M.uasset": {
+      "hash": "sha256:9224375b07c62b6d3713efd2efa09b931f170c2360030239adb0fbaf484a41c6",
+      "size": 719761
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_03_N.uasset": {
+      "hash": "sha256:d058a0ffd11958c234a171b3cbe1d1f88e558542eadde28aa1282dfb04c4664d",
+      "size": 4993466
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_04_BC.uasset": {
+      "hash": "sha256:2a4679c583475c3c3303cabac4d81239450f34d89ab0ea79bf191957ba4fccb7",
+      "size": 3961169
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_04_M.uasset": {
+      "hash": "sha256:b12335447ad0986122d421ec69d12ececd799f9fee125b4c0c4d22f2d1bd5d08",
+      "size": 408525
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_04_N.uasset": {
+      "hash": "sha256:1632bde8f9ad77287d2a15f88362a9d74449b1ed68effe08a7df2354973fb475",
+      "size": 4577543
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_05_BC.uasset": {
+      "hash": "sha256:a686249c701ce53f3349b685803933ab39cf2001028b55617c04f0d50d18101d",
+      "size": 3954101
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_05_M.uasset": {
+      "hash": "sha256:f47c0f9e862c2d8317c32d66097670373f8eb69a236c53c97b2e7514014ccf41",
+      "size": 455485
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Fabric/T_Fabric_05_N.uasset": {
+      "hash": "sha256:65eecfbb1bc9712e38b573bf3acfd8bc7409b04f64c715d01dafe4065321ab81",
+      "size": 4685389
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_01_M.uasset": {
+      "hash": "sha256:31725e1a786f44fb9aae0f53342c70169a392255fdd5e5922ece8cfe0fa82c6d",
+      "size": 1344837
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_01_N.uasset": {
+      "hash": "sha256:257e6cb1ce6916a9e1432a793e7fbde4c78b75abd851c0991333b9feb22b9638",
+      "size": 4607581
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_02_M.uasset": {
+      "hash": "sha256:d23563ae28397db98da4f763ebcde42413f58a0ba796712bba4f7a3212384583",
+      "size": 1615402
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_02_N.uasset": {
+      "hash": "sha256:7f3e694972474cc46a8e1878e7c7b44c57848bec51dda9a39980e4baea5f307e",
+      "size": 4222212
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_03_M.uasset": {
+      "hash": "sha256:f7efc69e45c7e43d755eb458d827b2981a53afbbf83f82b25682628caf13880a",
+      "size": 1486138
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_03_N.uasset": {
+      "hash": "sha256:c8c26093caf5ac2219100d6615ebea8120377dc0877cc8406b42a872a90dc8bc",
+      "size": 4397184
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_04_M.uasset": {
+      "hash": "sha256:bd542b0c00a97932f1f90f67e1c213e03cf38038bec6d16148a2a2a76394f1b8",
+      "size": 688281
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_04_N.uasset": {
+      "hash": "sha256:c610d6b99603ebfb9fadc9f6883b6045eaa75e0c38bc7c389f91d6b31793c2b0",
+      "size": 2204899
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_05_M.uasset": {
+      "hash": "sha256:536ee5b553b0492fa335adc4636d36661fddcebfbeb8a3b0e796a431badf7829",
+      "size": 612840
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_05_N.uasset": {
+      "hash": "sha256:d6df35c297eb1052078dba6893a86c20152c126a18ab0746d34c5351789db6aa",
+      "size": 2038824
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Flesh/T_Flesh_BC.uasset": {
+      "hash": "sha256:abe1c325cd011ab8185dbc804fb2ba7903844206491a4b7116674d306d55643d",
+      "size": 5899844
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_01_M.uasset": {
+      "hash": "sha256:96432f80ae668899f8cf2159855703ad5c0d83c2251b3a8761b948eb50f00813",
+      "size": 126715
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_01_N.uasset": {
+      "hash": "sha256:4c34dcf71e5bd90fff495c512c16b49ed3bdce7acc51e448e2794b63b8d7ce2a",
+      "size": 4009475
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_02_M.uasset": {
+      "hash": "sha256:5701b862bce8623cb5a41fc18603adcab1aef3b44124fd44b99fe33a85e1ead9",
+      "size": 146827
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_02_N.uasset": {
+      "hash": "sha256:9a1c825205ad8b16da02345bddfae3faa1f83c4f767b417b437f2ec4785e6e64",
+      "size": 4052872
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_03_M.uasset": {
+      "hash": "sha256:4ccd62af2d7eba7b616cda251b5c192c42857677cd47850785568a27fd50a591",
+      "size": 154133
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_03_N.uasset": {
+      "hash": "sha256:1dc6fed554b6fe492339bf6f7e931926c0f2ece54e0890c505ae21a5b8d71249",
+      "size": 4142280
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_04_M.uasset": {
+      "hash": "sha256:fb0af241f15f4fef72b384ae245667f94f3e504ec68e67353fd60ee177f96310",
+      "size": 143059
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_04_N.uasset": {
+      "hash": "sha256:817cdae65736e0a5f87143627d79da575f86a1c9f6a1e64521f1f5622b68dcfa",
+      "size": 4139741
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_05_M.uasset": {
+      "hash": "sha256:4d6df4d1bc0b3698d823b83d0ba40758eb21b8702814fa1a6984e4c69bfa44af",
+      "size": 171609
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Generic/T_Generic_05_N.uasset": {
+      "hash": "sha256:4331226e45d163a4c3bc8798d50aff26e08f85cdaf6f49c1e761aef8c06663c1",
+      "size": 4068957
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_01_M.uasset": {
+      "hash": "sha256:0f8560bcf0e1758c9ae699097ba497a85a156037efd831e66abde01b5f424654",
+      "size": 1374946
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_01_N.uasset": {
+      "hash": "sha256:3802c7497a61d32990efda9f6a3a6ddaa0ffc01a93bf2d0aa3bb199576c98eb1",
+      "size": 4928505
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_02_M.uasset": {
+      "hash": "sha256:5502372279b4ebd8a714d7bb08caa883936f84300e05ed71e3a5c3b44b729b14",
+      "size": 1498017
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_02_N.uasset": {
+      "hash": "sha256:aab37f711cb5b6f1d7cde6bdcf75f3367993f895feb736b7bf3a57cd85eff628",
+      "size": 4807102
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_03_M.uasset": {
+      "hash": "sha256:2bd0f7712fb0896821976f40e6fe40a70830e7dec490e8584a6d05eeaec97b08",
+      "size": 2368342
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_03_N.uasset": {
+      "hash": "sha256:86a22accf5090ce6aaea6b34e06f78ed851d8707246d4962637690659027fadc",
+      "size": 6255063
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_04_M.uasset": {
+      "hash": "sha256:70758c8cd84692459b9d9995042b1770db8e90ed754f4b472a4dd2d9bd2ddd03",
+      "size": 1077758
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_04_N.uasset": {
+      "hash": "sha256:1a77aee203b71291e749c203cd22d0f4d0c6874dcb2667064cdcd781d96b7c46",
+      "size": 5056196
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_05_M.uasset": {
+      "hash": "sha256:22ead1b0113ae9b133b9bfd8c8e3b896e24eebf9f7574393a94a56668eb7caa0",
+      "size": 3533964
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Bulletproof/T_Glass_Bulletproof_05_N.uasset": {
+      "hash": "sha256:65b50a5b6f11d9632f6358319b6cc99d5050367b30a38529fef9ebd6f80ceee8",
+      "size": 7068513
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_01_M.uasset": {
+      "hash": "sha256:80cd45b7454e64be4d3f7ac5abe6028081dc1338830c33c0383839adc842d0d9",
+      "size": 662968
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_01_N.uasset": {
+      "hash": "sha256:e386184bf17e579361fdbb5ca06b4f46bc19b41e9b82bc5e580b54edb37e2151",
+      "size": 5246254
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_02_M.uasset": {
+      "hash": "sha256:d827e36546d4128a4f98c907a16376685c0d7e65b7d8ed8894700d1921efd40d",
+      "size": 839369
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_02_N.uasset": {
+      "hash": "sha256:e939772279431f33b3954058a3083a3a5c32440ef55051795ae26414a91b5219",
+      "size": 5270353
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_03_M.uasset": {
+      "hash": "sha256:45906a97b622445c664126cd172da56eecd2a4bf7c2003e6a717c65d18a93224",
+      "size": 2317488
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_03_N.uasset": {
+      "hash": "sha256:b3cfac69e3226bc00e87744ab85cbe50fec1dde9f1d08d829ab2247d894e66e4",
+      "size": 5978635
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_04_M.uasset": {
+      "hash": "sha256:ec6ebd0b914a4743f0aef5cd65a3a5398170b59d2f83a09d0288d49224cdafd7",
+      "size": 929867
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_04_N.uasset": {
+      "hash": "sha256:9a717be783f087a4fb4687a2d1fe3e247fbda3d5c8dc9e96038dcb6b3bc97fe3",
+      "size": 5524352
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_05_M.uasset": {
+      "hash": "sha256:aefcc76e098daafa407602694d9eb132a485e5b4331c41fe8dff3e74091dab36",
+      "size": 1246764
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Common/T_Glass_Common_05_N.uasset": {
+      "hash": "sha256:95f2cec7594fe110ed425b408b21b836c6c08a6b1a720c9c2ca16d63cdf04232",
+      "size": 5850048
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_01_M.uasset": {
+      "hash": "sha256:27a794952e28cf379734364d90b308777cc68897ed61c3c4371ff5700b24813a",
+      "size": 2929597
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_01_N.uasset": {
+      "hash": "sha256:eee15a3deadcede78f0b12d392468209a3c2f690074ed7d0a82172623fd31550",
+      "size": 6986678
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_02_M.uasset": {
+      "hash": "sha256:42e3a7439288b26351a44bd4fe6438aec819f36b35d9bd9db77769dc0919c7fd",
+      "size": 1195342
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_02_N.uasset": {
+      "hash": "sha256:9eed100e438dc21f0ba46bd8073c8a5321a0822a73269e734d909644bec4d0ce",
+      "size": 6476523
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_03_M.uasset": {
+      "hash": "sha256:402b627599e472a238498dfed48afa213788934ec51a2213fafbae692f53f1ef",
+      "size": 2948834
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_03_N.uasset": {
+      "hash": "sha256:ec30fd694b3638cad254e6ed24260810de9a13c44693c99ad4d9a6055fa3133c",
+      "size": 6389430
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_04_M.uasset": {
+      "hash": "sha256:c7c7e961222fbd294cb41ea336cde324b5856dbbc2ec118b03e05acaf54745cc",
+      "size": 2610952
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_04_N.uasset": {
+      "hash": "sha256:d34bb003b547919a97464e87c2a159f68f89e7d06bbfc220f2c600b1ffbe7579",
+      "size": 6516182
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_05_M.uasset": {
+      "hash": "sha256:50cd8e11157d157cf6897273dedaf135ee9735826bfddbdb55a63aaa7d8fdfda",
+      "size": 1380598
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Glass_Windshield/T_Glass_Windshield_05_N.uasset": {
+      "hash": "sha256:bdd19715902faffd067e4f6a9d9c3c0c1cfac313679ec62917c9a4e234b3d435",
+      "size": 5889061
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_01_M.uasset": {
+      "hash": "sha256:4cc567826511af7f8b751e657fc0a0409c374e79c61e0efc910efb2e24e44444",
+      "size": 594137
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_01_N.uasset": {
+      "hash": "sha256:672c07e53fe7abdc272294aae7845b9023c0d301ad8ed249777a1b91ddbdcd69",
+      "size": 5726609
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_02_M.uasset": {
+      "hash": "sha256:c852b0f9eb558f950ab356831adf60155a12d53f2471b8d663903125de2ba6b2",
+      "size": 663209
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_02_N.uasset": {
+      "hash": "sha256:15b5ece4af01e57a682865791bd2b592fe6ff2ca77e859b7d2f991aa45db52ea",
+      "size": 6562723
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_03_M.uasset": {
+      "hash": "sha256:8e8b670a766ffc59705a65f2c6492d28d0a1a7731147a0baab4f48cae598cfec",
+      "size": 652555
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_03_N.uasset": {
+      "hash": "sha256:da4e674867de6b93fcedb1f8b8629c4a3f30036ca5a763c1c1f957a0ce8a1fc9",
+      "size": 6641753
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_04_M.uasset": {
+      "hash": "sha256:38e72ad5231352c31c50b7e508dfec324fb40b2eb55613b6febc525fac93f073",
+      "size": 627458
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_04_N.uasset": {
+      "hash": "sha256:5306b5366ac4edbb0a56760d03968cb0e42aace862868cf2508097e1b4981770",
+      "size": 6451724
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_05_M.uasset": {
+      "hash": "sha256:6bfbaf4c519fb177b33651e57736afd37cad78313ab2045e909ce7e6b589e7da",
+      "size": 587433
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_05_N.uasset": {
+      "hash": "sha256:88ee9a68aac7ceb289e9d8ae959aa2703ec554756ad7f91fdaa9a048309e81bb",
+      "size": 5801293
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Ground/T_Ground_BC.uasset": {
+      "hash": "sha256:d35093e73d75e4d0140261ae59454284c647f393a7dd98fa2b00167edafe3cad",
+      "size": 6852485
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_01_M.uasset": {
+      "hash": "sha256:699cb1925be8892f3512f5c05d83c589e6bd98336037b57107adb16338662050",
+      "size": 54240
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_01_N.uasset": {
+      "hash": "sha256:f8d86894d71edecfc82b894e776f7c8245f13cfe2b2105994ecbdba3c0ae0b0f",
+      "size": 1947427
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_02_M.uasset": {
+      "hash": "sha256:991a8cc85278bdadb5f0129364092c62ba562991533e48db5f7a7f60a2fd76f4",
+      "size": 52586
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_02_N.uasset": {
+      "hash": "sha256:23218a0ecb198ca717b7d1517f183df39ab2e2735131218be9d478eaf948fa81",
+      "size": 1964571
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_03_M.uasset": {
+      "hash": "sha256:118a60d45a930f18d2c3462e60c562f61ba6664f5ff101952a8730e07bd7be1f",
+      "size": 61952
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_03_N.uasset": {
+      "hash": "sha256:79693d5812316507d5a5da4f35160ffad96a22a7592b7489d108559287cefbc7",
+      "size": 1982086
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_04_M.uasset": {
+      "hash": "sha256:e71ef651ab35b5ca9bc292ea531be661ac8888dc461a03cb5743888713a8dab4",
+      "size": 55287
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_04_N.uasset": {
+      "hash": "sha256:49da8d5ba2d0e52ee61eaf759c72baf6dec73bfdc4a40bd5e096b472e16694b0",
+      "size": 2178119
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_05_M.uasset": {
+      "hash": "sha256:c0b6398d800d855f2e8ad7b750eea76cb3671c7ad46938b76c06758f517c6523",
+      "size": 67028
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Axe_05_N.uasset": {
+      "hash": "sha256:9d5fb94bf7368e066af80364d57172eb81994e85c4f2fe56e596bb26fdc5be2e",
+      "size": 2282688
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_01_M.uasset": {
+      "hash": "sha256:93b6724afa31e4bb10e8b70a2d4a3bc34d63eda054c09a4abc90f2351c9499a8",
+      "size": 51716
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_01_N.uasset": {
+      "hash": "sha256:d6cce34035e8a14ad75bdfa5d72dbe9e93ce6561d7b11f2a9ccb1c65ea024b7c",
+      "size": 1966976
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_02_M.uasset": {
+      "hash": "sha256:2d00dc5435004ae3e3d73a96e1cdd6e61462c9953e82092c39e20d6ff71518c8",
+      "size": 52596
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_02_N.uasset": {
+      "hash": "sha256:557f0f441ca112fe7182271eee3457b474d212c1d353fc2377d8a13a48c3b8b3",
+      "size": 1940341
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_03_M.uasset": {
+      "hash": "sha256:09a04185167ae1806c619ba97e5177459cbb460c587a33363a910e3685bcc0b1",
+      "size": 52689
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_03_N.uasset": {
+      "hash": "sha256:cbbc43f0cd83bf97783a2935c918e660258dcc35fc5620e794b16aca1bba1faf",
+      "size": 1921453
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_04_M.uasset": {
+      "hash": "sha256:1c16b3f00beff0f8394f2a335ff8de946bb1f0433973d6009e58ff2b1c4c55e2",
+      "size": 51174
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_04_N.uasset": {
+      "hash": "sha256:616c60c1a40094a5202a1d7537cb47f51cccac6d7c0d77a8e2bcdfc063ff17bd",
+      "size": 1924876
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_05_M.uasset": {
+      "hash": "sha256:7c8dc156991f2a06ecbfda8190b7d938c89a6562e06268a8347a9e3fddfb723a",
+      "size": 54383
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Hits/T_Hits_Knife_05_N.uasset": {
+      "hash": "sha256:d62a53e73fc8b40c7bcace73d162e0810aa7948a651e99b7e7f121e58efa40bb",
+      "size": 1944328
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_01_M.uasset": {
+      "hash": "sha256:1fe9d86efbb3461a4e316745a8afa8dfb12a9e379268e7bdda545b37d3dd6303",
+      "size": 833513
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_01_N.uasset": {
+      "hash": "sha256:16e5f744bb98cd1acdfbd2d39cf1f0ce60a575ab4c724f935abf391682bdb7bf",
+      "size": 5996458
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_02_M.uasset": {
+      "hash": "sha256:c0fafe72d5747196bb9afd108da19dea42ffc520fef87fea6c06b1baa369883d",
+      "size": 705257
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_02_N.uasset": {
+      "hash": "sha256:c353b272f41dca4ad70ca410608914493be6f15b1437c27b4854f89716155c70",
+      "size": 6028322
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_03_M.uasset": {
+      "hash": "sha256:4e26504cebf19110ae7cba07351f74ce4cb1c0495f12248b7051b9f964930c1d",
+      "size": 853614
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_03_N.uasset": {
+      "hash": "sha256:a3d1ddb80e883548030f193afd9e85102178c1d18eb95636911cb57a8aebae16",
+      "size": 5405507
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_04_M.uasset": {
+      "hash": "sha256:2fd30894a1fb5f9885b61b6f329221ff547a25aff83a6a74192ab77ce270f99e",
+      "size": 773299
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_04_N.uasset": {
+      "hash": "sha256:078110f94b1e6a59b7d87ebce05cab27c40e997b1cbda349fb2bb640b243d56c",
+      "size": 6714398
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_05_M.uasset": {
+      "hash": "sha256:630c3ede7c7b9c1fc43b1b435b417e121ec9f9bab12784fe02699e0d403e5660",
+      "size": 737332
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_05_N.uasset": {
+      "hash": "sha256:bbc563c76a29019f92b4784b94f71bf6334ff03902ca8eac2cd5e547471dcbdf",
+      "size": 6077099
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Armored/T_Metal_Armored_BC.uasset": {
+      "hash": "sha256:34dc076bae6f88e5f9a16f7ae2e0f0b0b9aef1372e2a957a9a5b4c9f8cf2b343",
+      "size": 6592672
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_01_M.uasset": {
+      "hash": "sha256:741eb82a5e02ae74ba0dd6ea28114b15fa6c437c1dab40f2ab68498245b35e27",
+      "size": 828695
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_01_N.uasset": {
+      "hash": "sha256:95bc934136fb863a17f447e1805e043321e0b01a0846bd2a41e2943e0920bf52",
+      "size": 4530234
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_02_M.uasset": {
+      "hash": "sha256:484abd223d86114f6f5f891b2c30ba242605ee54b1dd2e532ab625bcd15dd692",
+      "size": 699000
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_02_N.uasset": {
+      "hash": "sha256:5283f372f83cfa4aaa3f9f0754a8950acd133435b6cc324a355465272a5ae540",
+      "size": 5025904
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_03_M.uasset": {
+      "hash": "sha256:3645672c44682b6e3342732640ba2604b06987e1d78bb05dc69e9084d71d2015",
+      "size": 802248
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_03_N.uasset": {
+      "hash": "sha256:da1649477dbef13cfbbd9042e98100584ba842b720410015913c6cb9bd7ae4fe",
+      "size": 5640572
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_04_M.uasset": {
+      "hash": "sha256:e87548329a0b2fc266bea9d9de5278dfaf34daa33a26f7721f6200b6b85d83d7",
+      "size": 627207
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_04_N.uasset": {
+      "hash": "sha256:55efce89d0f121cfa68eecb67d83af21435ffdea100999e73f4ade274f1f660c",
+      "size": 4622320
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_05_M.uasset": {
+      "hash": "sha256:e102c7bdcb8ac919b6bf137ece321b602ca0390769670f187c7844585baf11d7",
+      "size": 689817
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_05_N.uasset": {
+      "hash": "sha256:5363e96f50fb46e258e06d55f9e6acf6ba74506e0b87d1025bf6de47c079b64d",
+      "size": 4851648
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Solid/T_Metal_Solid_BC.uasset": {
+      "hash": "sha256:ec441439f14ce275668682f882e0e93b3ba417db4b657ba187b0fa0f1a30201c",
+      "size": 3499983
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_01_BC.uasset": {
+      "hash": "sha256:d4e9ceb2fa636e10d711ef1014ec11ab010ed2740d4b6666ae281d0eefeba2a2",
+      "size": 7915797
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_01_M.uasset": {
+      "hash": "sha256:ae20baf3b51105abc5510294e7c7701ad1f767a93f57d8fbcb13c1ca28e62b7c",
+      "size": 552890
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_01_N.uasset": {
+      "hash": "sha256:ee79f541afe266e9593c240cd61ef0a00da396f54f9b421e33ac395290fe03ed",
+      "size": 3964049
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_02_BC.uasset": {
+      "hash": "sha256:cfd463fb987e8fb1b2df362047e65cc264a210fd4e4d4447b06527a399c0df29",
+      "size": 6203060
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_02_M.uasset": {
+      "hash": "sha256:42e88f40f767b42815085d703787059ea05e51351ec1dcf4ef139a2631335de2",
+      "size": 420729
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_02_N.uasset": {
+      "hash": "sha256:a6837a08d3bf14cc85cdc769539add3805e8c24cc8fdd5c1daa2e7d552af7b77",
+      "size": 4028621
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_03_BC.uasset": {
+      "hash": "sha256:f4d6d68c1883966cbf9fd0bfccba044229a695ad5d1bb0d5c5b2f87e1fece7a2",
+      "size": 6058900
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_03_M.uasset": {
+      "hash": "sha256:8dc4ec9d8c3e722e8b8cd7ecacea47fcb873bb29207804399a63e188b8808642",
+      "size": 291308
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_03_N.uasset": {
+      "hash": "sha256:78590c75ddd664588f95aaf1717a11bb5207b50044bb83f38ee21fe7fbf20ba5",
+      "size": 3988382
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_04_BC.uasset": {
+      "hash": "sha256:03ce6ed931d7cd6fa0a3d5e3cb7857aab776ae889caa2a84fc5a623369f356a8",
+      "size": 5025633
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_04_M.uasset": {
+      "hash": "sha256:235697eda1875afd261ad2bba0785460a1e8b41c2a03460ed1635fcedea0928d",
+      "size": 295116
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_04_N.uasset": {
+      "hash": "sha256:8132255c240b49a05df954001cadc4008a603b625478f682432ee88a8b1c9e71",
+      "size": 3410412
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_05_BC.uasset": {
+      "hash": "sha256:1ab3ab7bcd4ed8de1bcf996c778c575ab91a23653330910e88c2bb5edcfc666c",
+      "size": 4994606
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_05_M.uasset": {
+      "hash": "sha256:2d11867ba1d632557a28b37ddb4571833be308aba011db73025393c1556e20c8",
+      "size": 443068
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_05_N.uasset": {
+      "hash": "sha256:437bb6650f2e095d3059c3e5a800e36882ec4520d9336686954493ef4a03c0cc",
+      "size": 3948086
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_06_BC.uasset": {
+      "hash": "sha256:472c0c2d531ae51d12c74b617088f031152e5df6c1a9fc4c22cd55c9159134b7",
+      "size": 4424191
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_06_M.uasset": {
+      "hash": "sha256:b7e15a2e0c538161de25e22eec7bc41014bc2910c912e0b9c30b2b52acfb1409",
+      "size": 104310
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_06_N.uasset": {
+      "hash": "sha256:4db3687c7153f3a17b0bed61819862504a45eabd986d0b0434092fc60a55946b",
+      "size": 4075165
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_07_BC.uasset": {
+      "hash": "sha256:95c23aa08c123e2531db5d3f30f23398542960df8012e12ed6f56dd5098ddc42",
+      "size": 4421811
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_07_M.uasset": {
+      "hash": "sha256:3af32f246e9d2ffd4bcd744ed197f75a56d59297fe393b031dc4ac93ffaa2eb6",
+      "size": 98195
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_07_N.uasset": {
+      "hash": "sha256:cbd4723d403222715830ce9522afd396d324073ce9d6e265023f9296c21795a3",
+      "size": 4033988
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_08_BC.uasset": {
+      "hash": "sha256:8d597c0372c71f9bfe47ca90e514fd2aeddfef713ae206fd005ad2fd07819f6b",
+      "size": 4402481
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_08_M.uasset": {
+      "hash": "sha256:35ef7f85b9b80629dd28ffd0ec3073f95742496c70d94b633a48a6286efe6e5c",
+      "size": 119030
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_08_N.uasset": {
+      "hash": "sha256:dba6bdd14598629dd986cc5b40fef2eab915d26e9760bdb230fd4f3c7df19b3e",
+      "size": 3974734
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_09_BC.uasset": {
+      "hash": "sha256:25f14cac588764b592e22a4513caa76d3e97ebf2114a2637b2d003e075a0b9d1",
+      "size": 4310304
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_09_M.uasset": {
+      "hash": "sha256:7b23963cbf5f581e6b00a5edce70d01d1277fcfaf5c3f9f40d43a5a138f69b46",
+      "size": 167844
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_09_N.uasset": {
+      "hash": "sha256:b690360d9b12341987ab95599f9b19fb2883751cc092456905a8da51755ae828",
+      "size": 4201667
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_10_BC.uasset": {
+      "hash": "sha256:3af89459bca330da6337f1533ab1a8fb30971b0c9ff28cf7cfd0a94b19651971",
+      "size": 4311001
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_10_M.uasset": {
+      "hash": "sha256:57c6d9a022e94425040475e7d378ce0964d251db0fba79fcbbf6f233441f0bec",
+      "size": 105129
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Metal_Thin/T_Metal_Thin_10_N.uasset": {
+      "hash": "sha256:b4916a6eb720708b2bfbdac617466fa82dec11f7b36e00a83ec9808ae0c76a17",
+      "size": 4158085
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_01_M.uasset": {
+      "hash": "sha256:2ddfb247ddea9ab6b8734c2717c371581a8aad38db2320b0d4c2812214d5a309",
+      "size": 128006
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_01_N.uasset": {
+      "hash": "sha256:9b6419ce37444e3de5565012185a0ff6ff620543c5fb185edb5f1f2f1bfff3c3",
+      "size": 3991088
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_02_M.uasset": {
+      "hash": "sha256:ad6390d6fdf7048ad829d58d7af43cf99f5eed6054af238c7e88f9a2267a7fd1",
+      "size": 118636
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_02_N.uasset": {
+      "hash": "sha256:ede454ac1cf8f0913a347ec2c2e36d9dd7d6b7bbaf5025be3688a4e8ed9b628b",
+      "size": 3842197
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_03_M.uasset": {
+      "hash": "sha256:36e05e35e4a1744ec4ec076f2385917c8c9ee07b1ecd895dedb863dbd7447cb8",
+      "size": 113144
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_03_N.uasset": {
+      "hash": "sha256:a85932467f2fbd34635715f172eacae23d45e0003dcec4bdde6ddb22d1c11d4d",
+      "size": 3787559
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_04_M.uasset": {
+      "hash": "sha256:2233d8f8ca3557da288fe1c09fc5832bd7ffacb8294ac7e040df4124fe3a72bc",
+      "size": 133620
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_04_N.uasset": {
+      "hash": "sha256:75096ab0d58670992ea714cab6b42341c198ea2b28b36f898155e5baed994cae",
+      "size": 3798428
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_05_M.uasset": {
+      "hash": "sha256:b7e7abdb875346948b7aa761cac8f19927a635704b11a547449da79b4909e197",
+      "size": 122756
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_05_N.uasset": {
+      "hash": "sha256:c94ad08e602024f06ba28241d076f48498d510feeb6cc50b1a52fd6f9eb78e69",
+      "size": 3769555
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Plastic/T_Plastic_BC.uasset": {
+      "hash": "sha256:21920a482ac8182fbedea4806c95c5d554e03f5e554a6a85f642c142af846134",
+      "size": 1368926
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_01_M.uasset": {
+      "hash": "sha256:82149a40ad75589357cac51ca23e06d33cd3be2a067d61ddd501ceebadbc1671",
+      "size": 116346
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_01_N.uasset": {
+      "hash": "sha256:045fdea66d14263dc2b6c7a97981f16992c806deb2e5a2ce70d15b02b78dccc5",
+      "size": 5425393
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_02_M.uasset": {
+      "hash": "sha256:58e9bcd6cd192251205372fc1fdcb077a12ead6381a85946c5c74f8641278412",
+      "size": 109567
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_02_N.uasset": {
+      "hash": "sha256:1fbddc68a6846c4c2ca63f38abbde5ba35205a8874bc7e278da4f3618e7c780d",
+      "size": 4701762
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_03_M.uasset": {
+      "hash": "sha256:a56e9ba3d952cb1cd5fd78616b9891db87ce87a15706aa797d7fe154f4586fc4",
+      "size": 111575
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_03_N.uasset": {
+      "hash": "sha256:b02116050c50905033c241f361424e7d394861260b02823c8c1e68f120f558f7",
+      "size": 4989160
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_04_M.uasset": {
+      "hash": "sha256:7332a8b1a0320058ef190583d6dffb71ebf996315a8a0ad2d73e53e6321b7dfe",
+      "size": 121753
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_04_N.uasset": {
+      "hash": "sha256:c117418345eca09a24aeef06307aac9a04516945b4487ff8ea11fb7f9e9e44b7",
+      "size": 5594360
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_05_M.uasset": {
+      "hash": "sha256:e7422c7273bd928f3079a09192fb5619cc697f8d74b42a1becacecb2c546b422",
+      "size": 107740
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_05_N.uasset": {
+      "hash": "sha256:ab407eb24017722104bd5d2b5e985af5afd968fdcff425f9e8ac72ef5153d95c",
+      "size": 4996525
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Reinforced/T_Reinforced_BC.uasset": {
+      "hash": "sha256:d9889cce1ebd7e51041fce3265f3f03af4c09f5a5a7c0db607ebb0197acc286a",
+      "size": 3161834
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_01_M.uasset": {
+      "hash": "sha256:c8c2922665c33dad8c3937c5746dd1e51f8a3825314950ff220379c8cc07daa9",
+      "size": 103647
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_01_N.uasset": {
+      "hash": "sha256:622610eeadfa67bcf8c4d3211639c9823fce847e09f5a62a0d204188ab237868",
+      "size": 4615890
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_02_M.uasset": {
+      "hash": "sha256:f315906315ae99ed00815385613600691fde80615fdd75064b68353ad7b9ec29",
+      "size": 115764
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_02_N.uasset": {
+      "hash": "sha256:cce54437b69f8c68c42f0888328ff6281ccc860b8565a9e0ea54ffe06e9d0410",
+      "size": 4855885
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_03_M.uasset": {
+      "hash": "sha256:371ce91ecf1edb375065a597e18f903e4224b2cd197be7429dcad44290a44275",
+      "size": 121571
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_03_N.uasset": {
+      "hash": "sha256:a0b5b7bb86467c645c3b82b8ade7d62d553eed50fe32d84ad6ec3a59ac3cc699",
+      "size": 4614149
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_04_M.uasset": {
+      "hash": "sha256:19c6499f6ba639e36daeb9c5176c480b733ce790d53e4f7e87ac2456c710c932",
+      "size": 122629
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_04_N.uasset": {
+      "hash": "sha256:226d3357931f517e5e1d25f27f6da29d7476c0183f947ba1a689304259187a94",
+      "size": 4813835
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_05_M.uasset": {
+      "hash": "sha256:3e68a4f53dd4f6bd34d706c8c2e3d38de64805ed91525831cebb4ba07a04fbfc",
+      "size": 132491
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rock/T_Rock_05_N.uasset": {
+      "hash": "sha256:17b6e352473a2d13a2719cad0df219496954602b039f930b420aa1f3d78fe66f",
+      "size": 4539764
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_01_BC.uasset": {
+      "hash": "sha256:1c9549eea9fa34e73a1919e8c5481fe6c774afeb41fe50eb90841f7ca88f0e85",
+      "size": 6420691
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_01_M.uasset": {
+      "hash": "sha256:0d5f9a17f23ec390474313959ea5cbe2c68f72a0bb66fe41fa78e92c6f050c7f",
+      "size": 106735
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_01_N.uasset": {
+      "hash": "sha256:fbe79602f10e752067d110d20a8155cf346f6a952cb5316d9eb82abd8b2d95fd",
+      "size": 3919064
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_02_BC.uasset": {
+      "hash": "sha256:91ddc8f451e2d9767b8d0bdd74a98b90c4e487d99bca71520698b94b5196291c",
+      "size": 6433596
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_02_M.uasset": {
+      "hash": "sha256:257a104735d08a490ed5960fb8df90ae0e8ad25c7f689a6d5a20e804939c769e",
+      "size": 100438
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_02_N.uasset": {
+      "hash": "sha256:1d4bfd0293081640a060e261100aa61ba9b757e8adf416831f10c9b2b7477388",
+      "size": 3890992
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_03_BC.uasset": {
+      "hash": "sha256:a2b73811793007b96672bfbfd49f72f70342559e306df6b8ec8571fdcec3b0cc",
+      "size": 6453130
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_03_M.uasset": {
+      "hash": "sha256:3fa18c1c3b60aae043cb881c03df1b7796c6969b4bf11976f412c70cfc8a2660",
+      "size": 96501
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_03_N.uasset": {
+      "hash": "sha256:615c703cbf84c0a52af227914bbefaad367bd064d839856d5e1129ed9b76e773",
+      "size": 3901160
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_04_BC.uasset": {
+      "hash": "sha256:2cad72a3e98bca8f6fa96dc7237b2c8bbdf4c363b9eeccd7c328a0d5e5faa78c",
+      "size": 6428043
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_04_M.uasset": {
+      "hash": "sha256:98a7b1780e30aaf3982fdd42b70acdca474420baebe267589d19e0fcc241f019",
+      "size": 98777
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_04_N.uasset": {
+      "hash": "sha256:705bf5b805706f82781b1416c3eff4d07eb57496f00487f3352e76a6f50eb34b",
+      "size": 3870571
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_05_BC.uasset": {
+      "hash": "sha256:646f912d118c52fafcf8f4980dce9cb7cee8a6aaa55f06248708336fa717f4cd",
+      "size": 6379300
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_05_M.uasset": {
+      "hash": "sha256:e6a5feff5cb6b0e71fe04915aec2dde5095d6d1bc541cf513bcaf4b8f76cc57e",
+      "size": 100822
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Rubber/T_Rubber_05_N.uasset": {
+      "hash": "sha256:dbe2381e64966fd1fb1bb3c1c0702c5e64f3566904017ad1ea965278271adf58",
+      "size": 3907279
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_01_M.uasset": {
+      "hash": "sha256:828faad000156c72234ed9110b32e8fa57e94686e0998e19a07c1277d79a5753",
+      "size": 130773
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_01_N.uasset": {
+      "hash": "sha256:e6ad552582bf7a657dd6056a13ef760957ad9f096f9b3142699934d426fe71db",
+      "size": 5955971
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_02_M.uasset": {
+      "hash": "sha256:b2da9734c45eb5486b3cee0b7c9bca06b245aa0369ce22554101e620a940da95",
+      "size": 153504
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_02_N.uasset": {
+      "hash": "sha256:1a9838d880fd6b499224d1ba58f310cf4017e2bb033f4a93a52db6a7f2519b20",
+      "size": 6301702
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_03_M.uasset": {
+      "hash": "sha256:b093e3da4eae1ed92299857f249a97d84787f8039d63e2cd1e020b0b71de8ce0",
+      "size": 140069
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_03_N.uasset": {
+      "hash": "sha256:296b4fb0eff72e3e78a0ea7492a625c483f1262263e98f4ce3befc9bd70a2e4b",
+      "size": 6542886
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_04_M.uasset": {
+      "hash": "sha256:402e0a90caa2f22e2904da179bb6123d262f5a9d0e4bd50807152237c177e1c7",
+      "size": 159465
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_04_N.uasset": {
+      "hash": "sha256:818ee3374977e1007fe1c0fc256b009f1453a3e31b6ca8d21828799563f8a4f0",
+      "size": 6078919
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_05_M.uasset": {
+      "hash": "sha256:c2de2ccdd2351d1070f20f9de2e936131f6785369f7d33b2e6ce578ba14cb3f4",
+      "size": 218522
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sand/T_Sand_05_N.uasset": {
+      "hash": "sha256:1606e5c853d6b20ab65d690d3d9a7dca0fdd2ec75ea18362e723ab0b0a1264a7",
+      "size": 6085952
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_01_M.uasset": {
+      "hash": "sha256:fac0042a9b2c52e6742e265ee379e9ea68f91f8ff40529d25daf5ec4c5c32145",
+      "size": 91554
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_01_N.uasset": {
+      "hash": "sha256:6404297d497d0e0eed46061b8b7832050f34e9f62f1267d140cac40de973d16f",
+      "size": 4120025
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_02_M.uasset": {
+      "hash": "sha256:5d39613dae2df7883d77e9207bc3369a6c1b905dafd40ca98cb73c1cd532bcad",
+      "size": 71166
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_02_N.uasset": {
+      "hash": "sha256:4b6fe76da9dba291e2d600197d4a3bfe5084de9895c21a133d7a18aa8f25306d",
+      "size": 3979249
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_03_M.uasset": {
+      "hash": "sha256:46e922c75cc1e4c6a7f3fe4fa98a22e042bbc9b83cdd01a976a7be7531b81928",
+      "size": 48970
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_03_N.uasset": {
+      "hash": "sha256:b3ce5e785d64dcc57d068e7890ecb4aedfe15e30219a15e131b3b451e6e89d61",
+      "size": 3919709
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_04_M.uasset": {
+      "hash": "sha256:da64bfd01e79dc0c727df2df0904b2ccf5cc53acf0fc5b5940b36037056974bc",
+      "size": 85112
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_04_N.uasset": {
+      "hash": "sha256:395df1c8caefdabeb5925767e4ed300c5bff30326297c7c519b4cd55381ef851",
+      "size": 4110538
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_05_M.uasset": {
+      "hash": "sha256:e331208a267739f81b46d1e972dadb55d52e1f4930083f7792634dcc24fcd176",
+      "size": 93886
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Scratches/T_Scratches_05_N.uasset": {
+      "hash": "sha256:c2d9e67dead3daf5265c77f3bb8dbfca84617a88a9fc3a5e0bd67572852668e3",
+      "size": 4119766
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_01_BC.uasset": {
+      "hash": "sha256:0cc908a702050a6299f528fa6882bca13f7f3b01750f52b816e1fd33df9d3c58",
+      "size": 5711182
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_01_M.uasset": {
+      "hash": "sha256:a62ed5ebdd2a4fccb7ed7bfae869d34dc25341ae0a12897ba7f3a0c1a18a5da2",
+      "size": 118617
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_01_N.uasset": {
+      "hash": "sha256:fdbc660ecc5a52dd585fdd0f5172fd8c2ca8b9ee0834def9a5c0a6a99f76c872",
+      "size": 4012051
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_02_BC.uasset": {
+      "hash": "sha256:ded81d5fb8a05a547fc25a95f8a31dc45d70a612006b7db3428f7282b0a66013",
+      "size": 5589073
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_02_M.uasset": {
+      "hash": "sha256:594841f008ebfdceed3560bb9dd533fb62da0aa5e3c8cd0732dcf6c328f1cbcc",
+      "size": 112621
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_02_N.uasset": {
+      "hash": "sha256:8c8138bc766b04238846faab7878c4e247ac78e1fe138b6358b90a1ac1676c40",
+      "size": 3978767
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_03_BC.uasset": {
+      "hash": "sha256:11735cacc6d4f68b57681387cb2d979058e428476dbc1b42b498f3ddaac2cc15",
+      "size": 5659985
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_03_M.uasset": {
+      "hash": "sha256:6678a20eb7b1b40bc5a5cdca2508ff6d32e39e2334f455f238ae29fda4ec2926",
+      "size": 113326
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_03_N.uasset": {
+      "hash": "sha256:844e6b1a18f805ab1e43cb7aded321f79101a94c17531aad0b077fc43514dc98",
+      "size": 3973429
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_04_BC.uasset": {
+      "hash": "sha256:5a6b949411f77157bdc551d8d9e604657152895a1677cfa6b454bf0bf00602fc",
+      "size": 5637804
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_04_M.uasset": {
+      "hash": "sha256:4be411660cafde498fea2b46703eaa141e543410c7b03a3391950064e267c2dc",
+      "size": 119311
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_04_N.uasset": {
+      "hash": "sha256:06249ac96eb89c96b47326ac442a621cd70e541894294052e41c9463ac7840cb",
+      "size": 3993114
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_05_BC.uasset": {
+      "hash": "sha256:653e89ba032225fd0aa61a08d2d64712348f1cf926187684bad8744731753f1a",
+      "size": 5594955
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_05_M.uasset": {
+      "hash": "sha256:f382a4f74a567b40491271fbc6e81076f9e158ecac2a49217d4a9e52cdd41d7f",
+      "size": 121172
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Sheetrock/T_Sheetrock_05_N.uasset": {
+      "hash": "sha256:c6edaa557e90b5557f1322a375858a5a2212353d5d88811b3f0a4a3f413ebd1d",
+      "size": 3968052
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_01_M.uasset": {
+      "hash": "sha256:9227b3641bde33ce015b7ae723b261a707aa381151eff5b9d6366360a9729565",
+      "size": 116223
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_01_N.uasset": {
+      "hash": "sha256:ca7de214d2f6a3d460b4b7e2cf8f00d3859ae1380d63c0c805952f8724a34622",
+      "size": 5208915
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_02_M.uasset": {
+      "hash": "sha256:1f4637feccbafb44be2f74d880fd8e306ae6b779fef6b212e309c93e93854607",
+      "size": 138070
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_02_N.uasset": {
+      "hash": "sha256:229216a95e9071d4f2d6597abfa52c0a1702db06e0185a833f272a046d03a734",
+      "size": 5421850
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_03_M.uasset": {
+      "hash": "sha256:593ebf06bdfcba1cd279b6ca3d3f811101c5ed9eeb9b38c4b4f56c9eda91a08f",
+      "size": 147378
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_03_N.uasset": {
+      "hash": "sha256:f1d9ac963af5338738d7bd95281ed9381f83a54254721ec2dd9a4d5e5f849056",
+      "size": 6005231
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_04_M.uasset": {
+      "hash": "sha256:3af542c0995642185183409d9fb6b7e0a8e3177188a54014a6b2f68daa5e7fdf",
+      "size": 138459
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_04_N.uasset": {
+      "hash": "sha256:6ba8d60e61f3b95884a977aaa56719ef9a52e3466d49c1703591a2177e58fb8e",
+      "size": 5177004
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_05_M.uasset": {
+      "hash": "sha256:feee1ebd94810aae2698d790b3cd581b1a28fb2de337cf6ee2941b574c542c29",
+      "size": 128480
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_05_N.uasset": {
+      "hash": "sha256:8d3a7de853a734784b017f2ea61aea0213a757da971ab72eafdc23d0d51bf938",
+      "size": 5265090
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_06_M.uasset": {
+      "hash": "sha256:a17bdb3884af41d9da45419d7198676b7a84b2d56f2db0937f46d44bbf90e1d1",
+      "size": 180333
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_06_N.uasset": {
+      "hash": "sha256:816c42ba2bb34972e2d6e5d17a57b6d432bf82348e760e40305d6b3419b7ac0a",
+      "size": 5423635
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_07_M.uasset": {
+      "hash": "sha256:58a2a507784747b9e428d3b3cfddb4aa3f45a71547f3c961dacce48445522902",
+      "size": 145015
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_07_N.uasset": {
+      "hash": "sha256:fa7c28702fca341693a6ad3702290919125296e4cc613ac7cf9e9f6f91d013e0",
+      "size": 5146231
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_08_M.uasset": {
+      "hash": "sha256:02b622e7690f5ba9035c8bba7d8e4b4d82033d2334dcaeeb4c3a5a7504137afc",
+      "size": 125035
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_08_N.uasset": {
+      "hash": "sha256:d7c52bebde2bb73cc37a76273acdb6fae2367bc808676fb4e7b8667266e22704",
+      "size": 4806422
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_09_M.uasset": {
+      "hash": "sha256:10e3d8e7497c6cbfc19fe9d13f4f37fc144c46e589dec88367774584a07ca47a",
+      "size": 154703
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_09_N.uasset": {
+      "hash": "sha256:6450717289672f71e5bde45ee5be4835c1813a331f7a9a9fc42757cdbec7389f",
+      "size": 5253601
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_10_M.uasset": {
+      "hash": "sha256:2bd3d655e94d15e02f32079b46d42ee67c1f17c95a6e83e8f7879115a95cb64d",
+      "size": 158682
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_10_N.uasset": {
+      "hash": "sha256:2262b89f474099e011b55ba5f96e2558a56bd5b29cd7ece1ec09eb87851d02c3",
+      "size": 5618833
+    },
+    "Content/UWC_Bullet_Holes/Textures/Decals/Wood/T_Wood_BC.uasset": {
+      "hash": "sha256:73730b491ec5573d83ebc81720e844b1dcd142a96ea1893aff963ba66bab25be",
+      "size": 8072356
     },
     "Content/Widgets/Controls.uasset": {
       "hash": "sha256:92c429ff5903f2765e832f0f446b6b9d87aba41b0931512384fff18d2cbae767",

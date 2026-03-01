@@ -115,6 +115,15 @@ void AZP_GraceCharacter::PostInitializeComponents()
 		KinemationComp->WeaponClass = WeaponClass;
 		KinemationComp->CameraComponent = FirstPersonCamera;
 		KinemationComp->PlayerMeshComponent = PlayerMesh;
+
+		// Resolve soft references and propagate decal materials
+		for (const TSoftObjectPtr<UMaterialInterface>& SoftMat : BulletDecalMaterials)
+		{
+			if (UMaterialInterface* Mat = SoftMat.LoadSynchronous())
+			{
+				KinemationComp->BulletDecalMaterials.Add(Mat);
+			}
+		}
 	}
 }
 

@@ -35,6 +35,7 @@ class USkeletalMeshComponent;
 class USkeletalMesh;
 class UAnimSequenceBase;
 class UInputAction;
+class UMaterialInterface;
 class UZP_GraceMovementConfig;
 class UZP_GraceGameplayComponent;
 class UZP_KinemationComponent;
@@ -71,6 +72,10 @@ public:
 	/** Blueprint class of weapon to spawn. Set in BP child. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
 	TSubclassOf<AActor> WeaponClass;
+
+	/** Decal materials for bullet impacts. Set in BP child via Python. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	TArray<TSoftObjectPtr<UMaterialInterface>> BulletDecalMaterials;
 
 	/** Skeletal mesh for hidden locomotion Mesh. Set in BP child. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
