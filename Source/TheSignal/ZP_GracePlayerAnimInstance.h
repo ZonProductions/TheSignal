@@ -35,6 +35,10 @@ public:
 	 *  Call AFTER animation evaluation (e.g. from Character Tick). */
 	void CopyBonesFromSource();
 
+	/** Snapshot current lower body bones and begin blending to next pose.
+	 *  Call BEFORE switching the hidden Mesh animation. */
+	void StartBoneBlend(float InterpSpeed);
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -48,4 +52,12 @@ private:
 
 	/** Returns true if BoneIdx == AncestorIdx or is a child/grandchild/etc. of AncestorIdx. */
 	bool IsDescendantOf(const FReferenceSkeleton& RefSkel, int32 BoneIdx, int32 AncestorIdx) const;
+
+	// --- Crouch Bone Blending ---
+	/** Cached lower body bone transforms from before an anim switch. */
+	TArray<FTransform> CachedLowerBodyBones;
+	/** 0 = fully cached (old pose), 1 = fully source (new pose). */
+	float BoneBlendAlpha = 1.0f;
+	/** Interp speed for bone blending — matched to camera transition. */
+	float BoneBlendInterpSpeed = 8.0f;
 };

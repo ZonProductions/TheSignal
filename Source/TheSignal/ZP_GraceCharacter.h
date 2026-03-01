@@ -88,6 +88,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
 	TObjectPtr<UAnimSequenceBase> RunAnimation;
 
+	/** Crouch idle animation for hidden locomotion mesh. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
+	TObjectPtr<UAnimSequenceBase> CrouchIdleAnimation;
+
+	/** Crouch walk animation for hidden locomotion mesh. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
+	TObjectPtr<UAnimSequenceBase> CrouchWalkAnimation;
+
 	// --- Input Actions (set in Blueprint child, e.g. BP_GraceCharacter) ---
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
@@ -142,6 +150,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
+	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
 private:
 	// --- Input Handlers ---

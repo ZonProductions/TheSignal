@@ -3,82 +3,118 @@
 # Update ticket statuses during work. Append new issues as they arise.
 
 ## PROJECT STATE
-- Phase: Kinemation integration — camera-weapon tracking FIXED, peek/headbob need repair
+- Phase: Locomotion + Crouch WORKING — full crouch system with smooth transitions
 - Branch: main (switch to proto/corridor-v1 before gameplay work)
-- Last session: C++ config consolidation — all tuning values in ZP_GraceMovementConfig.h, no DataAsset required
+- Last session: Crouch system (TICKET-012) — animations, smooth mesh transition, bone blending
 - Date: 2026-02-28
 
 ## CURRENT PRIORITIES
-1. GASP integration for locomotion + dual-mesh (TICKET-006 Phase 3) — solves K002/K003/K004
-2. Corridor prototype gameplay (TICKET-006 complete → proto/corridor-v1)
+1. TICKET-011 — Clean up diagnostic logging and tune walk/run speed thresholds
+2. Add cross-fade between idle/walk/run transitions (bone blending infra now exists)
+3. TICKET-013 — Shadow has no head (cosmetic)
+4. Corridor prototype gameplay (proto/corridor-v1)
 
 ## OPEN TICKETS
 
 ### TICKET-001 — Set up BlueprintMCP plugin
 - Status: DONE
-- Notes: Installed at Plugins/BlueprintMCP/
 
 ### TICKET-002 — Enable UE5 Python plugin
 - Status: PLANNED
 - Priority: HIGH
-- Notes: Edit > Plugins > Python Editor Script Plugin. Required for automation scripts.
 
 ### TICKET-003 — Create Python naming validation script
 - Status: PLANNED
 - Priority: MEDIUM
-- Notes: Enforce naming conventions from CLAUDE.md on all assets.
 
 ### TICKET-004 — Create base C++ classes (ZP_ foundation)
 - Status: DONE
-- Notes: All 7 ZP_ classes created, compiled clean. Old files deleted.
 
 ### TICKET-005 — Create Blueprint assets for player character
 - Status: DONE
-- Notes: All assets created. PIE tested. Peek system working. IA_Aim, IA_Crouch, IA_Fire added.
 
 ### TICKET-006 — Kinemation integration
-- Status: IN PROGRESS
-- Priority: HIGH
+- Status: DONE (Phase 3 complete)
 - Notes:
   - Phase 1 (Camera): DONE — AC_FirstPersonCamera wired, camera at FPCamera socket
   - Phase 2 (Full stack): DONE — 4 SCS components, BPI interface, weapon spawn, ABP set
-  - K001 (fire input): DONE — IA_Fire + LMB, confirmed working in PIE
-  - Reload input: DONE — IA_Reload + R key, confirmed working in PIE
-  - Camera-weapon divergence: FIXED — camera attached to FPCamera socket on PlayerMesh
-  - K002 (body clipping): DEFERRED → GASP dual-mesh architecture
-  - K003 (no lower body/locomotion): DEFERRED → GASP dual-mesh architecture
-  - K004 (no shadow): DEFERRED → GASP dual-mesh architecture
-  - Phase 3 (GASP locomotion + dual-mesh): PLANNED — solves K002/K003/K004
+  - K001 (fire input): DONE
+  - Reload input: DONE
+  - Camera-weapon divergence: FIXED
+  - K002 (body clipping): FIXED — lower body filter (spine_01+ skipped)
+  - K003 (no lower body/locomotion): FIXED — C++ bone copy from hidden Mesh
+  - K004 (no shadow): OPEN — PlayerMesh CastShadow=false in constructor (cosmetic)
+  - Phase 3 (Locomotion): DONE — C++ bone-by-name copy, NativePostEvaluateAnimation
 
 ### TICKET-007 — Cover peek system
-- Status: NEEDS FIX
-- Notes: Was working, now broken after camera-to-socket change. Camera goes up-right instead of leaning. UpdatePeek offsets are in capsule space but camera is now in socket space. Need to transform peek offsets to account for socket orientation.
+- Status: DONE (via TICKET-008)
 
 ### TICKET-008 — Fix peek system after socket change
 - Status: DONE
-- Notes: Fixed — peek and head bob offsets now transformed to socket space via ToSocketSpace() helper in UpdatePeek.
 
 ### TICKET-009 — Fix head bob
 - Status: DONE
-- Notes: Fixed — head bob re-enabled, coordinate space issue resolved alongside TICKET-008.
+
+### TICKET-010 — Body shadow missing
+- Status: DONE
+- Notes: Flipped CastShadow=true, bCastDynamicShadow=true in constructor.
+
+### TICKET-011 — Clean up locomotion diagnostic logging
+- Status: OPEN
+- Priority: LOW
+- Notes: [BoneCopy] PostEval logs every 300 frames. Remove or gate behind debug flag once stable.
+
+### TICKET-013 — Shadow has no head
+- Status: OPEN
+- Priority: LOW
+- Notes: SKM_Operator_Mono is an FPS model with no head geometry. Shadow shows headless body. Need full-body mesh with head for proper shadow, or a separate shadow-only mesh with head.
+
+### TICKET-012 — Proper crouch system
+- Status: DONE
+- Priority: HIGH
+- Notes:
+  - Crouch idle/walk anims on hidden Mesh via bIsCrouched in Tick
+  - Smooth PlayerMesh Z transition (CrouchMeshOffsetZ) — camera + arms + shadow move as one unit
+  - Bone blending in NativePostEvaluateAnimation (StartBoneBlend caches pre-switch bones, lerps to new)
+  - MaxWalkSpeedCrouched from config (100 cm/s), CrouchCameraInterpSpeed (8.0)
+  - Tick ordering: GameplayComp ticks after owner (AddTickPrerequisiteActor)
+  - Checkpoint: crouch_system_20260228e.md
 
 ## BLOCKERS
 - **BLOCKER 002:** Cannot override parent BP functions via MCP (blocks GASP camera override)
 - **BLOCKER 003:** Cannot set pin default object references reliably (partial)
 
 ## RECENTLY COMPLETED
-- **C++ config consolidation** — All movement/capsule/headbob tuning in ZP_GraceMovementConfig.h. Self-constructing default via NewObject<>() when no DataAsset assigned. Removed 16 ternary fallbacks. Checkpoint: `cpp_config_consolidation_20260228.md`
-- **Camera-to-socket fix** — camera attached to PlayerMesh at FPCamera socket. Gun now follows pitch correctly. Root cause: camera at fixed capsule position caused parallax when spine rotated.
+- **Crouch system (2026-02-28)** — TICKET-012 DONE. Crouch anims, smooth mesh transition, bone blending. Checkpoint: `crouch_system_20260228e.md`
+- **C++ bone copy pipeline (2026-02-28)** — MAJOR MILESTONE. Lower body animates from hidden Mesh via NativePostEvaluateAnimation. Upper body from Kinemation. Checkpoint: `bone_copy_working_20260228d.md`
+- **C++ config consolidation** — All movement/capsule/headbob tuning in ZP_GraceMovementConfig.h
+- **Camera-to-socket fix** — camera attached to PlayerMesh at FPCamera socket
 - Component extraction (GASP Phase 1) — ZP_GraceGameplayComponent + ZP_KinemationComponent
-- AnimBP pipeline fully verified — Pitch, Character, ShooterComponent all working
-- BaseCameraZ = 0, CameraHeightOffset no longer applied to camera position (socket drives it)
-- Checkpoint: `camera_socket_fix_20260228.md`
+
+## LOCOMOTION ARCHITECTURE (CONFIRMED WORKING)
+```
+Hidden Mesh (SKM_UEFN_Mannequin, SK_UEFN_Mannequin, 88 bones)
+  └─ AnimationSingleNode mode
+  └─ Speed-based anim switching in Character::Tick:
+       Speed < 10 → M_Neutral_Stand_Idle_Loop
+       Speed 10-150 → M_Neutral_Walk_Loop_F
+       Speed > 150 → M_Neutral_Run_Loop_F
+
+PlayerMesh (SKM_Operator_Mono, SKM_Manny_Skeleton, 173 bones)
+  └─ ABP_GracePlayer (parent: UZP_GracePlayerAnimInstance)
+  └─ AnimGraph: LinkedAnimGraph(ABP_TacticalShooter_UE5) → OutputPose
+  └─ NativePostEvaluateAnimation → CopyBonesFromSource():
+       23 lower body bones from hidden Mesh (root, pelvis, legs)
+       115 upper body bones skipped (spine_01+) = Kinemation territory
+  └─ Tick prerequisite: PlayerMesh depends on hidden Mesh
+```
 
 ## COMPONENT HIERARCHY (current)
 ```
 Capsule (root)
-  ├── PlayerMesh (RelLoc=0,0,-90, SKM_Operator_Mono, ABP_TacticalShooter_UE5)
-  │   └── FirstPersonCamera (at FPCamera socket, bUsePawnControlRotation=false)
+  ├── Hidden Mesh (SKM_UEFN_Mannequin, invisible, SingleNode anim)
+  ├── PlayerMesh (SKM_Operator_Mono, ABP_GracePlayer, FP visible)
+  │   └── FirstPersonCamera (at FPCamera socket)
   ├── ZP_GraceGameplayComponent (stamina, peek, headbob, interaction)
   ├── ZP_KinemationComponent (Kinemation wiring, weapon lifecycle)
   └── Kinemation SCS components (AC_FirstPersonCamera, AC_TacticalShooterAnimation, etc.)
@@ -86,19 +122,18 @@ Capsule (root)
 
 ## KEY ARCHITECTURE NOTES
 - Camera MUST be on FPCamera socket (not capsule) — socket attachment prevents parallax
-- AC_FirstPersonCamera drives camera ROTATION only (K2_SetWorldRotation), never position
-- BaseCameraZ = 0 — camera position driven by socket, peek/bob are offsets from socket origin
-- CameraHeightOffset (64.0f in DataAsset) is now UNUSED for camera — may be repurposed or removed
-- AnimBP (ABP_TacticalShooter_UE5) computes Pitch from control rotation → UE5_ABP_IK_Main rotates spine bones
+- **NativePostEvaluateAnimation** is THE correct place for bone modification — NOT Character::Tick
+- **BlendSpace1D in SingleNode mode is BROKEN** — use direct AnimSequence switching
+- AC_FirstPersonCamera drives camera ROTATION only, never position
+- AnimBP (ABP_TacticalShooter_UE5) computes Pitch → UE5_ABP_IK_Main rotates spine bones
 
 ## DEAD ENDS LOG
-- (check CLAUDE.md DEAD ENDS table + previous checkpoint session5b)
-- Camera on capsule root (0,0,0) matching reference BP — parallax makes gun leave FOV when pitching
-- Camera on capsule with CameraHeightOffset=64 — same parallax, gun above socket
-- IA_Move/IA_Look Axis2D callbacks never firing (session 5b) — not yet resolved, may recur
-- FPP arms-only mesh without AnimBP — invisible (bind pose not in view) — NOW RESOLVED with ABP
-- SetVisibilityBasedAnimTickOption() — not a function in UE 5.4, use direct property assignment
-- HideBoneByName("pelvis") hides entire body recursively — no per-bone control
-- SK_Shirt_01a_FPP + ABP_TacticalShooter_UE5 = invisible (confirmed dead end x2)
-- SetLeaderPoseComponent across camera/capsule attachment parents = broken bone orientation
-- Shadow-only inherited Mesh without GASP AnimBP = T-pose or broken
+- (check CLAUDE.md DEAD ENDS table + checkpoints)
+- GetEditableComponentSpaceTransforms + FinalizeBoneTransform from Tick — double-buffer, data never rendered
+- AnimGraph VariableGet → SourceMeshComponent pin — does NOT feed runtime value to anim nodes
+- BlendSpace1D in SingleNode mode — bones never change despite SNI playing
+- CopyPoseFromMesh (use_attached_parent=True) — no parent SkeletalMeshComponent on capsule
+- RetargetPoseFromMesh — SourceMeshComponent pin broken (same as CopyPoseFromMesh)
+- Camera on capsule root — parallax makes gun leave FOV when pitching
+- HideBoneByName("pelvis") — hides entire body recursively
+- SetLeaderPoseComponent across different attachment parents — broken bone orientation

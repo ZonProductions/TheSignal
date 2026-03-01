@@ -41,7 +41,7 @@ public:
 
 	/** Crouched capsule half-height (cm). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")
-	float CrouchedHalfHeight = 58.0f;
+	float CrouchedHalfHeight = 44.0f;
 
 	/** PlayerMesh Z offset from capsule origin (cm). Lines up mesh feet with capsule bottom. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")
@@ -122,6 +122,16 @@ public:
 	/** Idle camera sway amplitude in degrees. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|CameraSway")
 	float IdleSwayAmplitude = 0.3f;
+
+	// --- Crouch ---
+
+	/** Walk speed while crouched (cm/s). Slow, deliberate. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Crouch")
+	float CrouchWalkSpeed = 100.0f;
+
+	/** Interpolation speed for camera height when entering/exiting crouch. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Crouch")
+	float CrouchCameraInterpSpeed = 8.0f;
 
 	// --- Jump ---
 

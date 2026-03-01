@@ -19,6 +19,9 @@ void UZP_GraceGameplayComponent::BeginPlay()
 	AActor* Owner = GetOwner();
 	if (!Owner) return;
 
+	// Tick AFTER owner so crouch offset is set before we consume it
+	AddTickPrerequisiteActor(Owner);
+
 	// Guarantee MovementConfig is never null — create transient default if none assigned.
 	// All values come from UPROPERTY defaults in ZP_GraceMovementConfig.h.
 	if (!MovementConfig)
@@ -87,6 +90,17 @@ void UZP_GraceGameplayComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Smooth crouch camera transition — lerp compensation offset toward 0
+	if (CrouchMeshOffsetZ != 0.0f)
+	{
+		const float InterpSpeed = MovementConfig ? MovementConfig->CrouchCameraInterpSpeed : 10.0f;
+		CrouchMeshOffsetZ = FMath::FInterpTo(CrouchMeshOffsetZ, 0.0f, DeltaTime, InterpSpeed);
+		if (FMath::Abs(CrouchMeshOffsetZ) < 0.01f)
+		{
+			CrouchMeshOffsetZ = 0.0f;
+		}
+	}
+
 	if (bUseBuiltInHeadBob)
 	{
 		UpdateHeadBob(DeltaTime);
@@ -120,6 +134,13 @@ void UZP_GraceGameplayComponent::ApplyMovementConfig()
 		// Only set FOV from config.
 		CameraComponent->SetFieldOfView(MovementConfig->DefaultFOV);
 	}
+}
+
+// --- Crouch Camera ---
+
+void UZP_GraceGameplayComponent::OnCrouchHeightChanged(float HeightAdjust)
+{
+	CrouchMeshOffsetZ += HeightAdjust;
 }
 
 // --- Sprint ---
@@ -459,6 +480,7 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 		FVector MeshLoc = CachedMeshBaseLocation;
 		MeshLoc.X += PeekX;
 		MeshLoc.Y += PeekY;
+		MeshLoc.Z += CrouchMeshOffsetZ;
 		CachedMeshComponent->SetRelativeLocation(MeshLoc);
 
 		// Camera gets head bob only (socket-space transformed)
@@ -467,10 +489,12 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 	}
 	else
 	{
-		// Q peek (or no peek): camera-only peek + bob, mesh at base
+		// Q peek (or no peek): camera-only peek + bob, mesh at base + crouch offset
 		if (CachedMeshComponent)
 		{
-			CachedMeshComponent->SetRelativeLocation(CachedMeshBaseLocation);
+			FVector MeshLoc = CachedMeshBaseLocation;
+			MeshLoc.Z += CrouchMeshOffsetZ;
+			CachedMeshComponent->SetRelativeLocation(MeshLoc);
 		}
 
 		FVector CapsuleOffset(PeekX, HeadBobOffsetY + PeekY, BaseCameraZ + HeadBobOffsetZ);

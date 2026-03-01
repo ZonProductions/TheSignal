@@ -97,9 +97,41 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 {
 	Super::NativePostEvaluateAnimation();
 
+	// Advance bone blend alpha
+	if (BoneBlendAlpha < 1.0f)
+	{
+		BoneBlendAlpha = FMath::FInterpTo(BoneBlendAlpha, 1.0f, GetDeltaSeconds(), BoneBlendInterpSpeed);
+		if (BoneBlendAlpha > 0.99f)
+		{
+			BoneBlendAlpha = 1.0f;
+		}
+	}
+
 	// This runs AFTER AnimGraph evaluation, BEFORE bone transform finalization.
 	// Modifications here are part of the normal animation pipeline — no double-buffer issues.
 	CopyBonesFromSource();
+}
+
+void UZP_GracePlayerAnimInstance::StartBoneBlend(float InterpSpeed)
+{
+	// Snapshot current lower body bones before the anim switch
+	USkeletalMeshComponent* TargetMesh = GetSkelMeshComponent();
+	if (!TargetMesh || !bBoneMapBuilt) return;
+
+	const TArray<FTransform>& CurrentCS = TargetMesh->GetComponentSpaceTransforms();
+	if (CurrentCS.Num() == 0) return;
+
+	CachedLowerBodyBones.SetNum(BoneIndexMap.Num());
+	for (int32 TargetIdx = 0; TargetIdx < BoneIndexMap.Num() && TargetIdx < CurrentCS.Num(); ++TargetIdx)
+	{
+		if (BoneIndexMap[TargetIdx] != INDEX_NONE)
+		{
+			CachedLowerBodyBones[TargetIdx] = CurrentCS[TargetIdx];
+		}
+	}
+
+	BoneBlendAlpha = 0.0f;
+	BoneBlendInterpSpeed = InterpSpeed;
 }
 
 void UZP_GracePlayerAnimInstance::CopyBonesFromSource()
@@ -137,13 +169,25 @@ void UZP_GracePlayerAnimInstance::CopyBonesFromSource()
 		return;
 	}
 
+	const bool bBlending = BoneBlendAlpha < 1.0f && CachedLowerBodyBones.Num() == BoneIndexMap.Num();
+
 	int32 CopiedCount = 0;
 	for (int32 TargetIdx = 0; TargetIdx < BoneIndexMap.Num() && TargetIdx < TargetCSTransforms.Num(); ++TargetIdx)
 	{
 		const int32 SourceIdx = BoneIndexMap[TargetIdx];
 		if (SourceIdx != INDEX_NONE && SourceIdx < SourceCSTransforms.Num())
 		{
-			TargetCSTransforms[TargetIdx] = SourceCSTransforms[SourceIdx];
+			if (bBlending)
+			{
+				// Blend from cached (old pose) to source (new pose)
+				FTransform Blended;
+				Blended.Blend(CachedLowerBodyBones[TargetIdx], SourceCSTransforms[SourceIdx], BoneBlendAlpha);
+				TargetCSTransforms[TargetIdx] = Blended;
+			}
+			else
+			{
+				TargetCSTransforms[TargetIdx] = SourceCSTransforms[SourceIdx];
+			}
 			++CopiedCount;
 		}
 	}

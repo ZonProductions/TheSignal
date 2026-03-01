@@ -109,6 +109,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Config")
 	void ApplyMovementConfig();
 
+	/** Called by character on crouch start/end. HeightAdjust > 0 entering crouch, < 0 exiting. */
+	void OnCrouchHeightChanged(float HeightAdjust);
+
 	/** Head bob positional offsets (read by external systems if needed). */
 	float GetHeadBobOffsetY() const { return HeadBobOffsetY; }
 	float GetHeadBobOffsetZ() const { return HeadBobOffsetZ; }
@@ -125,6 +128,10 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UZP_EventBroadcaster> EventBroadcaster;
+
+	// --- Crouch Mesh Smoothing ---
+	/** Compensates PlayerMesh Z for instant capsule snap. Lerps to 0. */
+	float CrouchMeshOffsetZ = 0.0f;
 
 	// --- Head Bob (positional — vertical + horizontal sway) ---
 	float HeadBobTimer = 0.0f;

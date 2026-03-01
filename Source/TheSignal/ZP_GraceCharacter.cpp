@@ -47,8 +47,8 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	FirstPersonCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	FirstPersonCamera->bUsePawnControlRotation = false;
 	PlayerMesh->SetOnlyOwnerSee(true);
-	PlayerMesh->bCastDynamicShadow = false;
-	PlayerMesh->CastShadow = false;
+	PlayerMesh->bCastDynamicShadow = true;
+	PlayerMesh->CastShadow = true;
 	PlayerMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	// Gameplay component — stamina, peek, head bob, interaction trace
@@ -66,7 +66,8 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MoveComp->JumpZVelocity = 300.0f;
 	MoveComp->AirControl = 0.15f;
 	MoveComp->NavAgentProps.bCanCrouch = true;
-	MoveComp->SetCrouchedHalfHeight(58.0f);
+	MoveComp->SetCrouchedHalfHeight(44.0f);
+	MoveComp->MaxWalkSpeedCrouched = 100.0f;
 }
 
 void AZP_GraceCharacter::PostInitializeComponents()
@@ -93,6 +94,7 @@ void AZP_GraceCharacter::PostInitializeComponents()
 	MoveComp->JumpZVelocity = MovementConfig->JumpZVelocity;
 	MoveComp->AirControl = MovementConfig->AirControl;
 	MoveComp->SetCrouchedHalfHeight(MovementConfig->CrouchedHalfHeight);
+	MoveComp->MaxWalkSpeedCrouched = MovementConfig->CrouchWalkSpeed;
 
 	// Apply locomotion skeletal mesh to the hidden inherited Mesh
 	if (LocomotionSkeletalMesh)
@@ -165,16 +167,26 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Switch hidden Mesh animation based on ground speed
+	// Switch hidden Mesh animation based on ground speed and crouch state
 	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
 	{
 		const float Speed = GetVelocity().Size2D();
+		UAnimSequenceBase* DesiredAnim = nullptr;
 
-		UAnimSequenceBase* DesiredAnim = IdleAnimation;
-		if (Speed > 150.0f && RunAnimation)
-			DesiredAnim = RunAnimation;
-		else if (Speed > 10.0f && WalkAnimation)
-			DesiredAnim = WalkAnimation;
+		if (bIsCrouched)
+		{
+			DesiredAnim = CrouchIdleAnimation ? CrouchIdleAnimation : IdleAnimation;
+			if (Speed > 10.0f && CrouchWalkAnimation)
+				DesiredAnim = CrouchWalkAnimation;
+		}
+		else
+		{
+			DesiredAnim = IdleAnimation;
+			if (Speed > 150.0f && RunAnimation)
+				DesiredAnim = RunAnimation;
+			else if (Speed > 10.0f && WalkAnimation)
+				DesiredAnim = WalkAnimation;
+		}
 
 		if (DesiredAnim && SNI->GetCurrentAsset() != DesiredAnim)
 		{
@@ -184,6 +196,44 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	}
 
 	// Bone copy now happens in NativePostEvaluateAnimation (inside animation pipeline).
+}
+
+// --- Crouch ---
+
+void AZP_GraceCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	// Snapshot lower body bones BEFORE Super adjusts anything
+	if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
+	{
+		const float InterpSpeed = MovementConfig ? MovementConfig->CrouchCameraInterpSpeed : 8.0f;
+		AnimInst->StartBoneBlend(InterpSpeed);
+	}
+
+	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+
+	// Smooth camera transition — compensate for the instant capsule drop
+	if (GameplayComp)
+	{
+		GameplayComp->OnCrouchHeightChanged(ScaledHalfHeightAdjust);
+	}
+}
+
+void AZP_GraceCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	// Snapshot lower body bones BEFORE Super adjusts anything
+	if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
+	{
+		const float InterpSpeed = MovementConfig ? MovementConfig->CrouchCameraInterpSpeed : 8.0f;
+		AnimInst->StartBoneBlend(InterpSpeed);
+	}
+
+	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+
+	// Smooth camera transition — compensate for the instant capsule rise
+	if (GameplayComp)
+	{
+		GameplayComp->OnCrouchHeightChanged(-ScaledHalfHeightAdjust);
+	}
 }
 
 // --- Input Setup ---
