@@ -1,0 +1,154 @@
+# Creature Behavior Spec
+# Edit this file to define how creatures behave. Claude reads this before coding.
+# Format: STATE > TRIGGERS > ACTIONS > NOTES
+# Lines starting with # are comments. Blank lines ignored.
+# "→" means transition to that state. "!!" means important note.
+
+# ============================================================
+# GLOBAL RULES (apply to ALL states)
+# ============================================================
+
+GLOBAL:
+  CLIMBABLE: walls, fences, large flat surfaces, large pipes
+  NOT CLIMBABLE: nothing excluded — all BlockAll surfaces are climbable
+  OBSTACLE HANDLING: StepUp first (MaxStepHeight=200 UU). If StepUp fails, brief climb.
+                     Full climb only for walls >= 150 UU (MinClimbWallHeight).
+                     NO VAULT SYSTEM (removed — was dead code, looked like hopping).
+  CLIMB CREST: push over wall top scaled by wall height (ClimbStartZ → ClimbTargetZ).
+               Short fences get small pushes, tall walls get full pushes.
+  LAUNCH: short ballistic arc ONLY (like L4D Hunter). Max height ~3m above ground. Never fly.
+  DAMAGE SOURCE: ApplyDamage (single target) or ApplyRadialDamage (AoE)
+  GUNSHOT: ALL crawlers in level alerted instantly → Hunt. No distance limit.
+  INDOOR/OUTDOOR: upward trace detects ceiling. Indoor = 3D distance. Outdoor = 2D distance.
+  POST-CREST: after climbing over a wall/fence, creature redirects 180° AWAY from climb axis.
+              Never re-climbs the same obstacle. Prevents climb-drop-climb loops.
+  LANDING ON PLAYER: never land directly on player. All lunges/pounces offset 200 UU in front.
+  NO UNPROVOKED VERTICAL: creatures NEVER hop/bounce vertically during ground movement.
+              Upward Z velocity is ZERO during ground pursuit. Only climbing and launching go up.
+  PENETRATION: during climbing, push UPWARD only through wall lips. Never phase horizontally.
+               On ground, push OUT along impact normal.
+  DEATH: freeze in place (all tick/anim/timelines/timers stopped) + drop to ground via trace.
+         NO ragdoll, NO tilt, NO leg explosion. Corpse despawns after 30s.
+  SPAWN: hidden during InitialPatrolDelay (2s). Prevents visible settling (body bob, IK init).
+
+# ============================================================
+# STATE: PATROL (idle, no threat detected)
+# ============================================================
+
+STATE: Patrol
+  SPEED: 250 UU/s
+  BEHAVIOR:
+    - Ground wander within WanderRadius (1500 UU) of home position
+    - Random direction changes, pause at destinations (0.5-1.5s)
+    - Occasionally climb a wall/fence if nearby (not every wall — maybe 30% chance)
+    - After cresting a wall, redirect 180° away and continue ground patrol
+    - NOT a "climb everything" machine — walls are part of the environment, not the goal
+    - If spawned on elevated surface (walkway, platform), patrol along it — don't freeze
+  TRANSITIONS:
+    - Player detected (LOS + within 3000 UU) → Hunt
+    - Gunshot heard → Hunt (ALL crawlers, level-wide)
+  NOTES:
+    - Should feel like an animal in its territory, not a robot
+    - Ground movement is primary, walls are incidental
+
+# ============================================================
+# STATE: HUNT (actively pursuing player)
+# ============================================================
+
+STATE: Hunt
+  SPEED: 300 UU/s
+  BEHAVIOR:
+    - Direct pursuit toward player on ground
+    - Uses walls/fences as shortcuts (climb over, not around)
+    - GAZE FREEZE: ONLY when creature is ON A WALL (climbing). Freezes when player looks.
+    - ON GROUND: NO freeze. Direct charge. No hesitation.
+    - After 2s continuous LOS on ground → lunge or scurry attack (aggressive, not passive)
+    - Being fired upon → immediate Hunt + charge (gunshot response)
+    - Hearing: tracks player within 1500 UU even without LOS
+    - Retargets every 3s if not making progress
+  TRANSITIONS:
+    - Within attack range + same Z level → Attack (alternating drop/lunge)
+    - Elevated 400+ UU above player (max 800 UU) → Perch → Pounce
+    - Lose sight for 10s → Stalk
+  POUNCE RULES:
+    - Perch (freeze) for 2.5s before pouncing
+    - Max pounce height: 800 UU above player. Higher = don't pounce, come down first
+    - Pounce arc: like L4D Hunter. Short, fast, aggressive. Not a sky dive.
+    - Land 200 UU in front of player, not on top
+    - 30 damage on landing proximity
+    - 10s cooldown after landing
+  NOTES:
+    - One pace. No dashing, no speed bursts.
+    - The gaze freeze on WALLS is the horror. On ground, creature is aggressive.
+
+# ============================================================
+# STATE: STALK (lost sight, repositioning)
+# ============================================================
+
+STATE: Stalk
+  SPEED: 280 UU/s
+  BEHAVIOR:
+    - Move to elevated position near last known player location
+    - Prefer walls/fences for elevation (use WallMap)
+    - Freeze when player looks at creature (on wall or ground — stalk is sneaky)
+    - Stare aggro: if player stares for 2s → Hunt
+    - Proximity aggro: player within 500 UU → Hunt
+    - Repositions laterally, not just vertically
+  TRANSITIONS:
+    - Re-sight player → Hunt (skip Alert, no delay)
+    - Player stares 2s → Hunt
+    - Player within 500 UU → Hunt
+    - Elevated 200+ UU above player (after 8s stalk time) → Perch → Pounce
+    - 30s timeout with no re-sight → Patrol
+  POUNCE RULES:
+    - Same as Hunt pounce but lower threshold (200 UU vs 400 UU)
+    - Same max height cap (800 UU)
+    - Must have been stalking for 8s minimum before pounce allowed
+  NOTES:
+    - This is the "wall crawler" state — creature should BE on walls
+    - Closing distance without player noticing is the goal
+    - Max stalk height: 800 UU above player (no climbing to the moon)
+
+# ============================================================
+# STATE: ATTACK (in combat range)
+# ============================================================
+
+STATE: Attack
+  BEHAVIOR:
+    - Alternating: drop, lunge, drop, lunge (not random, not distance-based)
+    - DROP: Rear up (0.3s wind-up), then ground impact, 25 damage
+    - LUNGE: Short forward leap toward player, 25 damage on proximity (250 UU), land 200 UU in front
+  TRANSITIONS:
+    - Attack complete → Hunt (immediate, barely pauses)
+  COOLDOWN: 1.5s between attacks
+  NOTES:
+    - Attacks should feel relentless while in range
+    - No deliberation — creature is committed once it reaches you
+    - Lunge should NOT be a fly mechanism. Short arc, close to ground.
+
+# ============================================================
+# KNOWN ISSUES (update as problems are found/fixed)
+# ============================================================
+
+ISSUES:
+  - [FIXED] Gunshot alert: static registry bypasses FindComponentByClass. AllCrawlers TArray works.
+  - [FIXED] Vault UP blocked by fence underside: VAULT REMOVED entirely (session 21, was dead code).
+  - [FIXED] Vault staircase through columns: VAULT REMOVED (session 21).
+  - [FIXED] Ceiling bail on wall overhangs: if near ClimbTargetZ, do ceiling crest instead of bail.
+  - [FIXED] Bail cooldowns too aggressive: reduced from 1.5-2.0s down to 0.5-0.8s.
+  - [FIXED] Crest no longer clears MoveTargetActor — creature keeps hunting after wall top.
+  - [FIXED] Tiny wall crest loops: MinClimbWallHeight raised to 150 UU. StepUp handles short obstacles.
+  - [FIXED] Random flying around small fences/lampposts: vault removed, StepUp+brief climb replaces it.
+  - [FIXED] Wall phasing at crest: penetration handler now pushes UPWARD only during climb.
+  - [FIXED] Death on walls: ground-drop trace teleports corpse to floor, resets rotation.
+  - [FIXED] Spawn visible settling: creature hidden during InitialPatrolDelay.
+  - [FIXED] Legs exploding on death: removed RemoveAllLegs. Freeze in place.
+  - [FIXED] Eyes blinking after death: TActorIterator world-scan freezes all attached actors.
+  - [KNOWN] Long-range lunge fling: 2s ground LOS triggers lunge from up to 1500 UU.
+            Creatures rocket across arena. Should be gated to LungeMaxRange (350 UU) not HearingRange.
+            Not blocking MVP — fix in future polish pass.
+  - [KNOWN] WallContactTimer expiry mid-climb: creature loses wall contact on geometry changes
+            (recesses, protrusions), falls, bail cooldown. Reduced cooldowns help recovery.
+  - [KNOWN] Catwalk units: narrow walkway floor probes may block all directions.
+  - [KNOWN] Some crawlers flailing during patrol (Pieria IK + MOVE_Flying).
+  - [KNOWN] Pipes/columns climbable — no surface exclusions

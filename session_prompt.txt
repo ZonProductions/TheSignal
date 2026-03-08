@@ -1,0 +1,1105 @@
+# SESSION PROMPT — The Signal
+# Read this FIRST at the start of every Claude session.
+# Update ticket statuses during work. Append new issues as they arise.
+
+## PROJECT STATE
+- Phase: Campaign Build — past vertical slice, building actual campaign and level design
+- Branch: main
+- Last session: Level Build — BigCompany 5-Floor Stacking + Door System + Material Fixes (sessions 33-34). Built AZP_InteractDoor (E-key toggle open/close), stacked BigCompany office 5 floors via duplicate_actors, disabled pack door auto-open, created floor layer system (Window > Layers), tiled all floors with 1x1m grid for carving. Also: MI_VoidCrawler restored, decals removed (SSR fix), MI_Glass→MI_Glass_AO swap, collision fixes (CTF_USE_COMPLEX_AS_SIMPLE).
+- Date: 2026-03-08
+
+## CAMPAIGN BUILD
+- **Vertical slice complete.** Core systems proven (player, combat, creatures, inventory, save/load, UI, interaction, lock/key).
+- **Now building:** Actual campaign — level design, NPC design, narrative implementation, full game structure.
+- **TreatmentStation** remains as first playable area / proving ground for systems.
+- **Campaign structure:** Building 1 → Building 2 → Building 3 → Water Treatment Facility → Labs
+- **Building 1 (Maps_BigCompany):** 5-floor office, each floor independently editable via Layers panel. Floor tiles are 1x1m grid (FloorTile_F{n}_{col}_{row}) for carving stairwells/paths. Elevator doors reserved for keycard floor transition system (not yet built). Currently sculpting floor layouts.
+- **Alternate structure (under consideration):** Dual protagonist — Grace through B1-3, meet new character (MGS/AC playstyle), Treatment Facility, replay B1-3 as new character, Labs as both. Would require second character controller + animation set.
+
+## CURRENT PRIORITIES
+1. FIX: Grenade not consumed from inventory/quick slot after throwing (IN PROGRESS — ConsumedSlots approach failed, need weapon-class-level tracking)
+2. TICKET-046–050: Creature roster — Blind Monster, Oozling (BigBlob), Environmental Hazards (Biomass + Muscle Tentacles), Void Ink reskin. Brute DEFERRED.
+3. TICKET-042: Custom dialogue widget — Replace DemoDialogueWidget with project-styled WBP
+4. (Review remaining PLANNED tickets for next priorities)
+
+### Post-Rebuild Reminder
+After every C++ rebuild, run ALL CDO properties via MCP Python:
+```
+exec(open('C:/Users/Ommei/workspace/TheSignal/Scripts/set_all_cdo.py').read())
+```
+This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAutoSpawnWeapon=true, BulletDecalMaterials.
+
+## TICKET STATUS RULES
+# Status: DONE | IN PROGRESS | PLANNED | BLOCKED (no qualifiers, no parentheticals)
+# Priority: CRITICAL | HIGH | MEDIUM | LOW (required on every non-DONE ticket)
+# CRITICAL = blocks v0.1, cannot ship without it
+# HIGH = important for v0.1, do soon
+# MEDIUM = v0.1 nice-to-have, can defer
+# LOW = cosmetic or cleanup, do whenever
+# Category: Core | Combat | Gameplay | Narrative | Level Design | Audio | Art | Infrastructure | Tooling | Production
+
+## TICKETS
+
+### TICKET-001 — Set up BlueprintMCP plugin
+- Status: DONE
+- Priority: CRITICAL
+- Category: Tooling
+
+### TICKET-002 — Enable UE5 Python plugin
+- Status: DONE
+- Priority: HIGH
+- Category: Tooling
+
+### TICKET-003 — Create Python naming validation script
+- Status: DONE
+- Priority: MEDIUM
+- Category: Tooling
+
+### TICKET-004 — Create base C++ classes (ZP_ foundation)
+- Status: DONE
+- Priority: CRITICAL
+- Category: Core
+
+### TICKET-005 — Create Blueprint assets for player character
+- Status: DONE
+- Priority: CRITICAL
+- Category: Core
+
+### TICKET-006 — Kinemation integration
+- Status: DONE
+- Priority: CRITICAL
+- Category: Combat
+- Notes:
+  - All 3 phases complete (Camera, Full stack, Locomotion)
+  - Sub-tickets K001-K004 all resolved
+
+### TICKET-007 — Cover peek system
+- Status: DONE
+- Priority: MEDIUM
+- Category: Core
+- Notes:
+  - Resolved via TICKET-008
+
+### TICKET-008 — Fix peek system after socket change
+- Status: DONE
+- Priority: MEDIUM
+- Category: Core
+
+### TICKET-009 — Fix head bob
+- Status: DONE
+- Priority: MEDIUM
+- Category: Core
+
+### TICKET-010 — Body shadow missing
+- Status: DONE
+- Priority: MEDIUM
+- Category: Core
+
+### TICKET-011 — Clean up locomotion diagnostic logging
+- Status: DONE
+- Priority: HIGH
+- Category: Core
+- Notes:
+  - [BoneCopy] PostEval log gated behind #if !UE_BUILD_SHIPPING (session 19)
+  - Logs in Development/Debug, stripped from shipping builds
+  - One-time init log (bone map built) kept — fires once at startup
+
+### TICKET-012 — Proper crouch system
+- Status: DONE
+- Priority: HIGH
+- Category: Core
+
+### TICKET-013 — Shadow has no head
+- Status: PLANNED
+- Priority: LOW
+- Category: Art
+- Notes:
+  - SKM_Operator_Mono is FPS model with no head geometry
+  - Need full-body mesh or shadow-only mesh with head
+
+### TICKET-014 — Aim Down Sights (ADS)
+- Status: DONE
+- Priority: HIGH
+- Category: Combat
+- Notes:
+  - RMB triggers Kinemation ADS via ABP_UE5_IK_Ads
+  - Coexists with peek: Q=lean, RMB=ADS, Q+RMB=lean+ADS
+  - IsAiming set via FBoolProperty reflection (not a function)
+  - No FOV change (felt bad at 65 FOV)
+
+### TICKET-015 — Hitscan bullet system
+- Status: DONE
+- Priority: HIGH
+- Category: Combat
+- Notes:
+  - Line trace + UWC Metal_Solid decals
+  - Fire 0.25s cooldown, reload 3.0s lock
+  - Must run set_bullet_decals.py after rebuild
+
+### TICKET-016 — Moonville Inventory System Pro Integration
+- Status: DONE
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - Phase 1 (Config): DONE
+  - Phase 2 (C++): DONE
+  - Phase 3 (BP Components): DONE
+  - Phase 4 (Event Graph): DONE
+  - Phase 5 (Input): DONE
+  - Phase 6 (Weapon Bridge): DONE
+  - Validated: Key item pickup + card reader inventory check working (TICKET-024)
+  - Phase 7 (Verify/Polish): IN PROGRESS
+  - Multi-weapon EquipWeaponClass DONE — pistol, shotgun, rifle configs
+  - C++ shortcut bypass DONE — reads ShortcutIndex from ItemSlots, calls EquipWeaponClass directly (bypasses broken Moonville RPCs)
+  - SM_PoliceShotgun created at /Game/Core/Meshes/ (SKM→SM conversion via FBX export/reimport)
+  - KNOWN BUG: Pistol ShortcutIndex stays 0 (unassigned) after GrantStartingItems. Shotgun gets 2 from Moonville pickup. Key mapping is 1-based (Key1→ShortcutIndex1). Pistol unreachable via hotkey.
+  - KinemationComp owns weapon lifecycle, NOT Moonville equipment comp
+  - Moonville RPCs broken in standalone PIE: OnItemAction, SetItemShortcut_Server all fail silently
+
+### TICKET-017 — HUD / UI Foundation
+- Status: DONE
+- Priority: CRITICAL
+- Category: Art
+- Notes:
+  - **COMPLETE (2026-03-03, session 14).**
+  - C++ base class (UZP_HUDWidget) + WBP_HUD created (session 13)
+  - Health arc (TLOU-style radial, M_HealthArc material via Python script) — WIRED to HealthComp (session 14)
+  - Ammo counter (12/48 format, event-driven via OnAmmoChanged delegate)
+  - InteractionPrompt ready (Show/Hide API), Crosshair REMOVED (Grace is untrained)
+  - Health binding: HealthComp→OnHealthChanged → HUDWidget::SetHealth()
+  - **Damage vignette added (session 19):** DamageVignette BindWidgetOptional Image, M_DamageVignette (Python-built radial red gradient), fade via NativeTick (FInterpTo, speed 3.0). Material auto-loaded by path. Manual step: add DamageVignette Image to WBP_HUD (fill screen).
+
+### TICKET-018 — Interaction System
+- Status: DONE
+- Priority: CRITICAL
+- Category: Gameplay
+- Notes:
+  - Line trace from camera, interact prompt on hover
+  - Pickup/examine/use actions
+  - Interface-first (BPI_Interactable)
+  - Blocks: key pickup, door unlock, inventory pickups
+  - Must support: key items, doors, general world pickups
+
+### TICKET-019 — Game Instance + Game Mode
+- Status: DONE
+- Priority: CRITICAL
+- Category: Infrastructure
+- Notes:
+  - Resolved — GameMode already running, save/load system functional (TICKET-023)
+  - Win condition / level complete trigger can be added directly when needed
+
+### TICKET-020 — Event Broadcaster Subsystem
+- Status: DONE
+- Priority: HIGH
+- Category: Infrastructure
+- Notes:
+  - Resolved — systems communicate via delegates and interfaces directly, no central bus needed at this scale
+
+### TICKET-021 — Enemy AI + Creature Integration
+- Status: DONE
+- Priority: CRITICAL
+- Category: Gameplay
+- Notes:
+  - **MVP COMPLETE (2026-03-03, session 21).** Crawler system fully functional — movement, climbing, combat, death.
+  - Custom CMC owns ALL velocity (4 branches: slam/launch/climb/ground). No CalcVelocity. No plugin pathfinding.
+  - Behavior: Patrol→Hunt→Stalk→Attack. Perch & Pounce, hearing, stall detection, gaze aggro, proximity aggro.
+  - **Zone-based wander:** Creatures no longer need patrol points. WanderRadius (1500 UU) around spawn location.
+  - **Wall hit flow (session 21):** StepUp first → brief climb for short walls (<150 UU) → full climb for tall walls (>=150 UU). Vault system removed (was dead code).
+  - **Death (session 21):** FreezeActorHierarchy + world-scan for attached actors + ground-drop trace (corpses fall to floor from walls).
+  - **Penetration fix (session 21):** During climbing, push UPWARD only through lip transitions. Never phase horizontally through walls.
+  - **ClimbStartZ scaling (session 21):** Crest pushes proportional to wall height. Short fences get small pushes, tall walls get full pushes.
+  - Level collision: all large meshes complex-as-simple (Scripts/fix_all_generators2.py).
+  - **Future iteration:** different creature types with different HP, behaviors, seeds (builds on this baseline).
+
+### TICKET-022 — Player Health + Damage System
+- Status: DONE
+- Priority: CRITICAL
+- Category: Combat
+- Notes:
+  - **COMPLETE (2026-03-03, session 14).**
+  - UZP_HealthComponent attached to AZP_GraceCharacter (constructor, DefaultSubobject)
+  - TakeDamage override forwards damage to HealthComp
+  - HUD binding: HealthComp->OnHealthChanged → HUDWidget::OnHealthChangedHandler → SetHealth()
+  - Initial health display set in BindToCharacter()
+  - **Death state DEFERRED** — HP goes to 0 but no death/respawn yet (TICKET-028)
+  - Hit feedback (screen effects, sound, camera shake) — future polish
+
+### TICKET-023 — Enemy Health + Damage System
+- Status: DONE
+- Priority: CRITICAL
+- Category: Combat
+- Notes:
+  - **COMPLETE (2026-03-03, session 12). Death updated session 21.**
+  - UZP_HealthComponent: reusable, 100 HP default, ApplyDamage(), OnDied delegate
+  - AZP_CrawlerBase: TakeDamage override → forwards to HealthComp
+  - Hitscan: LineTraceSingleByObjectType (Pawn+WorldStatic+WorldDynamic+PhysicsBody)
+  - Damage: 10 body / 50 weak point (center mass ≤ 50 UU)
+  - Death: FreezeActorHierarchy (recursive tick/anim/timeline/timer kill) + world-scan (TActorIterator catches eye actors) + ground-drop trace (corpses fall from walls) + SetLifeSpan(30s). NO ragdoll, NO tilt, NO leg explosion.
+  - Threat system: LOS-based accumulation (20/s, 1-3x proximity scale), 5/s decay, 100 threshold → Hunt
+  - Gunshot broadcast: BroadcastGunshot() alerts all creatures within 8000 UU (3D distance), instant Hunt
+  - Creature won't climb player (CMC checks MoveTargetActor, skips climb redirect)
+
+### TICKET-024 — Key Item + Locked Door
+- Status: DONE
+- Priority: CRITICAL
+- Category: Gameplay
+- Notes:
+  - C++ classes: AZP_LockableDoor (rotate + slide modes), AZP_CardReaderPanel (auto-use, no widget), AZP_KeyPickup
+  - Assets: DA_IDCard, BP_LockableDoor, BP_CardReaderPanel, BP_KeyPickup (at /Game/Core/Actors/ and /Game/Core/Items/)
+  - Working in TreatmentStation: pickup ID card → use card reader → chain fence slides open
+  - Inventory search uses ItemSlots (main) + ShortcutSlots arrays via reflection
+
+### TICKET-025 — Level Design — TreatmentStation Vertical Slice
+- Status: DONE
+- Priority: CRITICAL
+- Category: Level Design
+- Completed: 2026-03-07
+- Summary: All base functionality proven. Vertical slice complete — core systems validated (player, combat, creatures, inventory, save/load, UI, interaction, lock/key, NPC dialogue). Moving to campaign build.
+
+### TICKET-026 — Audio — Vertical Slice Polish
+- Status: PLANNED
+- Priority: HIGH
+- Category: Audio
+- Notes:
+  - Creature sounds (idle, patrol, aggro, attack, death)
+  - Ambient horror atmosphere (facility hum, drips, distant sounds)
+  - Player sounds (footsteps, damage, weapon, interaction)
+  - Door/key interaction sounds
+  - Ship-quality — no placeholder audio
+
+### TICKET-027 — Lighting + Atmosphere
+- Status: PLANNED
+- Priority: HIGH
+- Category: Level Design
+- Notes:
+  - TreatmentStation horror lighting pass
+  - Darkness, flickering, shadows as tension tools
+  - Lumen for dynamic lighting
+  - Must support creature visibility (player needs to see threats)
+  - Ship-quality visual atmosphere
+
+### TICKET-028 — Death + Respawn
+- Status: DONE
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - What happens when Grace dies
+  - Respawn at checkpoint, restart level, or game over screen
+  - Death screen/transition
+  - Creature state reset on respawn
+
+### TICKET-029 — Pause Menu + Settings
+- Status: DONE
+- Priority: HIGH
+- Category: Art
+- Notes:
+  - **Buttons:** RESUME / SETTINGS / MAIN MENU / EXIT GAME
+  - **Confirmation dialogs:** "Return to main menu? Unsaved progress will be lost." and "Exit game? Unsaved progress will be lost."
+  - ESC toggles pause (also Resume button). Game world pauses (SetGamePaused).
+  - Settings opens as sub-screen (not separate level), Back returns to pause menu.
+  - **Settings spec:**
+    - Audio: Master Volume, SFX Volume, Music Volume (sliders)
+    - Controls: Mouse Sensitivity, Controller Sensitivity, Invert Y (sliders + toggle)
+    - Display: Brightness, Resolution, Fullscreen, VSync (slider, dropdown, toggles)
+    - Settings persist via UGameUserSettings + custom config for game-specific values
+  - **C++ classes:** UZP_PauseMenuWidget (WBP_PauseMenu), UZP_SettingsWidget (WBP_Settings), UZP_ConfirmDialogWidget (WBP_ConfirmDialog)
+  - **UI Design (SH2/RE2 style — see TICKET-039 for full design language):**
+    - Vertical list, centered on screen, generous spacing (60-80px between items)
+    - Font: Bebas Neue, 42pt, tracked +200 (all caps)
+    - Unselected: off-white (#D4D4D4), Selected: blood red (#8B1A1A)
+    - No background panel — text floats on 85% opacity black overlay
+    - Selection: subtle brightness shift + slow scale (1.0 → 1.05, 0.2s ease)
+    - Film grain overlay on pause screen (5% opacity)
+    - Settings page: labels in Cormorant Garamond 24pt, sliders minimal (thin line, small circle handle)
+  - Ship-quality — cannot release without pause functionality
+  - **Session 24 progress:**
+    - C++ TogglePauseMenu on ZP_PlayerController — ESC creates/destroys WBP_EasyPauseMenu
+    - PauseAction (IA_OpenPauseMenu) + PauseMenuWidgetClass set on PC_Grace CDO
+    - SetPause override ensures cursor/input restoration on ANY unpause path (ESC or EGUI Continue)
+    - bShouldPerformFullTickWhenPaused = true so Enhanced Input fires during pause
+    - Logo Image nodes deleted from both WBP_EasyPauseMenu and WBP_EasyMainMenu (Get Logo From Global Styling → no-op)
+    - Special Elite font imported into project
+  - GM_TheSignal HUDClass set to BP_EasyGameHUD (implements BPI_EGUI_HUDInterface — required for Options, Save/Load, Credits buttons)
+  - Settings menu smoke tested — settings changes functional
+  - **Remaining:** Thorough settings testing (all categories), font application to EGUI widgets, standalone ESC open/close testing, Save/Load flow from pause menu
+
+### TICKET-030 — Final Polish Pass
+- Status: PLANNED
+- Priority: HIGH
+- Category: Production
+- Notes:
+  - Remove all debug logging and dev overlays
+  - Performance optimization (stable 60 FPS target)
+  - Bug sweep — full playthrough with no crashes or softlocks
+  - Screen effects polish (damage vignette, low health warning)
+  - Input feel — no jank in movement, shooting, or interaction
+
+### TICKET-032 — Crawl Route System (Authored Creature Paths)
+- Status: DONE
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - **Superseded by TICKET-021 crawler system.** Crawlers navigate walls/fences organically via custom CMC (WallMap + ClimbTargetZ + StepUp). No spline system needed — emergent climbing behavior handles all surfaces. Authored horror moments can be achieved via spawn placement + behavior states (Stalk on walls, Perch at elevation).
+
+### TICKET-033 — Ambush Creature Type (Hides with Objects)
+- Status: PLANNED
+- Priority: MEDIUM
+- Category: Gameplay
+- Notes:
+  - Second creature type for future slice — ambush predator that hides with/behind/inside environment objects
+  - Stationary until player enters proximity trigger, then attacks
+  - Design space: mimic (disguised as object), lurker (behind cover), dormant (plays dead), nested (inside vents/containers)
+  - Needs: hide spots defined in level (tagged actors or dedicated markers), proximity detection, transition from hidden→attack state
+  - Horror value: paranoia — player can never trust the environment. Complements crawling creature (visible dread) with hidden dread.
+  - Procedural Monsters v2 seed system may support a distinct silhouette for this type
+  - NOT in vertical slice scope — future slice after TreatmentStation
+  - Depends on: TICKET-022 (player health), TICKET-023 (enemy health) for combat to function
+
+### TICKET-034 — Creature Attack System (Lunge + Slam)
+- Status: DONE
+- Priority: CRITICAL
+- Category: Combat
+- Notes:
+  - **COMPLETE (2026-03-03, session 14).**
+  - **Lunge:** Wind-up freeze (0.3s) → LaunchAtTarget with 200UU offset in front of player → post-landing proximity damage check (250UU radius, 25 dmg). Never lands ON the player.
+  - **Slam:** CMC-driven 3-phase: Rising (600 UU/s up) → Holding (freeze at peak, 0.4s) → Falling (2000 UU/s down) → floor impact → AoE radial damage (300UU radius, 40 dmg). IK legs extend naturally during rise.
+  - **Pounce offset fix:** All pounces (Hunt + Stalk) now launch to 200UU offset in front of player, not directly at them.
+  - **Attack state** added to behavior: ECreatureState::Attack. Stops movement, handles lunge/slam phases, safety timeout (5s), returns to Hunt on completion.
+  - **Ground attack trigger:** Hunt state, within 400UU + attack not on cooldown (5s) → random lunge or slam.
+  - **Damage pipeline:** ApplyRadialDamage (slam AoE, excludes self) + ApplyDamage (lunge/pounce single-target) → standard TakeDamage flow.
+  - Gunshot doesn't interrupt active attacks. Detection doesn't restart Hunt during Attack.
+
+### TICKET-031 — Xbox Controller Support
+- Status: IN PROGRESS
+- Priority: HIGH
+- Category: Core
+- Notes:
+  - **Phase 1 DONE (session 22):** All 15 actions mapped in IMC_Grace (move, look, fire, aim, jump, sprint, crouch, interact, reload, peek, inventory, slots 1-4)
+  - Right stick: Dead Zone (Radial 0.15), Negate Y, Scalar sensitivity
+  - Left stick: Dead Zone (Radial 0.15)
+  - Sprint: Hold trigger on L3
+  - **Remaining:** Device detection for UI prompt swapping (C++ — deferred to TICKET-018), sensitivity settings UI (deferred to TICKET-029), aim assist TBD (Grace is untrained — may skip)
+
+### TICKET-035 — Save System (C++ Backend)
+- Status: DONE
+- Priority: CRITICAL
+- Category: Infrastructure
+- Notes:
+  - **USaveGame subclass (UZP_SaveGame):**
+    - Player transform (location + rotation)
+    - Player health (current/max)
+    - Inventory state (weapon, items, ammo)
+    - Narrative flags / progression state
+    - Level name (for loading correct map)
+    - Playtime (float, seconds — formatted to HH:MM on display)
+    - Save timestamp (FDateTime)
+    - Screenshot data (TArray<uint8>, compressed JPEG)
+    - Slot index (0-4)
+  - **Save Manager (on ZP_GameInstance):**
+    - SaveToSlot(int32 SlotIndex) — captures screenshot, serializes state, writes to disk
+    - LoadFromSlot(int32 SlotIndex) — reads save, opens level, restores state
+    - GetSlotInfo(int32 SlotIndex) — returns metadata without full load (for UI display)
+    - DeleteSlot(int32 SlotIndex) — deletes save file
+    - GetMostRecentSlot() — for Continue button
+    - 5 save slots (0-4), named "SaveSlot_0" through "SaveSlot_4"
+  - **Screenshot capture:** FScreenshotRequest or UGameViewportClient::OnScreenshotCaptured at moment of save
+  - **Auto-save:** Triggered at checkpoints (specific trigger volumes in level), uses a reserved auto-save slot or overwrites oldest
+  - Depends on: TICKET-019 (GameInstance)
+
+### TICKET-036 — Main Menu
+- Status: DONE
+- Priority: HIGH
+- Category: Art
+- Notes:
+  - EGUI WBP_EasyMainMenu integrated, logo fix applied
+  - **Main menu lives in its own level** (MAP_MainMenu) — empty level with menu widget.
+  - **C++ class:** UZP_MainMenuWidget (WBP_MainMenu)
+  - **UI Design (SH2/RE2 style):**
+    - **Background:** Static or very slowly panning shot of the facility (dark, moody). OR pure black with subtle fog particle. SH2 uses static image, RE2 uses slow camera pan.
+    - **Title:** "THE SIGNAL" — Bebas Neue, 72pt, tracked +400, centered top third. Off-white (#D4D4D4). Subtle slow pulse opacity (0.85 → 1.0, 3s cycle).
+    - **Menu items:** Vertical list, left-aligned at 15% from left edge, vertically centered.
+    - Font: Bebas Neue, 36pt, tracked +300, all caps.
+    - Unselected: muted grey (#888888). Selected: off-white (#D4D4D4) with blood red (#8B1A1A) thin bar (2px) to the left (like a cursor).
+    - Items fade in sequentially on level load (0.15s stagger per item, 0.3s fade each).
+    - CONTINUE greyed out (#444444) when no saves.
+    - **Letterbox bars** top and bottom (5% height each, pure black) for cinematic framing.
+    - **Film grain overlay** (3-5% opacity, fullscreen).
+    - **No music on main menu initially** — ambient facility hum only. Music starts when game begins.
+  - Depends on: TICKET-035 (Save System for Continue/Load), TICKET-029 (shared Settings widget)
+
+### TICKET-037 — Save/Load UI
+- Status: DONE
+- Priority: HIGH
+- Category: Art
+- Notes:
+  - **Shared widget for both Save and Load modes** — UZP_SaveLoadWidget (WBP_SaveLoad)
+  - **Mode:** bIsLoadMode (true = load screen, false = save screen). Header text changes accordingly.
+  - **Layout:** 5 save slot rows, vertical scrollbox (though 5 fits without scrolling).
+  - **Each slot row contains:**
+    - Screenshot thumbnail (left side, 320x180 or 16:9 ratio, rounded corners 2px)
+    - Location name (e.g., "TreatmentStation — Processing Bay") — Cormorant Garamond 22pt, off-white
+    - Playtime ("02:34:15") — Special Elite 18pt, muted (#888888)
+    - Last saved date ("Mar 3, 2026 — 4:12 PM") — Special Elite 16pt, muted (#666666)
+    - Empty slots show: dashed border thumbnail area, "— Empty Slot —" in Cormorant Garamond italic 20pt, muted
+  - **Save mode:** Selecting an occupied slot shows overwrite confirmation dialog. Selecting empty slot saves immediately.
+  - **Load mode:** Selecting a slot loads the game. Empty slots are not selectable (greyed out).
+  - **Selection:** Hovered row gets subtle background highlight (white at 5% opacity). Selected row thumbnail border shifts to blood red (#8B1A1A).
+  - **Header:** "LOAD GAME" or "SAVE GAME" — Bebas Neue 48pt, top of screen, blood red.
+  - **Back button:** "BACK" bottom-left, Bebas Neue 24pt. ESC also goes back.
+  - **Delete save:** Hold button (gamepad Y / keyboard Delete) on occupied slot to delete. Confirmation dialog required.
+  - **No decorative borders or panels.** Rows are separated by 1px lines (#222222). Clean, minimal.
+  - Depends on: TICKET-035 (Save System backend)
+
+### TICKET-038 — Save Point Actor (Computer Terminal)
+- Status: DONE
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - **AZP_SavePoint** — interactable computer terminal in the world.
+  - Player approaches → interaction prompt appears ("Save Progress" — via existing InteractionPrompt API).
+  - Player interacts → opens Save UI (TICKET-037 in save mode). Game does NOT pause (tension — you're vulnerable while saving, like RE7 typewriters. But creatures won't enter save rooms if rooms are designed correctly).
+  - **Visual design:** Small desk with monitor/terminal. Screen glows soft blue-white when available. Screen shows static/interference pattern (Ren's presence). After saving, screen briefly flashes the save confirmation.
+  - **Terminal text (on-screen prop):** Special Elite font, green-on-black terminal aesthetic. "FACILITY SYSTEMS — PROGRESS LOG" header. Flavor text ties into the world.
+  - **Audio:** Soft electrical hum when near. Mechanical click on interact. Brief data-write sound on save confirm.
+  - **Auto-save integration:** Walking past certain trigger volumes also auto-saves (separate from manual terminal saves). Auto-save uses a dedicated slot or the oldest slot.
+  - Depends on: TICKET-018 (Interaction System), TICKET-035 (Save System), TICKET-037 (Save/Load UI)
+
+### TICKET-039 — Menu UI Design Language + Fonts
+- Status: DONE
+- Priority: HIGH
+- Category: Art
+- Notes:
+  - **Design influences:** Silent Hill 2 (minimalism, literary serif, negative space) + Resident Evil 2 Remake (industrial condensed sans-serif, dark contrast, clean layout).
+  - **Core principles:**
+    - Darkness IS the design. No decorative panels, borders, or chrome. Text floats on black.
+    - Negative space communicates isolation. Don't fill the screen.
+    - Animations are slow and deliberate. Nothing snaps. Everything breathes.
+    - Color palette is almost monochrome. Red is earned — used sparingly for selection/danger.
+  - **Color palette:**
+    - Background: near-black (#0A0A0A to #121212)
+    - Primary text: off-white (#D4D4D4) — never pure white
+    - Muted text: (#888888) for secondary info, (#666666) for tertiary
+    - Greyed out: (#444444) for unavailable options
+    - Accent: blood red (#8B1A1A) for selection state, active highlights
+    - Hover: rust (#6B3A2A) for subtle warmth on hover (optional)
+    - Overlay: black at 85% opacity over game world (pause/save screens)
+  - **Fonts (3 fonts, all free, OFL/Apache licensed):**
+    - **Bebas Neue** — Headers, menu buttons, titles. Condensed sans-serif, all caps. Industrial, RE2 energy.
+      - Download: https://fonts.google.com/specimen/Bebas+Neue
+      - Usage: Main menu items (36pt), pause menu items (42pt), screen titles (48-72pt)
+      - Letter spacing: +200 to +400 (wider = more dramatic)
+    - **Cormorant Garamond** — Body text, descriptions, save slot info. Elegant serif, SH2 literary horror.
+      - Download: https://fonts.google.com/specimen/Cormorant+Garamond
+      - Usage: Save descriptions (22pt), settings labels (24pt), dialog text (20pt)
+      - Weights: Regular for body, SemiBold for emphasis
+    - **Special Elite** — Timestamps, terminal text, technical readouts. Typewriter font.
+      - Download: https://fonts.google.com/specimen/Special+Elite
+      - Usage: Save timestamps (16-18pt), terminal flavor text, technical UI details
+      - Use sparingly — accent font only, not for large blocks
+  - **UE5 font import:** Download .ttf files from Google Fonts → drag into Content/UI/Fonts/ in editor → UE5 auto-creates Font Face assets. Create a Composite Font asset per font with size-specific sub-fonts if needed.
+  - **Selection/interaction patterns:**
+    - KB/M: hover highlights, click selects
+    - Gamepad: D-pad/left stick navigates (vertical), A confirms, B goes back
+    - Selection indicator: subtle brightness shift (not a box), optional thin red bar left of selected item
+    - Transition: items fade 0.0 → 1.0 over 0.3s, staggered 0.1-0.15s per item
+  - **Film grain:** Fullscreen overlay on ALL menu screens. 3-5% opacity. Subtle noise texture scrolling slowly. Adds the "watched footage" feel of SH2.
+  - **Sound design (placeholder notes — TICKET-026 handles final audio):**
+    - Menu navigate: soft click, like a dial turning
+    - Menu confirm: slightly heavier click, mechanical
+    - Menu back: soft reverse click or brief static burst
+    - No whooshes, no swoops, no orchestral hits. Everything understated.
+
+## DESIGN TICKETS
+# Status: TBD | IN DEVELOPMENT | RESOLVED
+# Category: Core | Combat | Gameplay | Narrative | Level Design | Audio | Art | Infrastructure | Tooling | Production
+# TBD = design decision not yet made
+# IN DEVELOPMENT = actively being explored/prototyped
+# RESOLVED = decision locked, documented in GDD
+
+### DESIGN-001 — Protagonist identity
+- Status: RESOLVED
+- Category: Narrative
+- GDD Section: 2.2 / 8.1
+- Notes:
+  - Grace Owens, struggling actor, working gig at campus event
+  - Wound: lifetime of taking direction, identity built on others' scripts
+  - Male, late 20s-early 30s
+
+### DESIGN-002 — Setting and campus
+- Status: RESOLVED
+- Category: Level Design
+- GDD Section: 2.2 / 8.1
+- Notes:
+  - High-tech research campus (Lockheed + CERN type)
+  - 3-5 buildings, corporate event underway during breach
+  - Linear authored progression
+
+### DESIGN-003 — Inciting event
+- Status: RESOLVED
+- Category: Narrative
+- GDD Section: 2.2 / 8.1
+- Notes:
+  - Research breach (not a heist)
+  - Catastrophe was coming regardless of entity
+  - The Signal recognized this as its opportunity
+
+### DESIGN-004 — Entity goal
+- Status: RESOLVED
+- Category: Narrative
+- GDD Section: 2.3 / 8.1
+- Notes:
+  - Access cancelled exoskeleton project hardware for physical form
+  - Entity was already in motion before contacting Grace
+  - Grace was chosen, not found
+
+### DESIGN-005 — Entity personality model
+- Status: RESOLVED
+- Category: Narrative
+- GDD Section: 2.3 / 8.1
+- Notes:
+  - True nature: Futurama God entity (vast, doesn't perform power)
+  - Persona: Atlas from BioShock (constructed fiction to earn trust)
+  - Method: dream presence comfort manipulation
+  - Presents as "Ren" — name is first lie, foundation of trust
+
+### DESIGN-006 — Ren escalation of influence
+- Status: RESOLVED
+- Category: Narrative
+- GDD Section: 2.3
+- Notes:
+  - Early: voice only through earpiece, limited to guidance
+  - Mid: manipulates facility systems (doors, lights, security)
+  - Late: deep integration, environment shaped around Grace, mask slips
+
+### DESIGN-007 — Combat philosophy
+- Status: RESOLVED
+- Category: Gameplay
+- GDD Section: 3.2
+- Notes:
+  - Tense and resource-conscious, not empowering
+  - Linear weapon progression: pistol, shotgun, assault rifle
+  - Ren directs Grace to each weapon, ammo scarcity reinforces dependency
+
+### DESIGN-008 — Core loop
+- Status: RESOLVED
+- Category: Gameplay
+- GDD Section: 3.1
+- Notes:
+  - Enter area > encounter threat > Ren guidance > player execution > progress deeper
+  - Escalating stakes + eroding certainty about Ren
+
+### DESIGN-009 — Narrative delivery channels
+- Status: RESOLVED
+- Category: Narrative
+- GDD Section: 2.6
+- Notes:
+  - Ren earpiece dialogue (primary)
+  - Environmental storytelling
+  - Found narrative (logs, emails, docs)
+  - Grace's own reactions/dialogue
+
+### DESIGN-010 — Sound design philosophy
+- Status: RESOLVED
+- Category: Audio
+- GDD Section: 5.3
+- Notes:
+  - Diegetic priority, non-diegetic used sparingly
+  - Radio as instrument (static, frequency, clarity = storytelling)
+  - Spatial audio, silence as horror, facility as soundscape
+
+### DESIGN-011 — Story beats per building
+- Status: TBD
+- Category: Narrative
+- GDD Section: 2.2
+- Notes:
+  - Detail specific tasks Ren directs Grace to perform
+  - Each task = survival to Grace, serves Ren's agenda
+  - Map trust escalation parallel to access escalation
+
+### DESIGN-012 — Ending structure
+- Status: TBD
+- Category: Narrative
+- GDD Section: 2.2
+- Notes:
+  - Branching vs singular authored ending?
+  - Does the player get meaningful choice?
+  - Most devastating ending might be one where player believes they won
+
+### DESIGN-013 — Entity physicality mechanism
+- Status: TBD
+- Category: Narrative
+- GDD Section: 2.3
+- Notes:
+  - Exoskeletons specifically, or does it evolve beyond?
+  - One body or many?
+  - What does a physical Signal look like — does player ever see it?
+
+### DESIGN-014 — Grace character depth
+- Status: TBD
+- Category: Narrative
+- GDD Section: 2.4
+- Notes:
+  - What does Grace want beyond survival?
+  - Relationships outside facility (family, partner, agent)?
+  - Moments where player sees Grace without Ren's direction
+
+### DESIGN-015 — Supporting characters
+- Status: TBD
+- Category: Narrative
+- GDD Section: 2.5
+- Notes:
+  - Other survivors? Mirrors, casualties, complications?
+  - Human presence vs total isolation shapes Ren's weight
+
+### DESIGN-016 — Grace voice direction
+- Status: IN DEVELOPMENT
+- Category: Audio
+- GDD Section: 2.6 / 5.4
+- Notes:
+  - Strongly recommended voiced — Grace/Ren dynamic needs two-way dialogue
+  - Voice: naturalistic, anxious baseline, humor under pressure
+  - Consider processing dev's own voice for Ren (rapid iteration)
+
+### DESIGN-017 — Enemy design
+- Status: IN DEVELOPMENT
+- Category: Gameplay
+- GDD Section: 3.2
+- Notes:
+  - Procedural Monsters v2 by Pieria Software PURCHASED — /Game/ProceduralMonster
+  - Seed-based procedural creature generation, IK locomotion, wall/ceiling climbing, 3D pathfinding
+  - Same studio makes: Procedural Slime Monster, Muscle Tentacles, Tentacle Eyes, Procedural Dragon
+  - Direction: non-humanoid, organic/fleshy, exposed interiors, inhuman faces, lab-experiment-gone-wrong aesthetic
+  - Pack choice reverse-engineers lore (what breach did, what creatures are)
+  - Need 3-4 distinct seed configurations for gameplay variety
+
+### DESIGN-018 — Trust mechanic
+- Status: TBD
+- Category: Gameplay
+- GDD Section: 3.3
+- Notes:
+  - Implicit tracking vs explicit choices vs purely narrative?
+  - Grace's psychology: defiance should feel unnatural/costly
+  - Resolve before vertical slice
+
+### DESIGN-019 — Ren communication mechanics
+- Status: TBD
+- Category: Gameplay
+- GDD Section: 3.3
+- Notes:
+  - Can Grace respond, argue, ask questions?
+  - Does Ren react to being ignored/defied?
+  - Ren silence moments may be most frightening
+
+### DESIGN-020 — Puzzle design
+- Status: TBD
+- Category: Gameplay
+- GDD Section: 3.4
+- Notes:
+  - Power rerouting, security clearance, sealed labs, damaged infrastructure
+  - Ren assistance = choice: solve alone or accept help (deepens dependency)
+
+### DESIGN-021 — Campus building breakdown
+- Status: TBD
+- Category: Level Design
+- GDD Section: 4.1
+- Notes:
+  - Purpose, atmosphere, narrative role per building
+  - B1=event/public, B2=admin, B3=research, B4-5=deep labs/endgame
+  - Depends on enemy types and asset inventory
+
+### DESIGN-022 — Reality distortion arc
+- Status: TBD
+- Category: Level Design
+- GDD Section: 4.3
+- Notes:
+  - Grounded early, surreal as Ren gains influence?
+  - Could be the game's visual signature
+  - Seamless environmental shifts, not obvious transitions
+
+### DESIGN-023 — Asset inventory
+- Status: IN DEVELOPMENT
+- Category: Production
+- GDD Section: 4.4
+- Notes:
+  - Kinemation Tactical Shooter Pack — integrated
+  - Moonville Inventory System Pro — integrated
+  - TreatmentStation environment — available
+  - Procedural Monsters v2 (Pieria Software) — purchased, /Game/ProceduralMonster
+  - Character Customizer (mlindborg) — purchased, for PC/NPC/extra character creation
+  - Modern Clothes Pack (mlindborg) — purchased, 171 clothing items expansion for Character Customizer
+  - Dialogue Plugin (CodeSpartan) — purchased, visual node-graph dialogue editor with conditions, events, typewriter, sound per node
+
+### DESIGN-024 — Ren sonic identity
+- Status: TBD
+- Category: Audio
+- GDD Section: 5.1
+- Notes:
+  - Base frequency/tone, voice processing chain
+  - Evolution across game arc (human early, wrong late)
+  - Audio signature when influencing electronics
+
+### DESIGN-025 — Score and musical identity
+- Status: TBD
+- Category: Audio
+- GDD Section: 5.2
+- Notes:
+  - Does score blur with diegetic facility sounds?
+  - Ren motif that evolves?
+  - Player recognizes score was Ren's music all along
+
+### DESIGN-026 — Art direction
+- Status: TBD
+- Category: Art
+- GDD Section: 6.1
+- Notes:
+  - Realistic or stylized?
+  - Color palette shifts as Ren's influence grows
+  - Screens/monitors as Ren's visual presence
+
+### DESIGN-027 — UI/HUD philosophy
+- Status: IN DEVELOPMENT
+- Category: Art
+- GDD Section: 6.3
+- Notes:
+  - Minimal/diegetic recommended
+  - Earpiece as diegetic UI for Ren
+  - Moonville inventory already integrated (RE2 style)
+
+### DESIGN-028 — Vertical slice scope
+- Status: RESOLVED
+- Category: Production
+- GDD Section: 7.2
+- Notes:
+  - TreatmentStation level — treatment plant facility
+  - Grace navigates facility, avoids/fights patrolling creatures, finds key, unlocks door, escapes
+  - Ship-ready quality — fully polished, not a rough prototype
+  - Must demonstrate: combat, creatures, interaction, atmosphere, audio, lighting
+  - Small slice of the game, but complete and releasable
+
+### DESIGN-029 — Ren cover story
+- Status: TBD
+- Category: Narrative
+- GDD Section: 8.2
+- Notes:
+  - When Grace asks "who are you?" what does Ren say?
+  - Must be believable for Grace, suspicious for player
+
+### TICKET-040 — Character Creation Pipeline
+- Status: DONE ✓
+- Priority: HIGH
+- Category: Art
+- Completed: 2026-03-06 (sessions 28-29)
+- Summary: Full pipeline working. Open MAP_CharacterDesigner → type character name in overlay → customize appearance → Confirm to save → place BP_NPC in game level → select saved name from dropdown on NPCInteraction component → NPC loads that appearance on BeginPlay.
+- Key files: ZP_DesignNameWidget.h/cpp (name input overlay), ZP_NPCInteractionComponent (CharacterSaveName dropdown via GetOptions), CC_GameMode (GetActorOfClass-based flow), CC_Customizer_Pawn (DesignName variable + Get Character Name override), BP_CCStartActor, MAP_CharacterDesigner, BP_NPC EventGraph (loads CC_SaveGame by name)
+- Remaining art work (not code): Design Grace preset, facility NPC presets, corpse presets
+
+### TICKET-041 — NPC Dialogue & Lip Sync
+- Status: DONE
+- Priority: HIGH
+- Category: Audio
+- Completed: 2026-03-07 (sessions 31-32)
+- Summary: OVRLipSync C API → 15 viseme weights → jaw bone rotation via PoseableMeshComponent. Lazy init (created on dialogue start, destroyed on end) preserves CC presets. Quaternion composition for bone deltas. Jaw movement confirmed working and passable for indie. Lip/mouth bones coded but visually subtle (10-30% skin weights) — deferred to polish.
+- Key files: ZP_LipSyncComponent.h/cpp, Plugins/OVRLipSync/, TheSignal.Build.cs (OVRLipSync ThirdParty linking)
+
+### TICKET-042 — NPC Interaction System
+- Status: DONE
+- Priority: HIGH
+- Category: Gameplay
+- Completed: 2026-03-07 (sessions 30-32)
+- Summary: Full NPC dialogue pipeline working. CodeSpartan Dialogue Plugin integrated via reflection. ZP_NPCInteractionComponent handles: dialogue widget creation, lip sync (OVRLipSync), NPC behaviors (immovable via MOVE_None, face player via smooth rotation, gesture animations gated on audio playback). Input mode switches to GameAndUI during dialogue, restores on close. Widget self-close detection via poll timer.
+- Key files: ZP_NPCInteractionComponent.h/cpp, ZP_LipSyncComponent.h/cpp, BP_NPC
+- Remaining art work: Custom dialogue widget (replace DemoDialogueWidget with project-styled WBP), design NPC presets
+
+### TICKET-043 — Polish: NPC Lip Movement
+- Status: PLANNED
+- Priority: LOW
+- Category: Audio
+- Notes:
+  - Jaw movement working via OVRLipSync + PoseableMeshComponent
+  - Lip/mouth bone rotations coded but visually subtle (CC head lip bones have 10-30% skin weights)
+  - Tuning pass needed: increase rotation angles, fill out viseme-to-lip mapping tables, possibly add more bones
+  - Architecture is ready — just constants at top of ZP_LipSyncComponent.cpp
+  - Pre-release polish, not blocking
+
+### TICKET-044 — Polish: Pipe Melee Swing
+- Status: PLANNED
+- Priority: LOW
+- Category: Combat
+- Notes:
+  - Pipe melee system functional (ADS-based swing, SweepSingleByObjectType damage)
+  - Animation needs polish for feel and weight
+  - Pre-release polish, not blocking
+
+### TICKET-045 — Polish: Grenade Throw Animation
+- Status: PLANNED
+- Priority: LOW
+- Category: Combat
+- Notes:
+  - Grenade throwable functional (spawns projectile, radial damage, Niagara FX)
+  - Throw animation needs polish
+  - Pre-release polish, not blocking
+
+### TICKET-046 — Creature: Basic Monster (Blind Monster)
+- Status: PLANNED
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - **Asset:** Blind Monster by Progeday3D — https://www.fab.com/listings/52c60ac4-a7b3-4c9b-95ef-50856ce5ce36
+  - Low-poly horror creature, UE4 skeleton
+  - 7 animations: 2x idle, walk, run, 2x attack, death
+  - Standard ground-based enemy — distinct silhouette from Crawler (tentacle) and Oozling (blob)
+  - Behavior: TBD (ground patrol, player chase, melee attack)
+  - C++ class: AZP_BlindMonster + UZP_BlindMonsterBehaviorComponent
+
+### TICKET-047 — Creature: Brute
+- Status: DEFERRED
+- Priority: MEDIUM
+- Category: Gameplay
+- Notes:
+  - Large, tanky, slow, hits hard — "this thing will destroy you"
+  - Deferred — model not yet sourced, will revisit after other creatures are in-game
+  - C++ class: AZP_Brute + UZP_BruteBehaviorComponent
+
+### TICKET-048 — Creature: Oozling (BigBlob the Slime)
+- Status: PLANNED
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - **Asset:** BigBlob the Slime — https://www.fab.com/listings/59167f82-29ad-4027-816e-8da2139ae3b9
+  - Fully physical soft-body slime creature, 51 animations (33+18 update)
+  - 5 physics presets (jelly, liquid, etc.), parasitic control mechanic, FPS mode
+  - Advanced liquid material with rich settings, morph targets for "melted" look
+  - Small, fast, standard fodder enemy — swarm potential
+  - Could apply void ink material treatment for visual cohesion
+  - C++ class: AZP_Oozling + UZP_OozlingBehaviorComponent
+
+### TICKET-049 — Environmental Hazards (Tentacles + Biomass)
+- Status: PLANNED
+- Priority: MEDIUM
+- Category: Level Design
+- Notes:
+  - **Asset 1:** Biomass and Lifeforms Bundle by Yaraslau Khamenka — https://www.fab.com/listings/163240f7-de7e-4622-bf6c-7da22c3d1bda
+    - 10 unique meshes, skin-like surface with veins/blood/hemorrhage, pulsing animation
+    - 4K textures (4096x4096), 1 material + 4 material instances
+    - Can be static meshes — environment dressing for contaminated zones
+  - **Asset 2:** Procedural Muscle Tentacles by Pieria Software — https://www.fab.com/listings/11ce48c6-b5e2-42b5-87a9-944330f336ea
+    - Procedurally animated tentacles, attack player via IK targeting
+    - Smooth organic movement via vector math + IK, customizable material, Niagara FX
+    - Same vendor as Procedural Monster pack — consistent art style
+  - NOT a full enemy — area denial, visual horror, proximity damage
+  - Biomass = static horror dressing, Muscle Tentacles = active hazard gameplay
+
+### TICKET-050 — Procedural Monster Reskin: Void Ink Material
+- Status: IN PROGRESS
+- Priority: MEDIUM
+- Category: Art
+- Notes:
+  - **Material instances CREATED** in /Game/TheSignal/Materials/Creatures/:
+    - MI_VoidFlesh (base template), MI_VoidCrawler, MI_VoidOozling, MI_VoidTentacle
+  - **C++ material swap BUILT** — AZP_CrawlerBase.TentacleMaterial property + ApplyTentacleMaterial() timer
+  - **C++ creature config properties BUILT** — CreatureSeed, MinLegCount, MaxLegCount, scales, speed
+  - **Remaining:** Wire C++ leg count properties to BP_Monster_Pawn's Monster Randomizer (MCP, requires editor open). Create variant child BPs.
+
+### TICKET-051 — In-Game Map System
+- Status: PLANNED
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - Player-accessible map for navigating the facility
+  - Scope, style, and implementation approach TBD
+
+## BLOCKERS
+- **BLOCKER 002:** Cannot override parent BP functions via MCP (blocks GASP camera override)
+- **BLOCKER 003:** Cannot set pin default object references reliably (partial)
+
+## RECENTLY COMPLETED
+- **TICKET-041 + TICKET-042 DONE — NPC Dialogue + Lip Sync + Behaviors (2026-03-07, sessions 31-32)** — OVRLipSync C API viseme analysis → PoseableMeshComponent jaw bone rotation (lazy init preserves CC presets). NPC behaviors: immovable (MOVE_None), face player (RInterpTo), gesture animations (Talking_01-04 as dynamic montages, audio-gated). Full dialogue pipeline: approach → prompt → interact → widget + lip sync + gestures → close → restore.
+- **Inventory Multi-Weapon System (2026-03-03, session 23)** — EquipWeaponClass(TSubclassOf) on KinemationComp with per-weapon config (mag/rate/dmg). C++ Input_InventorySlot reads Moonville ShortcutIndex (1-based) and calls EquipWeaponClass directly, bypassing broken Moonville RPCs. SM_PoliceShotgun converted from SKM via FBX pipeline. DA_PoliceShotgun + DA_AssaultRifle created. Shortcut slot assignment bug remains (pistol ShortcutIndex=0).
+- **TICKET-031 Phase 1 DONE — Xbox Controller Bindings (2026-03-03, session 22)** — All 15 input actions mapped to gamepad in IMC_Grace. Right stick: radial dead zone + negate Y + scalar sensitivity. Sprint: hold L3. No C++ changes needed — Enhanced Input handles device routing transparently.
+- **TICKET-021 MVP DONE — Crawler System (2026-03-03, sessions 20-21)** — Vault removed (dead code). Wall hit flow: StepUp first → brief climb fallback for short walls → full climb for tall walls (>=150 UU). Penetration handler: up-only during climb (no wall phasing). ClimbStartZ scaling: crest pushes proportional to wall height. Death: freeze-in-place + world-scan + ground-drop trace (corpses fall from walls). Spawn hide during InitialPatrolDelay. User approved: "MVP for moving on to core construction."
+- **TICKET-011 DONE — Locomotion Logging Cleanup (2026-03-03, session 19)** — BoneCopy periodic log wrapped in #if !UE_BUILD_SHIPPING. Stripped from shipping builds, still available in dev.
+- **Damage Vignette added (2026-03-03, session 19)** — Red gradient screen outline on hit. M_DamageVignette material (UI domain, Custom HLSL radial gradient) built via Scripts/Python/build_damage_vignette_material.py. ZP_HUDWidget::NativeTick fades opacity with FInterpTo. Pending: add DamageVignette Image widget to WBP_HUD in editor.
+- **TICKET-034 DONE — Creature Attack System (2026-03-03, session 14)** — Lunge (wind-up→launch to offset→proximity damage 25) + Slam (rise→hold→fall→AoE damage 40). Attack behavior state. Pounce offset fix (never lands on player). Ground attack trigger in Hunt (400UU range, 5s cooldown). Damage via ApplyDamage/ApplyRadialDamage → standard TakeDamage pipeline.
+- **TICKET-022 DONE — Player Health + Damage (2026-03-03, session 14)** — UZP_HealthComponent attached to Grace. TakeDamage override → HealthComp. HUD health arc wired via OnHealthChanged delegate. Death state deferred to TICKET-028.
+- **TICKET-017 DONE — HUD System (2026-03-03, sessions 13-14)** — Health arc wired to HealthComp. All HUD elements functional (health, ammo, interaction prompt).
+- **TICKET-017 IN PROGRESS — HUD System (2026-03-03, session 13)** — C++ UZP_HUDWidget with BindWidget pattern. TLOU-style health arc (M_HealthArc material, Python-built via UE5 API). Ammo counter wired to KinemationComp OnAmmoChanged. Crosshair removed (Grace untrained). InteractionPrompt API ready. WBP_HUD reparented to C++ base. HUDWidgetClass set on PC_Grace. Material built via Scripts/Python/build_health_arc_material.py (MCP material connections don't persist — use Python API instead).
+- **TICKET-023 DONE — Enemy Health + Damage System (2026-03-03, session 12)** — Full damage pipeline: hitscan → ApplyPointDamage → TakeDamage → HealthComponent → death. UZP_HealthComponent (reusable, 100 HP, delegates). Death: FreezeActorHierarchy + 80° tilt + 30s cleanup. Threat system (LOS accumulation + gunshot broadcast 8000 UU). Hitscan trace fixed (ECC_Visibility → object type query with Pawn). Creature won't climb player. Speed rebalance (Hunt 320, Dash 420, Stalk 280 — player sprint 350 outruns hunt). Gravity accumulation fix (terminal velocity cap + zero on floor hit). StepUp for fences (MaxStepHeight 200 UU). Stall recovery: creatures below home Z target HomeLocation instead of random wander.
+- **TICKET-021 DONE — Creature Behavior Baseline (2026-03-02, session 11)** — Zone-based wander: creatures work with zero patrol points (WanderRadius=1500 UU from spawn). Patrol points still backward-compatible. Full behavior loop confirmed: wander→alert→stalk→hunt→pounce→stalk timeout→wander. This is the baseline for all future creature variants.
+- **TICKET-021 Custom CMC Rewrite (2026-03-02, session 10)** — Removed CalcVelocity entirely. CMC owns all velocity (3 branches: launch/climb/ground pursuit). New target API: MoveTarget + MoveTargetActor. Removed BPC_3D_Pathfinding from BP_Monster_Pawn (was error-spamming). Added direct player detection (3000 UU + LOS). Cleaned up 3 orphan EventGraph nodes. User confirmed creature behavior is dramatically better. Polish remaining.
+- **TICKET-021 Climb + Perch + Pounce (2026-03-02, session 9)** — Rolled back session 8 over-tuning. Clean CMC: persistent wall contact (5 frames), climb direction away from wall, gravity damping, speed capped 200-400 on walls. NO autonomous launches — behavior-controlled only via LaunchAtTarget() API. Perch & Pounce: 400+ UU above player → freeze 1.2s → pounce. 10s cooldown. Build: 0 errors, 0 warnings.
+- **TICKET-021 Session 8 rollback (2026-03-02)** — Reverted 4-tier speed, tactical vantage scanning, proximity detection, crest carry teleports, stall impulse. These turned creature from menacing to ragdoll.
+- **TICKET-021 Level collision fix (2026-03-01)** — All large meshes in TreatmentStation switched from convex hull to complex-as-simple collision (43 mesh assets). Fixes invisible walls from purchased environment packs. Script: Scripts/fix_all_generators2.py. SM_FuelTank_1 repositioned. Creature climbing confirmed working.
+- **TICKET-021 C++ + BP complete (2026-03-01)** — ZP_PatrolWaypoint + ZP_PatrolComponent (self-contained patrol+chase, UFunction reflection, auto-bind PawnSensing). BP_PatrolCreature child of BP_Monster_Pawn. Zero BP wiring needed.
+- **Procedural Monsters v2 purchased (2026-03-01)** — Pieria Software creature system. Seed-based generation, IK wall/ceiling climbing, 3D pathfinding. Installed at /Game/ProceduralMonster. Aesthetic direction: non-humanoid, organic, exposed interiors, inhuman faces.
+- **Project Tracker + GDD tooling (2026-03-01)** — Built Docs/ProjectTracker.xlsm with VBA auto-sync from session_prompt.txt. Converted GDD v0.2.1 to markdown. Created 29 design tickets. Standardized all ticket statuses/priorities.
+- **Phase 6 Weapon Bridge (2026-03-01)** — TICKET-016 Phase 6 DONE. Weapon spawns at 60 FPS, pistol in inventory grid (2x1), shortcut cross with drag-and-drop, keys 1-4 bound, GrantStartingItems at BeginPlay. BlueprintMCP extended with external variable reference support (`className` param on `add_node` VariableGet/VariableSet).
+- **Inventory Tab working (2026-03-01)** — TICKET-016 Phases 1-5 DONE. Horror inventory UI opens/closes via Tab. C++ ToggleInventoryMenu reflection, input guards, component auto-discovery all working.
+- **ADS system (2026-02-28)** — TICKET-014 DONE. Kinemation procedural ADS via IsAiming property + recoil aiming. No FOV change.
+- **Hitscan bullet system (2026-02-28)** — TICKET-015 DONE. Line trace + UWC decals + fire/reload locks.
+- **Crouch system (2026-02-28)** — TICKET-012 DONE. Crouch anims, smooth mesh transition, bone blending.
+- **C++ bone copy pipeline (2026-02-28)** — MAJOR MILESTONE. Lower body from hidden Mesh, upper body from Kinemation.
+- **C++ config consolidation** — All movement/capsule/headbob tuning in ZP_GraceMovementConfig.h
+- **Camera-to-socket fix** — camera attached to PlayerMesh at FPCamera socket
+- Component extraction (GASP Phase 1) — ZP_GraceGameplayComponent + ZP_KinemationComponent
+
+## LOCOMOTION ARCHITECTURE (CONFIRMED WORKING)
+```
+Hidden Mesh (SKM_UEFN_Mannequin, SK_UEFN_Mannequin, 88 bones)
+  └─ AnimationSingleNode mode
+  └─ Speed-based anim switching in Character::Tick:
+       Speed < 10 → M_Neutral_Stand_Idle_Loop
+       Speed 10-150 → M_Neutral_Walk_Loop_F
+       Speed > 150 → M_Neutral_Run_Loop_F
+
+PlayerMesh (SKM_Operator_Mono, SKM_Manny_Skeleton, 173 bones)
+  └─ ABP_GracePlayer (parent: UZP_GracePlayerAnimInstance)
+  └─ AnimGraph: LinkedAnimGraph(ABP_TacticalShooter_UE5) → OutputPose
+  └─ NativePostEvaluateAnimation → CopyBonesFromSource():
+       23 lower body bones from hidden Mesh (root, pelvis, legs)
+       115 upper body bones skipped (spine_01+) = Kinemation territory
+  └─ Tick prerequisite: PlayerMesh depends on hidden Mesh
+```
+
+## COMPONENT HIERARCHY (current)
+```
+Capsule (root)
+  ├── Hidden Mesh (SKM_UEFN_Mannequin, invisible, SingleNode anim)
+  ├── PlayerMesh (SKM_Operator_Mono, ABP_GracePlayer, FP visible)
+  │   └── FirstPersonCamera (at FPCamera socket)
+  ├── ZP_GraceGameplayComponent (stamina, peek, headbob, interaction)
+  ├── ZP_KinemationComponent (Kinemation wiring, weapon lifecycle, hitscan)
+  ├── ZP_HealthComponent (100 HP, OnHealthChanged → HUD)
+  └── Kinemation SCS components (AC_FirstPersonCamera, AC_TacticalShooterAnimation, etc.)
+```
+
+## KEY ARCHITECTURE NOTES
+- Camera MUST be on FPCamera socket (not capsule) — socket attachment prevents parallax
+- **NativePostEvaluateAnimation** is THE correct place for bone modification — NOT Character::Tick
+- **BlendSpace1D in SingleNode mode is BROKEN** — use direct AnimSequence switching
+- AC_FirstPersonCamera drives camera ROTATION only, never position
+- AnimBP (ABP_TacticalShooter_UE5) computes Pitch → UE5_ABP_IK_Main rotates spine bones
+- **After every C++ rebuild, run set_bullet_decals.py** — CDO resets on Blueprint reinstancing
+- **Kinemation ADS:** `AC_TacticalShooterAnimation.IsAiming` is a PROPERTY (not function). Must set via `FBoolProperty::SetPropertyValue` with `ContainerPtrToValuePtr`. `UE5_ABP_IK_Ads` reads it from the component ref each frame. `AC_RecoilAnimation` HAS a proper `SetAiming` function.
+
+## CRAWLER ARCHITECTURE (SESSION 21 — MVP DONE)
+```
+AZP_CrawlerBase (C++ Character) — renamed from ZP_CreatureBase (session 16)
+├── UZP_HealthComponent (C++ ActorComponent — 100 HP default)
+│   └── ApplyDamage() → OnHealthChanged / OnDied delegates
+│
+├── UZP_CrawlerMovementComponent (C++ CMC — owns ALL velocity, no CalcVelocity)
+│   └── PhysFlying override (4 velocity branches):
+│       Slam: Wind-up hold → impact (ground pound, no rise)
+│       Launch: ONLY via LaunchAtTarget() API (behavior-controlled)
+│         - Ballistic arc: H=900, Up=250, Gravity=1400, 10s cooldown
+│       Climbing: 90% wall-up + 10% into-wall (350-600 UU/s)
+│         - WallMap TraceWallTop for ClimbTargetZ
+│         - ClimbStartZ scaling: crest push proportional to wall height
+│         - NO VAULT (removed session 21 — was dead code)
+│         - StepUp first for ALL obstacles. Brief climb fallback if StepUp fails.
+│         - Crest: floor-crest, target-Z crest, ceiling-crest (all scaled by ClimbStartZ)
+│         - Bail cooldowns: 0.5-0.8s
+│       Ground: toward target + gravity (980, terminal velocity 2000)
+│       Target API: MoveTarget (FVector) + MoveTargetActor (TWeakObjectPtr)
+│       MaxStepHeight: 200 UU (steps over small fences without climbing)
+│       Won't climb target actor (player)
+│       Penetration: UpOnly during climb (no horizontal wall phasing), pushout on ground
+│
+│   Wall hit flow (session 21):
+│       STEP 0: Cancel launch on wall impact
+│       STEP 1: StepUp for low obstacles (any mode, not climbing)
+│       STEP 2: Climb engagement
+│         - First contact: trace height via WallMap
+│         - Height >= 150 UU: full climb (ClimbTargetZ + ClimbStartZ set)
+│         - Height < 150 UU: StepUp → if fails, brief climb (ClimbTargetZ set)
+│         - Already climbing: refresh timer
+│         - Climb rejected: StepUp fallback
+│       STEP 3: Wall slide fallback
+│
+├── UZP_CrawlerBehaviorComponent (C++ UActorComponent)
+│   ├── State machine: Patrol → Hunt → Stalk → Attack (NO Alert state)
+│   ├── Patrol: waypoints OR zone-based wander (WanderRadius=1500 UU from spawn)
+│   ├── NO PATROL POINTS REQUIRED — creature works with zero config
+│   ├── Hunt: 300 UU/s (no dash), hearing(1500UU), retarget(3s), perch@400UU
+│   │   ├── Gaze freeze ONLY on walls. On ground: aggressive charge
+│   │   ├── Wall-seek when target >200 UU above (prevents ground oscillation)
+│   │   └── Post-crest perch (bJustCrested flag from CMC)
+│   ├── Stalk: 280 UU/s, vertical bias(500UU), perch@200UU, gaze 2s, min 8s before pounce, 30s timeout
+│   ├── Attack: alternating Drop (0.3s wind-up, 25 dmg) / Lunge (25 dmg, 250UU), 1.5s cooldown
+│   ├── Pounce: offset 200UU in front of player (never onto player), 30 dmg, post-landing damage check
+│   ├── Threat system: LOS accumulation (20/s, 1-3x prox), decay 5/s, threshold 100→Hunt
+│   ├── Gunshot broadcast: BroadcastGunshot() 8000 UU, instant 100 threat
+│   ├── Stall recovery: wall-seek when target above, lateral break after 0.5s
+│   ├── Timer-driven eval (0.4s), direct detection (3000UU+LOS)
+│   ├── InitialPatrolDelay: 2.0s (creature hidden during delay)
+│   └── Spawn hide: SetActorHiddenInGame during delay, revealed at behavior start
+│
+├── Death sequence (session 21):
+│   └── Deactivate behavior → stop CMC → detach controller → disable capsule
+│       → FreezeActorHierarchy (recursive: tick, SK->Stop, timelines, timers, child actors)
+│       → World-scan via TActorIterator (catches eye actors attached dynamically)
+│       → Ground-drop trace (5000 UU down, teleport to floor, reset pitch/roll)
+│       → SetLifeSpan(30s)
+│       NO ragdoll, NO tilt, NO leg explosion. Freeze in place + drop to ground.
+│
+└── Plugin components (KEPT)
+    └── BPC_Climbing — surface detection, creature rotation, IK (tick disabled in BeginPlay)
+```
+
+### Behavior States (Session 21)
+| State | Speed | Target | Duration |
+|-------|-------|--------|----------|
+| Patrol | 250 | Waypoints OR wander near home (WanderRadius=1500) | Until arrived, pause 0.5-1.5s |
+| Hunt | 300 | Player (retarget 3s, perch@400UU, hearing 1500UU, wall-seek when above) | Until lost 10s → Stalk |
+| Stalk | 280 | Elevated retreat (500UU bias, perch@200UU, gaze 2s, min 8s before pounce) | 30s → Patrol |
+| Attack | 0 (freeze) | Alternating Drop/Lunge at player | Until complete → Hunt |
+
+Player sprint = 350. Player outruns Hunt (300). No dash system.
+
+### Key Constants (tunable in .h/.cpp files — session 21 final)
+| Constant | Value | Purpose |
+|----------|-------|---------|
+| LaunchHorizontalSpeed | 900 | UU/s toward target |
+| LaunchUpSpeed | 250 | UU/s initial upward |
+| LaunchGravity | 1400 | UU/s² arc decay |
+| LaunchMaxDuration | 1.5 | seconds safety timeout |
+| PostLandingCooldown | 10.0 | seconds before next launch |
+| LaunchElevationThreshold | 400 | UU above player to trigger perch |
+| PerchDuration | 2.5 | seconds freeze before pounce |
+| MinClimbSpeed | 350 | UU/s min on walls |
+| MaxClimbSpeed | 600 | UU/s max on walls |
+| MinClimbWallHeight | 150 | UU — below=StepUp+brief climb, above=full climb |
+| MaxStepHeight | 200 | UU — steps over small obstacles |
+| TerminalVelocity | 2000 | UU/s max fall speed |
+| AttackRange | 200 | UU horizontal for close-range attack |
+| LungeMaxRange | 350 | UU max range for lunge trigger |
+| AttackCooldown | 1.5 | seconds between attacks |
+| LungeDamage | 25 | damage on proximity hit |
+| LungeOffset | 200 | UU in front of player (landing spot) |
+| LungeDamageRadius | 250 | UU proximity for damage |
+| DropAttackHoldTime | 0.3 | seconds rear-up before impact |
+| PounceDamage | 30 | pounce from elevation damage |
+| HearingRange | 1500 | UU hearing during Hunt |
+| DetectionRange | 3000 | UU direct LOS detection |
+| GunshotAlertRadius | 8000 | UU broadcast range |
+| ThreatThreshold | 100 | forces Hunt state |
+| ClimbBailCooldown (stall) | 0.8 | seconds after stall bail |
+| ClimbBailCooldown (crest) | 0.5 | seconds after crest |
+| ClimbBailCooldown (ceiling) | 0.5 | seconds after ceiling bail |
+
+### Deprecated Files (kept but unused)
+- ZP_PatrolComponent.h/.cpp — replaced by ZP_CrawlerBehaviorComponent
+
+## DEAD ENDS LOG
+- (check CLAUDE.md DEAD ENDS table + checkpoints)
+- GetEditableComponentSpaceTransforms + FinalizeBoneTransform from Tick — double-buffer, data never rendered
+- AnimGraph VariableGet → SourceMeshComponent pin — does NOT feed runtime value to anim nodes
+- BlendSpace1D in SingleNode mode — bones never change despite SNI playing
+- CopyPoseFromMesh (use_attached_parent=True) — no parent SkeletalMeshComponent on capsule
+- RetargetPoseFromMesh — SourceMeshComponent pin broken (same as CopyPoseFromMesh)
+- Camera on capsule root — parallax makes gun leave FOV when pitching
+- HideBoneByName("pelvis") — hides entire body recursively
+- SetLeaderPoseComponent across different attachment parents — broken bone orientation
+- M_BulletHole (HLSL Custom nodes for deferred decals) — renders as flat rectangles, UV handling broken
+- SetSimulatePhysics for creature death — Procedural Monster is multi-actor assembly (child actors), physics scatters limbs + ComplexAsSimple collision errors
+- SetPhysicsOnActorHierarchy (recursive ragdoll) — limbs fall apart, eyes keep blinking, no physics constraints between child actors

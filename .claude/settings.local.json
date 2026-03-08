@@ -1,0 +1,94 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__blueprint-mcp__server_status",
+      "mcp__blueprint-mcp__create_blueprint",
+      "mcp__blueprint-mcp__set_blueprint_default",
+      "mcp__blueprint-mcp__get_blueprint_summary",
+      "mcp__blueprint-mcp__describe_graph",
+      "mcp__blueprint-mcp__list_blueprints",
+      "mcp__blueprint-mcp__list_components",
+      "mcp__blueprint-mcp__get_blueprint_graph",
+      "mcp__blueprint-mcp__get_component_properties",
+      "mcp__blueprint-mcp__list_interfaces",
+      "mcp__blueprint-mcp__get_blueprint",
+      "mcp__blueprint-mcp__add_component",
+      "mcp__blueprint-mcp__set_component_property",
+      "mcp__blueprint-mcp__search_blueprints",
+      "mcp__blueprint-mcp__list_classes",
+      "mcp__blueprint-mcp__validate_blueprint",
+      "mcp__blueprint-mcp__add_interface",
+      "mcp__blueprint-mcp__add_node",
+      "mcp__blueprint-mcp__connect_pins",
+      "mcp__blueprint-mcp__add_variable",
+      "mcp__blueprint-mcp__search_by_type",
+      "mcp__blueprint-mcp__change_variable_type",
+      "mcp__blueprint-mcp__find_asset_references",
+      "mcp__blueprint-mcp__list_functions",
+      "mcp__blueprint-mcp__list_properties",
+      "mcp__blueprint-mcp__get_pin_info",
+      "mcp__blueprint-mcp__snapshot_graph",
+      "mcp__blueprint-mcp__delete_node",
+      "mcp__blueprint-mcp__refresh_all_nodes",
+      "mcp__blueprint-mcp__reparent_blueprint",
+      "mcp__blueprint-mcp__remove_component",
+      "mcp__blueprint-mcp__remove_variable",
+      "mcp__blueprint-mcp__create_material",
+      "mcp__blueprint-mcp__add_material_expression",
+      "mcp__blueprint-mcp__get_material_graph",
+      "mcp__blueprint-mcp__set_expression_value",
+      "mcp__blueprint-mcp__delete_material_expression",
+      "mcp__blueprint-mcp__connect_material_pins",
+      "mcp__blueprint-mcp__describe_material",
+      "mcp__blueprint-mcp__disconnect_material_pin",
+      "mcp__blueprint-mcp__disconnect_pin",
+      "mcp__blueprint-mcp__set_pin_default"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" post_tool_use"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" pre_compact"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" session_start"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" stop"
+          }
+        ]
+      }
+    ]
+  }
+}

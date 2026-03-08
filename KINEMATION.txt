@@ -1,0 +1,17 @@
+- **Documentation** (KINEMATION GitBook):
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/tutorial/overview
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/animations/character
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/animations/character
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/animations/weapons
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/animations/attachments
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/animations/magazines
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/animations/camera
+  - Weapons: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/blueprints/weapons
+  - First Person Camera: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/blueprints/first-person-camera
+  - Tactical Shooter Animation: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/blueprints/tactical-shooter-animation
+  - IK Motion Player: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/blueprints/ik-motion-player
+  - Sounds: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/blueprints/sounds
+  - Getting Started: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/getting-started
+  - Blueprints Overview: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/blueprints
+  - Integration: https://kinemation.gitbook.io/tactical-shooter-pack-unreal/integration
+https://kinemation.gitbook.io/tactical-shooter-pack-unreal/tutorial/gasp-integration

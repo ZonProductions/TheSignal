@@ -1,0 +1,635 @@
+================================================================================
+THE SIGNAL — INVENTORY ITEM GUIDE
+================================================================================
+Last Updated: 2026-03-03
+Purpose: Consolidated asset inventory, item recommendations, and level designer
+         guidelines for placing and creating items.
+
+Systems Used:
+  - Moonville Inventory System Pro (plugin — item storage, UI, crafting, pickups)
+  - Kinemation Tactical Shooter Pack (plugin — FPS weapon models + animations)
+  - Custom C++ bridge (BP_KinemationEquipAction — connects inventory to weapons)
+
+================================================================================
+PART 1: RECOMMENDED ITEMS FOR THE SIGNAL
+================================================================================
+
+These items fit the game's tone (RE7, Silent Hill 2, TLOU, BioShock) and the
+TreatmentStation facility setting. All have existing meshes, icons, and
+DataAssets ready to use or duplicate.
+
+--- WEAPONS (Kinemation FPS weapons — functional first-person models) ----------
+
+  PISTOL — "Viper Handgun"
+    Kinemation BP:   BP_WK-11_Viper
+    Inventory DA:    DA_Grace_Pistol (already configured)
+    Item Action:     BP_KinemationEquipAction (already wired)
+    Ammo Type:       9mm
+    Mag Size:        12
+    Notes:           Starting weapon. Found on a dead security guard or given
+                     by Ren. RE7 Albert-01 equivalent. Grace has never fired
+                     a gun — animations should reflect that.
+
+  POLICE SHOTGUN — "Facility Security Shotgun"
+    Kinemation BP:   BP_Herrington_11-87_Police
+    Inventory DA:    Needs new DA (duplicate DA_Shotgun, rename DA_PoliceShotgun)
+    Item Action:     BP_KinemationEquipAction (needs weapon class param — C++ work)
+    Ammo Type:       Buckshot
+    Mag Size:        6 (tube fed)
+    Notes:           Found in security office or armory. RE7 M21 equivalent.
+                     Powerful but loud — alerts every crawler in the level.
+                     Pump-action feel. Grace fumbles the pump.
+
+  ASSAULT RIFLE — "AK-105 Carbine"
+    Kinemation BP:   BP_AK105
+    Inventory DA:    Needs new DA (duplicate DA_Rifle, rename DA_AssaultRifle)
+    Item Action:     BP_KinemationEquipAction (needs weapon class param — C++ work)
+    Ammo Type:       5.56
+    Mag Size:        30
+    Notes:           Late-game find. Maybe in a military crate Ren directs you
+                     to. "Why does a research facility have military weapons?"
+                     BioShock moment — Ren knows too much about this place.
+
+  ALTERNATIVE RIFLE — "TR-15 Marksman Rifle"
+    Kinemation BP:   BP_TR15
+    Notes:           Available if we want a semi-auto precision option instead
+                     of full-auto. Could replace AK105 or exist alongside it.
+                     More TLOU-2 hunting rifle feel.
+
+  PIPE — "Lead Pipe" (melee backup)
+    Moonville DA:    DA_Pipe
+    Mesh:            SM_Pipe
+    Notes:           Desperate melee option. TLOU iconic. No Kinemation
+                     integration needed — could be a simple melee trace.
+                     Grace swings wildly, not trained.
+
+--- MEDICAL / SURVIVAL ---------------------------------------------------------
+
+  MEDKIT — "First Aid Kit"
+    Moonville DA:    DA_Medkit
+    Mesh:            SM_Medkit
+    Icon:            T_MedkitIcon
+    Item Action:     BP_ConsumeHealthAction (already exists in Moonville)
+    Heal Amount:     Full heal (configurable on DA)
+    Notes:           Classic RE medkit. Rare. Found in medical supply rooms,
+                     nurse stations, emergency cabinets. Treatment plant
+                     would absolutely have these.
+
+  HEALTH POTION — rename to "Chemical Stimulant"
+    Moonville DA:    DA_HealthPotion
+    Mesh:            SM_PotionHealth
+    Icon:            T_PotionHealthIcon
+    Item Action:     BP_ConsumeHealthAction
+    Heal Amount:     Partial heal (~40 HP)
+    Notes:           Small health restore. More common than medkits. Facility
+                     chemical supplies repurposed. Green liquid in a vial.
+                     Ren: "There should be stimulants in the lab storage."
+
+  GREEN HERB LIQUID — rename to "Adrenaline Shot"
+    Moonville DA:    DA_LiquidGreenHerb
+    Mesh:            SM_HerbLiquidGreen
+    Item Action:     BP_ConsumeHealthAction
+    Heal Amount:     Small heal (~20 HP)
+    Notes:           Most common healing item. Scattered around facility.
+                     Small syringe/vial. Quick to use.
+
+--- AMMO (existing Moonville DAs with meshes and icons) ------------------------
+
+  9MM AMMO — "Handgun Ammunition"
+    Moonville DA:    DA_Ammo_9mm
+    Mesh:            SM_Ammo9mm
+    Icon:            T_Ammo9mmIcon
+    Pickup Amount:   12 rounds (one magazine)
+    Notes:           Most common ammo. Found in security offices, guard desks,
+                     lockers. Scarce enough to create tension.
+
+  BUCKSHOT — "Shotgun Shells"
+    Moonville DA:    DA_Ammo_Buckshot
+    Mesh:            SM_AmmoBuckshot3
+    Icon:            T_AmmoBuckshotIcon
+    Pickup Amount:   4 shells
+    Notes:           Rare. Found near the shotgun or in armory.
+
+  5.56 AMMO — "Rifle Ammunition"
+    Moonville DA:    DA_Ammo_556
+    Mesh:            SM_Ammo556Arrangement
+    Icon:            T_Ammo556Icon
+    Pickup Amount:   15 rounds (half magazine)
+    Notes:           Very rare. Military supply. Late-game only.
+
+--- KEY / PUZZLE ITEMS (for combine + lock system testing) ---------------------
+
+  KEYCARD — "Level 2 Access Card"
+    Moonville DA:    DA_Keycard
+    Mesh:            SM_Keycard
+    Icon:            T_Keycard_Icon
+    Notes:           Electronic facility access. Swipe at reader to unlock door.
+                     BioShock — security clearance progression.
+                     BP_InventoryDoor or BP_HasItemTrigger checks for this item.
+
+  BLACK KEY — "Maintenance Room Key"
+    Moonville DA:    DA_DoorKeyBlack
+    Mesh:            SM_KeyBlack
+    Icon:            T_HotelKeyIcon (reuse — key icon is generic enough)
+    Notes:           Physical key for mechanical lock. Silent Hill 2 style.
+                     Found in a drawer, under a body, in a breakroom.
+
+  MEDALLION LEFT HALF — "Broken Seal (Left)"
+    Moonville DA:    DA_MedallionLeftPart
+    Mesh:            SM_Medaillon_Left
+    Notes:           Found in East wing. Combine puzzle item.
+                     RE classic — two halves unlock a gate.
+
+  MEDALLION RIGHT HALF — "Broken Seal (Right)"
+    Moonville DA:    DA_MedallionRightPart
+    Mesh:            SM_Medaillon_Right
+    Notes:           Found in West wing. Second half.
+
+  COMPLETE MEDALLION — "Facility Seal"
+    Moonville DA:    DA_MedallionComplete
+    Mesh:            SM_Medaillon
+    Recipe:          DA_RecipeMedallion (LEFT + RIGHT → COMPLETE, already exists!)
+    Notes:           Result of combining. Used on the exit gate.
+                     Moonville crafting system handles the combine.
+                     BP_ItemPuzzle or BP_HasItemTrigger checks for this.
+
+  RED BOTTLE — "Sample R-7"
+    Moonville DA:    DA_RedBottle
+    Notes:           Story/narrative item. What was the facility researching?
+                     Ren: "Bring that with you. It might be useful later."
+                     (It's useful to Ren, not Grace.)
+
+  GREEN BOTTLE — "Sample G-3"
+    Moonville DA:    DA_GreenBottle
+    Notes:           Second story item. Optional — rewards exploration.
+                     Environmental storytelling: what went wrong here?
+
+--- UTILITY --------------------------------------------------------------------
+
+  FLASHLIGHT
+    Moonville DA:    DA_Flashlight
+    Mesh:            SM_flashlight2
+    Icon:            T_FlashlightIcon
+    Notes:           Alan Wake 2 — light is survival. Could be a permanent
+                     equip or inventory item. Treatment plant has dark areas.
+                     Implementation: simple spotlight attached to camera.
+
+--- THROWABLES -----------------------------------------------------------------
+
+  GRENADE — "Fragmentation Grenade"
+    Moonville DA:    DA_ExplosiveGrenade
+    Mesh:            SM_grenade
+    Projectile:      BP_ThrowableExplosiveProjectile (Moonville has this!)
+    Notes:           Very rare. 1-2 in entire level. Emergency crowd control.
+                     RE7 remote bombs equivalent.
+
+  ROCK — "Throwable Rock"
+    Moonville DA:    DA_ThrowableRock
+    Projectile:      BP_ThrowableObjectProjectile (Moonville has this!)
+    Notes:           Distraction tool. Throw to lure crawlers away.
+                     TLOU brick/bottle equivalent. Common, no damage.
+
+
+================================================================================
+PART 2: MOONVILLE ASSETS NOT RECOMMENDED (and why)
+================================================================================
+
+These exist in the Moonville plugin but don't fit The Signal's setting or tone.
+Kept here for reference — some may become useful in future development.
+
+--- RPG / FANTASY ITEMS (wrong aesthetic) --------------------------------------
+
+  DA_ArcherBow / SM_Bow / SM_Arrow
+    Why not: Fantasy weapon. Treatment plant, not a castle.
+
+  DA_HeroBlade / SM_HeroBlade
+    Why not: Fantasy sword. Same reason.
+
+  DA_NatheBlade / SM_NatheSword
+    Why not: Fantasy sword.
+
+  DA_IronPlateShield / SM_IronPlateShield
+    Why not: Medieval shield. No place in a research facility.
+
+  DA_Torch / SM_Torch
+    Why not: Replaced by flashlight. Torch is fantasy/medieval.
+
+  DA_StrawHat / SM_StrawHat
+    Why not: Cosmetic RPG equipment.
+
+  DA_KnightsHelmetArmor, DA_KnightsChestArmor, etc.
+    Why not: Full medieval armor set. Wrong game.
+
+  DA_PoliceBeret
+    Why not: Cosmetic hat. Not useful as an item.
+
+  DA_RingOfTimeAccesory
+    Why not: Fantasy ring. Magic doesn't exist in The Signal.
+
+  DA_GoldCurrency / DA_PesetasCurrency
+    Why not: No currency/shop system in The Signal.
+
+--- CRAFTING / COOKING (not in v0.1 scope) -------------------------------------
+
+  DA_Apple / DA_CookedMeat / DA_RoastedApple / DA_RawMeat
+    Why not: Food/cooking system. No campfires in facility. Could revisit
+             if we add a survival hunger mechanic later.
+
+  DA_FoodPotion / DA_ManaPotion / DA_WaterBottle
+    Why not: RPG consumables. Mana doesn't exist. Food/water could come later
+             but not in vertical slice scope.
+
+  DA_Wood / DA_GoldOre / DA_SteelOre / DA_GoldBar / DA_SteelBar
+    Why not: Crafting materials for smithing/smelting. Wrong setting.
+
+  DA_LiquidBlueHerb / DA_LiquidRedHerb
+    Why not: RE herb system could work, but keeping it simple for v0.1.
+             Green herb as "adrenaline shot" is enough for now.
+
+  DA_MixedHerbGB / DA_MixedHerbGR / DA_MixedHerbGRB
+    Why not: Herb mixing recipes. Possible future feature but not v0.1.
+
+  All DA_Recipe* / DA_Cook* / DA_Smelt* assets
+    Why not: Full crafting system. Not in scope. EXCEPT DA_RecipeMedallion
+             which we use for the combine-key puzzle.
+
+  DA_ExampleCraftingRecipes / DA_WorkbenchCraftingRecipes
+    Why not: Recipe collections for fantasy crafting.
+
+--- INFRASTRUCTURE NOT NEEDED (v0.1) ------------------------------------------
+
+  DA_InventoryExpansion
+    Why not: Expanding inventory slots mid-game. Not in v0.1 scope.
+
+  DA_DoorKeyPhysics
+    Why not: Physics-based key. Using standard key items instead.
+
+  DA_TreasureBlack
+    Why not: Treasure/loot container. No treasure hunting in The Signal.
+
+  DA_ExampleItemLootTable_RPG
+    Why not: RPG loot table. Horror table (DA_ExampleItemLootTable_Horror)
+             is more relevant if we add random loot.
+
+--- ACTORS NOT NEEDED (v0.1) ---------------------------------------------------
+
+  BP_ShopVendor / BP_ShopVendor_Horror / BP_ShopVendor_RPG
+    Why not: No merchants. Unless Ren becomes a "voice merchant" later
+             ("I can unlock that door for you... if you bring me something").
+
+  BP_Campfire / BP_Campfire_RPG
+    Why not: No cooking mechanic. Treatment plant, not a campsite.
+
+  BP_Workbench / BP_Workbench_RPG
+    Why not: No crafting workbench. EXCEPT: the medallion combine could
+             theoretically use this, but inventory-based combine is simpler.
+
+  BP_Smelter / BP_Smelter_RPG
+    Why not: Ore smelting. Wrong game entirely.
+
+  BP_FogDoor
+    Why not: Loading screen teleporter. May use later for level transitions
+             but not in v0.1 (single level).
+
+  BP_DropAICharacter / BP_FighterAICharacter / BP_GathererAICharacter
+    Why not: Moonville's AI system. We have our own crawler AI. These are
+             RPG-style enemy templates that don't fit our C++ creature system.
+
+  BP_DeathItemContainer_Horror / BP_DeathItemContainer_RPG
+    Why not: Drops inventory on player death. Could use later for corpse runs,
+             but v0.1 has checkpoint respawn (TICKET-028).
+
+--- WEAPON SYSTEM (using Kinemation instead) -----------------------------------
+
+  BP_MeleeWeaponComponent / BP_RangedWeaponComponent / BP_ThrowableWeaponComponent
+    Why not: Moonville's built-in weapon system. We use Kinemation for FPS
+             weapons instead. These are third-person oriented.
+
+  BP_BulletProjectile / BP_ArrowProjectile / BP_BallisticProjectileBase
+    Why not: Moonville projectile system. We use Kinemation hitscan.
+             EXCEPTION: BP_ThrowableExplosiveProjectile could work for grenades.
+
+  BP_Pistol / BP_Rifle / BP_Shotgun (Moonville versions)
+    Why not: These are Moonville's third-person weapon actors. We use
+             Kinemation's first-person weapon BPs instead.
+
+  ABP_Weap_Pistol / ABP_Weap_Rifle / ABP_Weap_Shotgun
+    Why not: Moonville weapon animation BPs. Kinemation handles all FP anims.
+
+--- UI WIDGETS (using Horror variants only) ------------------------------------
+
+  All WBP_*_RPG widgets
+    Why not: RPG-themed UI. Use Horror variants for The Signal's tone.
+
+  The following Horror widgets ARE recommended:
+    WBP_InventoryMenu_Horror    — Main inventory screen
+    WBP_Item_Horror             — Item slot display
+    WBP_Slot_Horror             — Grid slot
+    WBP_InteractionPopup_Horror — "Press E to pick up"
+    WBP_PickupNotification_Horror — "Obtained: Medkit"
+    WBP_ItemDescriptionSimple_Horror — Item tooltip
+    WBP_ItemShortcutCross_Horror — Quick-slot cross (RE2 style)
+    WBP_ShortcutItem_Horror     — Quick-slot item display
+    WBP_ContextMenu_Horror      — Right-click/use/combine/drop menu
+    WBP_FirstTimePickupNotification_Horror — "NEW: Police Shotgun"
+
+
+================================================================================
+PART 3: MOONVILLE SYSTEM FEATURES — COMPLETE REFERENCE
+================================================================================
+
+Everything the plugin can do, whether we use it now or not.
+
+  CORE SYSTEMS (using in v0.1):
+    [x] Grid-based inventory with drag-and-drop
+    [x] Item DataAsset definitions (type, icon, mesh, weight, stackable)
+    [x] Item actions (use, equip, consume, examine)
+    [x] Quick-slot shortcut cross (keys 1-4)
+    [x] World pickups (BP_ItemPickup — place in level, set item DA)
+    [x] Item containers (BP_ItemPickupChest — multi-item loot)
+    [x] Locked doors (BP_InventoryDoor — requires specific item)
+    [x] Item triggers (BP_HasItemTrigger — checks if player has item)
+    [x] Item puzzles (BP_ItemPuzzle — requires multiple items)
+    [x] Crafting/combining (DA_RecipeMedallion — two halves → whole)
+    [x] Interaction component (BP_InteractionComponent — E key pickup)
+    [x] Interaction popup (WBP_InteractionPopup_Horror — "Press E")
+    [x] Pickup notification (WBP_PickupNotification_Horror — "Obtained X")
+    [x] Horror-themed UI widgets (dark, minimal, atmospheric)
+    [x] Save/load integration (BP_InventorySavegameObject)
+    [x] Item inspection (BP_InspectionViewer_Horror — 3D rotate/examine)
+
+  AVAILABLE BUT NOT IN v0.1 SCOPE:
+    [ ] Equipment system (armor slots, visual attachment)
+    [ ] Survival stats (hunger, thirst, stamina tracking)
+    [ ] Vendor/shop system (buy/sell with currency)
+    [ ] Crafting workbench (recipe-based crafting stations)
+    [ ] Campfire/smelter (cooking, ore processing)
+    [ ] Loot tables (random drops from containers/enemies)
+    [ ] AI item drops (enemies drop inventory on death)
+    [ ] Death container (player drops items on death)
+    [ ] Fog door/teleporter (level transitions)
+    [ ] Inventory expansion items
+    [ ] Throwable weapon system (grenades use this if added)
+
+  INTERFACES PROVIDED:
+    BPI_Inventory        — Core inventory add/remove/query
+    BPI_ItemAction       — Item usage callbacks
+    BPI_Equipment        — Equipment slot management
+    BPI_Interaction      — Object interaction protocol
+    BPI_InventorySaveActor — Save/load for inventory actors
+    BPI_SurvivalInfo     — Health/hunger/thirst tracking
+    BPI_WeaponAmmoInfo   — Ammo display for weapons
+
+
+================================================================================
+PART 4: LEVEL DESIGNER GUIDE — PLACING ITEMS IN THE MAP
+================================================================================
+
+You are placing items in UE5 editor. You do NOT need to write code.
+These instructions use exact editor labels you'll see on screen.
+
+--- PLACING A SIMPLE PICKUP (weapon, ammo, medkit, key) -----------------------
+
+  1. In Content Browser, navigate to:
+     InventorySystemPro > Blueprints > Actors > Pickup
+
+  2. Drag "BP_ItemPickup" into the viewport where you want the item.
+
+  3. With the pickup selected, look at the Details panel on the right.
+
+  4. Find the property "Item" (under the Pickup category).
+     Click the dropdown and select the item DataAsset you want:
+       - DA_Grace_Pistol     (Viper handgun)
+       - DA_Medkit            (First aid kit)
+       - DA_Ammo_9mm          (Handgun ammo)
+       - DA_Ammo_Buckshot     (Shotgun shells)
+       - DA_Keycard            (Access card)
+       - DA_DoorKeyBlack       (Physical key)
+       - etc.
+
+  5. Set "Amount" to how many the player gets (1 for weapons/keys,
+     12 for 9mm ammo, 4 for buckshot, etc.)
+
+  6. The pickup will use the item's mesh and appear in the world.
+     Player walks up, sees interaction popup, presses E, item goes
+     to inventory.
+
+--- PLACING A CONTAINER (chest, crate, supply cabinet) -------------------------
+
+  1. Drag "BP_ItemPickupChest" or "BP_ItemContainer_Horror" into the level.
+
+  2. In Details, find the "Items" array.
+
+  3. Add entries — each entry is an item DA + amount.
+     Example supply cabinet:
+       Entry 0: DA_Medkit, Amount 1
+       Entry 1: DA_Ammo_9mm, Amount 12
+       Entry 2: DA_Ammo_Buckshot, Amount 4
+
+  4. Player interacts → container UI opens → player takes what they want.
+
+--- PLACING A LOCKED DOOR ------------------------------------------------------
+
+  1. Drag "BP_InventoryDoor" into the level at a doorway.
+
+  2. In Details, find "Required Item" and set it to the key DA:
+       - DA_Keycard            (electronic door)
+       - DA_DoorKeyBlack       (mechanical door)
+       - DA_MedallionComplete  (puzzle door — needs combined medallion)
+
+  3. Set "Consume Key" to true if the key should be removed from inventory
+     after use (one-time keys). Set false for reusable keycards.
+
+  4. Player approaches door → "Locked. Requires [item name]" prompt.
+     If player has the item → door opens. If not → stays locked.
+
+--- SETTING UP THE COMBINE PUZZLE (medallion) ----------------------------------
+
+  The medallion combine recipe already exists in Moonville:
+  DA_RecipeMedallion (Left + Right → Complete)
+
+  1. Place "BP_ItemPickup" in East wing:
+     Item = DA_MedallionLeftPart, Amount = 1
+
+  2. Place "BP_ItemPickup" in West wing:
+     Item = DA_MedallionRightPart, Amount = 1
+
+  3. Player picks up both halves.
+
+  4. In inventory, player selects one half → context menu → "Combine."
+     If other half is in inventory, they merge into DA_MedallionComplete.
+
+  5. Place "BP_InventoryDoor" at exit:
+     Required Item = DA_MedallionComplete, Consume Key = true
+
+  That's the full key-combine-lock loop. No code needed.
+
+--- PLACING AN ITEM TRIGGER (for scripted events) -----------------------------
+
+  1. Drag "BP_HasItemTrigger" into the level as a volume.
+
+  2. Set "Required Item" to the item DA you want to check for.
+
+  3. Wire the trigger's output event to whatever you want to happen
+     (open a door, play a sequence, spawn enemies, trigger dialogue).
+
+  4. Player enters the volume WITH the required item → event fires.
+     Without the item → nothing happens.
+
+
+================================================================================
+PART 5: LEVEL DESIGNER GUIDE — CREATING NEW ITEMS
+================================================================================
+
+When you need an item that doesn't exist yet. No code required for basic items.
+
+--- CREATING A NEW ITEM DATAASSET ----------------------------------------------
+
+  1. In Content Browser, navigate to: Core > Items
+
+  2. Right-click → Miscellaneous → Data Asset
+
+  3. Select parent class: "PDA_Item" (Moonville's base item class)
+
+  4. Name it following convention: DA_[ItemName]
+     Examples: DA_LabKeycard, DA_Syringe, DA_Flashlight, DA_SecurityBadge
+
+  5. Open the new DA. Fill in these fields:
+
+     REQUIRED:
+       Item Name:        Display name shown in UI ("Lab Keycard")
+       Item Description: Tooltip text ("Level 3 access card for the east wing")
+       Item Icon:        Texture for inventory grid (drag from Content Browser)
+       Item Mesh:        Static mesh shown in world pickup (drag from CB)
+       Grid Size:        How many inventory slots it takes (X=1, Y=1 for small)
+       Max Stack:        How many can stack (1 for unique keys, 99 for ammo)
+       Item Tags:        Categories from DT_InventoryTags (Weapon, Consumable,
+                         KeyItem, Ammo, etc.)
+
+     OPTIONAL:
+       Item Weight:      For weight-based inventory limits (if enabled)
+       Item Rarity:      Common/Uncommon/Rare/Epic/Legendary (affects UI border)
+       Item Action:      What happens when used (see below)
+       Can Drop:         Whether player can drop this item (false for quest keys)
+       Can Examine:      Whether player can 3D-inspect this item
+       Examine Mesh:     Detailed mesh shown in inspection viewer
+
+  6. Save. The item now exists and can be placed via BP_ItemPickup.
+
+--- ITEM ACTIONS (what happens when the player "uses" an item) -----------------
+
+  Pre-built action classes (no code needed):
+
+    BP_ConsumeHealthAction   — Restores health. Set "Heal Amount" on the DA.
+    BP_EquipItemAction       — Equips to character (armor, accessories).
+    BP_ExpandInventoryAction — Adds inventory slots.
+    BP_KinemationEquipAction — Equips a Kinemation FPS weapon (our custom bridge).
+
+  To assign: Open the item DA → find "Item Action Class" → select from dropdown.
+
+  For items with NO action (keys, story items, puzzle pieces):
+    Leave Item Action Class empty. These items exist in inventory but
+    aren't "used" — they're checked by doors/triggers.
+
+--- CREATING A NEW HEALING ITEM ------------------------------------------------
+
+  1. Duplicate DA_Medkit (right-click → Duplicate)
+  2. Rename to DA_[YourItem] (e.g., DA_Bandage)
+  3. Open it, change:
+     - Item Name: "Bandage"
+     - Item Description: "Basic wound dressing. Restores a small amount of health."
+     - Item Icon: your icon texture
+     - Item Mesh: your mesh
+     - Heal Amount: 25 (or whatever)
+     - Item Action Class: BP_ConsumeHealthAction
+  4. Save. Place via BP_ItemPickup.
+
+--- CREATING A NEW KEY ITEM ----------------------------------------------------
+
+  1. Duplicate DA_DoorKeyBlack or DA_Keycard
+  2. Rename to DA_[YourKey] (e.g., DA_LabKeycard_East)
+  3. Open it, change:
+     - Item Name: "East Wing Keycard"
+     - Item Description: "Electronic access card. Level 2 clearance."
+     - Can Drop: false (player shouldn't be able to discard quest keys)
+     - Item Action Class: (leave empty — keys aren't "used," doors check for them)
+  4. Save. Place the key via BP_ItemPickup, place the door via BP_InventoryDoor
+     with Required Item = your new DA.
+
+--- CREATING A NEW WEAPON ITEM (Kinemation FPS weapon) -------------------------
+
+  This requires a C++ change to support multiple weapon classes.
+  Once that's done, the process is:
+
+  1. Duplicate DA_Grace_Pistol
+  2. Rename to DA_[WeaponName] (e.g., DA_PoliceShotgun)
+  3. Open it, change:
+     - Item Name: "Police Shotgun"
+     - Item Description: "Herrington 11-87 tactical. Facility security issue."
+     - Item Icon: shotgun icon
+     - Item Mesh: SM_Shotgun (for world pickup display)
+     - Grid Size: X=2, Y=1 (shotgun is bigger than pistol)
+     - Item Action Class: BP_KinemationEquipAction
+     - (Once C++ supports it) Weapon Class: BP_Herrington_11-87_Police
+  4. Save. Place via BP_ItemPickup.
+
+  NOTE: Until the C++ multi-weapon support is built, all weapon items
+  will equip the same pistol. This is the first thing to implement.
+
+--- USING ASSETS FROM OUTSIDE MOONVILLE ----------------------------------------
+
+  Any static mesh can be an item. You're not limited to Moonville's meshes.
+
+  To use a TreatmentStation prop as a pickup:
+  1. Create a new DA as described above
+  2. Set Item Mesh to the TreatmentStation mesh (e.g., SM_ElectricalBox_1)
+  3. Create or assign an icon texture (screenshot the mesh, crop to square,
+     import as texture — or use a placeholder)
+  4. Everything else works the same
+
+  To use a mesh from any Marketplace pack:
+  Same process. The inventory system doesn't care where the mesh comes from.
+  It just needs: a DataAsset, a mesh, and an icon.
+
+--- ICON CREATION TIPS ---------------------------------------------------------
+
+  Moonville expects square icon textures (recommended 256x256 or 512x512).
+
+  Quick method:
+  1. Place the mesh in an empty level
+  2. Position camera, take a screenshot (F9 in viewport)
+  3. Crop to square in any image editor
+  4. Import as texture, set compression to "UserInterface2D"
+  5. Assign to your item DA's Icon field
+
+  Professional method:
+  Use UE5's Scene Capture 2D to render the mesh to a Render Target,
+  then export as texture. Moonville's example items were made this way.
+
+
+================================================================================
+PART 6: QUICK REFERENCE — ALL MOONVILLE ACTOR TYPES
+================================================================================
+
+These are the actors you can drag into the level from Content Browser.
+Located in: InventorySystemPro > Blueprints > Actors
+
+  BP_ItemPickup             Single item on the ground. Set Item DA + Amount.
+  BP_ItemPickupChest        Multi-item container. Set Items array.
+  BP_ItemContainer_Horror   Horror-themed chest (dark UI when opened).
+  BP_ItemSpawnTrigger       Volume that spawns items when player enters.
+  BP_HasItemTrigger         Volume that fires event if player has specific item.
+  BP_InventoryDoor          Door that requires a specific item to open.
+  BP_InventoryTriggerDoor   Door triggered by external event (not item-based).
+  BP_ItemPuzzle             Requires multiple items placed into slots.
+  BP_ItemPuzzleFountain     Horror-themed puzzle variant.
+  BP_InspectionViewer_Horror  3D item inspection (rotate, zoom, examine).
+  BP_Campfire               Cooking station (not needed for v0.1).
+  BP_Workbench              Crafting station (not needed for v0.1).
+  BP_ShopVendor_Horror      Merchant NPC (not needed for v0.1).
+  BP_FogDoor                Level transition teleporter (not needed for v0.1).
+
+
+================================================================================
+END OF DOCUMENT
+================================================================================

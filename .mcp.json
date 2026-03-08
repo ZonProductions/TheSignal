@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "blueprint-mcp": {
+      "command": "node",
+      "args": ["Plugins/BlueprintMCP/Tools/dist/index.js"],
+      "env": {
+        "UE_PROJECT_DIR": "."
+      }
+    }
+  }
+}

@@ -1,0 +1,320 @@
+                                                                                                                                ● 0 errors, 0 warnings. Here's what the fix does:
+                                                                                                                                  The problem: At the crest, creature has 95% upward velocity from climb redirect. When it hits the wall-top floor surface,       climb state clears but all the momentum is vertical — wasted against the floor. No horizontal momentum to carry over the lip.
+                                                                                                                                
+  The fix (line 290, ZP_CreatureMovementComponent.cpp): When crest is detected (bWasClimbing && HitNormal.Z > 0.7f), redirect
+  velocity from upward to forward (away from the wall, using the saved PrevWallNormal). Preserves the creature's speed, just
+  changes direction. bJustTeleported = true ensures the end-of-frame velocity calculation doesn't overwrite the redirect.       
+
+  This is NOT a crest phase (dead end) — no new state, no multi-frame tracking. Single-frame momentum redirect at the moment of 
+  crest contact.
+
+  Open the editor and PIE test. Watch the output log for [ZP_CMC] CREST — forward redirect lines to confirm it's firing.        
+
+✻ Cogitated for 2m 34s
+
+❯ new behavior to add, when los is direct and linear and on same Z, they should increase speed a little more. Almost like a     
+   charge, but not enough to make it impossible to run away. So it should speed up to close the gap, then recognize it has     
+  caught up. Essentially, it has the WoW ability "dash" that hunter pets have.                                                  
+                                                                                                                                
+  It cleared the crest a little better that time, not perfect, but I don't have enough data to tell you the faults.             
+                                                                                                                                
+  I will say, when I broke distance through obstacles like SM_Platform_Column, it was confused and spun around a lot. We        
+  need to think of some default movement logic for when it's "scaning" or "confused" cause it just spins in circles.            
+                                                                                                                                
+  Does this make sense?                                                                                                           ⎿  Interrupted · What should Claude do instead?                                                                               
+                                                                                                                                
+❯ I am running live pie now if you need to gather data. I think great default movement would be getting height advantage to     
+   get the drop.                                                                                                                                                                                                                                                
+❯ Also if it is mid wall climb is shouldn't move horizontally at all.                                                                                                                                                                                           
+● Three changes needed. Let me gather the live log data while I code.                                                                                                                                                                                           ● Read 2 files (ctrl+o to expand)                                                                                               
+                                                                                                                                
+● Three changes:                                                                                                                
+  1. Hunt Dash — LOS clear + same Z → speed burst to close gap
+  2. Stalk retreat+climb — when confused, retreat AWAY from last known pos and seek height (fixes spinning)                     
+  3. Pure vertical climb — ClimbBlendAlpha 1.0, no horizontal drift mid-climb                                                                                                                                                                                   
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.h)                                                                       
+  ⎿  Added 4 lines
+      87    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Speed")                                            
+      88    float HuntSpeed = 300.0f;                                                                                                 89                                                                                                                        
+      90 +  /** Speed when dashing — clear LOS, same Z level. Faster to close gap but not uncatchable. */                             91 +  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Speed")
+      92 +  float HuntDashSpeed = 450.0f;                                                                                       
+      93 +
+      94    /** Speed during stalk state (UU/s). */
+      95    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Speed")
+      96    float StalkSpeed = 200.0f;
+
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.h)                                   
+  ⎿  Added 8 lines
+      123    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Hunt")
+      124    float RetargetProgressThreshold = 0.9f;                                                                                  125
+      126 +  /** Z difference tolerance (UU) for "same level" dash check. */                                                          127 +  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Hunt")
+      128 +  float HuntDashZTolerance = 150.0f;                                                                                 
+      129 +
+      130 +  /** Minimum horizontal distance (UU) to trigger dash. Won't dash when already close. */
+      131 +  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Hunt")                                            
+      132 +  float HuntDashMinDistance = 500.0f;                                                                                
+      133 +                                                                                                                     
+      134    /** Distance (UU) the creature must move within StallTimeout or target is re-evaluated. */
+      135    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Stall")
+      136    float StallDistance = 50.0f;
+
+● Now the .cpp — add dash logic in Hunt, fix Stalk to retreat+climb instead of circle.     
+    
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.cpp)    
+  ⎿  Added 35 lines                                                                                                             
+      370        }
+      371      }                                                                                                                      372
+      373 +    // --- Dash check: clear LOS + same Z → speed burst ---                                                                374 +    if (ChaseTargetActor)                                                                                            
+      375 +    {                                                                                                                      376 +      const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();                                                      377 +      const float ZDiff = FMath::Abs(CurrentLocation.Z - PlayerLoc.Z);                                                     378 +      const float HorizDist = FVector::Dist2D(CurrentLocation, PlayerLoc);                                                 379 +                                                                                                                     
+      380 +      if (ZDiff <= HuntDashZTolerance && HorizDist >= HuntDashMinDistance)
+      381 +      {                                                                                                              
+      382 +        // Line trace to check clear LOS                                                                             
+      383 +        FHitResult LOSHit;                                                                                           
+      384 +        FCollisionQueryParams QueryParams;                                                                           
+      385 +        QueryParams.AddIgnoredActor(Owner);                                                                          
+      386 +                                                                                                                     
+      387 +        const bool bBlocked = GetWorld()->LineTraceSingleByChannel(                                                  
+      388 +          LOSHit, CurrentLocation, PlayerLoc, ECC_Visibility, QueryParams);                                          
+      389 +                                                                                                                     
+      390 +        const bool bClearLOS = !bBlocked || LOSHit.GetActor() == ChaseTargetActor;                                   
+      391 +                                                                                                                     
+      392 +        if (bClearLOS)                                                                                               
+      393 +        {                                                                                                            
+      394 +          SetSpeed(HuntDashSpeed);                                                                                   
+      395 +        }                                                                                                            
+      396 +        else                                                                                                         
+      397 +        {                                                                                                            
+      398 +          SetSpeed(HuntSpeed);                                                                                       
+      399 +        }                                                                                                            
+      400 +      }                                                                                                              
+      401 +      else                                                                                                           
+      402 +      {                                                                                                              
+      403 +        // Close enough or different Z — normal hunt speed                                                           
+      404 +        SetSpeed(HuntSpeed);                                                                                         
+      405 +      }                                                                                                              
+      406 +    }                                                                                                                
+      407 +                                                                                                                     
+      408      // --- Throttled retargeting ---
+      409      if (ChaseTargetActor)
+      410      {
+
+❯ hunt dash needs a cool down though 
+
+❯ please add that 
+
+● Got it — dash needs a cooldown. Let me finish all changes with the cooldown included. Now fix the Stalk retreat+climb
+  behavior.
+
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.cpp)                                                                       ⎿  Added 19 lines, removed 9 lines
+      492      }                                                                                                                
+      493      else                                                                                                                   494      {
+      495 -      // Check if arrived at search point, pick new elevated random offset                                                 495 +      // Check if arrived at stalk point — retreat AWAY from last known pos and climb for height
+      496        const float DistToSearch = FVector::Dist(CurrentLocation, WaypointActor->GetActorLocation());                  
+      497        if (DistToSearch <= ArrivalThreshold)
+      498        {
+      499 -        const FVector RandomOffset = FVector(                                                                        
+      500 -          FMath::RandRange(-300.f, 300.f),                                                                           
+      501 -          FMath::RandRange(-300.f, 300.f),                                                                           
+      502 -          0.f                                                                                                        
+      503 -        );                                                                                                           
+      504 -        const FVector NewTarget = LastKnownPlayerLocation + RandomOffset + FVector(0.f, 0.f,                         
+          -StalkVerticalBias);                                                                                                  
+      499 +        // Direction away from where we lost the player                                                              
+      500 +        FVector AwayFromPlayer = (CurrentLocation - LastKnownPlayerLocation).GetSafeNormal2D();                      
+      501 +        if (AwayFromPlayer.IsNearlyZero())                                                                           
+      502 +        {                                                                                                            
+      503 +          AwayFromPlayer = FMath::VRand();                                                                           
+      504 +          AwayFromPlayer.Z = 0.f;                                                                                    
+      505 +          AwayFromPlayer.Normalize();                                                                                
+      506 +        }                                                                                                            
+      507 +                                                                                                                     
+      508 +        // Add randomness to retreat direction (±45 degrees) so it doesn't backtrack the same line                   
+      509 +        const float RandomAngle = FMath::RandRange(-45.f, 45.f);                                                     
+      510 +        const FVector RotatedDir = AwayFromPlayer.RotateAngleAxis(RandomAngle, FVector::UpVector);                   
+      511 +                                                                                                                     
+      512 +        const float RetreatDistance = FMath::RandRange(400.f, 800.f);                                                
+      513 +        const FVector NewTarget = CurrentLocation + RotatedDir * RetreatDistance + FVector(0.f, 0.f,                 
+          +StalkVerticalBias);                                                                                                  
+      514 +                                                                                                                     
+      515          WaypointActor->SetActorLocation(NewTarget);
+      516          SetPathTarget(WaypointActor);
+      517
+      518 -        UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Stalking — new elevated target at %s"),                         
+      519 -          *Owner->GetName(), *NewTarget.ToString());                                                                 
+      518 +        UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Stalking — retreat+climb to %s (%.0f UU away, +%.0f Z)"),       
+      519 +          *Owner->GetName(), *NewTarget.ToString(), RetreatDistance, StalkVerticalBias);                             
+      520        }
+      521      }
+      522      break;
+
+● Also fix the Stalk stall handler to use the same retreat+climb pattern instead of circling.
+    
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.cpp)   
+  ⎿  Added 8 lines, removed 7 lines                                                                                             
+      250          break;
+      251        case ECreatureState::Stalk:                                                                                          252          {
+      253 -          // Pick new elevated search point                                                                                254 -          const FVector RandomOffset = FVector(
+      255 -            FMath::RandRange(-300.f, 300.f),                                                                         
+      256 -            FMath::RandRange(-300.f, 300.f),
+      257 -            0.f
+      258 -          );                                                                                                         
+      259 -          WaypointActor->SetActorLocation(LastKnownPlayerLocation + RandomOffset + FVector(0.f, 0.f,                 
+          -StalkVerticalBias));                                                                                                 
+      253 +          // Stall during stalk — retreat away from last known and climb                                             
+      254 +          FVector AwayDir = (CurrentLocation - LastKnownPlayerLocation).GetSafeNormal2D();                           
+      255 +          if (AwayDir.IsNearlyZero())                                                                                
+      256 +          {                                                                                                          
+      257 +            AwayDir = Owner->GetActorForwardVector().GetSafeNormal2D();                                              
+      258 +          }                                                                                                          
+      259 +          const FVector StallTarget = CurrentLocation + AwayDir * 600.f + FVector(0.f, 0.f,                          
+          +StalkVerticalBias);                                                                                                  
+      260 +          WaypointActor->SetActorLocation(StallTarget);                                                              
+      261            SetPathTarget(WaypointActor);
+      262          }
+      263          break;
+
+● Now add the dash cooldown. I need to add properties and state vars to the header.
+    
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.h)     
+  ⎿  Added 8 lines                                                                                                              
+      131    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Hunt")
+      132    float HuntDashMinDistance = 500.0f;                                                                                      133
+      134 +  /** How long the dash speed burst lasts (seconds). */                                                                    135 +  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Hunt")
+      136 +  float HuntDashDuration = 3.0f;                                                                                     
+      137 +
+      138 +  /** Cooldown (seconds) after dash ends before another can trigger. */
+      139 +  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Hunt")                                            
+      140 +  float HuntDashCooldown = 8.0f;                                                                                     
+      141 +                                                                                                                     
+      142    /** Distance (UU) the creature must move within StallTimeout or target is re-evaluated. */
+      143    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior|Stall")
+      144    float StallDistance = 50.0f;
+
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.h)      
+  ⎿  Added 5 lines
+      250    // --- Hunt retarget throttle ---
+      251    double LastRetargetTime = 0.0;                                                                                           252    float DistanceAtLastRetarget = MAX_FLT;
+      253 +                                                                                                                           254 +  // --- Hunt dash state ---
+      255 +  bool bDashing = false;                                                                                             
+      256 +  float DashTimer = 0.f;
+      257 +  float DashCooldownTimer = 0.f;
+      258  };
+
+● Now rewrite the dash logic in the .cpp to use the cooldown/duration system.
+    
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.cpp)    
+  ⎿  Added 41 lines, removed 25 lines                                                                                           
+      371        }
+      372      }                                                                                                                      373
+      374 -    // --- Dash check: clear LOS + same Z → speed burst ---                                                                375 -    if (ChaseTargetActor)
+      374 +    // --- Dash: clear LOS + same Z → timed speed burst with cooldown ---                                            
+      375 +    if (bDashing)
+      376      {
+      377 -      const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();                                                
+      378 -      const float ZDiff = FMath::Abs(CurrentLocation.Z - PlayerLoc.Z);                                               
+      379 -      const float HorizDist = FVector::Dist2D(CurrentLocation, PlayerLoc);                                           
+      380 -                                                                                                                     
+      381 -      if (ZDiff <= HuntDashZTolerance && HorizDist >= HuntDashMinDistance)                                           
+      377 +      DashTimer += EvalInterval;                                                                                     
+      378 +      if (DashTimer >= HuntDashDuration)                                                                             
+      379        {
+      380 -        // Line trace to check clear LOS                                                                             
+      381 -        FHitResult LOSHit;                                                                                           
+      382 -        FCollisionQueryParams QueryParams;                                                                           
+      383 -        QueryParams.AddIgnoredActor(Owner);                                                                          
+      380 +        // Dash expired — return to hunt speed, start cooldown                                                       
+      381 +        bDashing = false;                                                                                            
+      382 +        DashTimer = 0.f;                                                                                             
+      383 +        DashCooldownTimer = 0.f;                                                                                     
+      384 +        SetSpeed(HuntSpeed);                                                                                         
+      385
+      386 -        const bool bBlocked = GetWorld()->LineTraceSingleByChannel(                                                  
+      387 -          LOSHit, CurrentLocation, PlayerLoc, ECC_Visibility, QueryParams);                                          
+      386 +        UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Dash ended — cooldown %.1fs"),                                  
+      387 +          *Owner->GetName(), HuntDashCooldown);                                                                      
+      388 +      }                                                                                                              
+      389 +    }                                                                                                                
+      390 +    else                                                                                                             
+      391 +    {                                                                                                                
+      392 +      // Tick cooldown                                                                                               
+      393 +      DashCooldownTimer += EvalInterval;                                                                             
+      394
+      395 -        const bool bClearLOS = !bBlocked || LOSHit.GetActor() == ChaseTargetActor;                                   
+      395 +      if (DashCooldownTimer >= HuntDashCooldown && ChaseTargetActor)                                                 
+      396 +      {                                                                                                              
+      397 +        const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();                                              
+      398 +        const float ZDiff = FMath::Abs(CurrentLocation.Z - PlayerLoc.Z);                                             
+      399 +        const float HorizDist = FVector::Dist2D(CurrentLocation, PlayerLoc);                                         
+      400
+      401 -        if (bClearLOS)                                                                                               
+      401 +        if (ZDiff <= HuntDashZTolerance && HorizDist >= HuntDashMinDistance)                                         
+      402          {
+      403 -          SetSpeed(HuntDashSpeed);                                                                                   
+      403 +          FHitResult LOSHit;                                                                                         
+      404 +          FCollisionQueryParams QueryParams;                                                                         
+      405 +          QueryParams.AddIgnoredActor(Owner);                                                                        
+      406 +                                                                                                                     
+      407 +          const bool bBlocked = GetWorld()->LineTraceSingleByChannel(                                                
+      408 +            LOSHit, CurrentLocation, PlayerLoc, ECC_Visibility, QueryParams);                                        
+      409 +                                                                                                                     
+      410 +          const bool bClearLOS = !bBlocked || LOSHit.GetActor() == ChaseTargetActor;                                 
+      411 +                                                                                                                     
+      412 +          if (bClearLOS)                                                                                             
+      413 +          {                                                                                                          
+      414 +            bDashing = true;                                                                                         
+      415 +            DashTimer = 0.f;                                                                                         
+      416 +            SetSpeed(HuntDashSpeed);                                                                                 
+      417 +                                                                                                                     
+      418 +            UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: DASH! Clear LOS at %.0f UU — %.0f UU/s for %.1fs"),         
+      419 +              *Owner->GetName(), HorizDist, HuntDashSpeed, HuntDashDuration);                                        
+      420 +          }                                                                                                          
+      421          }
+      422 -        else                                                                                                         
+      423 -        {                                                                                                            
+      424 -          SetSpeed(HuntSpeed);                                                                                       
+      425 -        }                                                                                                            
+      422        }
+      423 -      else                                                                                                           
+      424 -      {                                                                                                              
+      425 -        // Close enough or different Z — normal hunt speed                                                           
+      426 -        SetSpeed(HuntSpeed);                                                                                         
+      427 -      }                                                                                                              
+      423      }
+      424
+      425      // --- Throttled retargeting ---
+
+● Reset dash state on Hunt entry so it starts fresh.           
+    
+● Update(Source\TheSignal\ZP_CreatureBehaviorComponent.cpp)   
+  ⎿  Added 4 lines                                                                                                              
+      186      // Force immediate retarget on Hunt entry
+      187      LastRetargetTime = 0.0;                                                                                                188      DistanceAtLastRetarget = MAX_FLT;
+      189 +    // Dash ready immediately on hunt entry                                                                                190 +    bDashing = false;
+      191 +    DashTimer = 0.f;                                                                                                 
+      192 +    DashCooldownTimer = HuntDashCooldown; // Ready to dash right away
+      193      if (ChaseTargetActor)
+      194      {
+      195        SetPathTarget(ChaseTargetActor);
+
+● Now fix the CMC — pure vertical climb (ClimbBlendAlpha 0.80 → 1.0).
+    
+● Update(Source\TheSignal\ZP_CreatureMovementComponent.cpp)   
+  ⎿  Added 2 lines, removed 2 lines                                                                                             
+       8  // Minimum displacement (UU) to count as "actually moved"
+       9  static constexpr float MinMoveDistance = 1.0f;                                                                              10
+      11 -// How much of velocity to redirect when climbing (0-1)                                                                     12 -static constexpr float ClimbBlendAlpha = 0.80f;
+      11 +// How much of velocity to redirect when climbing (0-1). 1.0 = pure vertical, no horizontal drift.                    
+      12 +static constexpr float ClimbBlendAlpha = 1.0f;
+      13  
+      14  // Minimum speed (UU/s) during climb redirect — prevents crawling when CalcVelocity output is weak
+      15  static constexpr float MinClimbSpeed = 150.f;
+
+● Build.                                                       
+    
+● Bash(taskkill //F //IM UnrealEditor.exe 2>/dev/null; taskkill //F //IM LiveCodingConsole.exe 2>/dev/null; echo "Ready")
+  ⎿  Waiting…                                                                                                                     
+● Implementing dash, stalk retreat, and climb fix… (3m 32s · ↑ 5.9k tokens · thought for 4s)                                      ⎿  SUCCESS:nTheaprocessl"UnrealEditor.exe"nwithrPIDe3560ahaslbeen terminated.
+     SUCCESS: The process "LiveCodingConsole.exe" with PID 22404 has been terminated.                                           
+ e   Ready                                                                                                                      
+cl u                                                                                                                            
+* Implementing dash, stalk retreat, and climb fix… (3m 32s · ↑ 5.9k tokens · thought for 4s)          

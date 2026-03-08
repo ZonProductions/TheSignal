@@ -1,0 +1,15 @@
+Content/
+Saved/
+Intermediate/
+DerivedDataCache/
+Build/
+.vs/
+*.sln
+*.suo
+Binaries/
+_DEPRECATED/
+captures/
+checkpoints/
+OVRLipSyncUnrealDemo_Reference/
+OVRLipSync_ToPort/
+Plugins/

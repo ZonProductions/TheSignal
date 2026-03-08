@@ -1,0 +1,85 @@
+"""Tile a specific floor with 1x1m grid. Set FLOOR_NUM via variable before exec.
+
+Usage: set floor_num_to_tile = 2 (or 3,4,5) then exec this script.
+"""
+import unreal
+
+# This gets set externally before exec
+FLOOR_NUM = floor_num_to_tile
+
+TILE_SIZE = 100
+FLOOR_HEIGHT = 500
+COLS_PER_RUN = 5
+
+SLAB_Z = -12.87
+SLAB_Z_SCALE = 0.28
+FLOOR_MATERIAL_PATH = '/Game/office_BigCompanyArchViz/Materials/MI_Floor.MI_Floor'
+CUBE_MESH_PATH = '/Game/office_BigCompanyArchViz/StaticMesh/Environment/SM_Cube.SM_Cube'
+
+GRID_MIN_X = -4800
+GRID_MAX_X = 2200
+GRID_MIN_Y = -1800
+GRID_MAX_Y = 1400
+
+eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+ls = unreal.get_editor_subsystem(unreal.LayersSubsystem)
+
+z_offset = (FLOOR_NUM - 1) * FLOOR_HEIGHT
+prefix = f"FloorTile_F{FLOOR_NUM}_"
+
+cols = int((GRID_MAX_X - GRID_MIN_X) / TILE_SIZE)
+rows = int((GRID_MAX_Y - GRID_MIN_Y) / TILE_SIZE)
+half_tile = TILE_SIZE / 2.0
+tile_scale_xy = TILE_SIZE / 100.0
+
+all_actors = eas.get_all_level_actors()
+existing_cols = set()
+for a in all_actors:
+    label = a.get_actor_label()
+    if label.startswith(prefix):
+        parts = label.split('_')
+        if len(parts) >= 4:
+            existing_cols.add(int(parts[2]))
+
+next_col = 0
+while next_col in existing_cols:
+    next_col += 1
+
+if next_col >= cols:
+    fpfx = f"F{FLOOR_NUM}_" if FLOOR_NUM > 1 else ""
+    targets = [f"{fpfx}SM_Cube9", f"{fpfx}SM_Cube10"]
+    deleted = 0
+    for a in all_actors:
+        if a.get_actor_label() in targets:
+            scale = a.get_actor_scale3d()
+            if scale.x > 10 and scale.y > 10 and scale.z < 1:
+                eas.destroy_actor(a)
+                deleted += 1
+    print(f"F{FLOOR_NUM}: COMPLETE ({cols*rows} tiles). Deleted {deleted} slabs.")
+    raise SystemExit
+
+cube_mesh = unreal.load_asset(CUBE_MESH_PATH)
+floor_mat = unreal.load_asset(FLOOR_MATERIAL_PATH)
+sma_class = unreal.StaticMeshActor.static_class()
+
+end_col = min(next_col + COLS_PER_RUN, cols)
+spawned = 0
+
+for col in range(next_col, end_col):
+    x = GRID_MIN_X + half_tile + col * TILE_SIZE
+    for row in range(rows):
+        y = GRID_MIN_Y + half_tile + row * TILE_SIZE
+        z = SLAB_Z + z_offset
+        tile = eas.spawn_actor_from_class(sma_class, unreal.Vector(x, y, z))
+        if not tile:
+            continue
+        tile.set_actor_scale3d(unreal.Vector(tile_scale_xy, tile_scale_xy, SLAB_Z_SCALE))
+        comp = tile.get_components_by_class(unreal.StaticMeshComponent)[0]
+        comp.set_static_mesh(cube_mesh)
+        comp.set_material(0, floor_mat)
+        tile.set_actor_label(f"FloorTile_F{FLOOR_NUM}_{col:02d}_{row:02d}")
+        ls.add_actor_to_layer(tile, f"Floor_{FLOOR_NUM}")
+        spawned += 1
+
+remaining = cols - end_col
+print(f"F{FLOOR_NUM}: cols {next_col}-{end_col-1}/{cols-1}, +{spawned} tiles, {remaining} left")
