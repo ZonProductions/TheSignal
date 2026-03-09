@@ -2,6 +2,7 @@
 
 #include "ZP_MapComponent.h"
 #include "ZP_MapVolume.h"
+#include "Components/BoxComponent.h"
 #include "EngineUtils.h"
 
 UZP_MapComponent::UZP_MapComponent()
@@ -29,6 +30,30 @@ void UZP_MapComponent::BeginPlay()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] MapComponent: %d map areas registered"), AreaVolumes.Num());
+
+	// Initial area check — overlap events don't fire if the player starts inside a volume
+	AActor* Owner = GetOwner();
+	if (Owner && CurrentAreaID.IsNone())
+	{
+		const FVector Loc = Owner->GetActorLocation();
+		for (auto& Pair : AreaVolumes)
+		{
+			AZP_MapVolume* Vol = Pair.Value;
+			if (!Vol || !Vol->AreaBounds.Get()) continue;
+
+			const FVector Center = Vol->GetActorLocation();
+			const FVector Extent = Vol->AreaBounds.Get()->GetScaledBoxExtent();
+			if (Loc.X >= Center.X - Extent.X && Loc.X <= Center.X + Extent.X &&
+				Loc.Y >= Center.Y - Extent.Y && Loc.Y <= Center.Y + Extent.Y &&
+				Loc.Z >= Center.Z - Extent.Z && Loc.Z <= Center.Z + Extent.Z)
+			{
+				SetCurrentArea(Pair.Key);
+				UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MapComponent: Player starts inside area '%s'"),
+					*Pair.Key.ToString());
+				break;
+			}
+		}
+	}
 }
 
 void UZP_MapComponent::DiscoverMap(FName AreaID)

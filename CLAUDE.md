@@ -230,6 +230,10 @@ Document every failed approach here so no session re-attempts them.
 | 2026-03-03 | MCP material pin connections (connect_material_pins) | Connections report success but don't persist through editor save/reload. Editor's in-memory state overwrites MCP's disk changes. SOLVED by using UE5 Python API (unreal.MaterialEditingLibrary) via MCP Python endpoint instead. |
 | 2026-03-03 | MCP set_expression_value for VectorParameter | XML params always serialize as strings, VectorParameter needs object {r,g,b,a}. Cannot set name or value of VectorParameters via MCP. Use Python API instead. |
 | 2026-03-03 | Parameters.TexCoords[0] in UI domain Custom HLSL | UI domain materials don't populate FMaterialPixelParameters.TexCoords. Must use TextureCoordinate node wired as Custom input pin instead. |
+| 2026-03-09 | `indirect_lighting_intensity = 0` to fix Lumen swimming pool effect | No visible difference. The swimming pool is Lumen GI probes, not indirect intensity. Must disable GI method entirely (`dynamic_global_illumination_method = NONE`). |
+| 2026-03-09 | Deleting emissive light fixture meshes (SM_LampBig, SM_Florosent) to fix swimming pool | Wrong root cause. The swimming pool effect is fundamental to Lumen GI, not caused by specific meshes. Incorrectly deleted fixtures. |
+| 2026-03-09 | `auto_exposure_bias` on PPV to control editor viewport brightness | No visible effect in editor viewport. Use `indirect_lighting_intensity` instead (0.0025 = good horror level). |
+| 2026-03-09 | DefaultEngine.ini / console commands to disable Lumen GI | Editor caches settings, ignores ini changes. Console commands target wrong context. Only PPV `dynamic_global_illumination_method = NONE` works. |
 
 ---
 

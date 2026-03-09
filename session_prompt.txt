@@ -5,8 +5,8 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session: Level Build — BigCompany 5-Floor Stacking + Door System + Material Fixes (sessions 33-34). Built AZP_InteractDoor (E-key toggle open/close), stacked BigCompany office 5 floors via duplicate_actors, disabled pack door auto-open, created floor layer system (Window > Layers), tiled all floors with 1x1m grid for carving. Also: MI_VoidCrawler restored, decals removed (SSR fix), MI_Glass→MI_Glass_AO swap, collision fixes (CTF_USE_COMPLEX_AS_SIMPLE).
-- Date: 2026-03-08
+- Last session: Session 39 — ISM Batcher + Floor Culling integration (per-floor grouping by mesh+materials, orchestrated init), Lumen swimming pool fix (PPV_GlobalDarkness disables Lumen GI, indirect_lighting_intensity=0.0025), SH2-style darkness tuning, Grace speed reduction (walk 115, sprint 205, crouch 57).
+- Date: 2026-03-09
 
 ## CAMPAIGN BUILD
 - **Vertical slice complete.** Core systems proven (player, combat, creatures, inventory, save/load, UI, interaction, lock/key).
@@ -17,10 +17,13 @@
 - **Alternate structure (under consideration):** Dual protagonist — Grace through B1-3, meet new character (MGS/AC playstyle), Treatment Facility, replay B1-3 as new character, Labs as both. Would require second character controller + animation set.
 
 ## CURRENT PRIORITIES
-1. FIX: Grenade not consumed from inventory/quick slot after throwing (IN PROGRESS — ConsumedSlots approach failed, need weapon-class-level tracking)
-2. TICKET-046–050: Creature roster — Blind Monster, Oozling (BigBlob), Environmental Hazards (Biomass + Muscle Tentacles), Void Ink reskin. Brute DEFERRED.
-3. TICKET-042: Custom dialogue widget — Replace DemoDialogueWidget with project-styled WBP
-4. (Review remaining PLANNED tickets for next priorities)
+1. ~~TICKET-053: Floor splotch flickering~~ DONE — Lumen GI disabled via PPV_GlobalDarkness, brightness tuned to 0.0025
+2. TICKET-052: Background environment — tech campus at night visible outside building windows
+3. FIX: DoorSign orientation — red arrow parallel to rectangle length, can't face door surface
+3. FIX: Grenade not consumed from inventory/quick slot after throwing (IN PROGRESS — ConsumedSlots approach failed, need weapon-class-level tracking)
+4. TICKET-046–050: Creature roster — Blind Monster, Oozling (BigBlob), Environmental Hazards (Biomass + Muscle Tentacles), Void Ink reskin. Brute DEFERRED.
+5. TICKET-042: Custom dialogue widget — Replace DemoDialogueWidget with project-styled WBP
+6. Rebuild C++ — ZP_CrawlerMovementComponent debug log wrapping needs build to take effect
 
 ### Post-Rebuild Reminder
 After every C++ rebuild, run ALL CDO properties via MCP Python:
@@ -901,18 +904,62 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - **Remaining:** Wire C++ leg count properties to BP_Monster_Pawn's Monster Randomizer (MCP, requires editor open). Create variant child BPs.
 
 ### TICKET-051 — In-Game Map System
-- Status: PLANNED
+- Status: IN PROGRESS
 - Priority: HIGH
 - Category: Gameplay
 - Notes:
-  - Player-accessible map for navigating the facility
-  - Scope, style, and implementation approach TBD
+  - RE/Silent Hill style: pre-authored floor plans per area, picked up as items
+  - **C++ foundation BUILT (session 39):** ZP_MapComponent, ZP_MapWidget, ZP_MapVolume, ZP_MapPickup, ZP_MapTypes
+  - **Capture script BUILT:** Scripts/Python/capture_map.py — orthographic top-down SceneCapture2D, strips visual noise, exports texture
+  - **Integration DONE:** MapComp on Grace, MapAction input, bMapOpen blocks gameplay input, MapWidget on PlayerController
+  - **Remaining:** Create IA_Map + WBP_Map in editor, place MapVolumes, run capture script, place MapPickups
+  - **Future:** Save/load integration for DiscoveredMaps, page switching between areas, ceiling-hiding in capture script
+
+### TICKET-052 — Background Environment: Tech Campus at Night
+- Status: PLANNED
+- Priority: HIGH
+- Category: Level Design
+- Notes:
+  - Building 1 currently floats in black void — need visible outdoor environment through windows
+  - Must look like a high-tech research campus at night (think BioShock Infinite Columbia skybox but corporate/modern)
+  - **Required elements:**
+    1. **Campus grounds** — parking lots, walkways, landscaping, concrete/asphalt surfaces surrounding Building 1
+    2. **Background buildings** — other campus structures visible at medium distance (labs, server buildings, admin offices). Static meshes or billboard LODs. Don't need interiors.
+    3. **Night sky** — moon, stars, subtle cloud layer. SkyAtmosphere + DirectionalLight as moon already set up (setup_night_sky.py)
+    4. **Outdoor lighting** — street lights, parking lot lights, building exterior accent lights (warm pools of light breaking up the darkness)
+    5. **Ground terrain** — landscape or large static mesh with dark asphalt/concrete material. Current NightGround plane is placeholder.
+    6. **Perimeter elements** — security fencing, gate, campus signage, trees/shrubs silhouettes
+  - **Proposed solutions:**
+    - **Option A: HDRI Skybox + Modular Kit** — Use a nighttime city/campus HDRI for distant background. Place modular building meshes (from marketplace or kitbash) at medium distance for parallax. Landscape actor for ground with dark asphalt material. Point/spot lights for street lamps.
+    - **Option B: Full 3D Campus** — Model/purchase campus environment pack. Place actual building meshes around Building 1. More work but better parallax and lighting interaction. Could reuse BigCompany meshes for neighboring buildings.
+    - **Option C: Hybrid** — HDRI for far background (city skyline, mountains). 3D meshes for near/mid ground (parking lot, 2-3 neighboring buildings, fencing). Best balance of effort vs quality.
+    - **Recommended: Option C (Hybrid)** — HDRI skybox for horizon, 2-3 simple building shells nearby, landscape ground with parking lot material, street light actors with warm point lights.
+  - **Assets needed:** Nighttime HDRI (free on polyhaven.com or similar), dark asphalt material, street light mesh, simple building shell meshes (can reuse/scale BigCompany exterior walls)
+  - **Already done:** Night atmosphere basics via setup_night_sky.py (moon, fog, exposure, ground plane placeholder)
+
+### TICKET-053 — Floor Splotch Flickering / Swimming Pool Effect (Lumen GI)
+- Status: DONE
+- Priority: CRITICAL
+- Category: Infrastructure
+- Notes:
+  - **Root cause:** Lumen's temporal GI probe system causes swimming-pool caustic light patterns. NOT caused by emissive materials, light fixtures, or ISM batcher specifically.
+  - **Fix (session 39):** PPV_GlobalDarkness (unbound, priority 10) disables Lumen GI entirely:
+    - `dynamic_global_illumination_method = NONE`
+    - `reflection_method = SCREEN_SPACE`
+    - `indirect_lighting_intensity = 0.0025` (tuned brightness — horror darkness with subtle fill)
+  - **Brightness control:** `indirect_lighting_intensity` is the working knob. `auto_exposure_bias` had no effect on editor viewport. Scale: 0.0=black, 0.0025=good horror, 0.1=way too bright.
+  - **UE5 Python property name:** `override_dynamic_global_illumination_method` (NOT `_type`)
+  - **Scripts:** `_fix_ppv_no_lumen.py` (disables Lumen), `_bump_light.py` (brightness tuning), `_check_ppv2.py` (diagnostic)
+  - **Side effects:** All interior SpotLight/RectLight actors + light fixture meshes were deleted during troubleshooting (incorrect root cause). May need partial restoration later.
+  - See `memory/lighting.md` for full documentation.
 
 ## BLOCKERS
 - **BLOCKER 002:** Cannot override parent BP functions via MCP (blocks GASP camera override)
 - **BLOCKER 003:** Cannot set pin default object references reliably (partial)
 
 ## RECENTLY COMPLETED
+- **Performance Optimization (2026-03-09, session 38)** — CSV profiled PIE: 10 FPS avg, 38K draw calls, 43K actors, 1060 lights, GPU mem nearly maxed (7.8/8.2 GB). Created ZP_RuntimeISMBatcher (batches repeated StaticMeshActors into ISMs at BeginPlay, restores on EndPlay — keeps editor editable). FPS jumped to 47 with batcher. Deleted 3,567 blind actors (cosmetic archviz bloat). Disabled shadows on 531 lights via Python. Glass panels restored to F1-F4 elevator walls. UNRESOLVED: Lumen floor splotch flickering — see TICKET-053.
+- **Building 1 Polish (2026-03-09, sessions 35-37)** — Door interaction triggers replicated F1→F2-F5 (64 new triggers, 80 total). Props/furniture deleted from F1-F4 (9,130 actors removed, 13,991 structural kept, F5 untouched). Night sky atmosphere: DirectionalLight as moon (10 lux, 7500K), SkyAtmosphere, ExponentialHeightFog (volumetric), PostProcessVolume (histogram auto-exposure), ground plane placeholder. ZP_CrawlerMovementComponent: 52 debug UE_LOG calls wrapped in `#if ZP_CMC_DEBUG_LOGS` (not yet built). Scripts: create_floor_door_triggers.py, clear_floor_props.py, setup_night_sky.py.
 - **TICKET-041 + TICKET-042 DONE — NPC Dialogue + Lip Sync + Behaviors (2026-03-07, sessions 31-32)** — OVRLipSync C API viseme analysis → PoseableMeshComponent jaw bone rotation (lazy init preserves CC presets). NPC behaviors: immovable (MOVE_None), face player (RInterpTo), gesture animations (Talking_01-04 as dynamic montages, audio-gated). Full dialogue pipeline: approach → prompt → interact → widget + lip sync + gestures → close → restore.
 - **Inventory Multi-Weapon System (2026-03-03, session 23)** — EquipWeaponClass(TSubclassOf) on KinemationComp with per-weapon config (mag/rate/dmg). C++ Input_InventorySlot reads Moonville ShortcutIndex (1-based) and calls EquipWeaponClass directly, bypassing broken Moonville RPCs. SM_PoliceShotgun converted from SKM via FBX pipeline. DA_PoliceShotgun + DA_AssaultRifle created. Shortcut slot assignment bug remains (pistol ShortcutIndex=0).
 - **TICKET-031 Phase 1 DONE — Xbox Controller Bindings (2026-03-03, session 22)** — All 15 input actions mapped to gamepad in IMC_Grace. Right stick: radial dead zone + negate Y + scalar sensitivity. Sprint: hold L3. No C++ changes needed — Enhanced Input handles device routing transparently.

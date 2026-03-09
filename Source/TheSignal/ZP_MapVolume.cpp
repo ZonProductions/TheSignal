@@ -27,6 +27,9 @@ void AZP_MapVolume::BeginPlay()
 
 	AreaBounds->OnComponentBeginOverlap.AddDynamic(this, &AZP_MapVolume::OnOverlapBegin);
 	AreaBounds->OnComponentEndOverlap.AddDynamic(this, &AZP_MapVolume::OnOverlapEnd);
+
+	// Detect actors already inside the volume at spawn (player may start inside)
+	AreaBounds->UpdateOverlaps();
 }
 
 FVector2D AZP_MapVolume::GetWorldBoundsMin() const

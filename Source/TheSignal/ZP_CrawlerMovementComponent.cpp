@@ -4,6 +4,8 @@
 #include "ZP_WallMap.h"
 #include "GameFramework/Character.h"
 
+#define ZP_CMC_DEBUG_LOGS 0
+
 // Minimum displacement (UU) to count as "actually moved"
 static constexpr float MinMoveDistance = 1.0f;
 
@@ -39,10 +41,12 @@ static constexpr float FloorProbeAhead = 120.f;	// UU forward to check
 static constexpr float FloorProbeDepth = 2000.f;	// Probe trace length downward
 static constexpr float FloorProbeMaxDrop = 500.f;	// Max acceptable elevation drop
 
+#if ZP_CMC_DEBUG_LOGS
 // Throttle ROUTINE logging (PreMove/END summaries). 0.25s = 4x/sec/creature.
 // IMPORTANT events (vault, climb, crest, bail, wall-hit) ALWAYS log regardless.
 static double LastLogTime = 0.0;
 static constexpr double LogInterval = 0.25;
+#endif
 
 // --- Constructor ---
 
@@ -69,8 +73,10 @@ void UZP_CrawlerMovementComponent::LaunchAtTarget(const FVector& TargetLocation)
 {
 	if (bLaunching || IsLaunchOnCooldown())
 	{
+#if ZP_CMC_DEBUG_LOGS
 		UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: LaunchAtTarget REJECTED — launching=%d cooldown=%d"),
 			*GetOwner()->GetName(), bLaunching, IsLaunchOnCooldown());
+#endif
 		return;
 	}
 
@@ -107,16 +113,20 @@ void UZP_CrawlerMovementComponent::LaunchAtTarget(const FVector& TargetLocation)
 	WallContactTimer = 0.f;
 	ContactWallNormal = FVector::ZeroVector;
 
+#if ZP_CMC_DEBUG_LOGS
 	UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: === LAUNCH === vel=(%s) speed=%.0f horizDist=%.0f heightDiff=%.0f"),
 		*GetOwner()->GetName(), *LaunchVelocity.ToCompactString(), LaunchVelocity.Size(), HorizDist, HeightDiff);
+#endif
 }
 
 void UZP_CrawlerMovementComponent::BeginSlam(float RiseHeight, float HoldDuration, float FallSpeed)
 {
 	if (bSlamming || bLaunching)
 	{
+#if ZP_CMC_DEBUG_LOGS
 		UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: BeginSlam REJECTED — slamming=%d launching=%d"),
 			*GetOwner()->GetName(), bSlamming, bLaunching);
+#endif
 		return;
 	}
 
@@ -130,8 +140,10 @@ void UZP_CrawlerMovementComponent::BeginSlam(float RiseHeight, float HoldDuratio
 	WallContactTimer = 0.f;
 	ContactWallNormal = FVector::ZeroVector;
 
+#if ZP_CMC_DEBUG_LOGS
 	UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: === SLAM BEGIN === wind-up %.1fs"),
 		*GetOwner()->GetName(), HoldDuration);
+#endif
 }
 
 bool UZP_CrawlerMovementComponent::IsLaunchOnCooldown() const
@@ -155,7 +167,9 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 	deltaTime = FMath::Min(deltaTime, 0.05f);
 
 	const double Now = FPlatformTime::Seconds();
+#if ZP_CMC_DEBUG_LOGS
 	const bool bLog = (Now - LastLogTime) > LogInterval;
+#endif
 
 	RestorePreAdditiveRootMotionVelocity();
 
@@ -167,11 +181,13 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		if (ClimbBailCooldown < 0.f) { ClimbBailCooldown = 0.f; }
 
 		// Log when cooldown expires
+#if ZP_CMC_DEBUG_LOGS
 		if (PrevCooldown > 0.f && ClimbBailCooldown <= 0.f)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: ClimbBailCooldown EXPIRED — can climb again"),
 				*GetOwner()->GetName());
 		}
+#endif
 	}
 
 	// Tick down crest anti-repeat timer (prevents re-climbing same wall after crest)
@@ -198,14 +214,18 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		{
 			bSlamming = false;
 			bSlamImpacted = true;
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: === SLAM IMPACT === (%.1fs wind-up)"),
 				*GetOwner()->GetName(), SlamTimer);
+#endif
 		}
+#if ZP_CMC_DEBUG_LOGS
 		else if (bLog)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: SLAMMING — timer=%.2f/%.2f"),
 				*GetOwner()->GetName(), SlamTimer, SlamHoldTime);
 		}
+#endif
 	}
 	else if (bLaunching)
 	{
@@ -216,11 +236,13 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		const float LaunchDropLimit = 300.f;
 		const float CurrentZ = UpdatedComponent->GetComponentLocation().Z;
 
+#if ZP_CMC_DEBUG_LOGS
 		if (bLog)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: LAUNCHING — vel=(%s) Z=%.0f startZ=%.0f timeLeft=%.2f"),
 				*GetOwner()->GetName(), *LaunchVelocity.ToCompactString(), CurrentZ, LaunchStartZ, LaunchTimeRemaining);
 		}
+#endif
 
 		if (CurrentZ < LaunchStartZ - LaunchDropLimit)
 		{
@@ -228,8 +250,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 			LaunchVelocity = FVector::ZeroVector;
 			LaunchTimeRemaining = 0.f;
 			LastLandingTime = Now;
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: LAUNCH VOID ABORT — dropped %.0f below start"),
 				*GetOwner()->GetName(), LaunchStartZ - CurrentZ);
+#endif
 		}
 		else if (LaunchTimeRemaining <= 0.f)
 		{
@@ -237,8 +261,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 			LaunchVelocity = FVector::ZeroVector;
 			LaunchTimeRemaining = 0.f;
 			LastLandingTime = Now;
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: LAUNCH EXPIRED — timed out"),
 				*GetOwner()->GetName());
+#endif
 		}
 	}
 	else if (WallContactTimer > 0.f && !ContactWallNormal.IsNearlyZero())
@@ -249,12 +275,14 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		FVector ClimbDir = (WallUp * 0.90f - ContactWallNormal * 0.10f).GetSafeNormal();
 		Velocity = ClimbDir * Speed;
 
+#if ZP_CMC_DEBUG_LOGS
 		if (bLog)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: CLIMBING — vel=(%s) speed=%.0f wallTimer=%.2f wallN=(%s) targetZ=%.0f"),
 				*GetOwner()->GetName(), *Velocity.ToCompactString(), Speed, WallContactTimer,
 				*ContactWallNormal.ToCompactString(), ClimbTargetZ);
 		}
+#endif
 	}
 	else
 	{
@@ -273,6 +301,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		const float HorizDistToTarget = FVector(ToTarget.X, ToTarget.Y, 0.f).Size();
 		const float ZDiffToTarget = ToTarget.Z;
 
+#if ZP_CMC_DEBUG_LOGS
 		if (bLog)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: GROUND — target=(%s) dist=%.0f hDist=%.0f zDiff=%.0f speed=%.0f climb=%d bailCD=%.2f actor=%s"),
@@ -280,6 +309,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 				ZDiffToTarget, Speed, bClimbEnabled, ClimbBailCooldown,
 				MoveTargetActor.IsValid() ? *MoveTargetActor->GetName() : TEXT("none"));
 		}
+#endif
 
 		if (!HorizDir.IsNearlyZero() && Speed > UE_SMALL_NUMBER)
 		{
@@ -304,21 +334,25 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 					if (DropAhead > FloorProbeMaxDrop)
 					{
 						bSafeGround = false;
+#if ZP_CMC_DEBUG_LOGS
 						if (bLog)
 						{
 							UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: FLOOR PROBE — drop=%.0f > max=%.0f, UNSAFE"),
 								*GetOwner()->GetName(), DropAhead, FloorProbeMaxDrop);
 						}
+#endif
 					}
 				}
 				else
 				{
 					bSafeGround = false;
+#if ZP_CMC_DEBUG_LOGS
 					if (bLog)
 					{
 						UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: FLOOR PROBE — no ground ahead, UNSAFE"),
 							*GetOwner()->GetName());
 					}
+#endif
 				}
 			}
 
@@ -352,19 +386,23 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 					Velocity.Y = 0.f;
 				}
 
+#if ZP_CMC_DEBUG_LOGS
 				UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: DROPOFF — %s"),
 					*GetOwner()->GetName(), bAltSafe ? TEXT("rerouted perpendicular") : TEXT("STOPPED"));
+#endif
 			}
 		}
 		else
 		{
 			Velocity.X = 0.f;
 			Velocity.Y = 0.f;
+#if ZP_CMC_DEBUG_LOGS
 			if (bLog)
 			{
 				UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: GROUND — no direction or zero speed, zeroed horizontal"),
 					*GetOwner()->GetName());
 			}
+#endif
 		}
 
 		Velocity.Z -= GroundGravity * deltaTime;
@@ -374,6 +412,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 	// ========================================================================
 	// PRE-MOVE SUMMARY
 	// ========================================================================
+#if ZP_CMC_DEBUG_LOGS
 	if (bLog)
 	{
 		const FVector Pos = UpdatedComponent->GetComponentLocation();
@@ -381,6 +420,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 			*GetOwner()->GetName(), *Velocity.ToString(), Velocity.Size(), *Pos.ToCompactString(),
 			WallContactTimer, bClimbEnabled, ClimbBailCooldown, bLaunching, bSlamming);
 	}
+#endif
 
 	Iterations++;
 	bJustTeleported = false;
@@ -397,14 +437,18 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		{
 			WallContactTimer = 0.f;
 			ContactWallNormal = FVector::ZeroVector;
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: WallContactTimer EXPIRED — dropped off wall"),
 				*GetOwner()->GetName());
+#endif
 		}
 	}
 
 	if (Adjusted.IsNearlyZero())
 	{
+#if ZP_CMC_DEBUG_LOGS
 		if (bLog) { LastLogTime = Now; }
+#endif
 		return;
 	}
 
@@ -421,6 +465,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		const bool bIsWall = FMath::Abs(HitNormal.Z) < WallZThreshold;
 		const bool bIsCeiling = HitNormal.Z < -0.3f;
 
+#if ZP_CMC_DEBUG_LOGS
 		// ALWAYS log hits — this is the most important diagnostic
 		UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: HIT — N=(%s) |N.Z|=%.3f thresh=%.2f Wall=%d Ceil=%d Floor=%d Time=%.3f Actor=%s Comp=%s"),
 			*GetOwner()->GetName(), *HitNormal.ToCompactString(),
@@ -429,6 +474,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 			Hit.Time,
 			Hit.GetActor() ? *Hit.GetActor()->GetName() : TEXT("null"),
 			Hit.GetComponent() ? *Hit.GetComponent()->GetName() : TEXT("null"));
+#endif
 
 		if (bIsWall)
 		{
@@ -440,8 +486,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 				: FVector::DotProduct(Adjusted2D.GetSafeNormal(), -HitNormal);
 			bool bHandled = false;
 
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: WALL — IntoWall=%.3f hitTarget=%d climbEnabled=%d bailCD=%.2f alreadyClimbing=%d launching=%d"),
 				*GetOwner()->GetName(), IntoWall, bHitTarget, bClimbEnabled, ClimbBailCooldown, WallContactTimer > 0.f, bLaunching);
+#endif
 
 			// --- STEP 0: Cancel launch on wall impact ---
 			// Lunge must NOT pass through fences/walls. Cancel the arc immediately.
@@ -452,8 +500,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 				LaunchTimeRemaining = 0.f;
 				LastLandingTime = FPlatformTime::Seconds();
 
+#if ZP_CMC_DEBUG_LOGS
 				UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: LAUNCH WALL ABORT — hit wall during lunge, cancelling arc"),
 					*GetOwner()->GetName());
+#endif
 				// Fall through to wall slide handling
 			}
 
@@ -467,8 +517,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 				const bool bSteppedOver = StepUp(GravDir, Adjusted * (1.f - Hit.Time), Hit);
 				const float StepGain = bSteppedOver ? (UpdatedComponent->GetComponentLocation().Z - PreStepPos.Z) : 0.f;
 
+#if ZP_CMC_DEBUG_LOGS
 				UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: PATROL STEPUP — success=%d gain=%.1f"),
 					*GetOwner()->GetName(), bSteppedOver, StepGain);
+#endif
 
 				if (bSteppedOver)
 				{
@@ -499,8 +551,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 						const float CreatureZ = UpdatedComponent->GetComponentLocation().Z;
 						const float WallHeight = PotentialTopZ - CreatureZ;
 
+#if ZP_CMC_DEBUG_LOGS
 						UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: WALL FIRST CONTACT — topZ=%.0f creatureZ=%.0f wallHeight=%.0f impactZ=%.0f"),
 							*GetOwner()->GetName(), PotentialTopZ, CreatureZ, WallHeight, Hit.ImpactPoint.Z);
+#endif
 
 						if (WallHeight >= MinClimbWallHeight)
 						{
@@ -511,8 +565,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 							ClimbLastProgressZ = CreatureZ;
 							bEngageClimb = true;
 
+#if ZP_CMC_DEBUG_LOGS
 							UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: >>> CLIMB START <<< wallTop=%.0f creatureZ=%.0f height=%.0f normal=(%s)"),
 								*GetOwner()->GetName(), ClimbTargetZ, ClimbLastProgressZ, WallHeight, *HitNormal.ToCompactString());
+#endif
 						}
 						else
 						{
@@ -525,8 +581,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 								ContactWallNormal = FVector::ZeroVector;
 								bHandled = true;
 
+#if ZP_CMC_DEBUG_LOGS
 								UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: SHORT WALL (%.0f UU) — StepUp SUCCESS"),
 									*GetOwner()->GetName(), WallHeight);
+#endif
 							}
 							else
 							{
@@ -537,8 +595,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 								ClimbLastProgressZ = CreatureZ;
 								bEngageClimb = true;
 
+#if ZP_CMC_DEBUG_LOGS
 								UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: SHORT WALL (%.0f UU) — StepUp FAILED, brief climb to Z=%.0f"),
 									*GetOwner()->GetName(), WallHeight, PotentialTopZ);
+#endif
 							}
 						}
 					}
@@ -546,8 +606,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 					{
 						// Already climbing — refresh timer
 						bEngageClimb = true;
+#if ZP_CMC_DEBUG_LOGS
 						UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: CLIMB REFRESH — wallTimer was %.2f, refreshing to %.2f, IntoWall=%.3f"),
 							*GetOwner()->GetName(), WallContactTimer, WallContactDuration, IntoWall);
+#endif
 					}
 
 					if (bEngageClimb)
@@ -574,11 +636,14 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 							WallContactTimer = 0.f;
 							ContactWallNormal = FVector::ZeroVector;
 							bHandled = true;
+#if ZP_CMC_DEBUG_LOGS
 							UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: HUNT STEPUP fallback — success"), *GetOwner()->GetName());
+#endif
 						}
 					}
 
 					// Log WHY climbing didn't engage
+#if ZP_CMC_DEBUG_LOGS
 					if (!bHandled)
 					{
 						if (bSameWallAsCrest)
@@ -592,6 +657,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 								*GetOwner()->GetName(), ClimbBailCooldown, IntoWall, ClimbThreshold, bAlreadyClimbing);
 						}
 					}
+#endif
 				}
 			} // end STEP 2 scope
 
@@ -609,8 +675,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 						if (!Perp.IsNearlyZero())
 						{
 							WallSlide = Perp * Remainder.Size();
+#if ZP_CMC_DEBUG_LOGS
 							UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: WALL SLIDE head-on — perpendicular nudge dir=(%s)"),
 								*GetOwner()->GetName(), *Perp.ToCompactString());
+#endif
 						}
 					}
 
@@ -619,22 +687,28 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 						FHitResult SlideHit(1.f);
 						SafeMoveUpdatedComponent(WallSlide, UpdatedComponent->GetComponentQuat(), true, SlideHit);
 
+#if ZP_CMC_DEBUG_LOGS
 						if (bLog)
 						{
 							UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: WALL SLIDE — dir=(%s) blocked=%d"),
 								*GetOwner()->GetName(), *WallSlide.GetSafeNormal().ToCompactString(), SlideHit.bBlockingHit);
 						}
+#endif
 					}
 					else
 					{
+#if ZP_CMC_DEBUG_LOGS
 						UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: WALL SLIDE — zero slide vector, stuck"),
 							*GetOwner()->GetName());
+#endif
 					}
 				}
 				else
 				{
+#if ZP_CMC_DEBUG_LOGS
 					UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: HIT TARGET ACTOR — not sliding"),
 						*GetOwner()->GetName());
+#endif
 				}
 			}
 			else if (WallContactTimer > 0.f)
@@ -653,16 +727,20 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 					{
 						FVector UpMove = FVector(0.f, 0.f, 1.f) * Remainder.Size();
 						MoveUpdatedComponent(UpMove, UpdatedComponent->GetComponentQuat(), false);
+#if ZP_CMC_DEBUG_LOGS
 						UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: CLIMB SLIDE blocked — forced up %.0f"),
 							*GetOwner()->GetName(), Remainder.Size());
+#endif
 					}
 				}
 			}
 		}
 		else if (bIsCeiling)
 		{
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: CEILING HIT — N.Z=%.3f wasClimbing=%d"),
 				*GetOwner()->GetName(), HitNormal.Z, bWasClimbing);
+#endif
 
 			FVector Projected = FVector::VectorPlaneProject(Adjusted * (1.f - Hit.Time), HitNormal);
 			if (!Projected.IsNearlyZero())
@@ -716,11 +794,13 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 
 					bJustCrested = true;
 
+#if ZP_CMC_DEBUG_LOGS
 					UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: >>> CEILING CREST <<< Z=%.0f wallH=%.0f up=%.0f(tp) fwd=%.0f pos=(%s)"),
 						*GetOwner()->GetName(), CurrentZ, CeilWallHeight,
 						CeilPushUp,
 						FVector::Dist2D(PreCrestPos, PostCrestPos),
 						*PostCrestPos.ToCompactString());
+#endif
 				}
 				else
 				{
@@ -729,21 +809,27 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 					ClimbTargetZ = 0.f;
 					ClimbBailCooldown = 0.5f;
 
+#if ZP_CMC_DEBUG_LOGS
 					UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: TRUE CEILING — cleared climb, bail 0.5s"),
 						*GetOwner()->GetName());
+#endif
 				}
 			}
 			else if (bWasClimbing)
 			{
+#if ZP_CMC_DEBUG_LOGS
 				UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: ANGLED CEILING (N.Z=%.2f) — keeping climb active"),
 					*GetOwner()->GetName(), HitNormal.Z);
+#endif
 			}
 		}
 		else
 		{
 			// FLOOR
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: FLOOR HIT — N.Z=%.3f wasClimbing=%d"),
 				*GetOwner()->GetName(), HitNormal.Z, bWasClimbing);
+#endif
 
 			const FVector GravDir = FVector(0.f, 0.f, -1.f);
 			const FVector VelDir = Velocity.GetSafeNormal();
@@ -755,8 +841,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 				bSteppedUp = StepUp(GravDir, Adjusted * (1.f - Hit.Time), Hit);
 				if (bSteppedUp)
 				{
+#if ZP_CMC_DEBUG_LOGS
 					UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: FLOOR STEPUP success"),
 						*GetOwner()->GetName());
+#endif
 				}
 			}
 
@@ -806,12 +894,14 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 
 				bJustCrested = true;
 
+#if ZP_CMC_DEBUG_LOGS
 				UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: >>> FLOOR CREST <<< wallH=%.0f actualUp=%.0f/%.0f actualFwd=%.0f/%.0f upBlocked=%d fwdBlocked=%d speed=%.0f pos=(%s)"),
 					*GetOwner()->GetName(), WallHeight,
 					MidCrestPos.Z - PreCrestPos.Z, PushUp,
 					FVector::Dist2D(MidCrestPos, PostCrestPos), PushForward,
 					UpHit.bBlockingHit, FwdHit.bBlockingHit,
 					CrestSpeed, *PostCrestPos.ToCompactString());
+#endif
 			}
 
 			// Floor hit: zero accumulated gravity
@@ -825,8 +915,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 					LaunchVelocity = FVector::ZeroVector;
 					LaunchTimeRemaining = 0.f;
 					LastLandingTime = Now;
+#if ZP_CMC_DEBUG_LOGS
 					UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: LAUNCH LANDED on floor"),
 						*GetOwner()->GetName());
+#endif
 				}
 			}
 		}
@@ -837,10 +929,12 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		const float Dot = FVector::DotProduct(Hit.ImpactNormal, MoveDir);
 		const bool bCurrentlyClimbing = WallContactTimer > 0.f;
 
+#if ZP_CMC_DEBUG_LOGS
 		UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: PENETRATING — N=(%s) dot=%.3f climbing=%d actor=%s"),
 			*GetOwner()->GetName(), *Hit.ImpactNormal.ToCompactString(), Dot,
 			bCurrentlyClimbing,
 			Hit.GetActor() ? *Hit.GetActor()->GetName() : TEXT("null"));
+#endif
 
 		if (bCurrentlyClimbing && Dot > -0.5f)
 		{
@@ -856,11 +950,13 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 			MoveUpdatedComponent(Hit.ImpactNormal * 10.f, UpdatedComponent->GetComponentQuat(), false);
 		}
 	}
+#if ZP_CMC_DEBUG_LOGS
 	else if (!Hit.bBlockingHit && bLog)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: NO HIT — moved freely"),
 			*GetOwner()->GetName());
 	}
+#endif
 
 	// ========================================================================
 	// POST-MOVE
@@ -875,11 +971,13 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 		{
 			const float OldVelZ = Velocity.Z;
 			Velocity.Z = -GroundGravity * deltaTime;
+#if ZP_CMC_DEBUG_LOGS
 			if (bLog)
 			{
 				UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: GRAVITY CAP — Z was %.0f, capped to %.0f (stuck)"),
 					*GetOwner()->GetName(), OldVelZ, Velocity.Z);
 			}
+#endif
 		}
 	}
 
@@ -929,11 +1027,13 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 
 			bJustCrested = true;
 
+#if ZP_CMC_DEBUG_LOGS
 			UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: >>> TARGET CREST <<< Z=%.0f target=%.0f wallH=%.0f actualUp=%.0f/%.0f actualFwd=%.0f/%.0f speed=%.0f pos=(%s)"),
 				*GetOwner()->GetName(), CurrentZ, ClimbTargetZ, TgtWallHeight,
 				PostCrestPos.Z - PreCrestPos.Z, TgtPushUp,
 				FVector::Dist2D(PreCrestPos, PostCrestPos), TgtPushFwd,
 				CrestSpeed, *PostCrestPos.ToCompactString());
+#endif
 
 			ClimbTargetZ = 0.f;
 			ClimbStartZ = 0.f;
@@ -946,18 +1046,22 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 				ClimbStallTime = 0.f;
 				ClimbLastProgressZ = CurrentZ;
 
+#if ZP_CMC_DEBUG_LOGS
 				UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: CLIMB PROGRESS — Z=%.0f gain=%.0f target=%.0f remaining=%.0f"),
 					*GetOwner()->GetName(), CurrentZ, RecentGain, ClimbTargetZ, ClimbTargetZ - CurrentZ);
+#endif
 			}
 			else
 			{
 				ClimbStallTime += deltaTime;
 
+#if ZP_CMC_DEBUG_LOGS
 				if (bLog)
 				{
 					UE_LOG(LogTemp, Log, TEXT("[ZP_CMC] %s: CLIMB STALLING — Z=%.0f target=%.0f stallTime=%.2f/1.0s gain=%.1f"),
 						*GetOwner()->GetName(), CurrentZ, ClimbTargetZ, ClimbStallTime, RecentGain);
 				}
+#endif
 
 				if (ClimbStallTime > 1.0f)
 				{
@@ -965,8 +1069,10 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 					ContactWallNormal = FVector::ZeroVector;
 					ClimbBailCooldown = 0.8f;
 
+#if ZP_CMC_DEBUG_LOGS
 					UE_LOG(LogTemp, Warning, TEXT("[ZP_CMC] %s: >>> CLIMB BAIL <<< stuck 1s at Z=%.0f (target=%.0f), cooldown 0.8s"),
 						*GetOwner()->GetName(), CurrentZ, ClimbTargetZ);
+#endif
 
 					ClimbTargetZ = 0.f;
 					ClimbStartZ = 0.f;
@@ -1023,6 +1129,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 	// ========================================================================
 	// END-OF-FRAME SUMMARY
 	// ========================================================================
+#if ZP_CMC_DEBUG_LOGS
 	if (bLog)
 	{
 		const FVector FinalPos = UpdatedComponent->GetComponentLocation();
@@ -1031,4 +1138,5 @@ void UZP_CrawlerMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 			*FinalPos.ToCompactString(), WallContactTimer, ClimbTargetZ, ClimbBailCooldown);
 		LastLogTime = Now;
 	}
+#endif
 }

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-03-08T18:37:28",
+  "created": "2026-03-09T14:40:51",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -13779,9 +13779,13 @@
       "hash": "sha256:b629aa2db09080be305f59605d8a0417b38d63c2ca36d80adbf3dc492a0954b5",
       "size": 22021
     },
+    "Content/Core/Input/IA_Map.uasset": {
+      "hash": "sha256:b173025eec85fcd38e8d4796dbe7dcde0b0f780e6efb7bdb4881f2a1cf90dc81",
+      "size": 1353
+    },
     "Content/Core/Input/IMC_Grace.uasset": {
-      "hash": "sha256:258f70ed73799181451dbbd12d4ffa16f5fca9b7051046ab975512f47ba51448",
-      "size": 29718
+      "hash": "sha256:e8ff32ec4551d57ca4a7822b79b9492bad33ebf8e6c163cd97e2e152e8e515f4",
+      "size": 30557
     },
     "Content/Core/Input/Actions/IA_Aim.uasset": {
       "hash": "sha256:2aa39b8438b5e5976a75e8f36f593d7a477d6cda0ca1969173290fb4ca12dd2f",
@@ -13940,16 +13944,16 @@
       "size": 66735
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:193a6f799c379e06c9ce8dcbea0eeb86731cbdb9183dc5c187828369774ce7b5",
-      "size": 128938
+      "hash": "sha256:9379555f8c67b2f9a96bbbe49a64cf60be2b0c4f9387ed91bd35ad9941f7f106",
+      "size": 130752
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
       "size": 9525
     },
     "Content/Core/Player/PC_Grace.uasset": {
-      "hash": "sha256:6f77cbab136481cce0d0ca14880e38c980310b69210a44f082156e14b6ad90fb",
-      "size": 16948
+      "hash": "sha256:36c67593dcdeb8b32ee8256aa8cd4802f48e99eff499e0cf3d9789ce8b91a221",
+      "size": 17058
     },
     "Content/Dialogue/Dialogue_Test.uasset": {
       "hash": "sha256:98831845dc9341524ec30b6cdce299e0728e24f6ea87f4b94d7c49b8030bc4f2",
@@ -49456,12 +49460,12 @@
       "size": 64767
     },
     "Content/office_BigCompanyArchViz/Blueprints/BP_WCDoor01.uasset": {
-      "hash": "sha256:0a59279e0d43f97d1364d77f5fcf9b25aac96a7a7229b9e048276fb35a40dd3f",
-      "size": 59015
+      "hash": "sha256:b87b17c02bdd37c0c8bf9f62735db025b9910d4f37fce46b8d6d1d5a56748ce0",
+      "size": 66025
     },
     "Content/office_BigCompanyArchViz/Blueprints/BP_WCDoor02.uasset": {
-      "hash": "sha256:93d770d6afc67f7691b6b0b7eb6bbc07aefbdd7b7802492831700923ddee8723",
-      "size": 59105
+      "hash": "sha256:2b78fbe9bc42461a500aa7fb65f92fecc9300d0b42fbc7677ae91e045fd250f2",
+      "size": 66115
     },
     "Content/office_BigCompanyArchViz/Blueprints/FirstPersonCharacter.uasset": {
       "hash": "sha256:3d04a1805c3b8c410e82488ec05e90031012eb78842d16f13c4c2ea205ff4099",
@@ -49484,8 +49488,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:9a40340a1f03236e0af35c6779c8bc59bb446fb9c4ee914d4fc6666beaea4e0f",
-      "size": 35165707
+      "hash": "sha256:234e622e92c9471211e95cb6324074ea71b4b8b3f5b55b294d650e93030d0eea",
+      "size": 18607667
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",
@@ -49620,8 +49624,8 @@
       "size": 160324
     },
     "Content/office_BigCompanyArchViz/Materials/MI_BrickOrange.uasset": {
-      "hash": "sha256:b0f49aa616eb80a2be07f44bcb8603a504bc817b886f10d66134895398cd01f6",
-      "size": 174856
+      "hash": "sha256:0a6a00029e0bd8eee6109a6c63d769604e37a6634903785fcb871689b19e595b",
+      "size": 21058
     },
     "Content/office_BigCompanyArchViz/Materials/MI_Brifcase.uasset": {
       "hash": "sha256:3cee08b2d47638ae0efaa671eadc7bb9287bc9593a93c7555c62eb363e4b927a",
@@ -49744,8 +49748,8 @@
       "size": 128105
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ColorDarkMetallic.uasset": {
-      "hash": "sha256:f771f47c18fd20e4e8da52904c6aa46dd5839c3416b612391f8fb6c87d252d4a",
-      "size": 107806
+      "hash": "sha256:4bac2384ab97eba670888d141fd516fa35cf4c1187ed98be9e6683ebb4cf4a6b",
+      "size": 10172
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ColorOrange.uasset": {
       "hash": "sha256:187357c60fbaa3ab4ed52cbb146b252211ace41cf5dd52ff4d3a049f7bbfdd5a",
@@ -49840,8 +49844,8 @@
       "size": 107048
     },
     "Content/office_BigCompanyArchViz/Materials/MI_DoorSecurity.uasset": {
-      "hash": "sha256:84a3996e82407dcc0c9bb455acc691d24ece60865ba9426ab1f44eeb965e80a4",
-      "size": 129409
+      "hash": "sha256:3377a3cd875db6917dc55683d15b2f0cee5e86f14fcb8c664277f736556e8763",
+      "size": 12019
     },
     "Content/office_BigCompanyArchViz/Materials/MI_DoorWCmen.uasset": {
       "hash": "sha256:bb299900621ae8256377121c1b1411f353ca2db5bc66e6cda80d8e39240e0777",
@@ -49860,8 +49864,8 @@
       "size": 131575
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ElevatorBody.uasset": {
-      "hash": "sha256:70eb3de414ecc9dd537eb49a9222688bd926eefbee7e6f2676856b462791e09e",
-      "size": 109977
+      "hash": "sha256:81b419ea2d8edbd3965e5a00efcdff965accc1a2cec30f4d54c75fe3ad443b98",
+      "size": 7775
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ElevatorKeys.uasset": {
       "hash": "sha256:c0bd56c5355c0709df3f781f7a57f79e70672a74a92ee848f57aff4a84909f64",
@@ -49944,8 +49948,8 @@
       "size": 100105
     },
     "Content/office_BigCompanyArchViz/Materials/MI_GlassBlue.uasset": {
-      "hash": "sha256:ece584d5fab6cb6771dba0acd8a445e8c35c737f1f645c9bf264281245c2e5e6",
-      "size": 105680
+      "hash": "sha256:c1e2009269d9c3d7f45c2faeb01d75eaf61b79601b2835c82fbd155c2ea25b0b",
+      "size": 10568
     },
     "Content/office_BigCompanyArchViz/Materials/MI_GlassBlury.uasset": {
       "hash": "sha256:528a5a924734bbb2bb1fde96626c8177736209206a63865577098e09d614d02b",
@@ -50072,8 +50076,8 @@
       "size": 133903
     },
     "Content/office_BigCompanyArchViz/Materials/MI_OutDoorUnitB.uasset": {
-      "hash": "sha256:c7f19f0eb5f737ef320307de7f307b46f0fba3f1f4cdecf8a9f2e546b961280c",
-      "size": 147945
+      "hash": "sha256:5e764836aad2c5a50da70581ae89c806d5bb6b9ea779e0978fe1a35b94c546d7",
+      "size": 18724
     },
     "Content/office_BigCompanyArchViz/Materials/MI_OutUmbrellaBlue.uasset": {
       "hash": "sha256:42df27ab86029e7e60649c13caf34c2b62c016ef1f1a9c72a8af82ff36deab43",
@@ -50468,16 +50472,16 @@
       "size": 117008
     },
     "Content/office_BigCompanyArchViz/Materials/M_General.uasset": {
-      "hash": "sha256:3592fe3d095ef9545bc083394a829803ef131e48baba6ee16a0b3866e96d0564",
-      "size": 153985
+      "hash": "sha256:d4bf680d9a05b4cd80196bde733f0be7fceb58c21f7152dc871bed6aece55f87",
+      "size": 26519
     },
     "Content/office_BigCompanyArchViz/Materials/M_GeneralWithOpacity.uasset": {
-      "hash": "sha256:5a555b32f5bbf2d454f7ff526288fa15ba1ee690b9845fe172056ddf355a3437",
-      "size": 159001
+      "hash": "sha256:6a120beda3788a5e00224ae1efe713fa0eaa619faa0ef8cf87b37d0547e155e2",
+      "size": 29844
     },
     "Content/office_BigCompanyArchViz/Materials/M_GlassBase.uasset": {
-      "hash": "sha256:9910677ea953d7d526630d2584ccf641a89d6505f0c918c5e6937808651b4820",
-      "size": 108679
+      "hash": "sha256:35dc7619f6138e9192f52625a66574be8e4dd71b8ee71d8f6edd9e996feb160b",
+      "size": 16050
     },
     "Content/office_BigCompanyArchViz/Materials/M_GlassBlury.uasset": {
       "hash": "sha256:88e4798acb1667a8fd3cb48349f82438cf11446cd0ee97929accd5d824b28781",
@@ -50488,20 +50492,20 @@
       "size": 151900
     },
     "Content/office_BigCompanyArchViz/Materials/M_Metal.uasset": {
-      "hash": "sha256:f88b6e07b66b3fa6dabf01f8de216809ddde768149027bde31296e3cba629f26",
-      "size": 120508
+      "hash": "sha256:2743ecc22cdb89e2a7eabc946980fb1624ff79b80dfefa2c9e345cff695747c4",
+      "size": 18370
     },
     "Content/office_BigCompanyArchViz/Materials/M_PlantHBase.uasset": {
-      "hash": "sha256:056e9054923a35c4066a707ce961365767abc27ee852c40cad7948c4bc0cb4b4",
-      "size": 136780
+      "hash": "sha256:6a3ca15e8c674221383b128e694767152202960ece0cc2ac9833fd87f68dc7af",
+      "size": 15662
     },
     "Content/office_BigCompanyArchViz/Materials/M_ProbBase.uasset": {
-      "hash": "sha256:6d96dd0226a63cf5dbd25e058f3166e19edbf84b4b3a9abcd60df9e0389d04bb",
-      "size": 179755
+      "hash": "sha256:43c70ee3f0a96ee129ecdbd7ff402ffdbd9740802ec8a1f814b312e75cd6cb4d",
+      "size": 32086
     },
     "Content/office_BigCompanyArchViz/Materials/M_SimpleColor.uasset": {
-      "hash": "sha256:de8da4828dc5bf7f8997f0d0788d0ea5a6106bee13046af9a1595418035b2dcd",
-      "size": 94932
+      "hash": "sha256:d87cc2a83bbbc840a74dd0850bc0673e365aa8006c58c887e654563581303fbc",
+      "size": 12254
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Environment/SM_3partPicFrame.uasset": {
       "hash": "sha256:77ed9dd52b6629a92a64eb50781168efd6be5ba5659c49ee9e4f18e07a473ede",
@@ -51544,8 +51548,8 @@
       "size": 174645
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_Steps.uasset": {
-      "hash": "sha256:97c43ab41722615786188ca0559451d978aae3cd29e7ec9400715ffa3ef7bad3",
-      "size": 160330
+      "hash": "sha256:7074f321104c359197aa314400578d421957a951e7445667aaba6b1cc2c24f23",
+      "size": 65963
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_StepStool.uasset": {
       "hash": "sha256:4771d8470f59bdd5a23fb5f3cc0fc0770dd511c932abc40ee01fea6f4beac387",
@@ -56103,9 +56107,93 @@
       "hash": "sha256:9688a26606acd1cbdf3aad4fb82d434043d2f9e8537b2b8c20a690a50fbd5fc9",
       "size": 70324
     },
+    "Content/TheSignal/Audio/BP_AmbientMusicPlayer.uasset": {
+      "hash": "sha256:977bada6b69f82c05367d7bf872ff766920ace2988d7e5d64591e7757588199f",
+      "size": 25309
+    },
+    "Content/TheSignal/Audio/Music/SFX_Building1_Ambience.uasset": {
+      "hash": "sha256:d68bb71be8fe44ef982c6364bc46f20560c95791917577142231a768939f1517",
+      "size": 9555543
+    },
     "Content/TheSignal/Blueprints/Enemy/BP_PatrolCreature.uasset": {
       "hash": "sha256:591965a13b35e9fd800331e1ffa79aa0b47c39ad10bcc31b75584838f0562f6a",
       "size": 40427
+    },
+    "Content/TheSignal/Blueprints/LevelDesign/BP_FloorSign_1.uasset": {
+      "hash": "sha256:b21140f784d7d22293d9ccb8418c736e454e20768ee888770326e7b58a86e7f7",
+      "size": 33862
+    },
+    "Content/TheSignal/Blueprints/LevelDesign/BP_FloorSign_2.uasset": {
+      "hash": "sha256:6d66ab80b1854e9969eae1fa9db65979f4c537ed60598fe1e7af6868f30fb1c4",
+      "size": 34039
+    },
+    "Content/TheSignal/Blueprints/LevelDesign/BP_FloorSign_3.uasset": {
+      "hash": "sha256:af08803b7e38fad7baeaff96db1a03fa55e2a13dab2590cdcc66e8fc640650cb",
+      "size": 33911
+    },
+    "Content/TheSignal/Blueprints/LevelDesign/BP_FloorSign_4.uasset": {
+      "hash": "sha256:d56dafbe3cbbf7a1918121fa2698850682aded21b90b1ee511329e1d274e45da",
+      "size": 33911
+    },
+    "Content/TheSignal/Blueprints/LevelDesign/BP_FloorSign_5.uasset": {
+      "hash": "sha256:6fc5249aa98408b45274b1fe33a326aeb33800306d8e1ea940dfd80468e96250",
+      "size": 33911
+    },
+    "Content/TheSignal/Blueprints/LevelDesign/BP_FloorSign_6.uasset": {
+      "hash": "sha256:b20dad2523794ed942a50efbc814ef5669197fd0a150253755a71c9242c859b1",
+      "size": 33911
+    },
+    "Content/TheSignal/Blueprints/LevelDesign/BP_SignCover.uasset": {
+      "hash": "sha256:3010d584a505324a0de7b67366a103abda997a852674f6278686fb9691734a5d",
+      "size": 27417
+    },
+    "Content/TheSignal/Materials/MI_FloorSign_1.uasset": {
+      "hash": "sha256:761481a2327feba0a2880ae0189d362ece252dda70baf4acb046afc44e93407a",
+      "size": 10499
+    },
+    "Content/TheSignal/Materials/MI_FloorSign_2.uasset": {
+      "hash": "sha256:d012c716675ce617a1d7ce1dc8fc61721ffa0b25c2c5dd8900ef059e4c858c6c",
+      "size": 11238
+    },
+    "Content/TheSignal/Materials/MI_FloorSign_3.uasset": {
+      "hash": "sha256:44cc4793742d3c17beba5ade1006faa4e9fe228228f03de0a592c26144e49362",
+      "size": 11290
+    },
+    "Content/TheSignal/Materials/MI_FloorSign_4.uasset": {
+      "hash": "sha256:2ee5382899c98e1435507f8aaaeabf1c6289ba1297cca38af14cf7b5accc0c3d",
+      "size": 11105
+    },
+    "Content/TheSignal/Materials/MI_FloorSign_5.uasset": {
+      "hash": "sha256:806583991b7cdbf6e4960b149aad042048ac3401308e79c52ba76f894d245c42",
+      "size": 11442
+    },
+    "Content/TheSignal/Materials/MI_FloorSign_6.uasset": {
+      "hash": "sha256:b3457c998c95960fbc492c32ded7cd4c644ba02f7f4ee3782b5768c9cabb43c9",
+      "size": 11520
+    },
+    "Content/TheSignal/Materials/MI_SignCover.uasset": {
+      "hash": "sha256:8d016900a68d4df0957641465faa27a71701f8c1338a05adb5caa799fc17c842",
+      "size": 11870
+    },
+    "Content/TheSignal/Materials/MI_StallDoorCover.uasset": {
+      "hash": "sha256:f6efad451bd62a7106f9c3f53b9cc8c335a81d24af3f6c6faa57ccd9d8f4610a",
+      "size": 11016
+    },
+    "Content/TheSignal/Materials/M_DoorSignDark.uasset": {
+      "hash": "sha256:1cc2bea9be82970dde33576a4d1c9e74561787d58831bd28064ab7aee6173d5e",
+      "size": 7972
+    },
+    "Content/TheSignal/Materials/M_FloorSignDecal.uasset": {
+      "hash": "sha256:ae3194d7e5e5435b2494d0bdf69e6e56e1ac207ac0b2b2c51983939939904c57",
+      "size": 11287
+    },
+    "Content/TheSignal/Materials/M_SignCover.uasset": {
+      "hash": "sha256:43e745d16222887550eae078cefb21f37ff058e7c668dd3812c3410fdf80e3f6",
+      "size": 8027
+    },
+    "Content/TheSignal/Materials/M_StallDoor.uasset": {
+      "hash": "sha256:3d430779c491a5f3e91a3608ce2c8be634226f26d4e0a222e3b3a5b09476da58",
+      "size": 8079
     },
     "Content/TheSignal/Materials/Creatures/MI_VoidCrawler.uasset": {
       "hash": "sha256:fe4b4695beeb2b540b3e544bea9a6fe1619c6e17bb691cb8d54338b7d9036a00",
@@ -56122,6 +56210,38 @@
     "Content/TheSignal/Materials/Creatures/MI_VoidTentacle.uasset": {
       "hash": "sha256:571919d6c7952a6520f618ad8a977153049f759373ac693b55860afd1366797d",
       "size": 10815
+    },
+    "Content/TheSignal/Textures/FloorSigns/T_FloorSign_1.uasset": {
+      "hash": "sha256:e0821361520e0967e6d45b449f16f72089d5800473d17a531bdcf4c51e29a5ab",
+      "size": 17661
+    },
+    "Content/TheSignal/Textures/FloorSigns/T_FloorSign_1_Mat.uasset": {
+      "hash": "sha256:1f761429d8deccf8d3362f2f78f7c090304152642011d86b1e3043d721183524",
+      "size": 9545
+    },
+    "Content/TheSignal/Textures/FloorSigns/T_FloorSign_2.uasset": {
+      "hash": "sha256:e06ed54daf78575e403ead4883229fe8534d7154b69ffbd39eb5a3b32ff37cad",
+      "size": 23202
+    },
+    "Content/TheSignal/Textures/FloorSigns/T_FloorSign_3.uasset": {
+      "hash": "sha256:fd779904f4ce9438be372c97157ee3f85016c8951c6bb11608b0d9e040840b81",
+      "size": 25616
+    },
+    "Content/TheSignal/Textures/FloorSigns/T_FloorSign_4.uasset": {
+      "hash": "sha256:8953ec70ee6f204ba9d67d0432b93e7180e90b11b033d815fd0bb2646dbedffa",
+      "size": 19016
+    },
+    "Content/TheSignal/Textures/FloorSigns/T_FloorSign_5.uasset": {
+      "hash": "sha256:40b23419d72c4bf8b1f518039f85ca1957c3d2dd969ee8897b904c40cd892e61",
+      "size": 23278
+    },
+    "Content/TheSignal/Textures/FloorSigns/T_FloorSign_6.uasset": {
+      "hash": "sha256:1e5f2957a68b0f28da89b3dae6ec191840b2ed96a9e87eb346474854a2953f8c",
+      "size": 25507
+    },
+    "Content/TheSignal/Textures/Maps/T_Map_BigCompany_Main.uasset": {
+      "hash": "sha256:a1eb425e3b73446df2e576c25bafc1d91ff0f983e286eab2b266fb123776a644",
+      "size": 13644
     },
     "Content/ThirdPerson/Blueprints/BPI_ASSASSIN.uasset": {
       "hash": "sha256:8ac436a8e08f049a1e2393640885714c4011a539f557c21d7bff22db14324daf",
@@ -60010,6 +60130,10 @@
     "Content/Underground/Textures/Decals/T_Grunge_Decal_M.uasset": {
       "hash": "sha256:bfcbd2b584334a8b20903e1c762aee382272d9aebef7eca3b74cbee738792f5f",
       "size": 3001090
+    },
+    "Content/User_Interface/WBP_Map.uasset": {
+      "hash": "sha256:6c019d131493434c9566aab1047c569fc24014b972e1e3b680b3308bd53b0613",
+      "size": 41580
     },
     "Content/User_Interface/WB_EscapeMenu.uasset": {
       "hash": "sha256:14f3f0e26c6a6bafcb8ae05a8119a64fae74080c6b329d71d41a47015fd4a537",

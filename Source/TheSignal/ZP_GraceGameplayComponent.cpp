@@ -273,7 +273,7 @@ void UZP_GraceGameplayComponent::UpdateGASPState()
 		// Use walk speed as threshold — below it we're walking, above we're running.
 		// CharacterMovementComponent controls actual speed; we just classify it.
 		const float Speed = GetOwner() ? GetOwner()->GetVelocity().Size2D() : 0.0f;
-		const float WalkThreshold = MovementConfig ? MovementConfig->WalkSpeed : 200.0f;
+		const float WalkThreshold = MovementConfig ? MovementConfig->WalkSpeed : 115.0f;
 		GASPGait = (Speed > WalkThreshold * 0.5f) ? 1 : 0;
 	}
 }

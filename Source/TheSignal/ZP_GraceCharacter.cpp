@@ -11,6 +11,8 @@
 #include "ZP_HUDWidget.h"
 #include "ZP_Interactable.h"
 #include "ZP_MapComponent.h"
+#include "ZP_FloorCullingComponent.h"
+#include "ZP_RuntimeISMBatcher.h"
 #include "ZP_MapWidget.h"
 #include "ZP_NPCInteractionComponent.h"
 #include "Camera/CameraComponent.h"
@@ -20,6 +22,8 @@
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Animation/AnimSequenceBase.h"
 #include "Components/PostProcessComponent.h"
+#include "Components/SpotLightComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
@@ -75,6 +79,12 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// Map component — tracks discovered maps and current area
 	MapComp = CreateDefaultSubobject<UZP_MapComponent>(TEXT("MapComp"));
 
+	// Floor culling — hides actors on non-visible floors for performance
+	FloorCullingComp = CreateDefaultSubobject<UZP_FloorCullingComponent>(TEXT("FloorCullingComp"));
+
+	// Runtime ISM batching — converts repeated static meshes to instanced at play time
+	ISMBatcherComp = CreateDefaultSubobject<UZP_RuntimeISMBatcher>(TEXT("ISMBatcherComp"));
+
 	// Post-process vignette for low-health visual feedback
 	DeathVignetteComp = CreateDefaultSubobject<UPostProcessComponent>(TEXT("DeathVignetteComp"));
 	DeathVignetteComp->SetupAttachment(RootComponent);
@@ -83,9 +93,48 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	DeathVignetteComp->Settings.bOverride_VignetteIntensity = true;
 	DeathVignetteComp->Settings.VignetteIntensity = 0.f;
 
+	// --- SH2-style darkness: constrain auto-exposure so engine can't over-brighten ---
+	// Histogram mode (default) with negative bias + clamped range.
+	// NOT manual mode — manual with default physical camera settings crushes everything to black.
+	DeathVignetteComp->Settings.bOverride_AutoExposureBias = true;
+	DeathVignetteComp->Settings.AutoExposureBias = -0.5f; // darker bias without crushing
+	DeathVignetteComp->Settings.bOverride_AutoExposureMinBrightness = true;
+	DeathVignetteComp->Settings.AutoExposureMinBrightness = 0.01f; // allow very dark scenes
+	DeathVignetteComp->Settings.bOverride_AutoExposureMaxBrightness = true;
+	DeathVignetteComp->Settings.AutoExposureMaxBrightness = 1.5f; // cap brightening
+	DeathVignetteComp->Settings.bOverride_BloomIntensity = true;
+	DeathVignetteComp->Settings.BloomIntensity = 0.2f; // kill bloom glow, keep darkness crisp
+
+	// Kill Lumen's indirect GI bounce — eliminates "swimming pool" caustic effect.
+	// Only direct light (flashlight, moonlight) illuminates. No bounced fill light.
+	DeathVignetteComp->Settings.bOverride_IndirectLightingIntensity = true;
+	DeathVignetteComp->Settings.IndirectLightingIntensity = 0.0f;
+
+	// Chest/shoulder flashlight — TLOU/SH2 style
+	// Raised above weapon line + offset left so rifle doesn't block the cone
+	FlashlightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashlightComp"));
+	FlashlightComp->SetupAttachment(GetCapsuleComponent());
+	FlashlightComp->SetRelativeLocation(FVector(25.0f, -12.0f, 55.0f));
+	FlashlightComp->SetIntensity(8000.0f);        // bright enough to read surfaces down hallways
+	FlashlightComp->SetInnerConeAngle(12.0f);      // wider hotspot for hallway coverage
+	FlashlightComp->SetOuterConeAngle(28.0f);      // broader falloff — see walls and floor
+	FlashlightComp->SetAttenuationRadius(2800.0f); // longer reach for corridors
+	FlashlightComp->SetLightColor(FLinearColor(1.0f, 0.93f, 0.82f)); // slightly warmer/dingier
+	FlashlightComp->SetSourceRadius(0.5f);         // sharp shadow edges
+	FlashlightComp->CastShadows = true;
+	FlashlightComp->SetVisibility(false); // starts OFF
+
+	// Default click sound from Character Customizer flashlight tool
+	static ConstructorHelpers::FObjectFinder<USoundBase> FlashlightClickFinder(
+		TEXT("/Game/CharacterCustomizer/Components/Tools/Tool_Flashlight/Click"));
+	if (FlashlightClickFinder.Succeeded())
+	{
+		FlashlightClickSound = FlashlightClickFinder.Object;
+	}
+
 	// Movement defaults (overridden by DataAsset in GameplayComp's BeginPlay)
 	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
-	MoveComp->MaxWalkSpeed = 200.0f;
+	MoveComp->MaxWalkSpeed = 115.0f;
 	MoveComp->BrakingDecelerationWalking = 1400.0f;
 	MoveComp->MaxAcceleration = 1200.0f;
 	MoveComp->GroundFriction = 6.0f;
@@ -93,7 +142,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MoveComp->AirControl = 0.15f;
 	MoveComp->NavAgentProps.bCanCrouch = true;
 	MoveComp->SetCrouchedHalfHeight(44.0f);
-	MoveComp->MaxWalkSpeedCrouched = 100.0f;
+	MoveComp->MaxWalkSpeedCrouched = 57.0f;
 }
 
 void AZP_GraceCharacter::PostInitializeComponents()
@@ -248,6 +297,41 @@ void AZP_GraceCharacter::BeginPlay()
 		}
 	}
 
+	// --- Orchestrate ISM Batcher + Floor Culling initialization ---
+	// Order matters: batch first (creates per-floor ISMCs, hides originals),
+	// then floor culling (skips batched actors, toggles ISM visibility per floor).
+	if (ISMBatcherComp && FloorCullingComp)
+	{
+		// Define always-visible zones (stairwells, vertical shafts)
+		// Actors in these zones are excluded from both batching and floor culling.
+		// Building 1 stairwell: X 800-1050, Y -1500 to -1150, full Z height
+		FBox StairwellZone(FVector(780.0f, -1520.0f, -50.0f), FVector(1070.0f, -1130.0f, 2550.0f));
+		FloorCullingComp->AlwaysVisibleZones.Add(StairwellZone);
+
+		// Sync floor params from floor culling to ISM batcher
+		ISMBatcherComp->FloorHeight = FloorCullingComp->FloorHeight;
+		ISMBatcherComp->FloorBaseZ = FloorCullingComp->FloorBaseZ;
+		ISMBatcherComp->NumFloors = FloorCullingComp->NumFloors;
+		ISMBatcherComp->AlwaysVisibleZones = FloorCullingComp->AlwaysVisibleZones;
+
+		// Batch all static mesh actors into per-floor ISMCs
+		ISMBatcherComp->BatchStaticMeshes();
+
+		// Wire batcher into floor culling so it can skip batched actors + toggle ISMs
+		FloorCullingComp->ISMBatcher = ISMBatcherComp;
+
+		// Now collect unbatched actors and start floor check timer
+		FloorCullingComp->Initialize();
+	}
+	else
+	{
+		// Fallback: run floor culling standalone if either component is missing
+		if (FloorCullingComp)
+		{
+			FloorCullingComp->Initialize();
+		}
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter BeginPlay — Config: %s, Weapon: %s, Kinemation: %s"),
 		MovementConfig ? *MovementConfig->GetName() : TEXT("NONE"),
 		KinemationComp && KinemationComp->ActiveWeapon ? *KinemationComp->ActiveWeapon->GetName() : TEXT("NONE"),
@@ -300,6 +384,24 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			else if (PC->WasInputKeyJustPressed(EKeys::Three)) Input_InventorySlot(2);
 			else if (PC->WasInputKeyJustPressed(EKeys::Four))  Input_InventorySlot(3);
 		}
+	}
+
+	// Flashlight toggle (F key — works even with menus open)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC && PC->WasInputKeyJustPressed(EKeys::F))
+		{
+			ToggleFlashlight();
+		}
+	}
+
+	// Flashlight follows camera with lag (chest-mounted feel)
+	if (FlashlightComp && bFlashlightOn && FirstPersonCamera)
+	{
+		FRotator TargetRot = FirstPersonCamera->GetComponentRotation();
+		TargetRot.Pitch += FlashlightPitchOffset;
+		FRotator NewRot = FMath::RInterpTo(FlashlightComp->GetComponentRotation(), TargetRot, DeltaTime, FlashlightInterpSpeed);
+		FlashlightComp->SetWorldRotation(NewRot);
 	}
 }
 
@@ -406,6 +508,11 @@ void AZP_GraceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	if (MapAction)
 	{
 		EIC->BindAction(MapAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Map);
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: MapAction BOUND (%s)"), *MapAction->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: MapAction is NULL — M key will not work!"));
 	}
 	// Weapon slot keys are handled via raw key polling in Tick() to bypass
 	// Enhanced Input IMC conflicts between IMC_Grace and IMC_InventoryCharacter.
@@ -477,15 +584,49 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("[TheSignal] Input_Interact FIRED — CurrentInteractable: %s, Valid: %d, ImplementsInterface: %d"),
-		CurrentInteractable.IsValid() ? *CurrentInteractable->GetName() : TEXT("NULL"),
-		CurrentInteractable.IsValid() ? 1 : 0,
-		CurrentInteractable.IsValid() ? CurrentInteractable->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()) : 0);
+	// --- Line-of-sight priority: if looking at a Moonville pickup, it takes
+	//     precedence over overlap-based door/interactable detection. ---
+	if (MoonvilleInteractionComp)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			FVector CamLoc;
+			FRotator CamRot;
+			PC->GetPlayerViewPoint(CamLoc, CamRot);
 
-	// Check our IZP_Interactable system first (save points, doors, pickups, etc.)
+			FVector TraceEnd = CamLoc + CamRot.Vector() * 300.0f;
+			FHitResult Hit;
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(this);
+
+			// Use object type query — BP_ItemPickup is WorldDynamic, ECC_Visibility may not hit it
+			FCollisionObjectQueryParams ObjParams;
+			ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+			ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+			if (GetWorld()->LineTraceSingleByObjectType(Hit, CamLoc, TraceEnd, ObjParams, Params))
+			{
+				AActor* HitActor = Hit.GetActor();
+				if (HitActor && HitActor != CurrentInteractable.Get())
+				{
+					FString HitClassName = HitActor->GetClass()->GetName();
+					if (HitClassName.Contains(TEXT("ItemPickup")) || HitClassName.Contains(TEXT("Chest")))
+					{
+						UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
+						if (InteractFunc)
+						{
+							MoonvilleInteractionComp->ProcessEvent(InteractFunc, nullptr);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Check our IZP_Interactable system (save points, doors, pickups, etc.)
 	if (CurrentInteractable.IsValid() && CurrentInteractable->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] Calling Execute_OnInteract on %s"), *CurrentInteractable->GetName());
 		IZP_Interactable::Execute_OnInteract(CurrentInteractable.Get(), this);
 		return;
 	}
@@ -495,7 +636,6 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 	{
 		if (UZP_NPCInteractionComponent* NPCComp = CurrentInteractable->FindComponentByClass<UZP_NPCInteractionComponent>())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] NPC interaction on %s"), *CurrentInteractable->GetName());
 			NPCComp->HandleInteract(this);
 			return;
 		}
@@ -635,20 +775,38 @@ void AZP_GraceCharacter::Input_InventoryMenu(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_Map(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen) return;
+	UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Input_Map FIRED"));
+
+	if (bInventoryMenuOpen)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Blocked — inventory menu open"));
+		return;
+	}
 
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
-	if (!PC || !PC->MapWidget) return;
+	if (!PC)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: PlayerController is NULL"));
+		return;
+	}
+	if (!PC->MapWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: PC->MapWidget is NULL (MapWidgetClass not set on PC_Grace?)"));
+		return;
+	}
 
 	if (PC->MapWidget->IsMapVisible())
 	{
 		PC->MapWidget->HideMap();
 		bMapOpen = false;
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Map HIDDEN"));
 	}
 	else
 	{
 		PC->MapWidget->ShowMap(MapComp);
 		bMapOpen = true;
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Map SHOWN (MapComp=%s)"),
+			MapComp ? TEXT("valid") : TEXT("NULL"));
 	}
 }
 
@@ -984,6 +1142,33 @@ void AZP_GraceCharacter::UpdateHealthVignette(float NewHealth, float MaxHealth, 
 		DeathVignetteComp->Settings.VignetteIntensity =
 			FMath::GetMappedRangeValueClamped(FVector2D(0.5f, 0.f), FVector2D(0.f, 1.5f), HealthPct);
 	}
+}
+
+// --- Flashlight ---
+
+void AZP_GraceCharacter::ToggleFlashlight()
+{
+	bFlashlightOn = !bFlashlightOn;
+
+	if (FlashlightComp)
+	{
+		FlashlightComp->SetVisibility(bFlashlightOn);
+
+		// Snap to camera direction when turning on (avoid lerp from stale rotation)
+		if (bFlashlightOn && FirstPersonCamera)
+		{
+			FRotator SnapRot = FirstPersonCamera->GetComponentRotation();
+			SnapRot.Pitch += FlashlightPitchOffset;
+			FlashlightComp->SetWorldRotation(SnapRot);
+		}
+	}
+
+	if (FlashlightClickSound)
+	{
+		UGameplayStatics::PlaySound2D(this, FlashlightClickSound);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Flashlight %s"), bFlashlightOn ? TEXT("ON") : TEXT("OFF"));
 }
 
 // --- Starting Items ---

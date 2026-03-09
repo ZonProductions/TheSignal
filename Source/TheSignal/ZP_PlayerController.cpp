@@ -75,8 +75,17 @@ void AZP_PlayerController::BeginPlay()
 		if (MapWidget)
 		{
 			MapWidget->AddToViewport(100); // Above HUD (0), above dialogue (50), below pause (200)
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created MapWidget %s"), *MapWidgetClass->GetName());
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] MAP DEBUG: Created MapWidget from %s"), *MapWidgetClass->GetName());
 		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: CreateWidget returned NULL for MapWidgetClass %s"), *MapWidgetClass->GetName());
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: MapWidgetClass is %s, IsLocal=%d — MapWidget NOT created"),
+			MapWidgetClass ? TEXT("set") : TEXT("NULL"), IsLocalController() ? 1 : 0);
 	}
 
 	// Fade from black on every level start (covers both initial spawn and respawn reload)

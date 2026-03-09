@@ -43,6 +43,10 @@ class UZP_KinemationComponent;
 class UPostProcessComponent;
 class UZP_HealthComponent;
 class UZP_MapComponent;
+class UZP_FloorCullingComponent;
+class UZP_RuntimeISMBatcher;
+class USpotLightComponent;
+class USoundBase;
 
 UCLASS(Blueprintable)
 class THESIGNAL_API AZP_GraceCharacter : public ACharacter
@@ -73,9 +77,37 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Map")
 	TObjectPtr<UZP_MapComponent> MapComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Floor Culling")
+	TObjectPtr<UZP_FloorCullingComponent> FloorCullingComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Performance")
+	TObjectPtr<UZP_RuntimeISMBatcher> ISMBatcherComp;
+
 	/** Post-process vignette driven by health percentage. Darkens screen edges below 50% HP. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	TObjectPtr<UPostProcessComponent> DeathVignetteComp;
+
+	// --- Flashlight (TLOU/SH2 style chest-mounted) ---
+
+	/** Chest-mounted spotlight. Follows camera with slight lag for organic chest-mounted feel. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Flashlight")
+	TObjectPtr<USpotLightComponent> FlashlightComp;
+
+	/** Whether the flashlight is currently on. */
+	UPROPERTY(BlueprintReadWrite, Category = "Flashlight")
+	bool bFlashlightOn = false;
+
+	/** Sound played when toggling flashlight on/off. Defaults to CC pack flashlight click. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
+	TObjectPtr<USoundBase> FlashlightClickSound;
+
+	/** How quickly the flashlight tracks the camera (higher = snappier, lower = more chest lag). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
+	float FlashlightInterpSpeed = 8.0f;
+
+	/** Downward pitch offset from camera direction (chest naturally points slightly down). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
+	float FlashlightPitchOffset = -5.0f;
 
 	// --- Configuration (propagated to components in PostInitializeComponents) ---
 
@@ -300,6 +332,8 @@ private:
 
 	/** Cached PDA_Item data asset for the last-used throwable (for RemoveItemByDataAsset). */
 	TObjectPtr<UObject> LastThrowableItemDA;
+
+	void ToggleFlashlight();
 
 	/** Weapon classes that have been fully consumed (thrown grenades). Blocks re-equip. */
 	TSet<TSubclassOf<AActor>> ConsumedWeaponClasses;

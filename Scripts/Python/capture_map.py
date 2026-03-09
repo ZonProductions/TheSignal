@@ -63,9 +63,9 @@ def capture_area(volume, resolution=2048):
     unreal.log(f'[MapCapture] Capturing "{area_id}" at ({cam_pos.x:.0f}, {cam_pos.y:.0f}, {cam_pos.z:.0f}), ortho={ortho_width:.0f}')
 
     # Create render target
-    rt = unreal.KismetRenderingLibrary.create_render_target2d(
+    rt = unreal.RenderingLibrary.create_render_target2d(
         world, resolution, resolution,
-        unreal.ETextureRenderTargetFormat.RTF_RGBA8)
+        unreal.TextureRenderTargetFormat.RTF_RGBA8)
 
     # Spawn SceneCapture2D
     capture_actor = unreal.EditorLevelLibrary.spawn_actor_from_class(
@@ -77,7 +77,7 @@ def capture_area(volume, resolution=2048):
 
     # Configure capture component
     comp = capture_actor.get_editor_property('capture_component2d')
-    comp.set_editor_property('projection_type', unreal.ECameraProjectionMode.ORTHOGRAPHIC)
+    comp.set_editor_property('projection_type', unreal.CameraProjectionMode.ORTHOGRAPHIC)
     comp.set_editor_property('ortho_width', ortho_width)
     comp.set_editor_property('texture_target', rt)
 
@@ -107,18 +107,23 @@ def capture_area(volume, resolution=2048):
     os.makedirs(export_dir, exist_ok=True)
     export_name = f'T_Map_{area_id}'
 
-    unreal.KismetRenderingLibrary.export_render_target(
+    unreal.RenderingLibrary.export_render_target(
         world, rt, export_dir, export_name)
 
-    unreal.log(f'[MapCapture] Exported to {export_dir}/{export_name}.hdr')
+    # UE5 exports RGBA8 render targets as PNG but without extension — rename
+    raw_path = f'{export_dir}/{export_name}'
+    png_path = f'{export_dir}/{export_name}.png'
+    if os.path.exists(raw_path) and not os.path.exists(png_path):
+        os.rename(raw_path, png_path)
+
+    unreal.log(f'[MapCapture] Exported to {png_path}')
 
     # Import back into project as a Texture2D asset
     content_path = '/Game/TheSignal/Textures/Maps'
-    hdr_path = f'{export_dir}/{export_name}.hdr'
 
-    if os.path.exists(hdr_path):
+    if os.path.exists(png_path):
         task = unreal.AssetImportTask()
-        task.set_editor_property('filename', hdr_path)
+        task.set_editor_property('filename', png_path)
         task.set_editor_property('destination_path', content_path)
         task.set_editor_property('destination_name', export_name)
         task.set_editor_property('automated', True)
@@ -130,7 +135,7 @@ def capture_area(volume, resolution=2048):
 
         unreal.log(f'[MapCapture] Imported as {content_path}/{export_name}')
     else:
-        unreal.log_warning(f'[MapCapture] HDR file not found at {hdr_path} - manual import needed')
+        unreal.log_warning(f'[MapCapture] PNG file not found at {png_path} - manual import needed')
 
     # Cleanup
     capture_actor.destroy_actor()

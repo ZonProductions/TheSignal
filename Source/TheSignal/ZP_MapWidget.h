@@ -30,6 +30,22 @@ class UCanvasPanel;
 class UZP_MapComponent;
 class AZP_MapVolume;
 
+/** Tracks a dynamically-created door marker on the map. */
+USTRUCT()
+struct FZP_DoorMarkerInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TWeakObjectPtr<AActor> DoorActor;
+
+	UPROPERTY()
+	TObjectPtr<UImage> MarkerWidget = nullptr;
+
+	/** True = AZP_LockableDoor (color updates per state). False = AZP_InteractDoor (always unlocked). */
+	bool bIsLockable = false;
+};
+
 UCLASS()
 class THESIGNAL_API UZP_MapWidget : public UUserWidget
 {
@@ -64,6 +80,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Map|Marker")
 	FVector2D MarkerSize = FVector2D(12.0f, 12.0f);
 
+	/** Size of door marker icons (pixels). */
+	UPROPERTY(EditDefaultsOnly, Category = "Map|Doors")
+	FVector2D DoorMarkerSize = FVector2D(8.0f, 8.0f);
+
+	/** Color for unlocked / interactable doors (RE-style blue). */
+	UPROPERTY(EditDefaultsOnly, Category = "Map|Doors")
+	FLinearColor UnlockedDoorColor = FLinearColor(0.2f, 0.4f, 1.0f, 1.0f);
+
+	/** Color for locked doors (RE-style red). */
+	UPROPERTY(EditDefaultsOnly, Category = "Map|Doors")
+	FLinearColor LockedDoorColor = FLinearColor(1.0f, 0.15f, 0.15f, 1.0f);
+
 	// --- API ---
 
 	/** Show the map for the current area. Shows "no map" if not discovered. */
@@ -90,4 +118,16 @@ private:
 
 	UPROPERTY()
 	TWeakObjectPtr<AZP_MapVolume> CachedVolume;
+
+	UPROPERTY()
+	TArray<FZP_DoorMarkerInfo> DoorMarkers;
+
+	/** Converts world XY to map UV (with Y-flip for screen coordinates). */
+	FVector2D WorldToMapUV(const FVector& WorldLocation) const;
+
+	/** Scans level for doors within current volume, creates marker widgets. */
+	void CreateDoorMarkers();
+
+	/** Removes all door marker widgets and empties the array. */
+	void ClearDoorMarkers();
 };

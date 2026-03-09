@@ -1,0 +1,205 @@
+Location,Floor,Room
+Gas Station,,Gas Station
+R.P.D. Police Station,1F,Back Yard
+R.P.D. Police Station,1F,Bathroom
+R.P.D. Police Station,1F,Boiler Room
+R.P.D. Police Station,1F,Break Room
+R.P.D. Police Station,1F,Break Room Hallway
+R.P.D. Police Station,1F,Darkroom
+R.P.D. Police Station,1F,East Courtyard
+R.P.D. Police Station,1F,East Hallway
+R.P.D. Police Station,1F,East Office
+R.P.D. Police Station,1F,East Stairway 1F
+R.P.D. Police Station,1F,Entrance
+R.P.D. Police Station,1F,Fire Escape
+R.P.D. Police Station,1F,Interrogation Room
+R.P.D. Police Station,1F,Janitor's Room
+R.P.D. Police Station,1F,Main Hall
+R.P.D. Police Station,1F,North West Hallway
+R.P.D. Police Station,1F,Observation Room
+R.P.D. Police Station,1F,Operations Room
+R.P.D. Police Station,1F,Press Room
+R.P.D. Police Station,1F,Reception
+R.P.D. Police Station,1F,Records Room
+R.P.D. Police Station,1F,Safety Deposit Room
+R.P.D. Police Station,1F,Small Filing Room
+R.P.D. Police Station,1F,South West Hallway
+R.P.D. Police Station,1F,Supply Room
+R.P.D. Police Station,1F,Underpass
+R.P.D. Police Station,1F,Watchman's Room
+R.P.D. Police Station,1F,West Central Passage
+R.P.D. Police Station,1F,West Courtyard
+R.P.D. Police Station,1F,West Office
+R.P.D. Police Station,1F,West Stairway 1F
+R.P.D. Police Station,2F,Art Room
+R.P.D. Police Station,2F,Chief's Office
+R.P.D. Police Station,2F,East Hallway 2F
+R.P.D. Police Station,2F,East Stairway 2F
+R.P.D. Police Station,2F,Fire Escape
+R.P.D. Police Station,2F,Library
+R.P.D. Police Station,2F,Linen Room
+R.P.D. Police Station,2F,Lounge
+R.P.D. Police Station,2F,Main Hall 2F
+R.P.D. Police Station,2F,Men's Locker Room
+R.P.D. Police Station,2F,Private Collection Room
+R.P.D. Police Station,2F,Roof
+R.P.D. Police Station,2F,Roof Terrace
+R.P.D. Police Station,2F,S.T.A.R.S. Office
+R.P.D. Police Station,2F,Stuffed Tiger Corridor
+R.P.D. Police Station,2F,Waiting Room
+R.P.D. Police Station,2F,West Hallway 2F
+R.P.D. Police Station,2F,West Stairway 2F
+R.P.D. Police Station,2F,Women's Locker Room
+R.P.D. Police Station,3F,Balcony
+R.P.D. Police Station,3F,Clock Tower
+R.P.D. Police Station,3F,East Stairway 3F
+R.P.D. Police Station,3F,East Storage Room
+R.P.D. Police Station,3F,Library
+R.P.D. Police Station,3F,Main Hall 3F
+R.P.D. Police Station,3F,North West Hallway 3F
+R.P.D. Police Station,3F,Private Study
+R.P.D. Police Station,3F,Small Storage Room
+R.P.D. Police Station,3F,South West Hallway 3F
+R.P.D. Police Station,3F,West Stairway 3F
+R.P.D. Police Station,3F,West Storage Room
+R.P.D. Police Station,4F,Clock Tower
+R.P.D. Police Station,B1,Basement Stairway
+R.P.D. Police Station,B1,East Central Passage B1
+R.P.D. Police Station,B1,Elevator Controls Room
+R.P.D. Police Station,B1,Elevator Passage
+R.P.D. Police Station,B1,Firing Range
+R.P.D. Police Station,B1,Firing Range Office
+R.P.D. Police Station,B1,Generator Room
+R.P.D. Police Station,B1,Guardroom
+R.P.D. Police Station,B1,Jail
+R.P.D. Police Station,B1,Jail Entry
+R.P.D. Police Station,B1,Kennel
+R.P.D. Police Station,B1,Morgue
+R.P.D. Police Station,B1,Parking Garage
+R.P.D. Police Station,B1,Underpass
+Underground Facility,Upper,Secret Room
+Underground Facility,Middle,Machinery Room 2F
+Underground Facility,Middle,Operators Room
+Underground Facility,Middle,Underground Stairs 2F
+Underground Facility,Middle,Walkway
+Underground Facility,Lower,Machinery Room
+Underground Facility,Lower,Underground Stairs 1F
+Underground Facility,Lower,Workers' Storage
+Behind R.P.D.,,Back Street
+Behind R.P.D.,,Back Yard
+Behind R.P.D.,,Basketball Court
+Behind R.P.D.,,Gun Shop
+Behind R.P.D.,,Outside Area North
+Behind R.P.D.,,Outside Area South
+Behind R.P.D.,,Parking Garage Ramp
+Behind R.P.D.,,Scaffolding Walkway
+Behind R.P.D.,,Sewer Entry
+Behind R.P.D.,,Small Yard
+Behind R.P.D.,,Street
+Behind R.P.D.,,Walkway
+Orphanage,1F,Corridor
+Orphanage,1F,Director's Room
+Orphanage,1F,Front Hall
+Orphanage,1F,Orphanage Front Yard
+Orphanage,2F,Bathroom
+Orphanage,2F,Bedroom
+Orphanage,2F,Corridor 2F
+Orphanage,2F,Front Hall 2F
+Orphanage,2F,Nurse's Office
+Orphanage,2F,Nursery
+Orphanage,B1,Underground Passage
+Sewer Entrance,,Central Tunnel
+Sewer Entrance,,Connecting Passage
+Sewer Entrance,,Dumping Area
+Sewer Entrance,,Elevator Passage
+Sewer Entrance,,Maintenance Room
+Sewer Entrance,,Old Waterway
+Sewer Entrance,,West Tunnel
+Sewers,Upper,'T' Junction
+Sewers,Upper,Connecting Passage
+Sewers,Upper,Container Room
+Sewers,Upper,Control Room
+Sewers,Upper,Elevator Room
+Sewers,Upper,Exit Passage
+Sewers,Upper,Incinerator
+Sewers,Upper,Lower Waterway Overpass
+Sewers,Upper,Passage
+Sewers,Upper,Side Stairway
+Sewers,Upper,Storage Room
+Sewers,Upper,Treatment Pool Room 2F
+Sewers,Upper,Upper Passage
+Sewers,Upper,Ventilation Room
+Sewers,Upper,Ventilation Tunnel
+Sewers,Upper,Water Gate
+Sewers,Upper,Water Injection Chamber
+Sewers,Upper,Workers' Break Room
+Sewers,Upper,Workroom
+Sewers,Middle,Bottom Waterway Overpass
+Sewers,Middle,Cable Car Platform
+Sewers,Middle,Central Stairs
+Sewers,Middle,Garbage Room
+Sewers,Middle,Lower Waterway
+Sewers,Middle,Main Power Room
+Sewers,Middle,Maintenance Level
+Sewers,Middle,Monitor Room
+Sewers,Middle,Office
+Sewers,Middle,Proposed Water Purification Room
+Sewers,Middle,Treatment Pool Room
+Sewers,Middle,U-Area
+Sewers,Middle,Upper Waterway
+Sewers,Lower,'L' Passage
+Sewers,Lower,Bottom Waterway
+Sewers,Lower,Bottom Waterway Overpass
+Sewers,Lower,Central Stairs
+Sewers,Lower,Connecting Passage
+Sewers,Lower,Lower Waterway
+Sewers,Lower,Supplies Storage Entry
+Sewers,Lower,Supplies Storage Room
+Sewers,Lower,Workroom Lift
+NEST Laboratory,B1,Bioreactors Room Overpass
+NEST Laboratory,B1,Biotesting Lab
+NEST Laboratory,B1,Cable Car Platform
+NEST Laboratory,B1,Cafeteria
+NEST Laboratory,B1,Drug Testing Lab
+NEST Laboratory,B1,East Area Entry
+NEST Laboratory,B1,General Staff Corridor
+NEST Laboratory,B1,Greenhouse
+NEST Laboratory,B1,Greenhouse Control Room
+NEST Laboratory,B1,Kitchen
+NEST Laboratory,B1,Lab Changing Room
+NEST Laboratory,B1,Lobby
+NEST Laboratory,B1,Main Shaft
+NEST Laboratory,B1,Nap Room
+NEST Laboratory,B1,P-4 Level Testing Lab
+NEST Laboratory,B1,Presentation Room
+NEST Laboratory,B1,Reception
+NEST Laboratory,B1,Security Room
+NEST Laboratory,B1,Specimen Room
+NEST Laboratory,B1,Sterilization Room
+NEST Laboratory,B1,Store Room
+NEST Laboratory,B1,Ventilation Tunnel
+NEST Laboratory,B1,Visitor Corridor
+NEST Laboratory,B2 East,Exit Corridor
+NEST Laboratory,B2 East,Exit Stairway
+NEST Laboratory,B2 East,Lounge
+NEST Laboratory,B2 East,Low-Temp Testing Lab
+NEST Laboratory,B2 East,Maintenance Passage
+NEST Laboratory,B2 East,Server Room
+NEST Laboratory,B2 West,Bioreactors Room
+NEST Laboratory,B3,Duct
+NEST Laboratory,B3,Duct Exit
+NEST Laboratory,B3,Duct Passage
+NEST Laboratory,B3,Escape Shaft Platform
+NEST Laboratory,B3,Lift
+NEST Laboratory,B3,Lift Platform
+NEST Laboratory,B3,Lower Walkway
+NEST Laboratory,B3,Monitor Room
+NEST Laboratory,B3,Pump Room
+NEST Laboratory,B3,Transport Walkway
+NEST Laboratory,B3,Turntable
+NEST Laboratory,B3,Turntable Control Room
+NEST Laboratory,B4,Lift
+NEST Laboratory,B4,Lower Lift Platform
+NEST Laboratory,B4,Train Platform
+NEST Laboratory,Train,Baggage Car
+NEST Laboratory,Train,Freight Car

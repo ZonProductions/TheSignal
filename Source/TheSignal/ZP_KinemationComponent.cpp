@@ -459,9 +459,9 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	}
 	else if (WeaponName.Contains(TEXT("AK105")))
 	{
-		// AK-105 Carbine — Assault Rifle
+		// AK-105 Carbine — Assault Rifle (128 BPM = 60/128 = 0.47s)
 		MagSize = 30;
-		FireCooldownTime = 0.12f;
+		FireCooldownTime = 0.47f;
 		HitscanBodyDamage = 15.f;
 		HitscanWeakPointDamage = 60.f;
 		ReserveAmmo = 90;

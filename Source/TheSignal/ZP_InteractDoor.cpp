@@ -14,7 +14,7 @@ AZP_InteractDoor::AZP_InteractDoor()
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(Root);
-	InteractionVolume->SetBoxExtent(FVector(150.f, 150.f, 100.f));
+	InteractionVolume->SetBoxExtent(FVector(250.f, 250.f, 120.f));
 	InteractionVolume->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
 	InteractionVolume->SetGenerateOverlapEvents(true);
 
