@@ -68,6 +68,19 @@ for name in ['MI_BulletHole_Metal_01', 'MI_BulletHole_Metal_02', 'MI_BulletHole_
     if mat:
         decal_mats.append(mat)
 
+# Map input action
+ia_map = load('/Game/Core/Input/IA_Map')
+
+# Tab cycling input actions
+ia_tab_left = load('/Game/Core/Input/Actions/IA_TabCycleLeft')
+ia_tab_right = load('/Game/Core/Input/Actions/IA_TabCycleRight')
+
+# Inventory Tab Widget blueprint
+wbp_inv_tab = load('/Game/Blueprints/UI/WBP_InventoryTab')
+
+# Map Widget blueprint
+wbp_map = load('/Game/User_Interface/WBP_Map')
+
 # ── 1. BP_GraceCharacter CDO ──────────────────────────────────────
 cdo = get_cdo(bp_grace)
 
@@ -130,6 +143,23 @@ try:
 except:
     pass
 
+# Map input action
+if ia_map:
+    try:
+        cdo.set_editor_property('MapAction', ia_map)
+        unreal.log(f'  MapAction = {ia_map.get_name()}')
+    except Exception as e:
+        unreal.log_error(f'  MapAction FAILED: {e}')
+
+# Tab cycling
+for prop, action in [('TabCycleLeftAction', ia_tab_left), ('TabCycleRightAction', ia_tab_right)]:
+    if action:
+        try:
+            cdo.set_editor_property(prop, action)
+            unreal.log(f'  {prop} = {action.get_name()}')
+        except Exception as e:
+            unreal.log_error(f'  {prop} FAILED: {e}')
+
 # Bullet decal materials (TArray<TSoftObjectPtr<UMaterialInterface>>)
 if decal_mats:
     try:
@@ -146,6 +176,22 @@ if bp_pc and imc_grace:
     cdo_pc.set_editor_property('DefaultMappingContext', imc_grace)
     cdo_pc.set_editor_property('DefaultMappingPriority', 1)
     unreal.log('[set_all_cdo] PC_Grace CDO: DefaultMappingContext = IMC_Grace (priority 1)')
+
+    # Inventory Tab Widget class
+    if wbp_inv_tab:
+        try:
+            cdo_pc.set_editor_property('InventoryTabWidgetClass', wbp_inv_tab.generated_class())
+            unreal.log(f'  InventoryTabWidgetClass = {wbp_inv_tab.get_name()}')
+        except Exception as e:
+            unreal.log_error(f'  InventoryTabWidgetClass FAILED: {e}')
+
+    # Map Widget class (legacy standalone — kept as fallback)
+    if wbp_map:
+        try:
+            cdo_pc.set_editor_property('MapWidgetClass', wbp_map.generated_class())
+            unreal.log(f'  MapWidgetClass = {wbp_map.get_name()}')
+        except Exception as e:
+            unreal.log_error(f'  MapWidgetClass FAILED: {e}')
 
 # ── 3. GM_TheSignal CDO ───────────────────────────────────────────
 if bp_gm and bp_grace and bp_pc:

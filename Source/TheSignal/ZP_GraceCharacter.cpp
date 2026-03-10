@@ -11,6 +11,9 @@
 #include "ZP_HUDWidget.h"
 #include "ZP_Interactable.h"
 #include "ZP_MapComponent.h"
+#include "ZP_NoteComponent.h"
+#include "ZP_InventoryTabWidget.h"
+#include "ZP_InventoryTabTypes.h"
 #include "ZP_FloorCullingComponent.h"
 #include "ZP_RuntimeISMBatcher.h"
 #include "ZP_MapWidget.h"
@@ -79,6 +82,9 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// Map component — tracks discovered maps and current area
 	MapComp = CreateDefaultSubobject<UZP_MapComponent>(TEXT("MapComp"));
 
+	// Note component — tracks collected notes/documents
+	NoteComp = CreateDefaultSubobject<UZP_NoteComponent>(TEXT("NoteComp"));
+
 	// Floor culling — hides actors on non-visible floors for performance
 	FloorCullingComp = CreateDefaultSubobject<UZP_FloorCullingComponent>(TEXT("FloorCullingComp"));
 
@@ -110,11 +116,11 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	DeathVignetteComp->Settings.bOverride_IndirectLightingIntensity = true;
 	DeathVignetteComp->Settings.IndirectLightingIntensity = 0.0f;
 
-	// Chest/shoulder flashlight — TLOU/SH2 style
-	// Raised above weapon line + offset left so rifle doesn't block the cone
+	// Chest flashlight — attached to camera so it pitches with the view
+	// and never gets blocked by weapon models when looking down
 	FlashlightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashlightComp"));
-	FlashlightComp->SetupAttachment(GetCapsuleComponent());
-	FlashlightComp->SetRelativeLocation(FVector(25.0f, -12.0f, 55.0f));
+	FlashlightComp->SetupAttachment(FirstPersonCamera);
+	FlashlightComp->SetRelativeLocation(FVector(30.0f, -20.0f, 5.0f));
 	FlashlightComp->SetIntensity(8000.0f);        // bright enough to read surfaces down hallways
 	FlashlightComp->SetInnerConeAngle(12.0f);      // wider hotspot for hallway coverage
 	FlashlightComp->SetOuterConeAngle(28.0f);      // broader falloff — see walls and floor
@@ -288,12 +294,16 @@ void AZP_GraceCharacter::BeginPlay()
 		HealthComp->OnHealthChanged.AddDynamic(this, &AZP_GraceCharacter::UpdateHealthVignette);
 	}
 
-	// Bind HUD to this character's components
+	// Bind HUD + Inventory Tab widget to this character's components
 	if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
 	{
 		if (PC->HUDWidget)
 		{
 			PC->HUDWidget->BindToCharacter(this);
+		}
+		if (PC->InventoryTabWidget)
+		{
+			PC->InventoryTabWidget->BindToCharacter(this);
 		}
 	}
 
@@ -513,6 +523,14 @@ void AZP_GraceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: MapAction is NULL — M key will not work!"));
+	}
+	if (TabCycleLeftAction)
+	{
+		EIC->BindAction(TabCycleLeftAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_TabCycleLeft);
+	}
+	if (TabCycleRightAction)
+	{
+		EIC->BindAction(TabCycleRightAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_TabCycleRight);
 	}
 	// Weapon slot keys are handled via raw key polling in Tick() to bypass
 	// Enhanced Input IMC conflicts between IMC_Grace and IMC_InventoryCharacter.
@@ -741,15 +759,74 @@ void AZP_GraceCharacter::Input_ReloadStarted(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_InventoryMenu(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter: Input_InventoryMenu FIRED"));
+	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
+	if (!PC || !MoonvilleInventoryComp) return;
 
-	// Call Moonville's ToggleInventoryMenu — it handles UI open/close,
-	// then calls BPI_Inventory.OnOpenInventory/OnCloseInventory on us,
-	// which sets bInventoryMenuOpen via our BP interface implementation.
-	if (MoonvilleInventoryComp)
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-INPUT] Tab pressed. bInventoryMenuOpen=%d, TabWidget IsMenuOpen=%d"),
+		bInventoryMenuOpen,
+		PC->InventoryTabWidget ? PC->InventoryTabWidget->IsMenuOpen() : -1);
+
+	// Always toggle Moonville — it handles its own open/close lifecycle
+	UFunction* ToggleFunc = MoonvilleInventoryComp->FindFunction(FName("ToggleInventoryMenu"));
+	if (ToggleFunc)
 	{
-		APlayerController* PC = Cast<APlayerController>(GetController());
-		if (PC)
+		struct { APlayerController* PlayerController; } Params;
+		Params.PlayerController = PC;
+		MoonvilleInventoryComp->ProcessEvent(ToggleFunc, &Params);
+		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-INPUT] Called Moonville ToggleInventoryMenu"));
+	}
+
+	// Tell tab controller Moonville was toggled — NativeTick detects open/close reactively
+	if (PC->InventoryTabWidget)
+	{
+		PC->InventoryTabWidget->NotifyMoonvilleToggled(EZP_InventoryTab::Inventory);
+	}
+
+	// Rough state toggle — NativeTick will correct if wrong
+	bInventoryMenuOpen = !bInventoryMenuOpen;
+	if (!bInventoryMenuOpen) bMapOpen = false;
+
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-INPUT] After toggle: bInventoryMenuOpen=%d"), bInventoryMenuOpen);
+}
+
+void AZP_GraceCharacter::Input_Map(const FInputActionValue& Value)
+{
+	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
+	if (!PC) return;
+
+	// Use tab widget's reactive state — it tracks Moonville's actual viewport presence
+	const bool bMenuActuallyOpen = PC->InventoryTabWidget && PC->InventoryTabWidget->IsMenuOpen();
+
+	if (bMenuActuallyOpen)
+	{
+		if (PC->InventoryTabWidget->GetCurrentTab() == EZP_InventoryTab::Map)
+		{
+			// Already on map tab — close everything
+			if (MoonvilleInventoryComp)
+			{
+				UFunction* ToggleFunc = MoonvilleInventoryComp->FindFunction(FName("ToggleInventoryMenu"));
+				if (ToggleFunc)
+				{
+					struct { APlayerController* PlayerController; } Params;
+					Params.PlayerController = PC;
+					MoonvilleInventoryComp->ProcessEvent(ToggleFunc, &Params);
+				}
+			}
+			// NativeTick will detect close and sync state
+			bInventoryMenuOpen = false;
+			bMapOpen = false;
+		}
+		else
+		{
+			// On another tab — just switch to map
+			PC->InventoryTabWidget->SwitchToTab(EZP_InventoryTab::Map);
+			bMapOpen = true;
+		}
+	}
+	else
+	{
+		// Menu closed — open Moonville then notify tab controller
+		if (MoonvilleInventoryComp)
 		{
 			UFunction* ToggleFunc = MoonvilleInventoryComp->FindFunction(FName("ToggleInventoryMenu"));
 			if (ToggleFunc)
@@ -757,57 +834,35 @@ void AZP_GraceCharacter::Input_InventoryMenu(const FInputActionValue& Value)
 				struct { APlayerController* PlayerController; } Params;
 				Params.PlayerController = PC;
 				MoonvilleInventoryComp->ProcessEvent(ToggleFunc, &Params);
-				UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter: Called ToggleInventoryMenu on %s"),
-					*MoonvilleInventoryComp->GetName());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("[TheSignal] ZP_GraceCharacter: ToggleInventoryMenu function NOT FOUND on %s"),
-					*MoonvilleInventoryComp->GetClass()->GetName());
 			}
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ZP_GraceCharacter: No MoonvilleInventoryComp — cannot toggle inventory."));
+
+		if (PC->InventoryTabWidget)
+		{
+			PC->InventoryTabWidget->NotifyMoonvilleToggled(EZP_InventoryTab::Map);
+		}
+
+		bInventoryMenuOpen = true;
+		bMapOpen = true;
 	}
 }
 
-void AZP_GraceCharacter::Input_Map(const FInputActionValue& Value)
+void AZP_GraceCharacter::Input_TabCycleLeft(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Input_Map FIRED"));
-
-	if (bInventoryMenuOpen)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Blocked — inventory menu open"));
-		return;
-	}
-
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-CYCLE] Q pressed (TabCycleLeft)"));
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
-	if (!PC)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: PlayerController is NULL"));
-		return;
-	}
-	if (!PC->MapWidget)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: PC->MapWidget is NULL (MapWidgetClass not set on PC_Grace?)"));
-		return;
-	}
+	if (!PC || !PC->InventoryTabWidget || !PC->InventoryTabWidget->IsMenuOpen()) return;
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-CYCLE] Cycling LEFT"));
+	PC->InventoryTabWidget->CycleTab(-1);
+}
 
-	if (PC->MapWidget->IsMapVisible())
-	{
-		PC->MapWidget->HideMap();
-		bMapOpen = false;
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Map HIDDEN"));
-	}
-	else
-	{
-		PC->MapWidget->ShowMap(MapComp);
-		bMapOpen = true;
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: Map SHOWN (MapComp=%s)"),
-			MapComp ? TEXT("valid") : TEXT("NULL"));
-	}
+void AZP_GraceCharacter::Input_TabCycleRight(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-CYCLE] E pressed (TabCycleRight)"));
+	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
+	if (!PC || !PC->InventoryTabWidget || !PC->InventoryTabWidget->IsMenuOpen()) return;
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-CYCLE] Cycling RIGHT"));
+	PC->InventoryTabWidget->CycleTab(1);
 }
 
 void AZP_GraceCharacter::OnWeaponChangedHandler(AActor* NewWeapon)

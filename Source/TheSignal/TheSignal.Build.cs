@@ -37,5 +37,11 @@ public class TheSignal : ModuleRules
 
 		// NOTE: Do NOT add SlateCore/Slate here (transitive deps of Engine).
 		// NOTE: Do NOT add plugin modules here (loaded via .uproject).
+
+		// Editor-only deps for widget tree manipulation (ZP_EditorWidgetUtils)
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.AddRange(new string[] { "UMGEditor", "UnrealEd" });
+		}
 	}
 }

@@ -5,7 +5,7 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session: Session 39 — ISM Batcher + Floor Culling integration (per-floor grouping by mesh+materials, orchestrated init), Lumen swimming pool fix (PPV_GlobalDarkness disables Lumen GI, indirect_lighting_intensity=0.0025), SH2-style darkness tuning, Grace speed reduction (walk 115, sprint 205, crouch 57).
+- Last session: Session 41 — Weapon system polish. Reload blocks weapon switch. Weapon tilt fix (skip ToggleReadyPose for ranged on switch). Melee camera jolt removed. Pipe swing timing slowed (250ms wind-up, 250ms strike, 700ms cooldown). Pickup priority near doors fixed (line-of-sight trace). AR fire rate set to 128 BPM. Flashlight attached to camera. DefaultSlot added to ABP_GracePlayer AnimGraph.
 - Date: 2026-03-09
 
 ## CAMPAIGN BUILD
@@ -24,6 +24,8 @@
 4. TICKET-046–050: Creature roster — Blind Monster, Oozling (BigBlob), Environmental Hazards (Biomass + Muscle Tentacles), Void Ink reskin. Brute DEFERRED.
 5. TICKET-042: Custom dialogue widget — Replace DemoDialogueWidget with project-styled WBP
 6. Rebuild C++ — ZP_CrawlerMovementComponent debug log wrapping needs build to take effect
+7. TICKET-054: Melee swing feel — pipe swing uses ADS hack (Kinemation has zero melee support). Timing adjusted session 41 (250ms/250ms/700ms). May need further tuning. Camera on PlayerMesh blocks all approaches that move/rotate the mesh (3P montages, Z offset, bone overlays).
+8. FIX: Grenade/pipe weapon swap animation — currently uses ToggleReadyPose which works but is the same "ADS hack" as melee. No proper swap animation exists for non-ranged weapons.
 
 ### Post-Rebuild Reminder
 After every C++ rebuild, run ALL CDO properties via MCP Python:
@@ -952,6 +954,46 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - **Scripts:** `_fix_ppv_no_lumen.py` (disables Lumen), `_bump_light.py` (brightness tuning), `_check_ppv2.py` (diagnostic)
   - **Side effects:** All interior SpotLight/RectLight actors + light fixture meshes were deleted during troubleshooting (incorrect root cause). May need partial restoration later.
   - See `memory/lighting.md` for full documentation.
+
+### TICKET-054 — Inventory Tab System (Maps / Inventory / Notes)
+- Status: PLANNED
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - Unified inventory menu with three tabs: Maps, Inventory, Notes
+  - Maps tab: in-game map display (ties into TICKET-051)
+  - Inventory tab: current Moonville inventory grid
+  - Notes tab: found documents, codes, clues collected during play
+  - Notes tab feeds directly into combination safe system (TICKET-057)
+
+### TICKET-055 — Container Inventory System (Briefcase/Locker)
+- Status: PLANNED
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - RE4-style container with limited grid space
+  - Player must manage what to carry vs leave behind — resource tension
+  - Separate from world loot containers (TICKET-056) — this is player-side storage
+
+### TICKET-056 — Loot Pickup System (Furniture/Fixtures)
+- Status: PLANNED
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - Searchable world objects: lockers, trash bins, desk drawers, filing cabinets, etc
+  - Interaction prompt on approach, short search animation, reveal loot
+  - Ties into Building 1 office environment — desks, break rooms, supply closets
+  - Forces player to slow down and engage with environment (pacing tool for horror)
+
+### TICKET-057 — Combination Lock System (Safes)
+- Status: PLANNED
+- Priority: MEDIUM
+- Category: Gameplay
+- Notes:
+  - Combination safes scattered throughout campaign
+  - Codes found via notes/documents (stored in Notes tab, TICKET-054)
+  - Ren integration opportunity — hints at combinations through dialogue/audio cues
+  - Each safe contains high-value loot (ammo, key items, narrative items)
 
 ## BLOCKERS
 - **BLOCKER 002:** Cannot override parent BP functions via MCP (blocks GASP camera override)

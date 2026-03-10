@@ -48,6 +48,9 @@ public:
 	/** Trigger weapon switch arm-lower animation (both arms drop then raise). */
 	void StartWeaponSwitch(float Duration = 0.5f);
 
+	/** Cancel all active overlays — called on weapon switch to prevent carry-over. */
+	void ResetOverlays();
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;

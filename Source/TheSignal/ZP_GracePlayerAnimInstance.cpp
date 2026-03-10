@@ -432,6 +432,13 @@ void UZP_GracePlayerAnimInstance::StartWeaponSwitch(float Duration)
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] StartWeaponSwitch: Duration=%.2f"), Duration);
 }
 
+void UZP_GracePlayerAnimInstance::ResetOverlays()
+{
+	MeleeSwingTime = -1.f;
+	GrenadeThrowTime = -1.f;
+	WeaponSwitchTime = -1.f;
+}
+
 void UZP_GracePlayerAnimInstance::ApplyBoneRotationCS(TArray<FTransform>& CSTransforms,
 	const FReferenceSkeleton& RefSkel, FName BoneName, const FRotator& AdditiveRotation)
 {

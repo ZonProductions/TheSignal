@@ -5,6 +5,7 @@
 #include "ZP_DialogueManager.h"
 #include "ZP_DialogueWidget.h"
 #include "ZP_MapWidget.h"
+#include "ZP_InventoryTabWidget.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
@@ -86,6 +87,21 @@ void AZP_PlayerController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: MapWidgetClass is %s, IsLocal=%d — MapWidget NOT created"),
 			MapWidgetClass ? TEXT("set") : TEXT("NULL"), IsLocalController() ? 1 : 0);
+	}
+
+	// Create inventory tab widget (Map / Inventory / Notes)
+	if (InventoryTabWidgetClass && IsLocalController())
+	{
+		InventoryTabWidget = CreateWidget<UZP_InventoryTabWidget>(this, InventoryTabWidgetClass);
+		if (InventoryTabWidget)
+		{
+			InventoryTabWidget->AddToViewport(100); // Same Z as old map widget
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created InventoryTabWidget from %s"), *InventoryTabWidgetClass->GetName());
+		}
+	}
+	else if (!InventoryTabWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PlayerController: No InventoryTabWidgetClass set — Tab menu won't work."));
 	}
 
 	// Fade from black on every level start (covers both initial spawn and respawn reload)

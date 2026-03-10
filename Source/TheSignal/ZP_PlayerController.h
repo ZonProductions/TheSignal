@@ -29,6 +29,7 @@ class UZP_HUDWidget;
 class UZP_DialogueManager;
 class UZP_DialogueWidget;
 class UZP_MapWidget;
+class UZP_InventoryTabWidget;
 
 UCLASS(Blueprintable)
 class THESIGNAL_API AZP_PlayerController : public APlayerController
@@ -76,6 +77,16 @@ public:
 	/** Live map widget instance. Created in BeginPlay. */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
 	TObjectPtr<UZP_MapWidget> MapWidget;
+
+	// --- Inventory Tab Menu ---
+
+	/** Widget class for the unified inventory tab menu (Map/Inventory/Notes). Set to WBP_InventoryTab in PC_Grace Blueprint. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UZP_InventoryTabWidget> InventoryTabWidgetClass;
+
+	/** Live inventory tab widget instance. Created in BeginPlay. */
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UZP_InventoryTabWidget> InventoryTabWidget;
 
 	// --- Pause Menu ---
 

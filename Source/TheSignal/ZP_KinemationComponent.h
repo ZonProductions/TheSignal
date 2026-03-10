@@ -322,6 +322,10 @@ private:
 	FTimerHandle MeleeReadyStanceHandle;
 	/** True while swap camera offset is applied — prevents accumulation on rapid swaps. */
 	bool bSwapCameraOffset = false;
+	/** Current weapon switch Z offset applied to PlayerMesh. Lerped during swap. */
+	float WeaponSwitchZOffset = 0.f;
+	/** Target Z offset: negative = dropping, 0 = raising back. */
+	float WeaponSwitchZTarget = 0.f;
 
 	/** Apply per-weapon stats (mag size, fire rate, damage) based on weapon class name. */
 	void ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClass);

@@ -45,6 +45,7 @@ class UZP_HealthComponent;
 class UZP_MapComponent;
 class UZP_FloorCullingComponent;
 class UZP_RuntimeISMBatcher;
+class UZP_NoteComponent;
 class USpotLightComponent;
 class USoundBase;
 
@@ -76,6 +77,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Map")
 	TObjectPtr<UZP_MapComponent> MapComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Notes")
+	TObjectPtr<UZP_NoteComponent> NoteComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Floor Culling")
 	TObjectPtr<UZP_FloorCullingComponent> FloorCullingComp;
@@ -192,13 +196,21 @@ public:
 
 	// --- Map ---
 
-	/** True when map overlay is open — blocks all gameplay input. */
+	/** True when map overlay is open — blocks all gameplay input. DEPRECATED: Use IsMenuOpen() instead. */
 	UPROPERTY(BlueprintReadWrite, Category = "Map")
 	bool bMapOpen = false;
 
 	/** Input action for toggling the map (M key). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> MapAction;
+
+	/** Input action for cycling inventory tabs left (Q key). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
+	TObjectPtr<UInputAction> TabCycleLeftAction;
+
+	/** Input action for cycling inventory tabs right (E key). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
+	TObjectPtr<UInputAction> TabCycleRightAction;
 
 	// --- Inventory ---
 
@@ -299,6 +311,8 @@ private:
 	void Input_ReloadStarted(const FInputActionValue& Value);
 	void Input_InventoryMenu(const FInputActionValue& Value);
 	void Input_Map(const FInputActionValue& Value);
+	void Input_TabCycleLeft(const FInputActionValue& Value);
+	void Input_TabCycleRight(const FInputActionValue& Value);
 	void Input_InventorySlot0(const FInputActionValue& Value);
 	void Input_InventorySlot1(const FInputActionValue& Value);
 	void Input_InventorySlot2(const FInputActionValue& Value);

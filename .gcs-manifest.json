@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-03-09T14:40:51",
+  "created": "2026-03-10T00:33:27",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -3254,6 +3254,10 @@
     "Content/Blueprints/UI/WBP_HUD.uasset": {
       "hash": "sha256:b6e8c93b5254e566f1431c44e02fc55a9a078b0f2e882f52018a4ed27df8b519",
       "size": 23219
+    },
+    "Content/Blueprints/UI/WBP_InventoryTab.uasset": {
+      "hash": "sha256:4857bdfba3ab29185bf3920723f57f473e8461173e2259585e715e731fff12f4",
+      "size": 25613
     },
     "Content/Blueprints/UI/WBP_LoadMenu.uasset": {
       "hash": "sha256:86abfcb2e166bee6709ee9a939d1d982467686ae21b243c62c5ec4bc50e44d5b",
@@ -13827,6 +13831,14 @@
       "hash": "sha256:219144f947f13b8eb98f836506a750011748f536ae63615d8a37e780398f5613",
       "size": 1384
     },
+    "Content/Core/Input/Actions/IA_TabCycleLeft.uasset": {
+      "hash": "sha256:cd40b97eecf5410fc326e7af66f2fb7eeac4443b15b2fa2bfa239d3e4c9b5b9d",
+      "size": 1414
+    },
+    "Content/Core/Input/Actions/IA_TabCycleRight.uasset": {
+      "hash": "sha256:f53beeba2e2d4cb932f2a94b22c1e8cdd5d3578cc9caa2b4ec9406bdba3ef45b",
+      "size": 1419
+    },
     "Content/Core/Input/Actions/IA_WeaponSlot1.uasset": {
       "hash": "sha256:298d3261f0c51e723d380e35b5112d8cef6331b1939b4e5773708147e5e4655f",
       "size": 1409
@@ -13940,20 +13952,20 @@
       "size": 33137
     },
     "Content/Core/Player/ABP_GracePlayer.uasset": {
-      "hash": "sha256:bd765a7f91be4be4d0687ddc1ee8224049e86e81e3b48ea809e26a9888632cd8",
-      "size": 66735
+      "hash": "sha256:95a5d835d06640d09c4e0abb2b6e6b9616fce022ede1e54dc65f3a9c133277e8",
+      "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:9379555f8c67b2f9a96bbbe49a64cf60be2b0c4f9387ed91bd35ad9941f7f106",
-      "size": 130752
+      "hash": "sha256:3e7253efc12c06e7c28c9abcc41eab1256bc37e7330a23fdb35b46c9e7c53fb5",
+      "size": 130519
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
       "size": 9525
     },
     "Content/Core/Player/PC_Grace.uasset": {
-      "hash": "sha256:36c67593dcdeb8b32ee8256aa8cd4802f48e99eff499e0cf3d9789ce8b91a221",
-      "size": 17058
+      "hash": "sha256:2320078ea89ab4b4ae949705d9813684e0743c53cec2b7644a824d38da6f414d",
+      "size": 17275
     },
     "Content/Dialogue/Dialogue_Test.uasset": {
       "hash": "sha256:98831845dc9341524ec30b6cdce299e0728e24f6ea87f4b94d7c49b8030bc4f2",
@@ -32536,8 +32548,8 @@
       "size": 8769
     },
     "Content/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_InventoryMenu_Horror.uasset": {
-      "hash": "sha256:344292b3ae0f82d4d6dc092125144d5d1745ca992d273b44108e815d36669037",
-      "size": 705617
+      "hash": "sha256:01256cc0c7eb43d7774f554a13e02c001c48c39c4b830535f9ed5b586ee0b79b",
+      "size": 675454
     },
     "Content/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_ItemContainerMenu_Horror.uasset": {
       "hash": "sha256:28e0856408cf15fda7baac10866e7c8891a49be32124a6e8ababba133303c822",
@@ -49488,8 +49500,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:234e622e92c9471211e95cb6324074ea71b4b8b3f5b55b294d650e93030d0eea",
-      "size": 18607667
+      "hash": "sha256:53116fb118fd083e6f61ae91da4a6d36b3c5701945f5dddaea1fbf1c6f76bfe5",
+      "size": 18591936
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",

@@ -332,6 +332,12 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 
 	TSubclassOf<AActor> ActorClass = *NewWeaponClass;
 
+	// Block weapon switch during reload — animation must finish first
+	if (bIsReloading)
+	{
+		return false;
+	}
+
 	// If same weapon type is already equipped, skip
 	if (ActiveWeapon && WeaponClass == ActorClass)
 	{
@@ -359,9 +365,23 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 	GetWorld()->GetTimerManager().ClearTimer(WeaponSwapDeferredHandle);
 	GetWorld()->GetTimerManager().ClearTimer(WeaponSwitchRiseHandle);
 
+	// Cancel melee/grenade timers that may still be running
+	GetWorld()->GetTimerManager().ClearTimer(MeleeCooldownHandle);
+	bMeleeCooldown = false;
+
+	// Reset anim overlays — grenade/melee overlays apply bone rotations
+	// that would carry over to the new weapon if not cleared
+	if (USkeletalMeshComponent* PMesh = PlayerMeshComponent)
+	{
+		if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PMesh->GetAnimInstance()))
+		{
+			AnimInst->ResetOverlays();
+		}
+	}
+
 	if (TacticalAnimComp)
 	{
-		// Phase 1: Arms drop off screen — release ADS + low ready
+		// Release ADS + drop to low ready for visual transition
 		SetAiming(false);
 		FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, false);
 	}
@@ -415,7 +435,10 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 			{
 				ActiveWeapon->SetActorHiddenInGame(false);
 			}
-			if (TacticalAnimComp)
+			// Only raise ready pose for melee/throwable — ranged weapons
+			// use WeaponDraw which handles the pose. Calling ToggleReadyPose
+			// on top of WeaponDraw creates a tilt conflict.
+			if (TacticalAnimComp && CurrentWeaponType != EZP_WeaponType::Ranged)
 			{
 				FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, true);
 			}
@@ -489,7 +512,7 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		// Pipe — Melee weapon
 		CurrentWeaponType = EZP_WeaponType::Melee;
 		MeleeDamage = 25.f;
-		MeleeCooldown = 0.35f;
+		MeleeCooldown = 0.7f;
 		MagSize = 0;
 		CurrentAmmo = 0;
 		ReserveAmmo = 0;
@@ -785,18 +808,17 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 		return;
 	}
 
-	// --- Animation: ADS wind-up → compound strike + pitch kick → return ---
-	// Phase 1 (0ms):  SetAiming(true)             = arms pull BACK (wind-up, 60ms)
-	// Phase 2 (60ms): SetAiming(false) + LowReady = compound FORWARD+DOWN (strike)
-	//                 + camera pitch kick for perceived force
-	// Phase 3 (210ms): HighReady                   = return to idle
+	// --- Animation: ADS wind-up → strike (low ready) → return ---
+	// Phase 1 (0ms):    SetAiming(true)           = arms pull BACK (wind-up)
+	// Phase 2 (250ms):  SetAiming(false) + LowReady = FORWARD+DOWN (strike)
+	// Phase 3 (500ms):  HighReady                  = return to idle
 	bMeleeSwingActive = true;
 	if (TacticalAnimComp)
 	{
 		SetAiming(true); // Wind-up: arms pull back
 	}
 
-	// After brief wind-up: strike outward + downward
+	// After wind-up completes: strike outward + downward
 	GetWorld()->GetTimerManager().SetTimer(MeleeWindupHandle, [this]()
 	{
 		if (TacticalAnimComp)
@@ -805,13 +827,7 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 			FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, false); // + DOWN
 		}
 
-		// Camera pitch kick — sells force of the downward swing
-		if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
-		{
-			OwnerPawn->AddControllerPitchInput(1.5f); // Brief downward kick
-		}
-
-		// Return to high ready after strike extends
+		// Return to high ready after strike follow-through
 		GetWorld()->GetTimerManager().SetTimer(MeleeSwingReturnHandle, [this]()
 		{
 			if (TacticalAnimComp)
@@ -819,8 +835,8 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 				FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, true);
 			}
 			bMeleeSwingActive = false;
-		}, 0.15f, false);
-	}, 0.06f, false);
+		}, 0.25f, false);
+	}, 0.25f, false);
 
 	// --- Damage: sphere sweep at click time (instant hit, animation is cosmetic) ---
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
