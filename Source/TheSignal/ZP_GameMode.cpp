@@ -11,5 +11,8 @@ AZP_GameMode::AZP_GameMode()
 	PlayerControllerClass = AZP_PlayerController::StaticClass();
 	GameStateClass = AZP_GameState::StaticClass();
 
+	// BP classes (BP_GraceCharacter, PC_Grace) are set via GM_TheSignal Blueprint CDO.
+	// FClassFinder for Blueprint classes in constructors causes cascading loads during CDO construction.
+
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GameMode constructed — DefaultPawn: ZP_GraceCharacter, Controller: ZP_PlayerController"));
 }

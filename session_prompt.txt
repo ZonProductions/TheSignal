@@ -5,8 +5,8 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session: Session 41 — Weapon system polish. Reload blocks weapon switch. Weapon tilt fix (skip ToggleReadyPose for ranged on switch). Melee camera jolt removed. Pipe swing timing slowed (250ms wind-up, 250ms strike, 700ms cooldown). Pickup priority near doors fixed (line-of-sight trace). AR fire rate set to 128 BPM. Flashlight attached to camera. DefaultSlot added to ABP_GracePlayer AnimGraph.
-- Date: 2026-03-09
+- Last session: Session 50 — Ladder system MVP complete. Hold-to-climb (W/S must be held), top bound lowered 80 UU (hands at rung level), Space dismount position-aware (upper half=top exit, lower half=drop), camera faces mesh surface perpendicular (consistent every time), top exit keeps XY + raises Z. Multiple dead ends: ClimbDirection arrow camera (misconfigured), XY push on exit (wrong direction), TopExitPoint teleport (baked BP values), auto-exit (overcomplicated).
+- Date: 2026-03-11
 
 ## CAMPAIGN BUILD
 - **Vertical slice complete.** Core systems proven (player, combat, creatures, inventory, save/load, UI, interaction, lock/key).
@@ -966,17 +966,18 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - Notes tab: found documents, codes, clues collected during play
   - Notes tab feeds directly into combination safe system (TICKET-057)
 
-### TICKET-055 — Container Inventory System (Briefcase/Locker)
+### TICKET-055 — Briefcase System (Player Storage)
 - Status: PLANNED
 - Priority: HIGH
 - Category: Gameplay
 - Notes:
+  - Uses footlocker design (SM_ClosetMetal), interconnected between levels
   - RE4-style container with limited grid space
   - Player must manage what to carry vs leave behind — resource tension
   - Separate from world loot containers (TICKET-056) — this is player-side storage
 
 ### TICKET-056 — Loot Pickup System (Furniture/Fixtures)
-- Status: PLANNED
+- Status: DONE
 - Priority: HIGH
 - Category: Gameplay
 - Notes:
@@ -984,6 +985,17 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - Interaction prompt on approach, short search animation, reveal loot
   - Ties into Building 1 office environment — desks, break rooms, supply closets
   - Forces player to slow down and engage with environment (pacing tool for horror)
+
+### TICKET-058 — Ladder Climbing System
+- Status: DONE
+- Priority: HIGH
+- Category: Gameplay
+- Notes:
+  - MVP complete (sessions 47-50). Full C++ implementation in ZP_Ladder + ZP_GraceCharacter.
+  - Hold-to-climb (W/S), Space dismount (position-aware), camera locked to surface perpendicular.
+  - Top bound -80 UU keeps hands at rung level. Top exit keeps XY, raises Z.
+  - BP_Ladder in Maps_BigCompany stairwell with floor mesh at roof level.
+  - Polish remaining: mount/dismount anims, arm reach anims (LADDER-005), ClimbDirection arrow fix.
 
 ### TICKET-057 — Combination Lock System (Safes)
 - Status: PLANNED

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-03-10T00:33:27",
+  "created": "2026-03-11T16:45:56",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -2699,6 +2699,10 @@
       "hash": "sha256:3cc510aca988ed62d923e1515f9fee3b6a041451f445e1dbef1a74c1bbd56739",
       "size": 35951
     },
+    "Content/Audio/Mix/Building_1_-_no_kick_snare.uasset": {
+      "hash": "sha256:9a8a67b61c8d3fd1f3b0530d2850d2d248b7b0d4bc6dae32ee40bc1bf4172d2f",
+      "size": 6704399
+    },
     "Content/Audio/Mix/SM_Ambient.uasset": {
       "hash": "sha256:6dbd7c57bee4914a58ad8f6ff6010b4355afbdced606eacfa92b60674492d4f5",
       "size": 1473
@@ -3238,6 +3242,14 @@
     "Content/Blueprints/Data/S_TraversalCheckResult.uasset": {
       "hash": "sha256:c40547724c43c9b86b43291d51b23ad39996a71ff9a8f30a795528eb4ddd34e0",
       "size": 19378
+    },
+    "Content/Blueprints/Gameplay/BP_Briefcase.uasset": {
+      "hash": "sha256:2be47d5d6a154fa25aa8c23a06447b9caf016a39417e9a19a591616a64cbf0f5",
+      "size": 93402
+    },
+    "Content/Blueprints/Gameplay/BP_LootLocker.uasset": {
+      "hash": "sha256:3939e884d504facf13134c5b92740c195ceeafc47d778e8cd9dabd7df52e4538",
+      "size": 73130
     },
     "Content/Blueprints/Gameplay/BP_SavePoint.uasset": {
       "hash": "sha256:7ba8f19e2acb24cde9c030fc0c82797be722691f6450fc257d3219a73576da69",
@@ -13783,6 +13795,10 @@
       "hash": "sha256:b629aa2db09080be305f59605d8a0417b38d63c2ca36d80adbf3dc492a0954b5",
       "size": 22021
     },
+    "Content/Core/Gameplay/BP_Ladder.uasset": {
+      "hash": "sha256:2332dc0adad7b35b595c6c03cfa175d1113ba9777096684007c4445c8e8a7d74",
+      "size": 32649
+    },
     "Content/Core/Input/IA_Map.uasset": {
       "hash": "sha256:b173025eec85fcd38e8d4796dbe7dcde0b0f780e6efb7bdb4881f2a1cf90dc81",
       "size": 1353
@@ -13879,6 +13895,10 @@
       "hash": "sha256:8f58c84ca323b79d054e7feda2910e073083ab87e8c7fafda9ae135220aa5539",
       "size": 3958
     },
+    "Content/Core/Items/DA_Letter_Test.uasset": {
+      "hash": "sha256:a7b37c1e43b50f3776e2ff741a9c68de5bfc257bba0cf1a124209364a3627165",
+      "size": 3542
+    },
     "Content/Core/Items/DA_Pipe.uasset": {
       "hash": "sha256:d70a9ba4bb5518d7079b4be5bd598e425dea863165d381c4094a5dddb0002a2b",
       "size": 7856
@@ -13927,6 +13947,10 @@
       "hash": "sha256:eebcd42763445e21d35800e8000a4beb6d67130ad1591ac277b6fbfe850e1dcd",
       "size": 6901
     },
+    "Content/Core/LootTables/DA_LootTable_Locker.uasset": {
+      "hash": "sha256:b6341296749142cbc771f2956e735334d7bb3386953fa216e4db2d7831a9838a",
+      "size": 4005
+    },
     "Content/Core/Materials/M_BulletHole.uasset": {
       "hash": "sha256:278b1f1a9295fd6b1afd94ddc038a56cc3b2536247f825d06f6387a52d0c368e",
       "size": 10032
@@ -13956,8 +13980,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:3e7253efc12c06e7c28c9abcc41eab1256bc37e7330a23fdb35b46c9e7c53fb5",
-      "size": 130519
+      "hash": "sha256:a887f6268c62e7d14b4405c07e6b891e8229289d1fe066c3059559389200c8bd",
+      "size": 126899
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -24002,6 +24026,10 @@
     "Content/icons/AR.uasset": {
       "hash": "sha256:e15ccd0cacb435a6a0d04e4a029be98cc371a158f328115e331ad303e77a24d5",
       "size": 30105
+    },
+    "Content/icons/da_letter.uasset": {
+      "hash": "sha256:1633899ed27f27790c991859eee97d3d8d3a2cf2a1bc627b0b90d0680e31f79e",
+      "size": 324020
     },
     "Content/icons/health_merc.uasset": {
       "hash": "sha256:793c8e0b73bd14b96627b80c3a4dcc4eedd17712886c745125e2bbb8d553e17b",
@@ -37379,6 +37407,1354 @@
       "hash": "sha256:8046a1d9b0ea084683167b959d4f7d8e8f400c07b77967e65a482fce63256c89",
       "size": 5282548
     },
+    "Content/LadderClimbingSystem/Animations/IdleLookDown_Pose_UE5.uasset": {
+      "hash": "sha256:86590cd5404ce9b1ed435958eb078ed9fcf1b83701ec4ab243451eeb1b1c8f0e",
+      "size": 540287
+    },
+    "Content/LadderClimbingSystem/Animations/MasterCharacter_AnimBP_UE5.uasset": {
+      "hash": "sha256:5c36abdec5088b33316e0697d2dcd1f7257ce63bd6b56f0c934cece636ea55a8",
+      "size": 2062611
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/A_Idle_Breathing_UE5.uasset": {
+      "hash": "sha256:ec4cf7d1653bd7429cd203868b1f9a57e82a62c610e07cd0a57bf0a50e9b9572",
+      "size": 540905
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Ladder_Hand_Poses_UE5.uasset": {
+      "hash": "sha256:03427d186966fefbf15d7045c09db55c4598716af33c15bee038e200f402ce38",
+      "size": 180959
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Bottom_IN_Left_Quick_UE5.uasset": {
+      "hash": "sha256:56141914e36238ac69cd9479cb44b73b34e71959d5c18ecdd3880f0abbc7555a",
+      "size": 387278
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Bottom_IN_Left_Quick_UE5_Montage.uasset": {
+      "hash": "sha256:b1fe5bf359a3b341ca583f265589bb09a8005f249a961cdec4e37e2f6d0ae9ef",
+      "size": 11405
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Bottom_IN_Right_Quick_UE5.uasset": {
+      "hash": "sha256:169cd5908861e273b597b9fe60caeddc3c6ffaf7cf6d4983625cb0b57c94dc09",
+      "size": 387428
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Bottom_IN_Right_Quick_UE5_Montage.uasset": {
+      "hash": "sha256:9a0a8b3369b189c97f16e78fe3d286e5066b7834cc5f9d62d3932d8f17bacbda",
+      "size": 11561
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Climb_down_in_Left_UE5.uasset": {
+      "hash": "sha256:1b99a94a6757dd22a33769b8cbf39acbac78a42194dacdfc6fd4819f0d8e9808",
+      "size": 1025683
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Climb_down_in_Left_UE5_Montage.uasset": {
+      "hash": "sha256:b852cd8d54f8de8a4e2e1bca5095bf18255976a24e3297c467db56880f2f2fad",
+      "size": 12368
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Climb_down_in_right_UE5.uasset": {
+      "hash": "sha256:19d2091531f3e434f401ec0de72f52d0e8599550821597a5478e453fb0d71a0d",
+      "size": 965495
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Start/Ladder_Climb_down_in_right_UE5_Montage.uasset": {
+      "hash": "sha256:e74da4a47906b89bb1e3ce943a84e90f159886a528d34bc5f2863a45ca24aee8",
+      "size": 12398
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Stop/A_Slide_To_Out_UE5.uasset": {
+      "hash": "sha256:bf3943d8de20a3992391a4a0001068302ca43cddce3d0879e38e830c51d8e954",
+      "size": 396960
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Stop/Ladder_Climb_down_out_Left_UE5.uasset": {
+      "hash": "sha256:8a181fa40d400d6cdc1e32bb98806966635f0ab6d3811999679b03fe91b3e758",
+      "size": 928136
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Stop/Ladder_Climb_down_out_Left_UE5_Montage.uasset": {
+      "hash": "sha256:562a239bcea04f2abdf63d7013be1107b4c0fb2bf67b2a5efd2b7027fbb72ae2",
+      "size": 13416
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Stop/Ladder_Climb_down_out_right_UE5.uasset": {
+      "hash": "sha256:c6b1c12940a7d33d914d3e280aa08fcd7ef99a5d39326bd5b6c52799ceb1fefc",
+      "size": 860888
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Bottom/Stop/Ladder_Climb_down_out_right_UE5_Montage.uasset": {
+      "hash": "sha256:9307119edc2f524148727090efdfa97b97a3308f053fee6d18d39d191f499906",
+      "size": 13394
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Idle/A_Idle_Breathing_UE5.uasset": {
+      "hash": "sha256:3e8c3ff63a2ed16892cfbdbc3da96d79b3f4a32cb79054b6c040f7cf163090a7",
+      "size": 540694
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Idle/A_LadderClimbUpFastIdleL_UE5.uasset": {
+      "hash": "sha256:f15d65ea721a579aa8043ec23546340eab9b7b631919b24bbab5e32ff4d869c6",
+      "size": 162170
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Idle/A_LadderClimbUpFastIdleR_UE5.uasset": {
+      "hash": "sha256:913d948e52f3861f2ff9b1ba9b58acd680ada0450874fe92eb33646d0ef9d2d2",
+      "size": 162108
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Idle/A_LadderIdleL_UE5.uasset": {
+      "hash": "sha256:31b0f55b83d81479db90046c49a43cf094e4643bede72bce75e6b17e2e9c9b82",
+      "size": 552678
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Idle/A_LadderIdleR_UE5.uasset": {
+      "hash": "sha256:d917f12ba782a7fbe32d2ccb5a9a6c269dd3aa0db331592a4a8fd7f41a519855",
+      "size": 597579
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbDown/A_ClimbDownLoop_UE5.uasset": {
+      "hash": "sha256:b6c429b723cc3069d4baa77b3ff6126bcff01d2fe7eaf2d9cec7fa7195588ddf",
+      "size": 483223
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbDown/A_ClimbDown_Left_UE5.uasset": {
+      "hash": "sha256:f4c176d0961d4a8e82f7dec1b41d6286a3faf04a4dac5d2125808141e47250c8",
+      "size": 345962
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbDown/A_ClimbDown_Right_UE5.uasset": {
+      "hash": "sha256:cc6151a815a8c85374ff16522bf9b61b3cefd32b941c3e84ce3ad566fb752525",
+      "size": 326984
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbUp/A_ClimbUp_Left_UE5.uasset": {
+      "hash": "sha256:5a8902e7544bc00ec8730897d64b236a4a8665190a9291288939d31573ca82e8",
+      "size": 335687
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbUp/A_ClimbUp_Loop_UE5.uasset": {
+      "hash": "sha256:d63b185d2e1fdfcdc8a3e36dd663cb78fab13e7a0e0af96e6b757d4b44ee1653",
+      "size": 476205
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbUp/A_ClimbUp_Right_UE5.uasset": {
+      "hash": "sha256:26251d0576c55a68b94af708f231c2dac47914ff3812623f1e9546a754bd7c23",
+      "size": 326799
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbUp/A_Quick_Climb_Up_Left_UE5.uasset": {
+      "hash": "sha256:605b7971793088b17e640ce6249469d923bfbcc1b201c027b9fcb9dba6787d7e",
+      "size": 322520
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbUp/A_Quick_Climb_Up_Loop_UE5.uasset": {
+      "hash": "sha256:b4f86f8c0cc82ff828c2a0874ba9b9165bd81658579cd447965a2af124a1ef4f",
+      "size": 360709
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Loop/ClimbUp/A_Quick_Climb_Up_Right_UE5.uasset": {
+      "hash": "sha256:5191f88c706dbb5b6b7e4a22d557252a25e3ff6e3c6312b85bd1b529949f1636",
+      "size": 301200
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_ClimbUpLoop_RM_UE5.uasset": {
+      "hash": "sha256:173ef0ad55280bc9f7109ce0cafcf944ceda12c2db4323e894487f6d621db3d4",
+      "size": 475531
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_FastClimbToSlowClimbIdleL_UE5.uasset": {
+      "hash": "sha256:cc871e43b1e1fdbf4c20bc2bfb14007e36c5ce8d7ec569e1f650a5b122713848",
+      "size": 242742
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_FastClimbToSlowClimbIdleR_UE5.uasset": {
+      "hash": "sha256:80ac7f525b4b3be7424a7463eed2a4a627ed86bcb25840a5e3e001953040627b",
+      "size": 238121
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_LadderClimbUpL_RM_UE5.uasset": {
+      "hash": "sha256:1812f05668c3ba902ea3e8735421c3c6ea4832b51d7463b742d94323474826e8",
+      "size": 273345
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_LadderClimbUpR_RM_UE5.uasset": {
+      "hash": "sha256:97b6e7f01dd1a21a725d22647a88a8e09d5ed3d1b8e216077d74ec228b2626fb",
+      "size": 289123
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_Left_Idle_To_Slide_UE5.uasset": {
+      "hash": "sha256:61b2f593fe6d3ec041314afc5fbfff27e7521794b20416370e21a0a624a6fa27",
+      "size": 404212
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_Right_Idle_To_Slide_UE5.uasset": {
+      "hash": "sha256:f64126dbac8db24714ba8e1e2183c87b7a194646560e8cfe94f4959a218bcba5",
+      "size": 403320
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_Slide_To_LeftIdle_UE5.uasset": {
+      "hash": "sha256:c2a3474bd66e68a156147b986e52ebb7d6c389328271d1a04d7da03e1cbcf158",
+      "size": 401326
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_Slide_To_RightIdle_UE5.uasset": {
+      "hash": "sha256:7d8478c8d8fa92536fe46e1bc94f109894de9322e41c35d6e4c66f6a0e3b4bd1",
+      "size": 398591
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_SlowClimbIdleToFastClimbIdleL_UE5.uasset": {
+      "hash": "sha256:25322afc815c60a4ba165fa5eab88acd71872a5f33ab605fdb2b94601482e45e",
+      "size": 268462
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/RootMotion/A_SlowClimbIdleToFastClimbIdleR_UE5.uasset": {
+      "hash": "sha256:4befef0ac1cbe87f3d053b3e63f87405cf28d11d2fe11e04f3c3f98b167b3f61",
+      "size": 242758
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Top/A_Climb_Up_In_Right_UE5.uasset": {
+      "hash": "sha256:648cb40b03dca09487fc19d1c0dd2a9e1fc4327eb34f12a777bf68dc15cc6394",
+      "size": 1348944
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Top/A_Climb_Up_In_Right_UE5_Montage.uasset": {
+      "hash": "sha256:6923fefda933a764a34bd451028cc37af48c3cf28740792122e320176c35761d",
+      "size": 11388
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Top/A_Climb_Up_out_Right_UE5.uasset": {
+      "hash": "sha256:75814f14ec870ed85dc490dc9c0d03e886b9e9f3815e21131baa2acae1c1ebd2",
+      "size": 1216347
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Top/A_Climb_Up_out_Right_UE5_Montage.uasset": {
+      "hash": "sha256:96852653d73c2989c3ad0aa109250345ae9fde81ff636a06f1e4ca65694e4036",
+      "size": 11354
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/FastToSlow/A_FastClimbToSlowClimbIdleL_InPlace__UE5.uasset": {
+      "hash": "sha256:2e482ef8713b37a9d71e153ab0d63964e5dd9f51b5f5a5029f9defb2749d87c6",
+      "size": 244355
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/FastToSlow/A_FastClimbToSlowClimbIdleR_InPlace__UE5.uasset": {
+      "hash": "sha256:add1dce3103cf4b4ac75148be965db78fc452155b66e6e6c9e1b7f590376bff1",
+      "size": 239669
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/Slide/A_Right_Idle_To_Slide_InPlace__UE5.uasset": {
+      "hash": "sha256:5a4f52020c139c5b3437850c4a8874f243858ebf1ceac51e589974a1a08c722d",
+      "size": 405201
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/Slide/A_SlideLoop_UE5.uasset": {
+      "hash": "sha256:f428fd2692b94baed015b0c8b4584c24f9bef5d5bbcd22267af2e88dd4f310c9",
+      "size": 164981
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/Slide/A_Slide_To_LeftIdle_inPlace__UE5.uasset": {
+      "hash": "sha256:1a0e6eb367be6f5cfe0e054c8ce7df7f3da4472fc2efced32038b4ebf8a1e223",
+      "size": 403290
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/Slide/A_Slide_To_RightIdle_InPlace__UE5.uasset": {
+      "hash": "sha256:081f1dc689a1487cb5e7eedf479f693fcf8ea617796a43dc804347072cfab5f6",
+      "size": 400527
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/SlowToFast/A_SlowClimbIdleToFastClimbIdleL_InPlace__UE5.uasset": {
+      "hash": "sha256:37c09c10ee126440a7a4f2d595103cfd60fc58ad83d1e4310ceed6ac3041e12d",
+      "size": 269784
+    },
+    "Content/LadderClimbingSystem/Animations/Ladder/Transitions/SlowToFast/A_SlowClimbIdleToFastClimbIdleR_InPlace__UE5.uasset": {
+      "hash": "sha256:d9af44d3a2ffc78f6982b70e53aa60d0e1fe9d7faa8190f58cbef22a5fb53e28",
+      "size": 244064
+    },
+    "Content/LadderClimbingSystem/Blueprints/GM_LadderClimbing.uasset": {
+      "hash": "sha256:3383856598cdfe37d8dc0b3d8d48a0b3bb7095c670612a1266e5288e56201057",
+      "size": 15190
+    },
+    "Content/LadderClimbingSystem/Blueprints/AdjustableLadders/BP_Ladder1.uasset": {
+      "hash": "sha256:bec8b64d1db3f8763ed9eaf38f8731d0eeec03605e1289e03e99b34bf964b3d2",
+      "size": 101908
+    },
+    "Content/LadderClimbingSystem/Blueprints/AdjustableLadders/BP_Ladder2.uasset": {
+      "hash": "sha256:26384c79e92b31693bb428c04da2d63800714e86dffcf733de313f9f11899e9e",
+      "size": 44663
+    },
+    "Content/LadderClimbingSystem/Blueprints/AdjustableLadders/BP_Ladder3.uasset": {
+      "hash": "sha256:6e605ed9de1cec18c689521df3da2601a430db7fb757afccf42a98ec96c72c4e",
+      "size": 133038
+    },
+    "Content/LadderClimbingSystem/Blueprints/AdjustableLadders/BP_Ladder4.uasset": {
+      "hash": "sha256:1d101492dcf4951b7634891941299ed1c737ba77a01485943d319a107b54f5b6",
+      "size": 140430
+    },
+    "Content/LadderClimbingSystem/Blueprints/AdjustableLadders/BP_Ladder5.uasset": {
+      "hash": "sha256:fcbcce58c04cfa88b9c9d78bf69caf77912a9802a6a33fe05d64c3adbfdc55bf",
+      "size": 139627
+    },
+    "Content/LadderClimbingSystem/Blueprints/AdjustableLadders/BP_MasterLadder.uasset": {
+      "hash": "sha256:b9ab580e436a72f1fd8e421756806662b224ecc091eb9c88fb222d079dcc40e3",
+      "size": 282233
+    },
+    "Content/LadderClimbingSystem/Blueprints/Character/BP_LadderPlayerController.uasset": {
+      "hash": "sha256:79444287c34b052f4f22ac5d7deab7f6ccd3569722b7c63e1aab28fe5806dfb0",
+      "size": 30969
+    },
+    "Content/LadderClimbingSystem/Blueprints/Character/BP_MasterCharacter.uasset": {
+      "hash": "sha256:c1b053dec4493878ffe70a7e96e45ab92103283ab53918877ef8a89b4049c8eb",
+      "size": 277363
+    },
+    "Content/LadderClimbingSystem/Blueprints/Components/BPC_LadderClimbingComponent.uasset": {
+      "hash": "sha256:301ce190cc39185f1c7f1ab91f2f0bb2751dcd48cf8af3a4b407412fc4feea3e",
+      "size": 2201499
+    },
+    "Content/LadderClimbingSystem/Blueprints/Data/E_EnterLadderTransitionState.uasset": {
+      "hash": "sha256:e7e5c57cde6cca6ce57d0600ad7c2e2ee81582030b67b530608330890a4a6898",
+      "size": 3065
+    },
+    "Content/LadderClimbingSystem/Blueprints/Data/E_ExitLadderTransitionState.uasset": {
+      "hash": "sha256:6766467efb440b5e99d48e34bcfc86374ef8bf03d2d3cdac8a11c757a172810e",
+      "size": 3038
+    },
+    "Content/LadderClimbingSystem/Blueprints/Data/E_LadderMovementState.uasset": {
+      "hash": "sha256:8c5f67993fbdbfa235f76e3025a598f2b8df7f9219e7a626072a484c1786eecb",
+      "size": 4940
+    },
+    "Content/LadderClimbingSystem/Blueprints/Interfaces/BPI_LadderClimbingInterface.uasset": {
+      "hash": "sha256:a3ee164d3ac3631cc3adabd5fa075d1b4f7a363f93a8babb4ba1369cd4a20ccc",
+      "size": 53837
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_AnimationPlaying_NotifyState.uasset": {
+      "hash": "sha256:4ab7c47a359548b09fbc840108879522e47cf4657aacbf4588e09a706afb29ba",
+      "size": 86245
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_DisableLadderClimbing_Notify.uasset": {
+      "hash": "sha256:5ad5d4bdb8da99e62c2c5d59dd545b9e0e5fdcc85956023d96c42f81aeb505ed",
+      "size": 50921
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_EnterLadderTransitionEnd_Notify.uasset": {
+      "hash": "sha256:21f2a0b9034ea00cff114f13ad72d39b9f3cb3149903e768a9b869391b3ebe49",
+      "size": 58083
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_LadderMovementTransitioning_Notify.uasset": {
+      "hash": "sha256:a3f39305c814364a1c565fede57311149e61a2ea0573c36b603769acc26ca65f",
+      "size": 56486
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_LadderMovementTransitioning_NotifyState.uasset": {
+      "hash": "sha256:cecbff87f99198e83bbf71103d29cf156ff8fe36416cb7e3da2626fa3cfbbda3",
+      "size": 85295
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_LadderMovement_Notify.uasset": {
+      "hash": "sha256:8e6a68e8aaf9c5d1d2be7c96e123b4118ec996083c622e6e5ec82ca524379132",
+      "size": 143776
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_SetAnimationPlaying_Notify.uasset": {
+      "hash": "sha256:c1690bfb0c91f5ca0d5d4a125460c84d658d12f448e92cd46714c7d65b1d285c",
+      "size": 55081
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_SetLadderMovementState_Notify.uasset": {
+      "hash": "sha256:dddcc8d9850ab882e8423d83e9ca3ba1f6a4838f5b9782653880ec47e1985541",
+      "size": 56074
+    },
+    "Content/LadderClimbingSystem/Blueprints/Notifies/BP_UpdateExitLocation_Notify.uasset": {
+      "hash": "sha256:8becbb862500f2c9a9af7475d1562e4b7dfd90529ebb8d472185ef6b05cdd884",
+      "size": 86776
+    },
+    "Content/LadderClimbingSystem/Blueprints/UI/WG_DebugUI.uasset": {
+      "hash": "sha256:6adbc10f79e1d798a56a46cedb6d49d26e71b6bda96f5a1fb853acc30e8c6910",
+      "size": 148215
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/ABP_Manny.uasset": {
+      "hash": "sha256:122d7b47292988330f16db280c8df79d8d57648d4ed2999957fe87b4dec42280",
+      "size": 367168
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/ABP_Quinn.uasset": {
+      "hash": "sha256:96f2404b4611b4994976b43e7157f1679688d7868fb484964034ad3185b2a021",
+      "size": 41330
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/BS_MM_WalkRun.uasset": {
+      "hash": "sha256:1d33447a3360b3a9da8f80be3e413b6ff1cdbafd9c1f87ebc6068b2ed099459d",
+      "size": 9458
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_Fall_Loop.uasset": {
+      "hash": "sha256:d7242bcb023ad0bc67d9979e07756b6700a2172203341fca01c57eabb617ffc4",
+      "size": 978161
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_Idle.uasset": {
+      "hash": "sha256:e7a189e5914bba80ac157bf148364d05913684e1cbcc1e01275d8cc30f4ab566",
+      "size": 1467276
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_Jump.uasset": {
+      "hash": "sha256:f2966fb37880a7f7ee6eac889ff3c9fb9f24d3ed95fbbf029847e076fa007f0d",
+      "size": 456445
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_Land.uasset": {
+      "hash": "sha256:d535d84ae4e512f9f551be9fa6bf1ccbbd2ebd4f0dc1e9d8c6203d7ec633930b",
+      "size": 462373
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_Run_Fwd.uasset": {
+      "hash": "sha256:1c7c17397b39b4f82f07b630ff7df94c62b5a1a12bd4558c4ce8870304afd2b9",
+      "size": 512864
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_T_Pose.uasset": {
+      "hash": "sha256:751dfd42e18653d058f0f9cd73715c4a833e45ce9e5507e5012fc772eff88219",
+      "size": 120299
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_Walk_Fwd.uasset": {
+      "hash": "sha256:a8d1294f2f58a25724be5ff4515b721434212029cd346b343363d82b55bd2759",
+      "size": 579619
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Manny/MM_Walk_InPlace.uasset": {
+      "hash": "sha256:745565262351d50d44def6efd6d3dd0a14da182a5944f77bc9dac75e0cf1af82",
+      "size": 767276
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Quinn/BS_MF_Unarmed_WalkRun.uasset": {
+      "hash": "sha256:3d3c02ce2c57a93f23043d380e11942b3226e353b0154628369639bfe6428583",
+      "size": 9498
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Quinn/MF_Idle.uasset": {
+      "hash": "sha256:458bfd2e44eb8ee8c9e281e4f8f556dc6fa75283dbe4ee5f2acd8c9477c2cb9e",
+      "size": 1005016
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Quinn/MF_Run_Fwd.uasset": {
+      "hash": "sha256:52ecfefa4d8e000212b35c53255009e84c50ef5d6234f49cb6415d2fcdfbef6d",
+      "size": 555347
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Animations/Quinn/MF_Walk_Fwd.uasset": {
+      "hash": "sha256:c9493744981430df0ab270130ac6ba2e775dda9a8f8bcac959111a681e7230fb",
+      "size": 572030
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/M_Mannequin.uasset": {
+      "hash": "sha256:35b3681d2604edbf3248f4c9770f6d08762930c6ab11afd3e99976fbb14b0b9d",
+      "size": 87606
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Functions/CA_Mannequin.uasset": {
+      "hash": "sha256:24646e426e6897f6e38a051cf590c37e42842c0d3d678b598f8374465e5ec1e9",
+      "size": 5514
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Functions/ChromaticCurve.uasset": {
+      "hash": "sha256:e7c5f45776be8ff6ee32e0ce256e2753f4d6eb77619c8bae5c0f5d2f56b7ceb3",
+      "size": 6450
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Functions/MF_Diffraction.uasset": {
+      "hash": "sha256:0189fd7d7407a8505248217e1f56a35f7ce524e8718daf3defd0fe356ccc3bd0",
+      "size": 33266
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Functions/MF_logo3layers.uasset": {
+      "hash": "sha256:6db13671b86daae4f0363525ba7c361293f8b68fd63432a0eeb5f6e41c36cf48",
+      "size": 57899
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Functions/ML_BaseColorFallOff.uasset": {
+      "hash": "sha256:5a34415ce83f3f9c67c6aa5e665ecb2155c778cde6e641852027414d470ad763",
+      "size": 14207
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Instances/Manny/MI_Manny_01.uasset": {
+      "hash": "sha256:a35478fa0da553f1fc80ab0a75adf593aa082024a99e8f0586f17616a41399fe",
+      "size": 21843
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Instances/Manny/MI_Manny_02.uasset": {
+      "hash": "sha256:e88bef84105113b6bde7b67b348d8dffb821555d6ea494dec5309061cc3ab2c4",
+      "size": 25062
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Instances/Quinn/MI_Quinn_01.uasset": {
+      "hash": "sha256:8147e6a82e906eeadbbc9332f7fa462ca462e3fe8b9a4b0964708b973f5b0279",
+      "size": 19897
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Materials/Instances/Quinn/MI_Quinn_02.uasset": {
+      "hash": "sha256:14d2bb1f3a62c709d92470ebd1952ea16ad8b79265d47328ce5e7b83bc28db4e",
+      "size": 25448
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Meshes/Mannequin_LODSettings.uasset": {
+      "hash": "sha256:3948d9109e7e6bf5b227c417de31c29c4b9a1427150cc43c024a18cdc76e2f32",
+      "size": 19715
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Meshes/SKM_Manny.uasset": {
+      "hash": "sha256:b702778a301e386e4791d9577ad8d9774d490b86963e66421dba2c780f2a5b72",
+      "size": 28777656
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Meshes/SKM_Manny_Simple.uasset": {
+      "hash": "sha256:d7063648676820219500bb57f8ef4f305cf1fef651a996881d2385f4bda15c5a",
+      "size": 15847299
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Meshes/SKM_Quinn.uasset": {
+      "hash": "sha256:63b39dbf81d39ae8ba1437ff1f0cad3c484b315fa8989ff270f652f5631e4fe3",
+      "size": 29957455
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Meshes/SKM_Quinn_Simple.uasset": {
+      "hash": "sha256:95ddd08469da248524d53cc043c46000c43d70e0524717361d3f6c2206c44f2a",
+      "size": 16272228
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Meshes/SK_Mannequin.uasset": {
+      "hash": "sha256:4b864e75385fba0cc781d46d79b435c276ba8548d2d9a0d767d58ba3465de26e",
+      "size": 190641
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/ABP_Manny_PostProcess.uasset": {
+      "hash": "sha256:9728b5d1ef78cc478a078a932f1909d8bd1e57e4e9d690db479784e421388b64",
+      "size": 423888
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/ABP_Quinn_PostProcess.uasset": {
+      "hash": "sha256:326d44fb5bbc49a04aca6a5e30fd1cb55acba1db01e33fa51a50395e2fce460d",
+      "size": 423686
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/CR_Mannequin_BasicFootIK.uasset": {
+      "hash": "sha256:e1d1faac6a7424c6cdbb803e0e52e008d41272fc8d2f2c7c2043d11a2a231a44",
+      "size": 527246
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/CR_Mannequin_Body.uasset": {
+      "hash": "sha256:c6317dcd615e963b47beb28b323678e685ca6ce17d4091233bf148f0f3e97fd7",
+      "size": 18479677
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/CR_Mannequin_Procedural.uasset": {
+      "hash": "sha256:08be51a94af808a8394d59897b34868b3be34e2f9e8a53a186fb35d6282e4fc4",
+      "size": 1465850
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/IK_Mannequin.uasset": {
+      "hash": "sha256:fccb2e5d77f23fb0371554f958ddae067c7fa6e5698f623f58693232e12db5f3",
+      "size": 144002
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/PA_Mannequin.uasset": {
+      "hash": "sha256:38193df805758ad3efa49f5a15f5b36490247c0b3643d61641b271932e610717",
+      "size": 298115
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/RTG_Mannequin.uasset": {
+      "hash": "sha256:9c4cb1b390b67dbe1af04036ffebea3c2ab8f4f394681fe7e5b0bf330b1833a2",
+      "size": 25179
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_calf_l_anim.uasset": {
+      "hash": "sha256:72510ad1a4590c91b3d094d6c353e99e8d88bf3af09c990f7e587d2534772cf2",
+      "size": 241825
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_calf_l_pose.uasset": {
+      "hash": "sha256:e81bd43607ae29aa60dd3165d97d4dbf40817586dbb2f23190cbadfc4874b5d2",
+      "size": 204293
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_calf_r_anim.uasset": {
+      "hash": "sha256:4f5433223a5c5443642d9ddb32bb8d274e4133544fc783f35ae9689358325db8",
+      "size": 241835
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_calf_r_pose.uasset": {
+      "hash": "sha256:12b8de3d766ca207b5ddd02a4870980df890f1728892ac055d338b09342bb85d",
+      "size": 204293
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_clavicle_l_anim.uasset": {
+      "hash": "sha256:ce8914cfeded9b4ac9575ce93fe7ffcee576349456aec8265dbce8c39e5043e3",
+      "size": 241381
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_clavicle_l_pose.uasset": {
+      "hash": "sha256:418c0bd5080601e01dc7a2d4ce99918b9c7aa2bcef8fbc835fbfac31e5fed4b5",
+      "size": 202599
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_clavicle_r_anim.uasset": {
+      "hash": "sha256:e5f41dee7b76967dee4a533e046a4655521897f4598e9916bd70bcc8e63a93b4",
+      "size": 241223
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_clavicle_r_pose.uasset": {
+      "hash": "sha256:5c66e470070211fface50c3ddf133c2bc214551855a00ac381b30b6c6c405595",
+      "size": 203201
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_foot_l_anim.uasset": {
+      "hash": "sha256:5d5f7ef382cf284248f3d026e76aeea756c4eb61a4c9b16ddc215172fc260841",
+      "size": 237481
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_foot_l_pose.uasset": {
+      "hash": "sha256:c64ec29ed01670ea7b1a244fb7ad3becc54e447fd58f2ebe3465fe2d41da4135",
+      "size": 129107
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_foot_r_anim.uasset": {
+      "hash": "sha256:704e6b79e5266f0648bcf2ac75f25d9469b5452521ef453fe2e7f6379c3f7d58",
+      "size": 237579
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_foot_r_pose.uasset": {
+      "hash": "sha256:d0a11206efbc6eebcb284534488323fabef7d841ab454c0f9161adec658a5596",
+      "size": 129107
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_hand_l_anim.uasset": {
+      "hash": "sha256:47db599d05074d0007facf8375907ddfa825c8d4492e3fc93b924007b6b1731a",
+      "size": 238729
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_hand_l_pose.uasset": {
+      "hash": "sha256:33bcadc6e1e5a070acb9aa8f5b5e5c480f61ad71ca3209dca0c94cfb1a4025eb",
+      "size": 166103
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_hand_r_anim.uasset": {
+      "hash": "sha256:4d2d96a725eb4475d537ebb35b8728d1d63d1beadd4ed76c2d942ae21042292d",
+      "size": 238731
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_hand_r_pose.uasset": {
+      "hash": "sha256:eda2e47e67d47c66407a7dabf16178a94e002f4f8c723b49fdbdea1ba68903d6",
+      "size": 166103
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_lowerarm_l_anim.uasset": {
+      "hash": "sha256:897d7db4763d3a12cc36bdbab0979ec6c79649a3f601c861f92a85a9b8167aab",
+      "size": 285808
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_lowerarm_l_pose.uasset": {
+      "hash": "sha256:d54f5ae9724d5266532dd4635d7ea5fa71820b263d97a83eaadd6d2033ff4c40",
+      "size": 358375
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_lowerarm_r_anim.uasset": {
+      "hash": "sha256:0df8357f3792d61bd7aa6d10c66cef3c1b3e42008556d5996e034ba4bb5dc1f1",
+      "size": 247399
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_lowerarm_r_pose.uasset": {
+      "hash": "sha256:37f63557129c4b5c2b0d1eb11049d3955ec725d34ba280cdf61436a7e3ed4b5d",
+      "size": 358375
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_thigh_l_anim.uasset": {
+      "hash": "sha256:d1bcda3efb3dd330f72f18d993c2ed5bc420e947026c3b5aa94e493cc999c90b",
+      "size": 264403
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_thigh_l_pose.uasset": {
+      "hash": "sha256:6bcf54eb7953be2e09d9027a344f95bbe697fd948d9ff866707dba85b017dee3",
+      "size": 554530
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_thigh_r_anim.uasset": {
+      "hash": "sha256:94ddd8001cf97ffdd11613f705c0e04e9d5691c43aab243ad768aefa85806eea",
+      "size": 264405
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_thigh_r_pose.uasset": {
+      "hash": "sha256:78014ea736faf4e4a7cdea08e3bfbc7250ba5f36e2b304a244ed5ceb1401f5de",
+      "size": 554530
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_upperarm_l_anim.uasset": {
+      "hash": "sha256:f5f44d743ac1238772e512cf3bf109cdf42c40457db7c4765e420a9177fbabb5",
+      "size": 269096
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_upperarm_l_pose.uasset": {
+      "hash": "sha256:31a03241348e4643be7b2c622ed5f80c24f8be4e577f770aba814c36eedb6749",
+      "size": 638126
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_upperarm_r_anim.uasset": {
+      "hash": "sha256:7352cb4cd8420b6280818a8d29a96e0ade31cd0e994dcdb38d03881061218712",
+      "size": 269610
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Manny/Manny_upperarm_r_pose.uasset": {
+      "hash": "sha256:470ad0739b5a27dd1aad28a3f0e821200714aedb9f153853c2cf738079069768",
+      "size": 626688
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_calf_l_anim.uasset": {
+      "hash": "sha256:c43808630676e8a0bac94856ced24b5f0b95612a154643962ce284688396b65e",
+      "size": 285620
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_calf_l_pose.uasset": {
+      "hash": "sha256:e752b251a24301557dbb7a54d3344670bb3493aae4aca90762131e540eea3643",
+      "size": 242026
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_calf_r_anim.uasset": {
+      "hash": "sha256:a786c4e489d5f0dedcd06718748cb98e77352fc917b0c3dcc70afcf788844858",
+      "size": 323639
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_calf_r_pose.uasset": {
+      "hash": "sha256:e170b0bbfe90113d95b28c1821c9a573f7ba273d1ac49dd4a8bd77987d286a07",
+      "size": 242107
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_clavicle_l_anim.uasset": {
+      "hash": "sha256:c7a4192bf853964a15e533402cb8999b0a531229f963554c6911dcc77fb82199",
+      "size": 321976
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_clavicle_l_pose.uasset": {
+      "hash": "sha256:745aa38e3761119ae62a2d63b08c5fb9246f0905d13df040b1474cec4e4ff4b8",
+      "size": 202812
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_clavicle_r_anim.uasset": {
+      "hash": "sha256:5c6f3b2d83fa6920095c1861a5fb8c41c163ad3cabb42f5b7b7d45ed6e237aaa",
+      "size": 283366
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_clavicle_r_pose.uasset": {
+      "hash": "sha256:dd51b4054962b4b5ca7b475650bba8c771fcf56d7fac318eab99cd1e994a3776",
+      "size": 202913
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_foot_l_anim.uasset": {
+      "hash": "sha256:f14d20720844e967421a7458dacdc528204951abeabd52f949f6de2e7c2fdd96",
+      "size": 279720
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_foot_l_pose.uasset": {
+      "hash": "sha256:809d83cf1413193e293366a5df123950fed16881ce7ca278da516b50d6e7e862",
+      "size": 129120
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_foot_r_anim.uasset": {
+      "hash": "sha256:7d9ab6cf06934334647d479dd25b962be1fa1781e102e3d5dc682aab9949c73d",
+      "size": 279722
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_foot_r_pose.uasset": {
+      "hash": "sha256:e7083cf42af856d22b7e42ebb5fcceaac3bf06495dda4cd7a4f3607efec7dc72",
+      "size": 129120
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_hand_l_anim.uasset": {
+      "hash": "sha256:1b553917a3846d0e3c2080fd866972bfdb7ef022060b9246ea88fdbbe0cf2592",
+      "size": 280872
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_hand_l_pose.uasset": {
+      "hash": "sha256:0e51effeaee6e73c8ec2f45e31e87d49c104bf4135ac1a77e4cf4d5a637bcfaf",
+      "size": 166116
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_hand_r_anim.uasset": {
+      "hash": "sha256:75ccf002ece5ce0512aeb748423b40b527c06d79899a14674a1fa2a23d2a1502",
+      "size": 261772
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_hand_r_pose.uasset": {
+      "hash": "sha256:4e660a65881821bff4b766364e818d345c35d3dfdadf6413fbfc458f97c0a2e6",
+      "size": 166116
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_lowerarm_l_anim.uasset": {
+      "hash": "sha256:a591d9b2efcc3eb5bc7896cbcded3c635bd8d4530e0946f23e90580cc6140244",
+      "size": 269544
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_lowerarm_l_pose.uasset": {
+      "hash": "sha256:ce22a46afc641ce47350d1ccc55259f82ed5b7d4c41d8b890f34afd3d288ff81",
+      "size": 396292
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_lowerarm_r_anim.uasset": {
+      "hash": "sha256:ec22c4ef99a87e0e0553e2bb73a861789b989a34c93732206642c76af470e747",
+      "size": 269226
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_lowerarm_r_pose.uasset": {
+      "hash": "sha256:5da8f7ca6a5a083280d97279717c77caf1e07f1c6399faf71bc635c92349113c",
+      "size": 396292
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_thigh_l_anim.uasset": {
+      "hash": "sha256:5df67a388e21d28d5aead2ebc8c3c63060f101148c10eb31ccd2255aecd9db24",
+      "size": 284308
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_thigh_l_pose.uasset": {
+      "hash": "sha256:902240ff7793b664015a45e0fcebecff952912678f38738bf3a641b88c3c1530",
+      "size": 554242
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_thigh_r_anim.uasset": {
+      "hash": "sha256:5f804075c547ba3af428e2e098c51f259a321d3ae43f2f369b10daeedcbcba3e",
+      "size": 284310
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_thigh_r_pose.uasset": {
+      "hash": "sha256:16282c4da116387be2447ad2d586dccb99e5a325d4843db77f70bf7ffe66346b",
+      "size": 554242
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_upperarm_l_anim.uasset": {
+      "hash": "sha256:4603a8b70694b6e8590857a782e381d58eec0ea2d0372530ac2d103794c0649f",
+      "size": 279081
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_upperarm_l_pose.uasset": {
+      "hash": "sha256:702ba3a6d4f9603fc1f07bb2c0aa9081fe4e4916e6137ccbba8171fca9fd66d3",
+      "size": 482135
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_upperarm_r_anim.uasset": {
+      "hash": "sha256:6eb416b8357fb190e0b085c10592344145720b01a33eef189a2386fda0c08aee",
+      "size": 275243
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Rigs/Poses/Quinn/Quinn_upperarm_r_pose.uasset": {
+      "hash": "sha256:4341d8f5bf0942a62d795cfc6cb803ef14d29a3c25e83185c4df4fed6192d044",
+      "size": 485145
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_01_ASAOPMASK_MSK.uasset": {
+      "hash": "sha256:1006a0be7f4dd02babd831cb8f092d9e7faf905fbe89057da8c0358d40725477",
+      "size": 3612959
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_01_BN.uasset": {
+      "hash": "sha256:a93486d0c6f4ae7f29663b691717398bc5174a46b5bcbf155d122cfce4f65ab5",
+      "size": 18514528
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_01_CCRCCPlastic_MSK.uasset": {
+      "hash": "sha256:aa3333cb20c3b439affd96340e6f525c12309810cfa385949e4ce0de4e9a722a",
+      "size": 10272330
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_01_D.uasset": {
+      "hash": "sha256:44afcbbf1a9e1916c85be65e8ca338734cf0c89e75d6abe817bc3c4bf933e4f8",
+      "size": 5740683
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_01_MSR_MSK.uasset": {
+      "hash": "sha256:4c05af74a5d386a3ca537bcee28aca2550f9388928e81224c49324f085fe46bc",
+      "size": 11038549
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_01_N.uasset": {
+      "hash": "sha256:af5c5d0a2265d6418422f983ff89276b9dca74c7745b65bd3cf4e94837da367a",
+      "size": 7198610
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_01_Tan.uasset": {
+      "hash": "sha256:50a6e0702d890dcefcd5d2a65052fec761932ff43ac9b60a489d0ddaea413891",
+      "size": 1358131
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_02_ASAOPMASK_MSK.uasset": {
+      "hash": "sha256:b9ae4627bba7d251f05d25572fbe4cd2cb28259a55bf7e72d5fea537881e77d9",
+      "size": 8341736
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_02_BN.uasset": {
+      "hash": "sha256:68948e183b53d28ea5379ae2c296a7e4dc201e9c85c0f9dd8985deac211aeba8",
+      "size": 21139887
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_02_CCRCCPlastic_MSK.uasset": {
+      "hash": "sha256:de9c4491afed87300dff0aa122279f24e5eeb4f133f3616aa83a684ffcfcb4e2",
+      "size": 13144401
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_02_D.uasset": {
+      "hash": "sha256:972f6e9c7d9986b5f4d601f9a1d5e8ec1adfb509bc81020ecc34c8f2964b3a42",
+      "size": 9033851
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_02_MSR_MSK.uasset": {
+      "hash": "sha256:61aceb43711cc6a14cabca9401342955843ae7324351ac2f24e19ff726fd0798",
+      "size": 13677975
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_02_N.uasset": {
+      "hash": "sha256:643ee237705c6433ae785a0bc30b4f62b31fedd774eaa67e3a979265c4abfd27",
+      "size": 7269694
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Manny/T_Manny_02_Tan.uasset": {
+      "hash": "sha256:1b0917c0a5a4421ad64a46ec9786187547c60f17035760d967906dc0c3ffc87e",
+      "size": 2154151
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_01ID_BN.uasset": {
+      "hash": "sha256:c32dac6817303345e5d4c727a6dca5698747c9dfa026029d62f7ae957ef2a815",
+      "size": 16108961
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_01ID_D.uasset": {
+      "hash": "sha256:d7522306209ca3dc8ef98ba8da5ec15dcc9c55e9b510c17b013140ae220ef5c1",
+      "size": 4711465
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_01ID_MSR_MSK.uasset": {
+      "hash": "sha256:db4cf10e9e6ee5b0541eae1833c24e8b748652028d79d8dcc1a917c120653b66",
+      "size": 11656492
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_01ID_N.uasset": {
+      "hash": "sha256:4452a19d47accb9b83725b132e1cfd73915ba75cd499f885382aba8def267a78",
+      "size": 5218037
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_01ID_Tan.uasset": {
+      "hash": "sha256:1d918e4cc36d7a2786cf4b51151b20dda898526a8e63810fc1676c8bee86732b",
+      "size": 1104990
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_01_ASAOMASK_MSK.uasset": {
+      "hash": "sha256:11c3732a5a9135af87f746d5b74228099bad49f8ea8d8ece68fb89c0208ca6ef",
+      "size": 5835188
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_01_CCRCCPlastic_MSK.uasset": {
+      "hash": "sha256:c752e56b845ba826091a90146ce30dfa43659268903c5e76278d66781677e275",
+      "size": 12400284
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_02ID_BN.uasset": {
+      "hash": "sha256:db321409ced3906328a37aad5801c67245a595e16270df3f14749be52e4557d7",
+      "size": 19707245
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_02ID_D.uasset": {
+      "hash": "sha256:ac92d87049c29178509ced77af8b6194f60f876919ca01d0e22258923f23f64c",
+      "size": 6732833
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_02ID_MSR_MSK.uasset": {
+      "hash": "sha256:34d29e329c298268c0545b27df038b4a0708147e93c6133dbdbb4ce5280ca2bc",
+      "size": 13170122
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_02ID_N.uasset": {
+      "hash": "sha256:70669c9c5d1cfbacf798bb4726c20dbdc21676fc779427ccd06e15e485cfa994",
+      "size": 5218037
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_02ID_Tan.uasset": {
+      "hash": "sha256:f4be3222040c5b1c6bdc300d384fdf19761602ff4383a37f50bb906b12c18daf",
+      "size": 1758857
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_02_ASAOMASK_MSK.uasset": {
+      "hash": "sha256:ce5300802c14a5d25812f5a03a58d27b7b48ee43873d18d08359e5b74399414c",
+      "size": 6902327
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Quinn/T_Quinn_02_CCRCCPlastic_MSK.uasset": {
+      "hash": "sha256:c5fccde766fc04718c736a9e036c371e0961d0c7b5863a3d3a436c2b5ea819a2",
+      "size": 13428216
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequins/Textures/Shared/T_UE_Logo_M.uasset": {
+      "hash": "sha256:1b02b4a244c1a5a8b0cf0b21bd76fdf765171f75112f3c450b8f9adea520896b",
+      "size": 70334
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Animations/Jog_Fwd.uasset": {
+      "hash": "sha256:b4a8cdd38c0a61d7c6c2fadbecaa314ed813b4d5b855e49e8ee85dfa103f431d",
+      "size": 363246
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Materials/M_MannequinUE4_Body.uasset": {
+      "hash": "sha256:e4cb66c9ce12984222b76c331fa087bff2cd5de3968ea12d6639b5ae05332650",
+      "size": 30656
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Materials/M_MannequinUE4_ChestLogo.uasset": {
+      "hash": "sha256:e16fcd9f26ef0e895c9d121ec81197e5483ce67587ee0acb31ac549a676481a3",
+      "size": 11630
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Materials/Layers/ML_Latex_Black.uasset": {
+      "hash": "sha256:b0f4ca647582d800e58820b2930c55864f124b30ef0ca3e7f4cbccf853609634",
+      "size": 14500
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Materials/Layers/ML_ShinyPlastic_Beige.uasset": {
+      "hash": "sha256:cd019c43e91f02eb20ea82eda6ed9a05dfca9f2481be1d84b74233a16a308934",
+      "size": 11059
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Materials/Layers/ML_ShinyPlastic_Beige_Logo.uasset": {
+      "hash": "sha256:59fad2d6095d9c61a2569d1c48285e5c1465d2a394262c38f30d654a8a2d7076",
+      "size": 11915
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Materials/Layers/ML_SoftMetal.uasset": {
+      "hash": "sha256:847bc240e92f2eefe14c43ff5c47b581875ff71f8cfc3310c46fed7979ca2bbd",
+      "size": 15442
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Meshes/SK_Mannequin.uasset": {
+      "hash": "sha256:3232abd7400956a8729f1cd92369422525c55fba016d924cb1293781d5d362ee",
+      "size": 7254701
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Meshes/SK_Mannequin_PhysicsAsset.uasset": {
+      "hash": "sha256:c8b26071afd4bb574ae8cd6286b74f2f2079a35f3623ab2e17d099bd4e08cd5d",
+      "size": 48178
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Meshes/SK_Mannequin_Skeleton.uasset": {
+      "hash": "sha256:2952975dd85f370c73cd87a5b9f4507e4ade6e90d8d4734c84fbd7ac7fc59cc1",
+      "size": 29152
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Rigs/IK_UE4_Mannequin.uasset": {
+      "hash": "sha256:af55c383f48a171a5d3c9755ffa50883f13a37b696407798ae0e6e1257051c36",
+      "size": 69421
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Rigs/RTG_UE4Manny_UE5Manny.uasset": {
+      "hash": "sha256:c79e0d4f92c78e9ed0283f2134f1ad4b2012a4beaa851cecbd835ffb0edc8c64",
+      "size": 25266
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Rigs/RTG_UE5Manny_UE4Manny.uasset": {
+      "hash": "sha256:f01cb544fa0b74c1539535a4c71bb28055da98525a6e8e4c10705bfbbb2f5535",
+      "size": 20603
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_ML_Aluminum01.uasset": {
+      "hash": "sha256:a5f9b88d582c4af4d7e9ce0d42cfd4e70b7fbc63ca1fcfae6912ee5e34a0471e",
+      "size": 395679
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_ML_Aluminum01_N.uasset": {
+      "hash": "sha256:c2072d0c4b4b4af3932ed45f8734c245facaa72beef880879d5f23e5a268e9cc",
+      "size": 404622
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_ML_Rubber_Blue_01_D.uasset": {
+      "hash": "sha256:3be918d56e7895d6c248af7bcca3189afedd79c450584e5ed3a862eb9fafe6fd",
+      "size": 429311
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_ML_Rubber_Blue_01_N.uasset": {
+      "hash": "sha256:5834b3284140ecf842c34e1a95df7bc32ab1b473261da052da8d5285fd36ea8c",
+      "size": 358861
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_UE4_Mannequin_MAT_MASKA.uasset": {
+      "hash": "sha256:304e0804d9f2f4cf37efc20a4983cc24860f9474898278bfc0bb2eefb3060ddd",
+      "size": 211778
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_UE4_Mannequin__normals.uasset": {
+      "hash": "sha256:59ec776c38ae18ab0b8d85c7c12839f6d583ae927673bc41254945eed99c1520",
+      "size": 5427828
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_UELogo_Mask.uasset": {
+      "hash": "sha256:3c4656587b6749c1d7e7063a411d5c38e83889db120db3d8a6f2d4c195e6d855",
+      "size": 42268
+    },
+    "Content/LadderClimbingSystem/Demo/Characters/Mannequin_UE4/Textures/T_UELogo_N_TGA.uasset": {
+      "hash": "sha256:408abcdfd7529f3fa07a43f6396483d689f50ef4ae38be3c8b3bc90479e7d5f6",
+      "size": 56796
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPersonIdle.uasset": {
+      "hash": "sha256:e253a25041308f0a470506596f1e4c011b8df2bc83169184956d70dd5082d863",
+      "size": 304142
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPersonJump_End.uasset": {
+      "hash": "sha256:06f16958bfaa48318dd2ababcddbd6c5233675bd2fbb422cbeb0d9b059208809",
+      "size": 128635
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPersonJump_Loop.uasset": {
+      "hash": "sha256:fcba5e97651b9ea752eefea6a762c51e903526f4a7ed80147852647266bb17e9",
+      "size": 162384
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPersonJump_Start.uasset": {
+      "hash": "sha256:34aef3771c00ac681eea74371b97a90cbe2629ed3f4d0a3e3a9abfc8c4ee74c0",
+      "size": 147976
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPersonRun.uasset": {
+      "hash": "sha256:91c3833f12965ba78dcdd65868d81c533f1201b94f93a01a8eeb6e287c2bbd25",
+      "size": 158144
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPersonWalk.uasset": {
+      "hash": "sha256:c594bc769f1a3659dffbd04f450ca7356ade4a06fff5836d167c41bddebc8017",
+      "size": 207720
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPerson_IdleRun_2D.uasset": {
+      "hash": "sha256:d20b2e54bb742fd79c24c43e23dcf5aa40b53ae826ebb2f7c3a962a14b30c24a",
+      "size": 8963
+    },
+    "Content/LadderClimbingSystem/Demo/DefaultAnimations/ThirdPerson_Jump.uasset": {
+      "hash": "sha256:e2c1e00328a720d4db544739f0ea831e83cdc471514e45db7e5d714d640232ef",
+      "size": 128617
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/LadderShowcaseMap.umap": {
+      "hash": "sha256:41175eb87a399685bee37e46c579019ad29523dc5ebfb06b06c5fe0e6bd68b5b",
+      "size": 1438485
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/LadderShowcaseMap_BuiltData.uasset": {
+      "hash": "sha256:9b93494a1ad276c1d5ed8df866ecbf1cfd46d2aba4a10ac21b9c61ba0fb36a46",
+      "size": 1586757
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/BP_MasterBlockout.uasset": {
+      "hash": "sha256:a08deb75fb9a1c847bcbed8a79c7e59b873469f834918642c14aeb834bbf6872",
+      "size": 119796
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Materials/MI_GridFloor.uasset": {
+      "hash": "sha256:23eef7c5656fb3cb93066ee2ed71a2b185faf20ef5837313c52eb4883eece0e4",
+      "size": 93797
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Materials/MI_GridObject.uasset": {
+      "hash": "sha256:575752f67f43beeb94f6051577ff64515002ec3ad14213d3b96150e370c2f7ef",
+      "size": 103441
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Materials/M_MasterBlockoutMaterial.uasset": {
+      "hash": "sha256:16f1490702bd7333d11edfd7d6432bfd5aa1beb921364bcaaf5ac50694a2e149",
+      "size": 142007
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Meshes/SM_BlockoutCube.uasset": {
+      "hash": "sha256:5bf960216258fe1e4f39f9579f98563662429a7fa173195dd7409101fa26d17c",
+      "size": 91461
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Meshes/SM_Platform1.uasset": {
+      "hash": "sha256:d1709fe437a726ecfdd285641a1b3643f96868d096d057badb51c27dde9d95a0",
+      "size": 101876
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Meshes/SM_Platform2.uasset": {
+      "hash": "sha256:35aaa2ff73cca702b9ec074aeb1689c5bbb29fc3a4245ed40565739f696b3e2f",
+      "size": 99950
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Textures/T_1x1_Grid.uasset": {
+      "hash": "sha256:11d554e3cb42f46df84194ada83cbd078c7b8bdc2b204cc6c1ef7c2ce23c346f",
+      "size": 4949
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Textures/DPL_Sprite/Sprite_DPL.uasset": {
+      "hash": "sha256:5eec4b7ef792873e46a2455ac5aafdbde77792daac06877e1ee4bbc25b8069bf",
+      "size": 14518
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Textures/DPL_Sprite/T_DeadPixelLabs.uasset": {
+      "hash": "sha256:307b48b4725724860d70879ae9b90a29e37fb5bbdc0331e556ce524989e9d711",
+      "size": 31853
+    },
+    "Content/LadderClimbingSystem/Demo/Maps/Blockout/Textures/DPL_Sprite/T_DeadPixelLabs2.uasset": {
+      "hash": "sha256:03cc75c76d130420717d37f77494e5a874013355dfcdb2e982dc07f7641f8c56",
+      "size": 24551
+    },
+    "Content/LadderClimbingSystem/Inputs/IA_Jump.uasset": {
+      "hash": "sha256:7355473abfaae8dbbd3f9b55e32962d0d24c77b2050b4685580e16eb26d53325",
+      "size": 1392
+    },
+    "Content/LadderClimbingSystem/Inputs/IA_LookLeftAndRight.uasset": {
+      "hash": "sha256:ee7944bf4e440fa00cc9357151f267c3210a4472f40fd32a57420ddbc2571236",
+      "size": 1648
+    },
+    "Content/LadderClimbingSystem/Inputs/IA_LookUpAndDown.uasset": {
+      "hash": "sha256:65282bf34b13eaeb34375f314971d0ce41bf2c7ed872dae4e6b63fb408006366",
+      "size": 1633
+    },
+    "Content/LadderClimbingSystem/Inputs/IA_MoveForwardAndBackward.uasset": {
+      "hash": "sha256:78127be262addb2ae95ea3bc48e7fda626c7c82c526c4214377238846b3daacc",
+      "size": 1678
+    },
+    "Content/LadderClimbingSystem/Inputs/IA_MoveLeftAndRight.uasset": {
+      "hash": "sha256:913ca490c1341a180a58aac6685e05178454437d2f9e93523567dc84db2dbb21",
+      "size": 1648
+    },
+    "Content/LadderClimbingSystem/Inputs/IMC_DefaultInputs.uasset": {
+      "hash": "sha256:98f0cf4ffcbd0d86ad577a6559f7b672626f8a7f001cdbcca8c25157b0f31402",
+      "size": 8723
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/AdjustmentMesh/1M_Cube.uasset": {
+      "hash": "sha256:427861d9a7961ddb9eb9d66010f38438b9eef472320d7fbdff2b66904e82a33d",
+      "size": 93066
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/AdjustmentMesh/CubeMaterial.uasset": {
+      "hash": "sha256:33e40810699dfdeaa1b76bbf4fa2a7b7965c2a5230fc92a682ff9a3d5ffe5c7c",
+      "size": 89016
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/SM_Ladder1_BottomLeft.uasset": {
+      "hash": "sha256:d48a6db39e85ae507b3630c45d06b0d732f239ca897385fca7d6a4f8c13f6263",
+      "size": 83973
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/SM_Ladder1_BottomRight.uasset": {
+      "hash": "sha256:1fabd1d036c51e5094a96cd33fbff0d2e152611547d1868be3b9e2d27c17590a",
+      "size": 81402
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/SM_Ladder1_FootBar.uasset": {
+      "hash": "sha256:79cda1b54bbe481683c77bec0ef807261c8c20a2d9dd3acad02ab89148cc5190",
+      "size": 81625
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/SM_Ladder1_MidLeft_WithoutPanel.uasset": {
+      "hash": "sha256:cf824e85c33daa07b5d8f60a48a804cfa57ee703d016e86d94ec599bddbef8c3",
+      "size": 71995
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/SM_Ladder1_MidLeft_WithPanel.uasset": {
+      "hash": "sha256:5ab11b259093241ffa0c50c11d33ac2146840b6ba75817ffd22755ad44d0bc9f",
+      "size": 77799
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/SM_Ladder1_MidRight_WithoutPanel.uasset": {
+      "hash": "sha256:08009aa54e34e49eb31beb0e64d4d0da9553c54a07defa61abc152a64ffb54e2",
+      "size": 71988
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/SM_Ladder1_MidRight_WithPanel.uasset": {
+      "hash": "sha256:9c54268899c2b5588db786c003b946923a246b98ce7b9732256a6dcd463fcef2",
+      "size": 77845
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Cage/SM_Ladder_CageAttachment.uasset": {
+      "hash": "sha256:08c9a6a37c4f4c6f8bc129c543664e782457e32a6ce709585e6ee1f80f9422a5",
+      "size": 91356
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Cage/SM_Ladder_CageRing.uasset": {
+      "hash": "sha256:1ff6013f376c03d81f07bc1009804acc36f3215416a365ebe3e0d65a3d79fed4",
+      "size": 92830
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Cage/SM_Ladder_FullCage.uasset": {
+      "hash": "sha256:b1b52dabc08b3f9e640d30c06ada8930f48b06edecc914bff08ab53cea22917f",
+      "size": 119942
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Materials/M_Ladder1.uasset": {
+      "hash": "sha256:c3864a96e03bea30ad85db08b9883b182b6f2f2fffb3fa234ab5edb8e46be956",
+      "size": 118694
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Materials/M_Ladder1_Inst.uasset": {
+      "hash": "sha256:b1444f177350a0c1e0a1ad6267a04114d69366f7a88719264d93eed9344b5f8a",
+      "size": 108797
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Textures/T_Ladder_Mixed_AO.uasset": {
+      "hash": "sha256:7e1e93620b8649f6a5f117e0562f2d0c61ec8053dfd5419c58249c08d0b02833",
+      "size": 737728
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Textures/T_MetalCage_Base_Color.uasset": {
+      "hash": "sha256:9bd352140b37361fc3bae8913ad304e8af41845b3b6ca3de264a5357be8ccb11",
+      "size": 993591
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Textures/T_MetalCage_Height.uasset": {
+      "hash": "sha256:45fb5d22050baa9d35d13fa9ce2e9281eab689f8d17a63e4be6cf298a1fd0289",
+      "size": 1487315
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Textures/T_MetalCage_Metallic.uasset": {
+      "hash": "sha256:467be55480f348ba995999bb96cc26c3482cd8dcf77b53bcf295e187df001325",
+      "size": 909698
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Textures/T_MetalCage_Normal.uasset": {
+      "hash": "sha256:c3a7961ca0f6e03d979da427081684b257764dd34c509306229b7dc323ab220a",
+      "size": 6300
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Textures/T_MetalCage_Normal_DirectX.uasset": {
+      "hash": "sha256:059ee3f2b2b93b7be9313f1db0513f57a7d667c7d4cce68b0c0360684a0bd557",
+      "size": 1477440
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder1/Textures/T_MetalCage_Roughness.uasset": {
+      "hash": "sha256:89f56365a1deac99fc83a7ca8c99301301f8d29aa7eb704296e87ecd985fdedd",
+      "size": 900767
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_BottomLeft.uasset": {
+      "hash": "sha256:6b3394b808bea859fe42ef9925213da307f8908acae3ad80fe6546b8c3af6317",
+      "size": 105216
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_BottomRIght.uasset": {
+      "hash": "sha256:1936460d90c2eaeba8ee9a083d878be1e4febe41d7217bb10897319ad179d884",
+      "size": 105215
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_Footbar.uasset": {
+      "hash": "sha256:653e89eb120d8e693d647d9f88f77da49d86afdae61ae22791f39059ec0ccf94",
+      "size": 90596
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_LeftMidWithoutPanel.uasset": {
+      "hash": "sha256:0007d69c32922d9d63200196c59aab4a4ad702270ba02ab648a3903daaafc842",
+      "size": 109869
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_LeftMidWithPanel.uasset": {
+      "hash": "sha256:7fd6b66d157db4b865e394426691c1d45ecc2979c241eb93eded160e07ebf08b",
+      "size": 105415
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_RightMidWithoutPanel.uasset": {
+      "hash": "sha256:a3e88ba6904574884a2db340c6d6d4b5e5ef29331ea493f0846a1f7c238dc7c9",
+      "size": 109870
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_RightMidWithPanel.uasset": {
+      "hash": "sha256:72e0ab7d18fa96588e8b74535aca304b1b171e537ba61751a1d02dbf6bff5066",
+      "size": 105461
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_TopLeft.uasset": {
+      "hash": "sha256:373b5281718497f040b4baa00cac9f851a0d8ecc48a5d3aa075e24da6aacbd65",
+      "size": 111870
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/SM_Ladder2_TopRight.uasset": {
+      "hash": "sha256:f8cd826900c9cd8ea17d184f39f0e598eb64071ad80169fe7c6581d1974705a8",
+      "size": 111873
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/Materials/M_Ladder2.uasset": {
+      "hash": "sha256:7f7579a4dfb5a2cfea1cd549093d133488eb65da038b757c650492994a464caf",
+      "size": 132297
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/Materials/M_Ladder2_Inst.uasset": {
+      "hash": "sha256:1be44fec15a3440e78c17b08301d4a5b810b6e9743c43bd6cfe58740a4e93e28",
+      "size": 124610
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/Textures/T_Ladder2_Base_Color.uasset": {
+      "hash": "sha256:37ccb34b4192bc4a1a4306b117abbde04970592c5aec7cac7ce4d5c4fa294ce8",
+      "size": 1239029
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/Textures/T_Ladder2_Height.uasset": {
+      "hash": "sha256:80a76818ea221e6c1d5d6f0cd821f37557a4f822efebc38db3f85b90b381beb3",
+      "size": 467578
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/Textures/T_Ladder2_Metallic.uasset": {
+      "hash": "sha256:60108527253c6292da030daca4906385b99a1c364aef035e9857f49d06c9d231",
+      "size": 1004112
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/Textures/T_Ladder2_Normal_DirectX.uasset": {
+      "hash": "sha256:6f6122bde443327f86b25e65bca833fc144b1ced28c8a1c96791de5c7bf4c956",
+      "size": 1247514
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder2/Textures/T_Ladder2_Roughness.uasset": {
+      "hash": "sha256:020e9013df2612609caa243e449cc7d3e0f4f87d406c2c6476fc14ed6aeee2b9",
+      "size": 815328
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/SM_Ladder3_BottomLeft.uasset": {
+      "hash": "sha256:d601ea3e556f8216d419da2a4c7b7a1ae6594d6e4994f8051efb0461e1080900",
+      "size": 105646
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/SM_Ladder3_BottomRight.uasset": {
+      "hash": "sha256:cc0e84911e9996335479b84898a94c8db76361388036cca699765cb8d15b84da",
+      "size": 105709
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/SM_Ladder3_FootBar.uasset": {
+      "hash": "sha256:5c11cbdc6ea85cef0d68be254257f76a0f88b7aea3de5d25dbb9faab92c3a5a3",
+      "size": 91635
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/SM_Ladder3_MidLeft_WithoutPanel.uasset": {
+      "hash": "sha256:848c3d5626de09d3788f7481adabf618d9f41904dfcf8a8a0caf0de5a98b1223",
+      "size": 110754
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/SM_Ladder3_MidLeft_WithPanel.uasset": {
+      "hash": "sha256:cd39dd13f17b5aab3fa2f3e1895354ac02ed272e05cc4e0e86cd7e5c546fe5dd",
+      "size": 106582
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/SM_Ladder3_MidRight_WithoutPanel.uasset": {
+      "hash": "sha256:acd77940ede7c7d191181ec3944ca9a7f3ad009426762ac996176a8e1f16b078",
+      "size": 110764
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/SM_Ladder3_MidRight_WithPanel.uasset": {
+      "hash": "sha256:362c3227ae32ad4d01abb6b1fde9cd3c379153a4fd7815d1eeae6de4cef89139",
+      "size": 106676
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/Materials/M_Ladder3.uasset": {
+      "hash": "sha256:f1494208dd5efbca8c8203667f5c39af807d27745b6cc8b0557bf02335f74b63",
+      "size": 141705
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/Materials/M_Ladder3_Inst.uasset": {
+      "hash": "sha256:78f41be3e3f556bd5cb7ad5b9ad1ef17280e3d4cbee4d7f3f602d3fdfbd91cde",
+      "size": 128010
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/Textures/T_Ladder3_Texture_Base_Color.uasset": {
+      "hash": "sha256:b9f710569add49c119efa7b3463a5f96c0b3ed4c3dbd185b435c9e05e747b544",
+      "size": 1511621
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/Textures/T_Ladder3_Texture_Height.uasset": {
+      "hash": "sha256:78fde63c688d5e99ff037a39d8fe6c1cec7f485049ea87dd1267396ff964cbf0",
+      "size": 645365
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/Textures/T_Ladder3_Texture_Metallic.uasset": {
+      "hash": "sha256:3c0a87f56e7110bb53fdbfffe65703aebe4ed84d315b3a817f87cfdb4ac7940c",
+      "size": 6124
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/Textures/T_Ladder3_Texture_Normal_DirectX.uasset": {
+      "hash": "sha256:09c4866b861e56ef9493c7da61cb43fad1e55825841ec43df663ec05b1fdeb59",
+      "size": 1771492
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder3/Textures/T_Ladder3_Texture_Roughness.uasset": {
+      "hash": "sha256:450c3a686a0dd37de074fc6a32e6f0167bcc7a0fc02ee1246541a91b9792be3f",
+      "size": 6124
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_BottomLeft.uasset": {
+      "hash": "sha256:a370116e7be298873053e2d6f4c419e080df470027ccad4c3d2e4c405901b0f3",
+      "size": 102778
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_BottomRight.uasset": {
+      "hash": "sha256:9c7160d759427de035d195fdcf079139a6790e84c61af757bf87371f4704e2f0",
+      "size": 102731
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_Footbar.uasset": {
+      "hash": "sha256:bdffe6b542d05d8eb3ca8af1e34e761aa84c18befa896e8ad212d33ec263b053",
+      "size": 91196
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_MidLeft_WithoutPanel.uasset": {
+      "hash": "sha256:3c1ca0052f1038b2f2934cd10ee15e5b2dc6c725eaeb892039fc060edcf3fb70",
+      "size": 103097
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_MidLeft_WithPanel.uasset": {
+      "hash": "sha256:26566453725a020475b43ea6e4ff732f30b5b676ef1df73ed3e9171e7d545db6",
+      "size": 103665
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_MidRight_WithoutPanel.uasset": {
+      "hash": "sha256:0c63b7aaa4f957cc03801855e4130acbd4c49de2c9336d18bb1b568de36bc6b3",
+      "size": 103247
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_MidRight_WithPanel.uasset": {
+      "hash": "sha256:ac71632606a33670255cf9f55c31e5c7ee25875efe7924aff704eb03e0515542",
+      "size": 103600
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_TopLeft.uasset": {
+      "hash": "sha256:278ef98350a80b6d6142756e5bca1280a4bda468dd5ad46ac8f3b87deba9a634",
+      "size": 119414
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/SM_Ladder4_TopRight.uasset": {
+      "hash": "sha256:44eb0b1d88d1d5e4b07b61cc4f79bd429facf46093d5edcdc0d6762033768fe9",
+      "size": 118574
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Materials/M_Ladder4.uasset": {
+      "hash": "sha256:b109625369a2f2e67d0907e2348d9ead4bd91eec1e47cd79012214b876684b6b",
+      "size": 144244
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Materials/M_Ladder4_Inst.uasset": {
+      "hash": "sha256:569f08afd51a40d680087f27aec84630e0e7abc182bc4b0fa05355496d187199",
+      "size": 131000
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Textures/T_Ladder4_Base_Color.uasset": {
+      "hash": "sha256:c3c4705bbf32796453f3accd3b47a13a3ffea0617dae3506a755c26c8c9af5ff",
+      "size": 1924896
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Textures/T_Ladder4_Height.uasset": {
+      "hash": "sha256:646f6b88624817cea8ace60415e955c5bf3ccf3aa6d93eaf15f2d4df4847d79c",
+      "size": 540397
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Textures/T_Ladder4_Metallic.uasset": {
+      "hash": "sha256:1c715555305e5df5b8aa1eb8b62a5cd8fdeaf35ede86497af65781b2fabdc296",
+      "size": 6056
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Textures/T_Ladder4_Mixed_AO.uasset": {
+      "hash": "sha256:f88742a59dcb7ea80593b5dffe72d20ff25d3b77fd7dbb676f9907c8b9f4c16f",
+      "size": 815662
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Textures/T_Ladder4_Normal_DirectX.uasset": {
+      "hash": "sha256:36d768173fb9e977db87dd7e7333e57a7c51f5ad275d93d18eba7bef0d1f97be",
+      "size": 1404236
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder4/Textures/T_Ladder4_Roughness.uasset": {
+      "hash": "sha256:556da840241e85fcbc2bae0685c78e65b036909f520f9c3b92d93646aa17dc25",
+      "size": 1283620
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_BottomLeft.uasset": {
+      "hash": "sha256:8f9591e5556bfafeada82edfa4c65f2a648be7d4aaa0f1aa07fd4cb5aef4db60",
+      "size": 101626
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_BottomRight.uasset": {
+      "hash": "sha256:e50410630c98ebcbda25c54bee4903fcee5757442287b6af781bd01abb3f9939",
+      "size": 101630
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_FootBar.uasset": {
+      "hash": "sha256:d1cb6017a0e1a9eff40bb8ccc6f6f6d8b54dd435e8f1e2e0ec239c1920260754",
+      "size": 94092
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_MidLeft_WithoutPanel.uasset": {
+      "hash": "sha256:f1ee59ab18a6a7385cc3a0f2fa1a3ee06033e2a92f882347e2c90d1c5f7a0c66",
+      "size": 109236
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_MidLeft_WithPanel.uasset": {
+      "hash": "sha256:cbe0183219acecf664e3ccb27a8b803abfc3e0ce43cb00c5a74bd3c8979427f5",
+      "size": 102368
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_MidRight_WithoutPanel.uasset": {
+      "hash": "sha256:863b7cd3a1858639c960ad4ac4814f03f24165d74393e15b727bce97bc019693",
+      "size": 109272
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_MidRight_WithPanel.uasset": {
+      "hash": "sha256:41791406ee71a6f85933bf6cc35cc4aee3dac7e7aee92a54d442a176ef91f04d",
+      "size": 102378
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_TopL.uasset": {
+      "hash": "sha256:8f55ed24ae229608711a7fe02b19c3e80354e551a40e9d7b7da055185750aae7",
+      "size": 113984
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/SM_Ladder5_TopR.uasset": {
+      "hash": "sha256:50f2c92043df1e2b27907eca96586f1df91315280c724c0b66aea14e4c86754b",
+      "size": 114042
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Materials/M_Ladder5.uasset": {
+      "hash": "sha256:f567f0d6a65f19542196f5be859b3224682d8d3c9bb69497de74b63f3d28db2c",
+      "size": 149037
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Materials/M_Ladder5_Inst.uasset": {
+      "hash": "sha256:1f6882d0cf4f6da190007318e41a1f68df81bae6d54052570ab8eb3240acc292",
+      "size": 140330
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Textures/T_Ladder5_Texture_Base_Color.uasset": {
+      "hash": "sha256:3c34f6dfcd6d38e11ac6d3d348d079f82fb504de4ea3239beba11b5ed2229608",
+      "size": 1553820
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Textures/T_Ladder5_Texture_Height.uasset": {
+      "hash": "sha256:48c3b50e42b80375a17d83047f7ebe277eb0b9fe93c0aebc1bca0651afefdaa2",
+      "size": 792998
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Textures/T_Ladder5_Texture_Metallic.uasset": {
+      "hash": "sha256:121022ff2151e19723baff0851c04acb6c9457773247ecb00bba331206bdce1c",
+      "size": 313187
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Textures/T_Ladder5_Texture_Mixed_AO.uasset": {
+      "hash": "sha256:fa828786a32a0e05b09233a85d2a5a6f2bb5c63335c44b8929df8081c024cf3e",
+      "size": 709010
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Textures/T_Ladder5_Texture_Normal_DirectX.uasset": {
+      "hash": "sha256:82d8090d02566cbb166ebf62c3a6837ff72aa7e1a5ab3572723d0675c92834a1",
+      "size": 1958693
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/Ladder5/Textures/T_Ladder5_Texture_Roughness.uasset": {
+      "hash": "sha256:0a52d772776756eb0916cd1abf95bf66ee318c4d42c6f2c21e7cc130f61b8cbc",
+      "size": 765762
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/PrototypeLadder/M_PrototypeLadderMaterial.uasset": {
+      "hash": "sha256:23f6119df752491e3b21ceabba0fcba3b0b95ca8870dc4a848a87caf8453d0bd",
+      "size": 99768
+    },
+    "Content/LadderClimbingSystem/Meshes/Ladders/PrototypeLadder/SM_Ladder.uasset": {
+      "hash": "sha256:94814dd12e58bff22a6a58e76a256895785abb534c4fa8f130eef16b29dfaf43",
+      "size": 101063
+    },
     "Content/Laser/Blueprints/BP_Laser.uasset": {
       "hash": "sha256:ad9d2b29e8c87933ffc1c13a0e37763f927fb5671eece3bdfd40e189fefbcd79",
       "size": 476564
@@ -49500,8 +50876,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:53116fb118fd083e6f61ae91da4a6d36b3c5701945f5dddaea1fbf1c6f76bfe5",
-      "size": 18591936
+      "hash": "sha256:e1c2bb54a177c7b8e7f946f8faf92d6880fef61d6b1f088a0e8fcc9855451e67",
+      "size": 18624664
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",
@@ -50840,8 +52216,8 @@
       "size": 138163
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_ClosetMetal.uasset": {
-      "hash": "sha256:a0b4c18d3e5b4a9997b6105b725fc7657bfc424730d29020d644c6077055742c",
-      "size": 102610
+      "hash": "sha256:6ae4621a0291369037e1894ef35b8bff67cfee9ee14a32878d3ee7229b10ad27",
+      "size": 18283
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_ClosetShort.uasset": {
       "hash": "sha256:d361f2cee930112db73de14e910fccf6b5f7ed0a9441073edabd0b37a6d8e4e5",

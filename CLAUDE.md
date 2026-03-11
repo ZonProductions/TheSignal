@@ -131,6 +131,7 @@ Every C++ base class must have a header comment block documenting:
 | `AudioStateSystem` | planned | MetaSounds ambient layers, Ren's audio signature, radio-as-instrument processing, spatial audio |
 | `FacilitySystemsManager` | planned | Doors, power routing, security terminals, electronics Ren can manipulate |
 | `SaveSystem` | done | Save/load with 5 slots, save point actors, screenshot capture |
+| `LadderClimbing` | done | Ladder mount/climb/dismount (ZP_Ladder + ZP_GraceCharacter, hold-to-climb, position-aware exit) |
 | `DebugOverlay` | planned | On-screen system status, validation errors, telemetry |
 
 ---

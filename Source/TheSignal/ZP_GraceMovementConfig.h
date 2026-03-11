@@ -33,7 +33,7 @@ public:
 
 	/** Capsule collision radius (cm). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")
-	float CapsuleRadius = 34.0f;
+	float CapsuleRadius = 55.0f;
 
 	/** Capsule half-height (cm). Average male, slightly hunched from anxiety. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Capsule")

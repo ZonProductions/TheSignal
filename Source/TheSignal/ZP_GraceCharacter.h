@@ -47,7 +47,9 @@ class UZP_FloorCullingComponent;
 class UZP_RuntimeISMBatcher;
 class UZP_NoteComponent;
 class USpotLightComponent;
+class UPointLightComponent;
 class USoundBase;
+class UZP_BriefcaseSubsystem;
 
 UCLASS(Blueprintable)
 class THESIGNAL_API AZP_GraceCharacter : public ACharacter
@@ -96,6 +98,11 @@ public:
 	/** Chest-mounted spotlight. Follows camera with slight lag for organic chest-mounted feel. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Flashlight")
 	TObjectPtr<USpotLightComponent> FlashlightComp;
+
+	/** Ambient fill light — simulates light bouncing off surfaces near the flashlight beam.
+	 *  Every horror game (TLOU, RE7, SH2) uses this trick: SpotLight for beam + PointLight for fill. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Flashlight")
+	TObjectPtr<UPointLightComponent> FlashlightFillComp;
 
 	/** Whether the flashlight is currently on. */
 	UPROPERTY(BlueprintReadWrite, Category = "Flashlight")
@@ -150,6 +157,18 @@ public:
 	/** Crouch walk animation for hidden locomotion mesh. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
 	TObjectPtr<UAnimSequenceBase> CrouchWalkAnimation;
+
+	/** Ladder climb up loop animation. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
+	TObjectPtr<UAnimSequenceBase> LadderClimbUpAnimation;
+
+	/** Ladder climb down loop animation. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
+	TObjectPtr<UAnimSequenceBase> LadderClimbDownAnimation;
+
+	/** Ladder idle animation (holding on, not moving). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
+	TObjectPtr<UAnimSequenceBase> LadderIdleAnimation;
 
 	// --- Input Actions (set in Blueprint child, e.g. BP_GraceCharacter) ---
 
@@ -282,6 +301,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual void CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult) override;
 	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
@@ -347,6 +367,29 @@ private:
 	/** Cached PDA_Item data asset for the last-used throwable (for RemoveItemByDataAsset). */
 	TObjectPtr<UObject> LastThrowableItemDA;
 
+	// --- Briefcase / Container Tracking ---
+
+	/** The briefcase actor currently being used by the player (for sync on close). */
+	TWeakObjectPtr<AActor> ActiveBriefcaseActor;
+
+	/** The container actor (any type) currently being used — for bPlayerIsUsingActor close detection. */
+	TWeakObjectPtr<AActor> ActiveContainerActor;
+
+	/** True when we called Interact() but haven't yet seen bPlayerIsUsingActor=true. */
+	bool bWaitingForContainerOpen = false;
+
+	/** Frames spent waiting for container to open. Timeout after N frames = container didn't have a UI (instant loot). */
+	int32 ContainerOpenWaitFrames = 0;
+
+	/** True once bPlayerIsUsingActor was confirmed true — now watching for it to go false. */
+	bool bContainerWasOpen = false;
+
+	/** Checks if an open container was closed, then syncs briefcase data and unequips removed weapons. */
+	void CheckContainerClosed();
+
+	/** Unequips the active weapon if it's no longer in the player's inventory. */
+	void UnequipMissingWeapon();
+
 	void ToggleFlashlight();
 
 	/** Weapon classes that have been fully consumed (thrown grenades). Blocks re-equip. */
@@ -354,5 +397,33 @@ private:
 
 	/** Reads the PDA_Item UObject from Moonville's ShortcutSlots[SlotIndex] via reflection. */
 	UObject* GetItemDAFromShortcutSlot(int32 SlotIndex);
+
+	// --- Ladder Climbing ---
+
+	/** True while the player is on a ladder. Blocks normal movement, aim, fire, etc. */
+	UPROPERTY(BlueprintReadOnly, Category = "Ladder", meta = (AllowPrivateAccess = "true"))
+	bool bOnLadder = false;
+
+	/** The ladder actor being climbed. */
+	TWeakObjectPtr<AActor> ActiveLadderActor;
+
+	/** Current climb input: +1 = up, -1 = down, 0 = idle. Updated from Input_Move. */
+	float LadderClimbInput = 0.f;
+
+
+	/** Saved weapon class before entering ladder — re-equipped on exit. */
+	TSubclassOf<UObject> PreLadderWeaponClass;
+
+	/** Self-managed camera rotation during climbing. Controller rotation gets corrupted
+	 *  by Kinemation camera modifiers, so we bypass it entirely on the ladder. */
+	FRotator LadderCameraRotation = FRotator::ZeroRotator;
+
+	/** Enter climbing state on the given ladder. Called from AZP_Ladder::OnInteract. */
+	void EnterLadder(AActor* LadderActor);
+
+	/** Exit climbing state. bExitTop = true → teleport to top, false → teleport to bottom. */
+	void ExitLadder(bool bExitTop);
+
+	friend class AZP_Ladder;
 
 };

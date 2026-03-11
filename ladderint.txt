@@ -1,0 +1,57 @@
+Integration Guide
+
+1.0) Open up your Project Settings (File>Project Settings) and head to the Collision category.
+You will need to add a new Trace Channel by selecting “New Trace Channel” and name that “Ladder” and set the collision to “Ignore”. 
+https://prnt.sc/74PIL8q3TIqX
+
+1.1) Migrate the Content folder from the Advanced Ladder System to your projects content folder.
+https://prnt.sc/c8REq8pD95DK
+
+Animation Retargeting
+
+
+1.0) Retarget animations from the Ladder System to your character. Make sure to have both skeletons set to “Humanoid” in the Retarget Manager of your skeletons.
+https://prnt.sc/SPQxUoJlUPY0
+https://prnt.sc/lIWR9ovU-vBX
+https://prnt.sc/x7GItsZyjSSW
+
+Character BP
+
+1.0) Open up both the Ladder Components “BP_MasterCharacter” and your Character. In your Character, Add the Ladder Climbing Component to your character which will allow you to have access to the ladder climbing code.
+https://prnt.sc/JNCVqN1UNLE4
+
+1.1) Open the BP_MasterCharacter in the Ladder system and head to the Event graph if not already there.
+You will want to copy the Begin play (Orange Comment) event “BPI_SetCharacterRef” and paste it in your character, connecting it to your begin play event. This will initialize the component.
+https://prnt.sc/H-L-FsnQE_HM
+
+1.2) next you will want to begin moving functions in orange to the corresponding locations within your character. First take the Sprinting code within the orange and copy it to your character. If you already have a sprinting input, run the current code from the false output of the BPI_OnLadderCheck branch.
+https://prnt.sc/CyuOZgbLVV9v
+
+1.3) Following the same pattern for jumping, you will want to move the code in Orange to disable Ladder climbing while jumping from a ladder. Plugging your jump just in o the false pin and if true, disabling the ladder climbing and continuing to the jump
+https://prnt.sc/iTaauOWgeBZ2
+
+1.4) For the Move Forward and Move Right axis, you will want to copy over the code in Orange comments and from the False pin of the BPI on Ladder Check branch, connect your input normal input (true would be Ladder Climbing State)
+https://prnt.sc/la99hZ-r0ETX
+
+
+
+
+1.5) Finally copy the Green code (Interaction) and add that to your interaction event. This will allow you to trace for a ladder when pressing your interaction key (you may have custom interaction so this is really project dependant how you want this to be performed)
+https://prnt.sc/la99hZ-r0ETX
+
+
+Animation Blueprint
+
+1.0) Open up the “MasterCharacter_AnimBP” and your Animation Blueprint. Copy the Orange Commented Node from the Event graph’s Update Animation (Tick) “UpdateLadderData” and Paste that into your AnimBP’s Event Graph and connect this to your Event Blueprint Update Animation. 
+
+1.1) Connect the Character Reference to your own character within the Collapsed Graph (Replacing the current) OR you could Copy the Initialize Animation Setting of the Character reference and create the CharacterRef Variable to use as your own (Character is the parent class for all CharacterBP’s so this would work fine if needed).
+https://prnt.sc/ExKH7okW-0Iu
+https://prnt.sc/fLo2-98OmEDv
+
+1.2) Create the other two remaining variables for LadderComponentRef and LadderMovementState (Right click the variables and Create Variable).
+https://prnt.sc/vXq18wIHsBMp
+
+1.3) Open the AnimGraph of both yours and the MasterCharacter_AnimBP. Copy the Ladder Locomotion Cache and the Nodes in orange (Slot ‘DefaultSlot’ if not already set up as well). Paste these into your AnimBP and from the False pin, plug in the final connection to your current Output Pose. This will allow you to Enter Ladder state and only play your animations when not in ladder state.
+https://prnt.sc/DImYBwZrCQUf
+
+Integration Complete!

@@ -26,18 +26,22 @@
 #include "Animation/AnimSequenceBase.h"
 #include "Components/PostProcessComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "ZP_BriefcaseSubsystem.h"
+#include "ZP_Ladder.h"
+#include "Components/ArrowComponent.h"
 
 AZP_GraceCharacter::AZP_GraceCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Capsule — average male, slightly hunched from anxiety
-	GetCapsuleComponent()->InitCapsuleSize(34.0f, 88.0f);
+	// Capsule — radius sized so weapon tip is at collision boundary
+	GetCapsuleComponent()->InitCapsuleSize(55.0f, 88.0f);
 
 	// --- Hidden inherited Mesh (GASP motion-matching source) ---
 	// This mesh runs ABP_GraceLocomotion (duplicated from GASP's ABP_SandboxCharacter)
@@ -111,24 +115,42 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	DeathVignetteComp->Settings.bOverride_BloomIntensity = true;
 	DeathVignetteComp->Settings.BloomIntensity = 0.2f; // kill bloom glow, keep darkness crisp
 
-	// Kill Lumen's indirect GI bounce — eliminates "swimming pool" caustic effect.
-	// Only direct light (flashlight, moonlight) illuminates. No bounced fill light.
+	// Enable Lumen GI for flashlight bounce — the flashlight is the player's one source
+	// of truth for seeing the environment. Its light MUST bounce off surfaces naturally.
+	// Overrides PPV_GlobalDarkness (GI=NONE) via player PPC priority.
+	// Swimming pool was from bright environment fixtures — in horror darkness with only
+	// the flashlight active, Lumen GI produces clean single-source bounce.
+	DeathVignetteComp->Settings.bOverride_DynamicGlobalIlluminationMethod = true;
+	DeathVignetteComp->Settings.DynamicGlobalIlluminationMethod = EDynamicGlobalIlluminationMethod::Lumen;
 	DeathVignetteComp->Settings.bOverride_IndirectLightingIntensity = true;
-	DeathVignetteComp->Settings.IndirectLightingIntensity = 0.0f;
+	DeathVignetteComp->Settings.IndirectLightingIntensity = 1.0f; // natural bounce
 
 	// Chest flashlight — attached to camera so it pitches with the view
 	// and never gets blocked by weapon models when looking down
 	FlashlightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashlightComp"));
 	FlashlightComp->SetupAttachment(FirstPersonCamera);
-	FlashlightComp->SetRelativeLocation(FVector(30.0f, -20.0f, 5.0f));
+	FlashlightComp->SetRelativeLocation(FVector(5.0f, -25.0f, 15.0f)); // above left shoulder
 	FlashlightComp->SetIntensity(8000.0f);        // bright enough to read surfaces down hallways
-	FlashlightComp->SetInnerConeAngle(12.0f);      // wider hotspot for hallway coverage
-	FlashlightComp->SetOuterConeAngle(28.0f);      // broader falloff — see walls and floor
+	FlashlightComp->SetInnerConeAngle(20.0f);      // wide hotspot so walls are illuminated up close
+	FlashlightComp->SetOuterConeAngle(45.0f);      // broad flood — walnut-size at close range fixed
 	FlashlightComp->SetAttenuationRadius(2800.0f); // longer reach for corridors
 	FlashlightComp->SetLightColor(FLinearColor(1.0f, 0.93f, 0.82f)); // slightly warmer/dingier
 	FlashlightComp->SetSourceRadius(0.5f);         // sharp shadow edges
 	FlashlightComp->CastShadows = true;
 	FlashlightComp->SetVisibility(false); // starts OFF
+
+	// Ambient fill light — simulates flashlight bounce off nearby surfaces.
+	// SpotLight alone creates a hard circle with pitch black outside.
+	// PointLight fills the surrounding area so the player can see their environment.
+	FlashlightFillComp = CreateDefaultSubobject<UPointLightComponent>(TEXT("FlashlightFillComp"));
+	FlashlightFillComp->SetupAttachment(FirstPersonCamera);
+	FlashlightFillComp->SetRelativeLocation(FVector(20.0f, 0.0f, -15.0f)); // slightly forward and below
+	FlashlightFillComp->SetIntensity(670.0f);         // dim ambient — enough to see walls, not a lantern
+	FlashlightFillComp->SetAttenuationRadius(600.0f); // covers nearby room area
+	FlashlightFillComp->SetLightColor(FLinearColor(1.0f, 0.93f, 0.82f)); // match flashlight warmth
+	FlashlightFillComp->SetSourceRadius(20.0f);       // very soft shadows (diffuse bounce feel)
+	FlashlightFillComp->CastShadows = false;           // bounce light doesn't cast sharp shadows
+	FlashlightFillComp->SetVisibility(false);          // starts OFF
 
 	// Default click sound from Character Customizer flashlight tool
 	static ConstructorHelpers::FObjectFinder<USoundBase> FlashlightClickFinder(
@@ -137,6 +159,78 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	{
 		FlashlightClickSound = FlashlightClickFinder.Object;
 	}
+
+	// --- Baked CDO defaults (replaces set_all_cdo.py) ---
+
+	// Movement config DataAsset
+	static ConstructorHelpers::FObjectFinder<UZP_GraceMovementConfig> MovementConfigFinder(
+		TEXT("/Game/Core/Data/DA_GraceMovement_Default"));
+	if (MovementConfigFinder.Succeeded()) MovementConfig = MovementConfigFinder.Object;
+
+	// Core input actions
+	static ConstructorHelpers::FObjectFinder<UInputAction> MoveActionFinder(TEXT("/Game/Core/Input/Actions/IA_Move"));
+	if (MoveActionFinder.Succeeded()) MoveAction = MoveActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> LookActionFinder(TEXT("/Game/Core/Input/Actions/IA_Look"));
+	if (LookActionFinder.Succeeded()) LookAction = LookActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> SprintActionFinder(TEXT("/Game/Core/Input/Actions/IA_Sprint"));
+	if (SprintActionFinder.Succeeded()) SprintAction = SprintActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> JumpActionFinder(TEXT("/Game/Core/Input/Actions/IA_Jump"));
+	if (JumpActionFinder.Succeeded()) JumpAction = JumpActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InteractActionFinder(TEXT("/Game/Core/Input/Actions/IA_Interact"));
+	if (InteractActionFinder.Succeeded()) InteractAction = InteractActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchActionFinder(TEXT("/Game/Core/Input/Actions/IA_Crouch"));
+	if (CrouchActionFinder.Succeeded()) CrouchAction = CrouchActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> PeekActionFinder(TEXT("/Game/Core/Input/Actions/IA_Peek"));
+	if (PeekActionFinder.Succeeded()) PeekAction = PeekActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> AimActionFinder(TEXT("/Game/Core/Input/Actions/IA_Aim"));
+	if (AimActionFinder.Succeeded()) AimAction = AimActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> FireActionFinder(TEXT("/Game/Core/Input/Actions/IA_Fire"));
+	if (FireActionFinder.Succeeded()) FireAction = FireActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ReloadActionFinder(TEXT("/Game/Core/Input/Actions/IA_Reload"));
+	if (ReloadActionFinder.Succeeded()) ReloadAction = ReloadActionFinder.Object;
+
+	// Map + tab cycling
+	static ConstructorHelpers::FObjectFinder<UInputAction> MapActionFinder(TEXT("/Game/Core/Input/IA_Map"));
+	if (MapActionFinder.Succeeded()) MapAction = MapActionFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> TabLeftFinder(TEXT("/Game/Core/Input/Actions/IA_TabCycleLeft"));
+	if (TabLeftFinder.Succeeded()) TabCycleLeftAction = TabLeftFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> TabRightFinder(TEXT("/Game/Core/Input/Actions/IA_TabCycleRight"));
+	if (TabRightFinder.Succeeded()) TabCycleRightAction = TabRightFinder.Object;
+
+	// Inventory actions (Moonville's)
+	static ConstructorHelpers::FObjectFinder<UInputAction> InvMenuFinder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventoryMenuOpen"));
+	if (InvMenuFinder.Succeeded()) InventoryMenuAction = InvMenuFinder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> Slot0Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot0"));
+	if (Slot0Finder.Succeeded()) InventorySlot0Action = Slot0Finder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> Slot1Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot1"));
+	if (Slot1Finder.Succeeded()) InventorySlot1Action = Slot1Finder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> Slot2Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot2"));
+	if (Slot2Finder.Succeeded()) InventorySlot2Action = Slot2Finder.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> Slot3Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot3"));
+	if (Slot3Finder.Succeeded()) InventorySlot3Action = Slot3Finder.Object;
+
+	// Starting weapon (soft reference — doesn't force-load the asset)
+	StartingWeaponItem = TSoftObjectPtr<UObject>(FSoftObjectPath(TEXT("/Game/Core/Items/DA_Grace_Pistol.DA_Grace_Pistol")));
+
+	// Bullet decal materials (soft references)
+	BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_01.MI_BulletHole_Metal_01"))));
+	BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_02.MI_BulletHole_Metal_02"))));
+	BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_03.MI_BulletHole_Metal_03"))));
 
 	// Movement defaults (overridden by DataAsset in GameplayComp's BeginPlay)
 	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
@@ -355,28 +449,113 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	// Switch hidden Mesh animation based on ground speed and crouch state
 	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
 	{
-		const float Speed = GetVelocity().Size2D();
-		UAnimSequenceBase* DesiredAnim = nullptr;
-
-		if (bIsCrouched)
+		if (bOnLadder)
 		{
-			DesiredAnim = CrouchIdleAnimation ? CrouchIdleAnimation : IdleAnimation;
-			if (Speed > 10.0f && CrouchWalkAnimation)
-				DesiredAnim = CrouchWalkAnimation;
+			// Ladder climbing: switch between climb up / climb down / idle based on input
+			UAnimSequenceBase* DesiredAnim = LadderIdleAnimation;
+			if (LadderClimbInput > 0.1f && LadderClimbUpAnimation)
+				DesiredAnim = LadderClimbUpAnimation;
+			else if (LadderClimbInput < -0.1f && LadderClimbDownAnimation)
+				DesiredAnim = LadderClimbDownAnimation;
+
+			if (DesiredAnim && SNI->GetCurrentAsset() != DesiredAnim)
+			{
+				SNI->SetAnimationAsset(DesiredAnim, true, 1.0f);
+				SNI->SetPlaying(true);
+			}
+
+			// Per-frame ladder diagnostics (every 60 frames to avoid log spam)
+			static int32 LadderDiagCounter = 0;
+			if (++LadderDiagCounter >= 60)
+			{
+				LadderDiagCounter = 0;
+
+				// Head bone world transform
+				int32 HeadIdx = PlayerMesh->GetBoneIndex(FName("head"));
+				FTransform HeadWT = (HeadIdx != INDEX_NONE)
+					? PlayerMesh->GetBoneTransform(HeadIdx)
+					: FTransform::Identity;
+				FVector HeadPos = HeadWT.GetLocation();
+				FRotator HeadRot = HeadWT.Rotator();
+
+				// Camera eye position (what CalcCamera produces)
+				FVector EyePos = GetActorLocation() + FVector(0.f, 0.f, BaseEyeHeight);
+				FRotator CtrlRot = Controller ? Controller->GetControlRotation() : FRotator::ZeroRotator;
+
+				// FirstPersonCamera component
+				FVector CamCompPos = FirstPersonCamera ? FirstPersonCamera->GetComponentLocation() : FVector::ZeroVector;
+				FRotator CamCompRot = FirstPersonCamera ? FirstPersonCamera->GetComponentRotation() : FRotator::ZeroRotator;
+
+				// Actor
+				FVector ActorPos = GetActorLocation();
+				FRotator ActorRot = GetActorRotation();
+
+				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] HeadBone pos=(%.1f, %.1f, %.1f) rot=(P=%.1f Y=%.1f R=%.1f)"),
+					HeadPos.X, HeadPos.Y, HeadPos.Z, HeadRot.Pitch, HeadRot.Yaw, HeadRot.Roll);
+				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] CalcEye pos=(%.1f, %.1f, %.1f) CtrlRot=(P=%.1f Y=%.1f R=%.1f)"),
+					EyePos.X, EyePos.Y, EyePos.Z, CtrlRot.Pitch, CtrlRot.Yaw, CtrlRot.Roll);
+				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] CamComp pos=(%.1f, %.1f, %.1f) rot=(P=%.1f Y=%.1f R=%.1f)"),
+					CamCompPos.X, CamCompPos.Y, CamCompPos.Z, CamCompRot.Pitch, CamCompRot.Yaw, CamCompRot.Roll);
+				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] Actor pos=(%.1f, %.1f, %.1f) rot=(P=%.1f Y=%.1f R=%.1f)"),
+					ActorPos.X, ActorPos.Y, ActorPos.Z, ActorRot.Pitch, ActorRot.Yaw, ActorRot.Roll);
+			}
+
+			// Move character vertically based on input
+			if (FMath::Abs(LadderClimbInput) > 0.1f && ActiveLadderActor.IsValid())
+			{
+				AZP_Ladder* Ladder = Cast<AZP_Ladder>(ActiveLadderActor.Get());
+				if (Ladder)
+				{
+					const float DeltaZ = LadderClimbInput * Ladder->ClimbSpeed * DeltaTime;
+					FVector NewLoc = GetActorLocation() + FVector(0.f, 0.f, DeltaZ);
+
+					// Clamp to ladder bounds (TopClimbZ keeps hands at rung level)
+					const float TopClimbZ = Ladder->GetTopZ() - 80.f;
+					if (NewLoc.Z <= Ladder->GetBottomZ())
+					{
+						// Reached bottom — exit ladder
+						ExitLadder(false);
+					}
+					else if (NewLoc.Z >= TopClimbZ)
+					{
+						// Reached top — exit ladder
+						ExitLadder(true);
+					}
+					else
+					{
+						SetActorLocation(NewLoc);
+					}
+				}
+			}
+
+			// Reset after use — only moves when W/S actively held next frame
+			LadderClimbInput = 0.f;
 		}
 		else
 		{
-			DesiredAnim = IdleAnimation;
-			if (Speed > 150.0f && RunAnimation)
-				DesiredAnim = RunAnimation;
-			else if (Speed > 10.0f && WalkAnimation)
-				DesiredAnim = WalkAnimation;
-		}
+			const float Speed = GetVelocity().Size2D();
+			UAnimSequenceBase* DesiredAnim = nullptr;
 
-		if (DesiredAnim && SNI->GetCurrentAsset() != DesiredAnim)
-		{
-			SNI->SetAnimationAsset(DesiredAnim, true, 1.0f);
-			SNI->SetPlaying(true);
+			if (bIsCrouched)
+			{
+				DesiredAnim = CrouchIdleAnimation ? CrouchIdleAnimation : IdleAnimation;
+				if (Speed > 10.0f && CrouchWalkAnimation)
+					DesiredAnim = CrouchWalkAnimation;
+			}
+			else
+			{
+				DesiredAnim = IdleAnimation;
+				if (Speed > 150.0f && RunAnimation)
+					DesiredAnim = RunAnimation;
+				else if (Speed > 10.0f && WalkAnimation)
+					DesiredAnim = WalkAnimation;
+			}
+
+			if (DesiredAnim && SNI->GetCurrentAsset() != DesiredAnim)
+			{
+				SNI->SetAnimationAsset(DesiredAnim, true, 1.0f);
+				SNI->SetPlaying(true);
+			}
 		}
 	}
 
@@ -385,7 +564,7 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	// --- Weapon slot keys (raw polling) ---
 	// Bypasses Enhanced Input entirely to avoid IMC conflicts between
 	// IMC_Grace and Moonville's IMC_InventoryCharacter double-firing.
-	if (!bInventoryMenuOpen && !bMapOpen)
+	if (!bInventoryMenuOpen && !bMapOpen && !bOnLadder)
 	{
 		if (APlayerController* PC = Cast<APlayerController>(GetController()))
 		{
@@ -395,6 +574,9 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			else if (PC->WasInputKeyJustPressed(EKeys::Four))  Input_InventorySlot(3);
 		}
 	}
+
+	// --- Container close detection (briefcase sync + weapon unequip) ---
+	CheckContainerClosed();
 
 	// Flashlight toggle (F key — works even with menus open)
 	{
@@ -413,6 +595,25 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		FRotator NewRot = FMath::RInterpTo(FlashlightComp->GetComponentRotation(), TargetRot, DeltaTime, FlashlightInterpSpeed);
 		FlashlightComp->SetWorldRotation(NewRot);
 	}
+
+}
+
+// --- CalcCamera override ---
+// During ladder climbing: simple fixed-offset position + standard controller rotation.
+// CalcCamera runs last — nothing can override it.
+void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult)
+{
+	if (bOnLadder)
+	{
+		// Position: actor origin + eye height. Head mesh is hidden during climbing
+		// so no forward push needed — camera sits at true eye position.
+		OutResult.Location = GetActorLocation() + FVector(0.f, 0.f, BaseEyeHeight);
+		OutResult.Rotation = Controller ? Controller->GetControlRotation() : GetActorRotation();
+		OutResult.FOV = FirstPersonCamera ? FirstPersonCamera->FieldOfView : 90.f;
+		return;
+	}
+
+	Super::CalcCamera(DeltaTime, OutResult);
 }
 
 // --- Crouch ---
@@ -560,6 +761,13 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 
 	const FVector2D MoveInput = Value.Get<FVector2D>();
 
+	// On ladder: forward/back = climb up/down, no lateral movement
+	if (bOnLadder)
+	{
+		LadderClimbInput = MoveInput.Y; // W = +1 (up), S = -1 (down)
+		return;
+	}
+
 	if (Controller)
 	{
 		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
@@ -576,13 +784,16 @@ void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)
 	if (bInventoryMenuOpen || bMapOpen) return;
 
 	const FVector2D LookInput = Value.Get<FVector2D>();
+
+	if (bOnLadder) return; // Camera fully locked during climbing
+
 	AddControllerYawInput(LookInput.X);
 	AddControllerPitchInput(-LookInput.Y);
 }
 
 void AZP_GraceCharacter::Input_SprintStarted(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
+	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
 	if (GameplayComp) GameplayComp->StartSprint();
 }
 
@@ -595,12 +806,27 @@ void AZP_GraceCharacter::Input_SprintCompleted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_Jump(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (bOnLadder)
+	{
+		// If in upper half of ladder, exit at top; otherwise drop from current position
+		AZP_Ladder* Ladder = Cast<AZP_Ladder>(ActiveLadderActor.Get());
+		bool bNearTop = Ladder && GetActorLocation().Z >= (Ladder->GetBottomZ() + Ladder->GetTopZ()) * 0.5f;
+		ExitLadder(bNearTop);
+		return;
+	}
 	Jump();
 }
 
 void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
+	if (bInventoryMenuOpen || bMapOpen)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Blocked — bInventoryMenuOpen=%d, bMapOpen=%d"), bInventoryMenuOpen, bMapOpen);
+		return;
+	}
+	if (bOnLadder) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] === Input_Interact fired ==="));
 
 	// --- Line-of-sight priority: if looking at a Moonville pickup, it takes
 	//     precedence over overlap-based door/interactable detection. ---
@@ -622,29 +848,149 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 			FCollisionObjectQueryParams ObjParams;
 			ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
 			ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-			if (GetWorld()->LineTraceSingleByObjectType(Hit, CamLoc, TraceEnd, ObjParams, Params))
+
+			// Multi-trace to skip through volumes (player is inside MapVolume which hits at dist 0)
+			TArray<FHitResult> AllHits;
+			GetWorld()->LineTraceMultiByObjectType(AllHits, CamLoc, TraceEnd, ObjParams, Params);
+
+			// Find first non-volume hit
+			FHitResult* BestHit = nullptr;
+			for (FHitResult& H : AllHits)
 			{
-				AActor* HitActor = Hit.GetActor();
-				if (HitActor && HitActor != CurrentInteractable.Get())
+				AActor* A = H.GetActor();
+				if (A && !A->GetClass()->GetName().Contains(TEXT("Volume")))
 				{
-					FString HitClassName = HitActor->GetClass()->GetName();
-					if (HitClassName.Contains(TEXT("ItemPickup")) || HitClassName.Contains(TEXT("Chest")))
+					BestHit = &H;
+					break;
+				}
+			}
+
+			bool bTraceHit = (BestHit != nullptr);
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Line trace (300 UU). TotalHits=%d, ValidHit=%d"),
+				AllHits.Num(), bTraceHit);
+
+			if (bTraceHit)
+			{
+				AActor* HitActor = BestHit->GetActor();
+				if (HitActor)
+				{
+					FString HitActorName = HitActor->GetName();
+
+					// Walk the class hierarchy to match containers (BP_LootLocker → BP_ItemContainer_Horror → BP_ItemContainer)
+					bool bMatchPickup = false;
+					bool bMatchContainer = false;
+					bool bIsBriefcase = false;
+					for (UClass* C = HitActor->GetClass(); C; C = C->GetSuperClass())
 					{
+						FString CName = C->GetName();
+						if (CName.Contains(TEXT("ItemPickup"))) bMatchPickup = true;
+						if (CName.Contains(TEXT("ItemContainer")) || CName.Contains(TEXT("Chest")) || CName.Contains(TEXT("LootLocker"))) bMatchContainer = true;
+						if (CName.Contains(TEXT("Briefcase"))) { bMatchContainer = true; bIsBriefcase = true; }
+					}
+
+					UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Hit: %s (class: %s) — Pickup=%d, Container=%d, Briefcase=%d"),
+						*HitActorName, *HitActor->GetClass()->GetName(), bMatchPickup, bMatchContainer, bIsBriefcase);
+
+					if (bMatchPickup || bMatchContainer)
+					{
+						// Pre-load ALL overlapping briefcases before Interact().
+						// Moonville opens the CLOSEST overlap, which may differ from our trace target.
+						// Loading all ensures whichever briefcase Moonville picks has correct data.
+						if (bMatchContainer)
+						{
+							if (UZP_BriefcaseSubsystem* BriefcaseSub = GetGameInstance()->GetSubsystem<UZP_BriefcaseSubsystem>())
+							{
+								if (BriefcaseSub->HasStoredData())
+								{
+									TArray<AActor*> OverlappingActors;
+									GetOverlappingActors(OverlappingActors);
+									for (AActor* OA : OverlappingActors)
+									{
+										if (!OA) continue;
+										bool bOAIsBriefcase = false;
+										for (UClass* C = OA->GetClass(); C; C = C->GetSuperClass())
+										{
+											if (C->GetName().Contains(TEXT("Briefcase")))
+											{
+												bOAIsBriefcase = true;
+												break;
+											}
+										}
+										if (bOAIsBriefcase)
+										{
+											UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Pre-loading briefcase inventory into overlapping %s"), *OA->GetName());
+											BriefcaseSub->LoadIntoBriefcase(OA);
+										}
+									}
+								}
+								else
+								{
+									UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] No stored briefcase data — first briefcase this session"));
+								}
+							}
+						}
+
+						if (bIsBriefcase)
+						{
+							ActiveBriefcaseActor = HitActor;
+						}
+
+						// Track that a container is being opened — wait for Moonville to set bPlayerIsUsingActor=true
+						bWaitingForContainerOpen = true;
+						bContainerWasOpen = false;
+						ContainerOpenWaitFrames = 0;
+						ActiveContainerActor = HitActor;
+						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container opened — bContainerWasOpen=true, ActiveContainer=%s, ActiveBriefcase=%s"),
+							*HitActorName,
+							ActiveBriefcaseActor.IsValid() ? *ActiveBriefcaseActor->GetName() : TEXT("None"));
+
 						UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
 						if (InteractFunc)
 						{
+							UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Calling Moonville Interact()"));
 							MoonvilleInteractionComp->ProcessEvent(InteractFunc, nullptr);
 							return;
 						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("[ZP-BUG] Moonville Interact() function NOT FOUND!"));
+						}
+					}
+					else if (HitActor->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()))
+					{
+						// Line trace hit an IZP_Interactable (ladder, door, etc.) — interact directly
+						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Line trace hit IZP_Interactable: %s — calling OnInteract"), *HitActorName);
+						IZP_Interactable::Execute_OnInteract(HitActor, this);
+						return;
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Hit actor class '%s' does NOT match any filter — falling through"), *HitActor->GetClass()->GetName());
 					}
 				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Trace hit but GetActor() returned null"));
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Line trace missed — no hit within 300 UU"));
 			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] MoonvilleInteractionComp is NULL — skipping line trace"));
+	}
 
-	// Check our IZP_Interactable system (save points, doors, pickups, etc.)
+	// Check our IZP_Interactable system (save points, doors, ladders, etc.)
+	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2 check: CurrentInteractable=%s, ImplementsInterface=%d"),
+		CurrentInteractable.IsValid() ? *CurrentInteractable->GetName() : TEXT("NULL"),
+		CurrentInteractable.IsValid() ? CurrentInteractable->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()) : 0);
 	if (CurrentInteractable.IsValid() && CurrentInteractable->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2: IZP_Interactable — %s (class: %s)"), *CurrentInteractable->GetName(), *CurrentInteractable->GetClass()->GetName());
 		IZP_Interactable::Execute_OnInteract(CurrentInteractable.Get(), this);
 		return;
 	}
@@ -654,6 +1000,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 	{
 		if (UZP_NPCInteractionComponent* NPCComp = CurrentInteractable->FindComponentByClass<UZP_NPCInteractionComponent>())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] NPC interaction — %s"), *CurrentInteractable->GetName());
 			NPCComp->HandleInteract(this);
 			return;
 		}
@@ -665,12 +1012,14 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 		UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
 		if (InteractFunc)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 3: Moonville fallback Interact()"));
 			MoonvilleInteractionComp->ProcessEvent(InteractFunc, nullptr);
 			return;
 		}
 	}
 
 	// Fallback to original interaction
+	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 4: Fallback OnInteract"));
 	AActor* Target = GameplayComp ? GameplayComp->CurrentInteractionTarget : nullptr;
 	OnInteract(Target);
 }
@@ -691,7 +1040,7 @@ void AZP_GraceCharacter::ClearCurrentInteractable(AActor* Interactable)
 
 void AZP_GraceCharacter::Input_CrouchStarted(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
+	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
 	Crouch();
 }
 
@@ -703,7 +1052,7 @@ void AZP_GraceCharacter::Input_CrouchCompleted(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_PeekStarted(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
+	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
 	if (GameplayComp) GameplayComp->bWantsPeek = true;
 }
 
@@ -716,15 +1065,16 @@ void AZP_GraceCharacter::Input_PeekCompleted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
-	// Block manual ADS during melee swing animation or when melee/throwable is equipped
-	if (KinemationComp && (KinemationComp->bMeleeSwingActive ||
+	// Block ADS when no weapon equipped or during melee swing / melee / throwable
+	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
+	if (KinemationComp->bMeleeSwingActive ||
 		KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee ||
-		KinemationComp->CurrentWeaponType == EZP_WeaponType::Throwable))
+		KinemationComp->CurrentWeaponType == EZP_WeaponType::Throwable)
 	{
 		return;
 	}
 	if (GameplayComp) GameplayComp->bWantsAim = true;
-	if (KinemationComp) KinemationComp->SetAiming(true);
+	KinemationComp->SetAiming(true);
 }
 
 void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
@@ -742,7 +1092,8 @@ void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_FireStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
-	if (KinemationComp) KinemationComp->FirePressed();
+	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
+	KinemationComp->FirePressed();
 }
 
 void AZP_GraceCharacter::Input_FireCompleted(const FInputActionValue& Value)
@@ -753,7 +1104,7 @@ void AZP_GraceCharacter::Input_FireCompleted(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_ReloadStarted(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
+	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
 	if (KinemationComp) KinemationComp->Reload();
 }
 
@@ -1218,6 +1569,12 @@ void AZP_GraceCharacter::ToggleFlashlight()
 		}
 	}
 
+	// Fill light toggles with the flashlight
+	if (FlashlightFillComp)
+	{
+		FlashlightFillComp->SetVisibility(bFlashlightOn);
+	}
+
 	if (FlashlightClickSound)
 	{
 		UGameplayStatics::PlaySound2D(this, FlashlightClickSound);
@@ -1283,4 +1640,481 @@ void AZP_GraceCharacter::GrantStartingItems()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] StartingWeaponItem not set — no starting item granted"));
 	}
+}
+
+// --- Container Close Detection ---
+
+void AZP_GraceCharacter::CheckContainerClosed()
+{
+	if (!bWaitingForContainerOpen && !bContainerWasOpen) return;
+
+	AActor* ContainerToCheck = ActiveContainerActor.IsValid() ? ActiveContainerActor.Get() : nullptr;
+	if (!ContainerToCheck)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] ActiveContainerActor is null — resetting"));
+		bWaitingForContainerOpen = false;
+		bContainerWasOpen = false;
+		return;
+	}
+
+	// Find bPlayerIsUsingActor via reflection
+	FBoolProperty* UsingProp = nullptr;
+	for (TFieldIterator<FBoolProperty> It(ContainerToCheck->GetClass()); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("bPlayerIsUsingActor")))
+		{
+			UsingProp = *It;
+			break;
+		}
+	}
+
+	if (!UsingProp)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[ZP-BUG] bPlayerIsUsingActor NOT FOUND on %s (class: %s)"),
+			*ContainerToCheck->GetName(), *ContainerToCheck->GetClass()->GetName());
+		bWaitingForContainerOpen = false;
+		bContainerWasOpen = false;
+		ActiveContainerActor.Reset();
+		ActiveBriefcaseActor.Reset();
+		return;
+	}
+
+	bool bStillUsing = UsingProp->GetPropertyValue_InContainer(ContainerToCheck);
+
+	// Phase 1: Waiting for container to OPEN (bPlayerIsUsingActor becomes true)
+	if (bWaitingForContainerOpen)
+	{
+		ContainerOpenWaitFrames++;
+
+		if (bStillUsing)
+		{
+			// Our traced container opened — use it
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container OPENED (bPlayerIsUsingActor=true) on %s after %d frames"), *ContainerToCheck->GetName(), ContainerOpenWaitFrames);
+			bWaitingForContainerOpen = false;
+			bContainerWasOpen = true;
+			ContainerOpenWaitFrames = 0;
+		}
+		else
+		{
+			// Moonville might have opened a DIFFERENT container (closest overlap, not our trace target).
+			// Scan all overlapping actors to find which one actually opened.
+			TArray<AActor*> OverlappingActors;
+			GetOverlappingActors(OverlappingActors);
+			for (AActor* OA : OverlappingActors)
+			{
+				if (!OA || OA == ContainerToCheck) continue;
+				for (TFieldIterator<FBoolProperty> It(OA->GetClass()); It; ++It)
+				{
+					if (It->GetName().Contains(TEXT("bPlayerIsUsingActor")))
+					{
+						if (It->GetPropertyValue_InContainer(OA))
+						{
+							UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container OPENED on DIFFERENT actor: %s (class: %s) after %d frames — switching tracking"),
+								*OA->GetName(), *OA->GetClass()->GetName(), ContainerOpenWaitFrames);
+							ActiveContainerActor = OA;
+
+							// Check if the actual opened container is a briefcase
+							bool bActualIsBriefcase = false;
+							for (UClass* C = OA->GetClass(); C; C = C->GetSuperClass())
+							{
+								if (C->GetName().Contains(TEXT("Briefcase")))
+								{
+									bActualIsBriefcase = true;
+									break;
+								}
+							}
+							if (bActualIsBriefcase)
+							{
+								ActiveBriefcaseActor = OA;
+								// Moonville opened a briefcase we didn't trace — load stored inventory into it
+								if (UZP_BriefcaseSubsystem* BriefcaseSub = GetGameInstance()->GetSubsystem<UZP_BriefcaseSubsystem>())
+								{
+									UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Late-loading briefcase inventory into %s (HasData=%d)"),
+										*OA->GetName(), BriefcaseSub->HasStoredData());
+									BriefcaseSub->LoadIntoBriefcase(OA);
+								}
+							}
+
+							bWaitingForContainerOpen = false;
+							bContainerWasOpen = true;
+							ContainerOpenWaitFrames = 0;
+						}
+						break;
+					}
+				}
+				if (bContainerWasOpen) break;
+			}
+
+			// Timeout: if no container opened after 30 frames (~0.5s), the container was instant-loot
+			// (no lingering UI, bPlayerIsUsingActor never set true). Run unequip check and reset.
+			if (bWaitingForContainerOpen && ContainerOpenWaitFrames >= 30)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Phase 1 TIMEOUT after %d frames — container has no lingering UI. Running UnequipMissingWeapon."), ContainerOpenWaitFrames);
+				bWaitingForContainerOpen = false;
+				bContainerWasOpen = false;
+				ContainerOpenWaitFrames = 0;
+				ActiveContainerActor.Reset();
+				ActiveBriefcaseActor.Reset();
+				UnequipMissingWeapon();
+			}
+		}
+		return;
+	}
+
+	// Phase 2: Container is open, waiting for it to CLOSE (bPlayerIsUsingActor becomes false)
+	// Re-read the property on the current ActiveContainerActor (may have been switched in Phase 1)
+	ContainerToCheck = ActiveContainerActor.IsValid() ? ActiveContainerActor.Get() : nullptr;
+	if (!ContainerToCheck)
+	{
+		bContainerWasOpen = false;
+		return;
+	}
+	UsingProp = nullptr;
+	for (TFieldIterator<FBoolProperty> It(ContainerToCheck->GetClass()); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("bPlayerIsUsingActor")))
+		{
+			UsingProp = *It;
+			break;
+		}
+	}
+	if (UsingProp)
+	{
+		bStillUsing = UsingProp->GetPropertyValue_InContainer(ContainerToCheck);
+	}
+	if (bStillUsing) return; // Still open
+
+	// Container is now closed
+	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container CLOSED (bPlayerIsUsingActor=false) on %s"), *ContainerToCheck->GetName());
+	bContainerWasOpen = false;
+
+	// Sync briefcase data back to subsystem
+	if (ActiveBriefcaseActor.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Syncing briefcase inventory to subsystem from %s"),
+			*ActiveBriefcaseActor->GetName());
+		if (UZP_BriefcaseSubsystem* BriefcaseSub = GetGameInstance()->GetSubsystem<UZP_BriefcaseSubsystem>())
+		{
+			BriefcaseSub->SaveFromBriefcase(ActiveBriefcaseActor.Get());
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Briefcase data saved. HasData=%d"), BriefcaseSub->HasStoredData());
+		}
+		ActiveBriefcaseActor.Reset();
+	}
+
+	ActiveContainerActor.Reset();
+
+	// Check if equipped weapon was transferred out of inventory (BUG-001)
+	UnequipMissingWeapon();
+}
+
+void AZP_GraceCharacter::UnequipMissingWeapon()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] UnequipMissingWeapon called. KinemationComp=%d, MoonvilleInventoryComp=%d, ActiveWeapon=%s"),
+		KinemationComp != nullptr, MoonvilleInventoryComp != nullptr,
+		ActiveWeapon ? *ActiveWeapon->GetName() : TEXT("NULL"));
+
+	if (!KinemationComp || !MoonvilleInventoryComp || !ActiveWeapon) return;
+
+	// Check if the currently equipped weapon's class still matches any shortcut slot.
+	const TSubclassOf<AActor> CurrentWeaponClass = ActiveWeapon->GetClass();
+	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Current weapon class: %s"), *CurrentWeaponClass->GetName());
+
+	bool bWeaponStillInSlots = false;
+
+	for (int32 i = 0; i < 4; ++i)
+	{
+		TSubclassOf<AActor> SlotWeaponClass = GetWeaponFromShortcutSlot(i);
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Slot %d: %s"), i,
+			SlotWeaponClass ? *SlotWeaponClass->GetName() : TEXT("EMPTY"));
+
+		if (SlotWeaponClass && SlotWeaponClass == CurrentWeaponClass)
+		{
+			bWeaponStillInSlots = true;
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] MATCH found in slot %d — weapon still in inventory"), i);
+			break;
+		}
+	}
+
+	if (!bWeaponStillInSlots)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Weapon NOT found in any slot — UNEQUIPPING"));
+
+		// Unequip all via Moonville
+		UFunction* UnequipAllFunc = MoonvilleInventoryComp->FindFunction(FName("UnequipAllItems"));
+		if (UnequipAllFunc)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Calling UnequipAllItems"));
+			MoonvilleInventoryComp->ProcessEvent(UnequipAllFunc, nullptr);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("[ZP-BUG] UnequipAllItems function NOT FOUND on inventory comp!"));
+		}
+
+		// Clear weapon from KinemationComp (direct C++ call — UnequipWeapon handles full cleanup)
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Calling KinemationComp->UnequipWeapon()"));
+		KinemationComp->UnequipWeapon();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Weapon still in inventory — no action needed"));
+	}
+}
+
+// ===========================================================================
+// Ladder Climbing
+// ===========================================================================
+
+void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
+{
+	if (bOnLadder || !LadderActor) return;
+
+	AZP_Ladder* Ladder = Cast<AZP_Ladder>(LadderActor);
+	if (!Ladder) return;
+
+	bOnLadder = true;
+	ActiveLadderActor = LadderActor;
+	LadderClimbInput = 0.f;
+
+	// Hide interaction prompt while climbing
+	if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
+	{
+		if (PC->HUDWidget) PC->HUDWidget->HideInteractionPrompt();
+	}
+
+	// Save current weapon class and unequip — will re-equip on exit
+	if (KinemationComp && KinemationComp->ActiveWeapon)
+	{
+		PreLadderWeaponClass = KinemationComp->ActiveWeapon->GetClass();
+		KinemationComp->UnequipWeapon();
+	}
+	else
+	{
+		PreLadderWeaponClass = nullptr;
+	}
+
+	// TopClimbZ: highest point the player can BE on the ladder.
+	const float TopClimbZ = Ladder->GetTopZ() - 80.f;
+	float ClampedZ = FMath::Clamp(GetActorLocation().Z, Ladder->GetBottomZ(), TopClimbZ);
+	FVector LadderCenter = Ladder->LadderMesh->Bounds.Origin;
+	const float StandoffDist = 75.f;
+	float MidZ = (Ladder->GetBottomZ() + Ladder->GetTopZ()) * 0.5f;
+	bool bClimbingDown = GetActorLocation().Z >= MidZ;
+
+	FVector SnapXY;
+	if (!bClimbingDown)
+	{
+		// CLIMBING UP: snap along approach direction (player is on the correct side)
+		FVector ToPlayer = GetActorLocation() - LadderCenter;
+		ToPlayer.Z = 0.f;
+		SnapXY = LadderCenter + ToPlayer.GetSafeNormal() * StandoffDist;
+	}
+	else
+	{
+		// CLIMBING DOWN: find the open side of the ladder via line traces.
+		// Player may be on the wrong side (wall side) on the upper floor.
+		FVector MeshExtent = Ladder->LadderMesh->Bounds.BoxExtent;
+		FVector CandA, CandB;
+		if (MeshExtent.X >= MeshExtent.Y)
+		{
+			CandA = FVector(0.f, 1.f, 0.f);   // +Y
+			CandB = FVector(0.f, -1.f, 0.f);  // -Y
+		}
+		else
+		{
+			CandA = FVector(1.f, 0.f, 0.f);   // +X
+			CandB = FVector(-1.f, 0.f, 0.f);  // -X
+		}
+
+		FVector TraceStart(LadderCenter.X, LadderCenter.Y, GetActorLocation().Z);
+		const float TraceLen = 200.f;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+		Params.AddIgnoredActor(Ladder);
+
+		FHitResult HitA, HitB;
+		GetWorld()->LineTraceSingleByChannel(HitA, TraceStart, TraceStart + CandA * TraceLen, ECC_Visibility, Params);
+		GetWorld()->LineTraceSingleByChannel(HitB, TraceStart, TraceStart + CandB * TraceLen, ECC_Visibility, Params);
+
+		float DistA = HitA.bBlockingHit ? HitA.Distance : TraceLen;
+		float DistB = HitB.bBlockingHit ? HitB.Distance : TraceLen;
+
+		FVector FrontDir = (DistA >= DistB) ? CandA : CandB;
+		SnapXY = LadderCenter + FrontDir * StandoffDist;
+
+		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DOWN] TraceA dist=%.1f TraceB dist=%.1f FrontDir=(%.0f,%.0f) SnapXY=(%.1f,%.1f)"),
+			DistA, DistB, FrontDir.X, FrontDir.Y, SnapXY.X, SnapXY.Y);
+	}
+
+	SetActorLocation(FVector(SnapXY.X, SnapXY.Y, ClampedZ));
+
+	if (Controller)
+	{
+		FRotator LadderFacing = Ladder->GetClimbFacingRotation();
+
+		// Camera: face perpendicular to the ladder surface (fixed direction every time).
+		// The narrow horizontal axis of the mesh bounds = depth = surface normal.
+		FVector MeshExtent = Ladder->LadderMesh->Bounds.BoxExtent;
+		FVector LocalNormal = (MeshExtent.X <= MeshExtent.Y) ? FVector(1.f, 0.f, 0.f) : FVector(0.f, 1.f, 0.f);
+		FVector WorldNormal = Ladder->GetActorRotation().RotateVector(LocalNormal);
+		WorldNormal.Z = 0.f;
+		WorldNormal.Normalize();
+		// Pick the direction toward the ladder from the player's side
+		FVector ToLadder = LadderCenter - FVector(SnapXY.X, SnapXY.Y, 0.f);
+		ToLadder.Z = 0.f;
+		FVector CameraDir = (FVector::DotProduct(ToLadder.GetSafeNormal(), WorldNormal) >= 0.f) ? WorldNormal : -WorldNormal;
+		Controller->SetControlRotation(FRotator(0.f, CameraDir.Rotation().Yaw, 0.f));
+
+		// Body: face the ladder's fixed climbing direction (for animation)
+		SetActorRotation(FRotator(0.f, LadderFacing.Yaw + 180.f, 0.f));
+		bUseControllerRotationYaw = false;
+	}
+
+	// Switch to flying movement — no gravity, no walking physics
+	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+	{
+		CMC->SetMovementMode(MOVE_Flying);
+		CMC->StopMovementImmediately();
+	}
+
+	// No camera detach needed — CalcCamera override has final say on position/rotation.
+	// Kinemation components can keep ticking; their output is ignored during climbing.
+
+	// Enable full-body bone copy so 1P climbing animations from hidden Mesh
+	// override Kinemation's upper body on the visible PlayerMesh.
+	if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
+	{
+		AnimInst->bCopyAllBones = true;
+	}
+
+	// Hide head bone on visible mesh so camera doesn't see inside the skull.
+	// PlayerMesh is the visible 1P mesh — hide head and neck.
+	PlayerMesh->HideBoneByName(FName("head"), PBO_None);
+	PlayerMesh->HideBoneByName(FName("neck_02"), PBO_None);
+	PlayerMesh->HideBoneByName(FName("neck_01"), PBO_None);
+
+	// Set ladder idle animation on hidden mesh
+	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
+	{
+		if (LadderIdleAnimation)
+		{
+			SNI->SetAnimationAsset(LadderIdleAnimation, true, 1.0f);
+			SNI->SetPlaying(true);
+		}
+	}
+
+	// Cancel any active gameplay states
+	if (GameplayComp)
+	{
+		GameplayComp->StopSprint();
+		GameplayComp->bWantsAim = false;
+		GameplayComp->bWantsPeek = false;
+	}
+
+	// Uncrouch if crouched
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+
+	// --- DIAGNOSTIC: Ladder positioning ---
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] === ENTER LADDER ==="));
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] Ladder actor: %s"), *Ladder->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderRoot world: (%.1f, %.1f, %.1f)"),
+		Ladder->GetActorLocation().X, Ladder->GetActorLocation().Y, Ladder->GetActorLocation().Z);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderRot: (P=%.1f, Y=%.1f, R=%.1f)"),
+		Ladder->GetActorRotation().Pitch, Ladder->GetActorRotation().Yaw, Ladder->GetActorRotation().Roll);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] BottomAttachPoint relative: (%.1f, %.1f, %.1f)"),
+		Ladder->BottomAttachPoint->GetRelativeLocation().X,
+		Ladder->BottomAttachPoint->GetRelativeLocation().Y,
+		Ladder->BottomAttachPoint->GetRelativeLocation().Z);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] BottomAttachPoint world: (%.1f, %.1f, %.1f)"),
+		Ladder->GetBottomAttachLocation().X, Ladder->GetBottomAttachLocation().Y, Ladder->GetBottomAttachLocation().Z);
+	if (Ladder->LadderMesh)
+	{
+		FVector MeshWorldPos = Ladder->LadderMesh->GetComponentLocation();
+		FVector MeshRelPos = Ladder->LadderMesh->GetRelativeLocation();
+		FVector MeshCenter = Ladder->LadderMesh->Bounds.Origin;
+		FVector MeshExtent = Ladder->LadderMesh->Bounds.BoxExtent;
+		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderMesh relative: (%.1f, %.1f, %.1f)"),
+			MeshRelPos.X, MeshRelPos.Y, MeshRelPos.Z);
+		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderMesh world: (%.1f, %.1f, %.1f)"),
+			MeshWorldPos.X, MeshWorldPos.Y, MeshWorldPos.Z);
+		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderMesh bounds center: (%.1f, %.1f, %.1f) extent: (%.1f, %.1f, %.1f)"),
+			MeshCenter.X, MeshCenter.Y, MeshCenter.Z, MeshExtent.X, MeshExtent.Y, MeshExtent.Z);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] Player position (no teleport): (%.1f, %.1f, %.1f)"),
+		GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] Player AFTER snap: (%.1f, %.1f, %.1f)"),
+		GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] Player capsule radius=%.0f halfHeight=%.0f"),
+		GetCapsuleComponent()->GetScaledCapsuleRadius(), GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] ClimbDirection arrow rot: (P=%.1f, Y=%.1f, R=%.1f)"),
+		Ladder->ClimbDirection->GetComponentRotation().Pitch,
+		Ladder->ClimbDirection->GetComponentRotation().Yaw,
+		Ladder->ClimbDirection->GetComponentRotation().Roll);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] ActorRot after snap: (P=%.1f, Y=%.1f, R=%.1f) ControlRot: (P=%.1f, Y=%.1f, R=%.1f)"),
+		GetActorRotation().Pitch, GetActorRotation().Yaw, GetActorRotation().Roll,
+		Controller ? Controller->GetControlRotation().Pitch : 0.f,
+		Controller ? Controller->GetControlRotation().Yaw : 0.f,
+		Controller ? Controller->GetControlRotation().Roll : 0.f);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] BaseEyeHeight=%.0f, CalcCamera eye pos: (%.1f, %.1f, %.1f)"),
+		BaseEyeHeight,
+		GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + BaseEyeHeight);
+	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] === END ==="));
+}
+
+void AZP_GraceCharacter::ExitLadder(bool bExitTop)
+{
+	if (!bOnLadder) return;
+
+	AZP_Ladder* Ladder = Cast<AZP_Ladder>(ActiveLadderActor.Get());
+
+	// Teleport to exit point
+	if (Ladder)
+	{
+		if (bExitTop)
+		{
+			// Reached top: keep current XY, raise Z to upper floor.
+			FVector ExitLoc = GetActorLocation();
+			ExitLoc.Z = Ladder->GetTopExitLocation().Z + GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			SetActorLocation(ExitLoc);
+		}
+		// Otherwise (Space dismount): keep current position — don't snap to bottom.
+		// Player drops from wherever they are on the ladder.
+	}
+
+	// Restore walking movement and actor rotation behavior
+	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+	{
+		CMC->SetMovementMode(MOVE_Walking);
+	}
+	bUseControllerRotationYaw = true; // Restore FPS mouse-look → actor rotation
+
+	// No camera reattach needed — never detached. CalcCamera stops overriding
+	// when bOnLadder goes false, and Super::CalcCamera resumes using the camera component.
+
+	// Unhide head bones — restore normal 1P rendering
+	PlayerMesh->UnHideBoneByName(FName("head"));
+	PlayerMesh->UnHideBoneByName(FName("neck_02"));
+	PlayerMesh->UnHideBoneByName(FName("neck_01"));
+
+	// Disable full-body bone copy — back to Kinemation upper body + lower body bone copy
+	if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
+	{
+		AnimInst->bCopyAllBones = false;
+	}
+
+	// Re-equip weapon if we had one before climbing
+	if (PreLadderWeaponClass && KinemationComp)
+	{
+		KinemationComp->EquipWeaponClass(PreLadderWeaponClass);
+	}
+	PreLadderWeaponClass = nullptr;
+
+	bOnLadder = false;
+	ActiveLadderActor = nullptr;
+	LadderClimbInput = 0.f;
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ExitLadder: Dismounted (top=%d)"), bExitTop);
 }

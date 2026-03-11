@@ -373,22 +373,58 @@ void UZP_GracePlayerAnimInstance::CopyBonesFromSource()
 
 	const bool bBlending = BoneBlendAlpha < 1.0f && CachedLowerBodyBones.Num() == BoneIndexMap.Num();
 
+	// When bCopyAllBones is true (ladder climbing), copy every bone by name,
+	// ignoring the BoneIndexMap's spine_01 upper-body filter.
+	// This overrides Kinemation's upper body with the climbing animation.
+	const FReferenceSkeleton& SourceRefSkel = SourceMeshComponent->GetSkeletalMeshAsset()->GetRefSkeleton();
+	const FReferenceSkeleton& TargetRefSkel = TargetMesh->GetSkeletalMeshAsset()->GetRefSkeleton();
+
+	// Compensate for component orientation difference (PlayerMesh has -90° yaw offset from hidden Mesh).
+	// During bCopyAllBones, transform bones: SourceCS → World → TargetCS.
+	// During normal lower-body copy, direct CS copy works fine (gimbal lock vicinity makes yaw offset invisible).
+	const bool bNeedCompensation = bCopyAllBones;
+	FTransform SourceComponentTF, TargetComponentTF;
+	if (bNeedCompensation)
+	{
+		SourceComponentTF = SourceMeshComponent->GetComponentTransform();
+		TargetComponentTF = TargetMesh->GetComponentTransform();
+	}
+
 	int32 CopiedCount = 0;
 	for (int32 TargetIdx = 0; TargetIdx < BoneIndexMap.Num() && TargetIdx < TargetCSTransforms.Num(); ++TargetIdx)
 	{
-		const int32 SourceIdx = BoneIndexMap[TargetIdx];
+		int32 SourceIdx = BoneIndexMap[TargetIdx];
+
+		// Full-body mode: find source bone by name even for upper body bones
+		if (bCopyAllBones && SourceIdx == INDEX_NONE)
+		{
+			const FName BoneName = TargetRefSkel.GetBoneName(TargetIdx);
+			SourceIdx = SourceRefSkel.FindBoneIndex(BoneName);
+		}
+
 		if (SourceIdx != INDEX_NONE && SourceIdx < SourceCSTransforms.Num())
 		{
+			FTransform FinalBone;
+			if (bNeedCompensation)
+			{
+				// SourceCS → World → TargetCS (compensates for PlayerMesh -90° yaw offset)
+				FTransform WorldBone = SourceCSTransforms[SourceIdx] * SourceComponentTF;
+				FinalBone = WorldBone.GetRelativeTransform(TargetComponentTF);
+			}
+			else
+			{
+				FinalBone = SourceCSTransforms[SourceIdx];
+			}
+
 			if (bBlending)
 			{
-				// Blend from cached (old pose) to source (new pose)
 				FTransform Blended;
-				Blended.Blend(CachedLowerBodyBones[TargetIdx], SourceCSTransforms[SourceIdx], BoneBlendAlpha);
+				Blended.Blend(CachedLowerBodyBones[TargetIdx], FinalBone, BoneBlendAlpha);
 				TargetCSTransforms[TargetIdx] = Blended;
 			}
 			else
 			{
-				TargetCSTransforms[TargetIdx] = SourceCSTransforms[SourceIdx];
+				TargetCSTransforms[TargetIdx] = FinalBone;
 			}
 			++CopiedCount;
 		}

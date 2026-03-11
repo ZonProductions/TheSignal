@@ -31,6 +31,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Locomotion")
 	TObjectPtr<USkeletalMeshComponent> SourceMeshComponent;
 
+	/** When true, copies ALL bones from source (full body) instead of just lower body.
+	 *  Used during ladder climbing to override Kinemation's upper body with climb anim. */
+	bool bCopyAllBones = false;
+
 	/** Copy matching bone transforms from source mesh to this mesh.
 	 *  Call AFTER animation evaluation (e.g. from Character Tick). */
 	void CopyBonesFromSource();

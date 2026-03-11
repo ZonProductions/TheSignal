@@ -23,11 +23,32 @@ AZP_PlayerController::AZP_PlayerController()
 
 	// Create DialogueManager component
 	DialogueManager = CreateDefaultSubobject<UZP_DialogueManager>(TEXT("DialogueManager"));
+
+	// --- Baked CDO defaults (replaces set_all_cdo.py) ---
+
+	// Default Input Mapping Context
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCFinder(TEXT("/Game/Core/Input/IMC_Grace"));
+	if (IMCFinder.Succeeded()) DefaultMappingContext = IMCFinder.Object;
+
+	// Widget classes (InventoryTabWidgetClass, MapWidgetClass) are set via BP CDO
+	// because FClassFinder for Widget Blueprints causes cascading loads during CDO construction.
 }
 
 void AZP_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Runtime fallback: load widget classes if not set by BP CDO
+	if (!InventoryTabWidgetClass)
+	{
+		InventoryTabWidgetClass = LoadClass<UZP_InventoryTabWidget>(nullptr,
+			TEXT("/Game/Blueprints/UI/WBP_InventoryTab.WBP_InventoryTab_C"));
+	}
+	if (!MapWidgetClass)
+	{
+		MapWidgetClass = LoadClass<UZP_MapWidget>(nullptr,
+			TEXT("/Game/User_Interface/WBP_Map.WBP_Map_C"));
+	}
 
 	if (DefaultMappingContext)
 	{

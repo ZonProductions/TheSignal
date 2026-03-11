@@ -597,9 +597,15 @@ void UZP_KinemationComponent::UnequipWeapon()
 	ActiveWeapon->Destroy();
 	ActiveWeapon = nullptr;
 
+	// Drop arms to low ready so empty hands aren't held up at camera level
+	if (TacticalAnimComp)
+	{
+		FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, false);
+	}
+
 	OnWeaponChanged.Broadcast(nullptr);
 
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::UnequipWeapon — weapon destroyed."));
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::UnequipWeapon — weapon destroyed, arms lowered."));
 }
 
 // --- ADS ---
