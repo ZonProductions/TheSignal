@@ -38,6 +38,7 @@ class AZP_GraceCharacter;
 class UZP_MapComponent;
 class UZP_NoteComponent;
 class AZP_MapVolume;
+class UZP_NotesWidget;
 
 UCLASS()
 class THESIGNAL_API UZP_InventoryTabWidget : public UUserWidget
@@ -62,6 +63,10 @@ public:
 	/** Widget class for Moonville inventory (used to find it in viewport). */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab")
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
+
+	/** Widget class for the Notes panel (WBP_Notes). Auto-loaded if not set. */
+	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab")
+	TSubclassOf<UZP_NotesWidget> NotesWidgetClass;
 
 	// --- API ---
 
@@ -162,9 +167,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<UTextBlock> TabNoMapText;
 
-	// --- Notes placeholder ---
+	// --- Notes widget (created dynamically, replaces old placeholder) ---
 	UPROPERTY()
-	TObjectPtr<UTextBlock> NotesPlaceholder;
+	TObjectPtr<UZP_NotesWidget> NotesWidget;
 
 	/** Index of the currently selected note in CollectedNotes. -1 = none. */
 	int32 SelectedNoteIndex = -1;

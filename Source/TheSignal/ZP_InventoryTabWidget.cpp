@@ -3,6 +3,7 @@
 #include "ZP_InventoryTabWidget.h"
 #include "ZP_MapComponent.h"
 #include "ZP_NoteComponent.h"
+#include "ZP_NotesWidget.h"
 #include "ZP_MapVolume.h"
 #include "ZP_GraceCharacter.h"
 
@@ -45,6 +46,13 @@ void UZP_InventoryTabWidget::NativeConstruct()
 	{
 		InventoryWidgetClass = LoadClass<UUserWidget>(nullptr,
 			TEXT("/Game/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_InventoryMenu_Horror.WBP_InventoryMenu_Horror_C"));
+	}
+
+	// Auto-load Notes widget class
+	if (!NotesWidgetClass)
+	{
+		NotesWidgetClass = LoadClass<UZP_NotesWidget>(nullptr,
+			TEXT("/Game/EasyGameUI/EasyOptionsMenu/Core/WBP_Notes.WBP_Notes_C"));
 	}
 
 	// Non-visual controller but needs to receive key events for tab cycling.
@@ -172,7 +180,7 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 			if (TabPlayerMarker) TabPlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
 			if (TabAreaNameText) TabAreaNameText->SetVisibility(ESlateVisibility::Collapsed);
 			if (TabNoMapText) TabNoMapText->SetVisibility(ESlateVisibility::Collapsed);
-			if (NotesPlaceholder) NotesPlaceholder->SetVisibility(ESlateVisibility::Collapsed);
+			if (NotesWidget) NotesWidget->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
 		bIsOpen = false;
@@ -187,7 +195,7 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		TabPlayerMarker = nullptr;
 		TabAreaNameText = nullptr;
 		TabNoMapText = nullptr;
-		NotesPlaceholder = nullptr;
+		NotesWidget = nullptr;
 		InventoryContentWidgets.Empty();
 		SelectedNoteIndex = -1;
 
@@ -343,7 +351,7 @@ void UZP_InventoryTabWidget::CleanupInjectedWidgets()
 	if (TabPlayerMarker) { TabPlayerMarker->RemoveFromParent(); TabPlayerMarker = nullptr; }
 	if (TabAreaNameText) { TabAreaNameText->RemoveFromParent(); TabAreaNameText = nullptr; }
 	if (TabNoMapText) { TabNoMapText->RemoveFromParent(); TabNoMapText = nullptr; }
-	if (NotesPlaceholder) { NotesPlaceholder->RemoveFromParent(); NotesPlaceholder = nullptr; }
+	if (NotesWidget) { NotesWidget->RemoveFromParent(); NotesWidget = nullptr; }
 
 	InventoryContentWidgets.Empty();
 	TabHeaderPanel = nullptr;
@@ -430,11 +438,20 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 		InventoryContentWidgets.Add(W);
 	}
 
-	// Fallback: try finding by widget name if refs aren't populated yet
+	// Also find widgets by name in the Moonville tree (ShortcutCross, MenuSwitcher, etc.)
+	for (const TCHAR* Name : { TEXT("ItemShortcutCross"), TEXT("MenuSwitcher"),
+		TEXT("InventoryCanvas"), TEXT("ShortcutMenu") })
+	{
+		if (UWidget* W = MoonvilleWidget->GetWidgetFromName(Name))
+		{
+			InventoryContentWidgets.AddUnique(W);
+		}
+	}
+
+	// Fallback: try finding by ref names if the above didn't capture enough
 	if (InventoryContentWidgets.Num() == 0)
 	{
-		for (const TCHAR* Name : { TEXT("InventoryCanvas"), TEXT("InventoryCanvasRef"),
-			TEXT("ShortcutMenu"), TEXT("ShortcutMenuRef") })
+		for (const TCHAR* Name : { TEXT("InventoryCanvasRef"), TEXT("ShortcutMenuRef") })
 		{
 			if (UWidget* W = MoonvilleWidget->GetWidgetFromName(Name))
 			{
@@ -504,24 +521,39 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 		}
 	}
 
-	// --- Notes placeholder ---
-	NotesPlaceholder = NewObject<UTextBlock>(this);
-	NotesPlaceholder->SetText(FText::FromString(TEXT("Notes — Coming Soon")));
-	NotesPlaceholder->SetColorAndOpacity(FSlateColor(FLinearColor(0.5f, 0.5f, 0.5f)));
+	// --- Notes widget ---
+	if (NotesWidgetClass && MoonvilleMapImage && MoonvilleMapImage->GetParent())
 	{
-		FSlateFontInfo Font = NotesPlaceholder->GetFont();
-		Font.Size = 20;
-		NotesPlaceholder->SetFont(Font);
-	}
-	NotesPlaceholder->SetVisibility(ESlateVisibility::Collapsed);
-	if (MoonvilleMapImage && MoonvilleMapImage->GetParent())
-	{
-		MoonvilleMapImage->GetParent()->AddChild(NotesPlaceholder);
-		if (UOverlaySlot* OSlot = Cast<UOverlaySlot>(NotesPlaceholder->Slot))
+		NotesWidget = CreateWidget<UZP_NotesWidget>(this, NotesWidgetClass);
+		if (NotesWidget)
 		{
-			OSlot->SetHorizontalAlignment(HAlign_Center);
-			OSlot->SetVerticalAlignment(VAlign_Center);
+			NotesWidget->SetVisibility(ESlateVisibility::Collapsed);
+			MoonvilleMapImage->GetParent()->AddChild(NotesWidget);
+
+			// Copy MapImage's exact CanvasPanelSlot so notes fits the same bordered rectangle
+			if (UCanvasPanelSlot* MapSlot = Cast<UCanvasPanelSlot>(MoonvilleMapImage->Slot))
+			{
+				if (UCanvasPanelSlot* NotesSlot = Cast<UCanvasPanelSlot>(NotesWidget->Slot))
+				{
+					NotesSlot->SetAnchors(MapSlot->GetAnchors());
+					NotesSlot->SetOffsets(MapSlot->GetOffsets());
+					NotesSlot->SetAlignment(MapSlot->GetAlignment());
+					NotesSlot->SetAutoSize(false); // Must be false so CanvasPanel constrains height — enables ScrollBox scrolling
+					NotesSlot->SetZOrder(MapSlot->GetZOrder() + 1);
+				}
+			}
+
+			if (CachedNoteComp.IsValid())
+			{
+				NotesWidget->BindToNoteComponent(CachedNoteComp.Get());
+			}
+
+			UE_LOG(LogTemp, Log, TEXT("[INVTAB-WIRE] NotesWidget created — copied MapImage slot for identical positioning"));
 		}
+	}
+	else if (!NotesWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-WIRE] NotesWidgetClass is null — notes tab will be empty"));
 	}
 
 	// Start with map/notes content hidden (Inventory is the default tab)
@@ -612,7 +644,7 @@ void UZP_InventoryTabWidget::SwitchToTab(EZP_InventoryTab Tab)
 		if (MoonvilleMapImage) MoonvilleMapImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 		if (TabPlayerMarker) TabPlayerMarker->SetVisibility(ESlateVisibility::HitTestInvisible);
 		if (TabAreaNameText) TabAreaNameText->SetVisibility(ESlateVisibility::HitTestInvisible);
-		if (NotesPlaceholder) NotesPlaceholder->SetVisibility(ESlateVisibility::Collapsed);
+		if (NotesWidget) NotesWidget->SetVisibility(ESlateVisibility::Collapsed);
 		RefreshMapDisplay();
 		break;
 
@@ -622,7 +654,7 @@ void UZP_InventoryTabWidget::SwitchToTab(EZP_InventoryTab Tab)
 		if (TabPlayerMarker) TabPlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
 		if (TabAreaNameText) TabAreaNameText->SetVisibility(ESlateVisibility::Collapsed);
 		if (TabNoMapText) TabNoMapText->SetVisibility(ESlateVisibility::Collapsed);
-		if (NotesPlaceholder) NotesPlaceholder->SetVisibility(ESlateVisibility::Collapsed);
+		if (NotesWidget) NotesWidget->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 
 	case EZP_InventoryTab::Notes:
@@ -631,7 +663,16 @@ void UZP_InventoryTabWidget::SwitchToTab(EZP_InventoryTab Tab)
 		if (TabPlayerMarker) TabPlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
 		if (TabAreaNameText) TabAreaNameText->SetVisibility(ESlateVisibility::Collapsed);
 		if (TabNoMapText) TabNoMapText->SetVisibility(ESlateVisibility::Collapsed);
-		if (NotesPlaceholder) NotesPlaceholder->SetVisibility(ESlateVisibility::HitTestInvisible);
+		// Scan inventory for notes on-demand (delegate may not have fired)
+		if (CachedCharacter.IsValid())
+		{
+			CachedCharacter->ScanInventoryForNotes();
+		}
+		if (NotesWidget)
+		{
+			NotesWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			NotesWidget->RefreshNoteList();
+		}
 		break;
 	}
 }
@@ -754,6 +795,11 @@ void UZP_InventoryTabWidget::RefreshMapDisplay()
 void UZP_InventoryTabWidget::SelectNote(int32 NoteIndex)
 {
 	SelectedNoteIndex = NoteIndex;
+
+	if (NotesWidget)
+	{
+		NotesWidget->SelectNote(NoteIndex);
+	}
 }
 
 // ---------------------------------------------------------------------------

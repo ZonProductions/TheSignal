@@ -289,6 +289,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void ClearCurrentInteractable(AActor* Interactable);
 
+	/** Scan Moonville inventory for Item.Note tagged items and add them to NoteComponent.
+	 *  Called on-demand when Notes tab is opened (delegate binding may not always fire). */
+	UFUNCTION(BlueprintCallable, Category = "Notes")
+	void ScanInventoryForNotes();
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -361,6 +366,13 @@ private:
 	UFUNCTION()
 	void OnThrowableConsumedHandler();
 
+	/** Bridge: Moonville OnInventoryUpdate → scan items for notes → NoteComponent. */
+	UFUNCTION()
+	void HandleInventoryUpdate();
+
+	/** Bind to Moonville's OnInventoryUpdate dispatcher via reflection. */
+	void BindInventoryUpdateDelegate();
+
 	/** Cached slot index of the last-used throwable for inventory removal. */
 	int32 LastThrowableSlotIndex = -1;
 
@@ -410,6 +422,11 @@ private:
 	/** Current climb input: +1 = up, -1 = down, 0 = idle. Updated from Input_Move. */
 	float LadderClimbInput = 0.f;
 
+	/** World Z of the rung we're currently moving toward. */
+	float LadderTargetRungZ = 0.f;
+
+	/** True while interpolating between rungs — blocks new input until arrival. */
+	bool bLadderMovingToRung = false;
 
 	/** Saved weapon class before entering ladder — re-equipped on exit. */
 	TSubclassOf<UObject> PreLadderWeaponClass;

@@ -11,7 +11,8 @@
  * Owner Subsystem: Gameplay
  *
  * Blueprint Extension Points:
- *   - LadderMesh: assign any static mesh (SM_Ladder, pack meshes, etc.)
+ *   - LadderStyle: choose visual style 1-5 from the climbing pack
+ *   - LadderHeight: total climbable height in UU
  *   - ClimbSpeed: tune via DataAsset or instance edit
  *   - BottomAttach / TopAttach: scene components marking mount/dismount points
  *
@@ -27,6 +28,17 @@
 
 class UBoxComponent;
 class UArrowComponent;
+class UInstancedStaticMeshComponent;
+
+UENUM(BlueprintType)
+enum class EZP_LadderStyle : uint8
+{
+	Style1 = 0 UMETA(DisplayName = "Ladder Style 1"),
+	Style2 UMETA(DisplayName = "Ladder Style 2"),
+	Style3 UMETA(DisplayName = "Ladder Style 3"),
+	Style4 UMETA(DisplayName = "Ladder Style 4"),
+	Style5 UMETA(DisplayName = "Ladder Style 5")
+};
 
 UCLASS()
 class THESIGNAL_API AZP_Ladder : public AActor, public IZP_Interactable
@@ -41,6 +53,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder")
 	TObjectPtr<USceneComponent> DefaultSceneRoot;
 
+	/** Hidden bounds/collision proxy — GraceCharacter reads Bounds for camera perpendicular. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder")
 	TObjectPtr<UStaticMeshComponent> LadderMesh;
 
@@ -60,26 +73,54 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder")
 	TObjectPtr<UBoxComponent> InteractionVolume;
 
+	// --- Modular visual components ---
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder|Modular")
+	TObjectPtr<UInstancedStaticMeshComponent> FootBarISM;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder|Modular")
+	TObjectPtr<UStaticMeshComponent> BottomLeftRail;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder|Modular")
+	TObjectPtr<UStaticMeshComponent> BottomRightRail;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder|Modular")
+	TObjectPtr<UInstancedStaticMeshComponent> MidLeftISM;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder|Modular")
+	TObjectPtr<UInstancedStaticMeshComponent> MidRightISM;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder|Modular")
+	TObjectPtr<UStaticMeshComponent> TopLeftCap;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ladder|Modular")
+	TObjectPtr<UStaticMeshComponent> TopRightCap;
+
 	// --- Config ---
 
-	/** Vertical climb speed in cm/s. */
+	/** Visual style (1-5) from the climbing animation pack. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Config")
-	float ClimbSpeed = 100.0f;
+	EZP_LadderStyle LadderStyle = EZP_LadderStyle::Style1;
 
-	/** Bottom Z limit — player can't go below this (world space, computed from BottomAttachPoint). */
+	/** Total ladder height in UU. TopExitPoint and InteractionVolume auto-adjust. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Config", meta = (ClampMin = "50.0"))
+	float LadderHeight = 585.f;
+
+	/** Vertical climb speed in cm/s. ~61.4 = 2x anim-synced speed (2 rungs per 1.533s cycle × 2). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Config")
+	float ClimbSpeed = 61.4f;
+
 	float GetBottomZ() const;
-
-	/** Top Z limit — player exits when reaching this (world space, computed from TopExitPoint). */
 	float GetTopZ() const;
-
-	/** World rotation the player should face while climbing. */
 	FRotator GetClimbFacingRotation() const;
-
-	/** World location of the bottom attach point. */
 	FVector GetBottomAttachLocation() const;
-
-	/** World location of the top exit point. */
 	FVector GetTopExitLocation() const;
+
+	/** World-space center of the ladder (XY midpoint between rails). */
+	FVector GetLadderCenter() const;
+
+	/** World-space surface normal (perpendicular to ladder face, horizontal). */
+	FVector GetLadderSurfaceNormal() const;
 
 	// --- IZP_Interactable ---
 	FText GetInteractionPrompt_Implementation() override;
@@ -87,8 +128,11 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 private:
+	void BuildLadderAssembly();
+
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
@@ -97,4 +141,8 @@ private:
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	// Mesh path helpers
+	static FString GetMeshPath(EZP_LadderStyle Style, const FString& PieceName);
+	static bool StyleHasTopCaps(EZP_LadderStyle Style);
 };

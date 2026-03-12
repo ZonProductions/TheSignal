@@ -42,7 +42,8 @@
       "mcp__blueprint-mcp__describe_material",
       "mcp__blueprint-mcp__disconnect_material_pin",
       "mcp__blueprint-mcp__disconnect_pin",
-      "mcp__blueprint-mcp__set_pin_default"
+      "mcp__blueprint-mcp__set_pin_default",
+      "mcp__blueprint-mcp__delete_graph"
     ]
   },
   "hooks": {

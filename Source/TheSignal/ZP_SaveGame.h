@@ -13,6 +13,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "ZP_InventoryTabTypes.h"
 #include "ZP_SaveGame.generated.h"
 
 UCLASS()
@@ -48,6 +49,10 @@ public:
 	/** Narrative beats triggered by dialogue choices and events. */
 	UPROPERTY(SaveGame)
 	TSet<FName> TriggeredNarrativeBeats;
+
+	/** All notes/documents the player has collected (permanent). */
+	UPROPERTY(SaveGame)
+	TArray<FZP_NoteEntry> CollectedNotes;
 
 	/** Slot name used for this save. */
 	static const FString DefaultSlotName;

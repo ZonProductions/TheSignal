@@ -12,8 +12,10 @@
 #include "ZP_Interactable.h"
 #include "ZP_MapComponent.h"
 #include "ZP_NoteComponent.h"
-#include "ZP_InventoryTabWidget.h"
 #include "ZP_InventoryTabTypes.h"
+#include "ZP_InventoryTabWidget.h"
+#include "GameplayTagContainer.h"
+#include "UObject/UnrealType.h"
 #include "ZP_FloorCullingComponent.h"
 #include "ZP_RuntimeISMBatcher.h"
 #include "ZP_MapWidget.h"
@@ -359,6 +361,9 @@ void AZP_GraceCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ZP_GraceCharacter: MoonvilleInventoryComp NOT FOUND — inventory menu disabled."));
 	}
 
+	// Bind to Moonville OnInventoryUpdate for notes bridge
+	BindInventoryUpdateDelegate();
+
 	// Grant starting items to inventory + set weapon slot 0
 	GrantStartingItems();
 
@@ -451,80 +456,110 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	{
 		if (bOnLadder)
 		{
-			// Ladder climbing: switch between climb up / climb down / idle based on input
-			UAnimSequenceBase* DesiredAnim = LadderIdleAnimation;
-			if (LadderClimbInput > 0.1f && LadderClimbUpAnimation)
-				DesiredAnim = LadderClimbUpAnimation;
-			else if (LadderClimbInput < -0.1f && LadderClimbDownAnimation)
-				DesiredAnim = LadderClimbDownAnimation;
+			// --- Rung-to-rung discrete movement ---
+			// Player commits to each rung step. Can't stop or reverse mid-step.
+			AZP_Ladder* Ladder = ActiveLadderActor.IsValid() ? Cast<AZP_Ladder>(ActiveLadderActor.Get()) : nullptr;
 
-			if (DesiredAnim && SNI->GetCurrentAsset() != DesiredAnim)
+			// Position-driven climb animation: anim time mapped from height on ladder.
+			// One anim cycle (1.533s) = 2 rungs (47 UU). Each 23.5 UU = half cycle = hands alternate.
+			if (LadderClimbUpAnimation && Ladder)
 			{
-				SNI->SetAnimationAsset(DesiredAnim, true, 1.0f);
-				SNI->SetPlaying(true);
-			}
-
-			// Per-frame ladder diagnostics (every 60 frames to avoid log spam)
-			static int32 LadderDiagCounter = 0;
-			if (++LadderDiagCounter >= 60)
-			{
-				LadderDiagCounter = 0;
-
-				// Head bone world transform
-				int32 HeadIdx = PlayerMesh->GetBoneIndex(FName("head"));
-				FTransform HeadWT = (HeadIdx != INDEX_NONE)
-					? PlayerMesh->GetBoneTransform(HeadIdx)
-					: FTransform::Identity;
-				FVector HeadPos = HeadWT.GetLocation();
-				FRotator HeadRot = HeadWT.Rotator();
-
-				// Camera eye position (what CalcCamera produces)
-				FVector EyePos = GetActorLocation() + FVector(0.f, 0.f, BaseEyeHeight);
-				FRotator CtrlRot = Controller ? Controller->GetControlRotation() : FRotator::ZeroRotator;
-
-				// FirstPersonCamera component
-				FVector CamCompPos = FirstPersonCamera ? FirstPersonCamera->GetComponentLocation() : FVector::ZeroVector;
-				FRotator CamCompRot = FirstPersonCamera ? FirstPersonCamera->GetComponentRotation() : FRotator::ZeroRotator;
-
-				// Actor
-				FVector ActorPos = GetActorLocation();
-				FRotator ActorRot = GetActorRotation();
-
-				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] HeadBone pos=(%.1f, %.1f, %.1f) rot=(P=%.1f Y=%.1f R=%.1f)"),
-					HeadPos.X, HeadPos.Y, HeadPos.Z, HeadRot.Pitch, HeadRot.Yaw, HeadRot.Roll);
-				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] CalcEye pos=(%.1f, %.1f, %.1f) CtrlRot=(P=%.1f Y=%.1f R=%.1f)"),
-					EyePos.X, EyePos.Y, EyePos.Z, CtrlRot.Pitch, CtrlRot.Yaw, CtrlRot.Roll);
-				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] CamComp pos=(%.1f, %.1f, %.1f) rot=(P=%.1f Y=%.1f R=%.1f)"),
-					CamCompPos.X, CamCompPos.Y, CamCompPos.Z, CamCompRot.Pitch, CamCompRot.Yaw, CamCompRot.Roll);
-				UE_LOG(LogTemp, Warning, TEXT("[LADDER-TICK] Actor pos=(%.1f, %.1f, %.1f) rot=(P=%.1f Y=%.1f R=%.1f)"),
-					ActorPos.X, ActorPos.Y, ActorPos.Z, ActorRot.Pitch, ActorRot.Yaw, ActorRot.Roll);
-			}
-
-			// Move character vertically based on input
-			if (FMath::Abs(LadderClimbInput) > 0.1f && ActiveLadderActor.IsValid())
-			{
-				AZP_Ladder* Ladder = Cast<AZP_Ladder>(ActiveLadderActor.Get());
-				if (Ladder)
+				if (SNI->GetCurrentAsset() != LadderClimbUpAnimation)
 				{
-					const float DeltaZ = LadderClimbInput * Ladder->ClimbSpeed * DeltaTime;
-					FVector NewLoc = GetActorLocation() + FVector(0.f, 0.f, DeltaZ);
+					SNI->SetAnimationAsset(LadderClimbUpAnimation, true, 1.0f);
+					SNI->SetPlaying(false); // we control position manually
+				}
 
-					// Clamp to ladder bounds (TopClimbZ keeps hands at rung level)
-					const float TopClimbZ = Ladder->GetTopZ() - 80.f;
-					if (NewLoc.Z <= Ladder->GetBottomZ())
+				const float RungSpacing = 23.5f;
+				float HeightInLadder = GetActorLocation().Z - Ladder->GetBottomZ();
+				float AnimDuration = LadderClimbUpAnimation->GetPlayLength();
+				float HeightPerCycle = 2.f * RungSpacing; // 47 UU per full anim cycle
+				float AnimFrac = FMath::Fmod(HeightInLadder / HeightPerCycle, 1.f);
+				if (AnimFrac < 0.f) AnimFrac += 1.f;
+
+				SNI->SetPosition(AnimFrac * AnimDuration, false);
+			}
+
+			if (Ladder)
+			{
+				const float RungSpacing = 23.5f;
+				const float TopClimbZ = Ladder->GetTopZ() - 80.f;
+				float HeightInLadder = GetActorLocation().Z - Ladder->GetBottomZ();
+
+				// Accept new input only when not already moving to a rung
+				if (!bLadderMovingToRung && FMath::Abs(LadderClimbInput) > 0.1f)
+				{
+					// Snap to nearest rung, then target one rung in input direction
+					float NearestRungIdx = FMath::RoundToFloat(HeightInLadder / RungSpacing);
+					float NearestRungZ = Ladder->GetBottomZ() + NearestRungIdx * RungSpacing;
+
+					if (LadderClimbInput > 0.f)
+						LadderTargetRungZ = NearestRungZ + RungSpacing;
+					else
+						LadderTargetRungZ = NearestRungZ - RungSpacing;
+
+					bLadderMovingToRung = true;
+				}
+
+				// Interpolate toward target rung
+				if (bLadderMovingToRung)
+				{
+					float CurrentZ = GetActorLocation().Z;
+					float Direction = (LadderTargetRungZ > CurrentZ) ? 1.f : -1.f;
+					float DistToTarget = FMath::Abs(LadderTargetRungZ - CurrentZ);
+
+					// Sine-based speed: slow at rung (start/end), fast mid-step
+					float Progress = FMath::Clamp(1.f - (DistToTarget / RungSpacing), 0.f, 1.f);
+					float SpeedMult = 0.3f + 1.4f * FMath::Sin(Progress * PI);
+
+					float NewZ = CurrentZ + Direction * Ladder->ClimbSpeed * SpeedMult * DeltaTime;
+
+					// Snap when arrived (or overshot)
+					if ((Direction > 0.f && NewZ >= LadderTargetRungZ) ||
+						(Direction < 0.f && NewZ <= LadderTargetRungZ))
 					{
-						// Reached bottom — exit ladder
+						NewZ = LadderTargetRungZ;
+						bLadderMovingToRung = false;
+					}
+
+					// Bounds check
+					if (NewZ <= Ladder->GetBottomZ())
+					{
 						ExitLadder(false);
 					}
-					else if (NewLoc.Z >= TopClimbZ)
+					else if (NewZ >= TopClimbZ)
 					{
-						// Reached top — exit ladder
 						ExitLadder(true);
 					}
 					else
 					{
-						SetActorLocation(NewLoc);
+						SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, NewZ));
 					}
+				}
+
+				// --- Rung vs Hand diagnostic logging (every 30 frames) ---
+				static int32 LadderDiagCounter = 0;
+				if (++LadderDiagCounter >= 30)
+				{
+					LadderDiagCounter = 0;
+
+					float CurrentHeight = GetActorLocation().Z - Ladder->GetBottomZ();
+					int32 NearestRung = FMath::RoundToInt(CurrentHeight / RungSpacing);
+					float NearestRungWorldZ = Ladder->GetBottomZ() + NearestRung * RungSpacing;
+
+					// Hand bone world positions
+					int32 HandLIdx = PlayerMesh->GetBoneIndex(FName("hand_l"));
+					int32 HandRIdx = PlayerMesh->GetBoneIndex(FName("hand_r"));
+					FVector HandLPos = (HandLIdx != INDEX_NONE) ? PlayerMesh->GetBoneTransform(HandLIdx).GetLocation() : FVector::ZeroVector;
+					FVector HandRPos = (HandRIdx != INDEX_NONE) ? PlayerMesh->GetBoneTransform(HandRIdx).GetLocation() : FVector::ZeroVector;
+
+					UE_LOG(LogTemp, Warning, TEXT("[LADDER-RUNG] Rung#%d RungZ=%.1f | ActorZ=%.1f HeightInLadder=%.1f | HandL_Z=%.1f HandR_Z=%.1f | Moving=%d TargetZ=%.1f"),
+						NearestRung, NearestRungWorldZ,
+						GetActorLocation().Z, CurrentHeight,
+						HandLPos.Z, HandRPos.Z,
+						bLadderMovingToRung ? 1 : 0, LadderTargetRungZ);
+					UE_LOG(LogTemp, Warning, TEXT("[LADDER-RUNG] HandL=(%.1f,%.1f,%.1f) HandR=(%.1f,%.1f,%.1f)"),
+						HandLPos.X, HandLPos.Y, HandLPos.Z, HandRPos.X, HandRPos.Y, HandRPos.Z);
 				}
 			}
 
@@ -1306,6 +1341,162 @@ void AZP_GraceCharacter::OnThrowableConsumedHandler()
 	LastThrowableSlotIndex = -1;
 }
 
+// ---------------------------------------------------------------------------
+// Notes Bridge — Moonville OnInventoryUpdate → NoteComponent
+// ---------------------------------------------------------------------------
+
+void AZP_GraceCharacter::BindInventoryUpdateDelegate()
+{
+	if (!MoonvilleInventoryComp) return;
+
+	FMulticastDelegateProperty* DispatcherProp = CastField<FMulticastDelegateProperty>(
+		MoonvilleInventoryComp->GetClass()->FindPropertyByName(TEXT("OnInventoryUpdate")));
+
+	if (DispatcherProp)
+	{
+		FScriptDelegate NewDelegate;
+		NewDelegate.BindUFunction(this, FName("HandleInventoryUpdate"));
+
+		// Get the delegate instance from the component and add our binding
+		void* DelegateAddr = DispatcherProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp);
+		DispatcherProp->AddDelegate(NewDelegate, MoonvilleInventoryComp);
+
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Bound to Moonville OnInventoryUpdate dispatcher"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] OnInventoryUpdate dispatcher NOT FOUND on MoonvilleInventoryComp"));
+	}
+}
+
+void AZP_GraceCharacter::ScanInventoryForNotes()
+{
+	HandleInventoryUpdate();
+}
+
+void AZP_GraceCharacter::HandleInventoryUpdate()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] === SCAN START === MoonvilleInv=%s NoteComp=%s"),
+		MoonvilleInventoryComp ? TEXT("valid") : TEXT("null"),
+		NoteComp ? TEXT("valid") : TEXT("null"));
+
+	if (!MoonvilleInventoryComp || !NoteComp) return;
+
+	// Scan all items in Moonville inventory for note items (tagged with "Item.Note")
+	// NOT static — re-request each call so tag registration order doesn't matter
+	const FGameplayTag NoteTag = FGameplayTag::RequestGameplayTag(FName("Item.Note"), false);
+	if (!NoteTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] Item.Note GameplayTag NOT REGISTERED — cannot scan for notes"));
+		return;
+	}
+
+	FProperty* SlotsProp = MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	FArrayProperty* ArrayProp = SlotsProp ? CastField<FArrayProperty>(SlotsProp) : nullptr;
+	if (!ArrayProp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] ItemSlots property not found on inventory component"));
+		return;
+	}
+
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp));
+	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
+	if (!StructInner) return;
+
+	// Find the Item_ property in FFItemSlot
+	FObjectProperty* ItemObjProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("Item_")))
+		{
+			ItemObjProp = CastField<FObjectProperty>(*It);
+			break;
+		}
+	}
+	if (!ItemObjProp) return;
+
+	// Property accessors for PDA_Item (looked up per-call to avoid stale pointers across PIE)
+	FTextProperty* NameProp = nullptr;
+	FTextProperty* DescProp = nullptr;
+	FStructProperty* TagsProp = nullptr;
+	bool bPropsResolved = false;
+
+	int32 TotalItems = 0;
+	int32 NoteTaggedItems = 0;
+	int32 NewNotesAdded = 0;
+	int32 AlreadyCollected = 0;
+
+	UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] Scanning %d inventory slots..."), ArrayHelper.Num());
+
+	for (int32 i = 0; i < ArrayHelper.Num(); ++i)
+	{
+		void* ElementData = ArrayHelper.GetRawPtr(i);
+		UObject* ItemDA = ItemObjProp->GetObjectPropertyValue(ItemObjProp->ContainerPtrToValuePtr<void>(ElementData));
+		if (!ItemDA) continue;
+		TotalItems++;
+
+		// Resolve property pointers from first valid item's class
+		if (!bPropsResolved)
+		{
+			UClass* ItemClass = ItemDA->GetClass();
+			NameProp = CastField<FTextProperty>(ItemClass->FindPropertyByName(FName("Name")));
+			DescProp = CastField<FTextProperty>(ItemClass->FindPropertyByName(FName("Description")));
+			TagsProp = CastField<FStructProperty>(ItemClass->FindPropertyByName(FName("GameplayTags")));
+			bPropsResolved = true;
+			UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] ItemClass=%s Name=%s Desc=%s Tags=%s"),
+				*ItemClass->GetName(),
+				NameProp ? TEXT("found") : TEXT("NULL"),
+				DescProp ? TEXT("found") : TEXT("NULL"),
+				TagsProp ? TEXT("found") : TEXT("NULL"));
+		}
+
+		if (!TagsProp) continue;
+
+		// Check GameplayTags for Item.Note
+		const FGameplayTagContainer* ItemTags = TagsProp->ContainerPtrToValuePtr<FGameplayTagContainer>(ItemDA);
+
+		// Log ALL tags on this item for diagnosis
+		FString TagsStr = ItemTags ? ItemTags->ToStringSimple() : TEXT("(null)");
+		bool bHasNoteTag = ItemTags && ItemTags->HasTag(NoteTag);
+
+		UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] Slot[%d] Item=%s Class=%s Tags=[%s] HasNoteTag=%s"),
+			i, *ItemDA->GetName(), *ItemDA->GetClass()->GetName(),
+			*TagsStr, bHasNoteTag ? TEXT("YES") : TEXT("no"));
+
+		if (!bHasNoteTag) continue;
+		NoteTaggedItems++;
+
+		// Build NoteID from DataAsset path name
+		FName NoteID = FName(*ItemDA->GetPathName());
+		if (NoteComp->HasNote(NoteID))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[NoteBridge]   -> Already collected (ID=%s)"), *NoteID.ToString());
+			AlreadyCollected++;
+			continue;
+		}
+
+		// Extract Name and Description
+		FText Title = NameProp ? NameProp->GetPropertyValue(NameProp->ContainerPtrToValuePtr<void>(ItemDA)) : FText::FromString(TEXT("Unknown Note"));
+		FText Content = DescProp ? DescProp->GetPropertyValue(DescProp->ContainerPtrToValuePtr<void>(ItemDA)) : FText::GetEmpty();
+
+		FZP_NoteEntry NewNote;
+		NewNote.NoteID = NoteID;
+		NewNote.Title = Title;
+		NewNote.Content = Content;
+		NewNote.bIsCode = false;
+
+		NoteComp->AddNote(NewNote);
+		NewNotesAdded++;
+
+		UE_LOG(LogTemp, Warning, TEXT("[NoteBridge]   -> ADDED note '%s' (ID=%s)"),
+			*Title.ToString(), *NoteID.ToString());
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] === SCAN DONE === Slots=%d Items=%d NoteTagged=%d NewAdded=%d AlreadyHad=%d TotalInComp=%d"),
+		ArrayHelper.Num(), TotalItems, NoteTaggedItems, NewNotesAdded, AlreadyCollected,
+		NoteComp->GetNotes().Num());
+}
+
 UObject* AZP_GraceCharacter::GetItemDAFromShortcutSlot(int32 SlotIndex)
 {
 	if (!MoonvilleInventoryComp) return nullptr;
@@ -1875,6 +2066,8 @@ void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
 	bOnLadder = true;
 	ActiveLadderActor = LadderActor;
 	LadderClimbInput = 0.f;
+	bLadderMovingToRung = false;
+	LadderTargetRungZ = 0.f;
 
 	// Hide interaction prompt while climbing
 	if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
@@ -1895,8 +2088,12 @@ void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
 
 	// TopClimbZ: highest point the player can BE on the ladder.
 	const float TopClimbZ = Ladder->GetTopZ() - 80.f;
-	float ClampedZ = FMath::Clamp(GetActorLocation().Z, Ladder->GetBottomZ(), TopClimbZ);
-	FVector LadderCenter = Ladder->LadderMesh->Bounds.Origin;
+	// Snap Z to nearest rung so player always starts at a clean rung position
+	const float RungSpacing = 23.5f;
+	float RawHeight = GetActorLocation().Z - Ladder->GetBottomZ();
+	float SnappedHeight = FMath::RoundToFloat(RawHeight / RungSpacing) * RungSpacing;
+	float ClampedZ = FMath::Clamp(Ladder->GetBottomZ() + SnappedHeight, Ladder->GetBottomZ(), TopClimbZ);
+	FVector LadderCenter = Ladder->GetLadderCenter();
 	const float StandoffDist = 75.f;
 	float MidZ = (Ladder->GetBottomZ() + Ladder->GetTopZ()) * 0.5f;
 	bool bClimbingDown = GetActorLocation().Z >= MidZ;
@@ -1904,27 +2101,21 @@ void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
 	FVector SnapXY;
 	if (!bClimbingDown)
 	{
-		// CLIMBING UP: snap along approach direction (player is on the correct side)
+		// CLIMBING UP: snap to fixed perpendicular (always centered on ladder face)
+		FVector SurfaceNormal = Ladder->GetLadderSurfaceNormal();
 		FVector ToPlayer = GetActorLocation() - LadderCenter;
 		ToPlayer.Z = 0.f;
-		SnapXY = LadderCenter + ToPlayer.GetSafeNormal() * StandoffDist;
+		FVector SnapDir = (FVector::DotProduct(ToPlayer, SurfaceNormal) >= 0.f) ? SurfaceNormal : -SurfaceNormal;
+		SnapXY = LadderCenter + SnapDir * StandoffDist;
 	}
 	else
 	{
 		// CLIMBING DOWN: find the open side of the ladder via line traces.
 		// Player may be on the wrong side (wall side) on the upper floor.
-		FVector MeshExtent = Ladder->LadderMesh->Bounds.BoxExtent;
-		FVector CandA, CandB;
-		if (MeshExtent.X >= MeshExtent.Y)
-		{
-			CandA = FVector(0.f, 1.f, 0.f);   // +Y
-			CandB = FVector(0.f, -1.f, 0.f);  // -Y
-		}
-		else
-		{
-			CandA = FVector(1.f, 0.f, 0.f);   // +X
-			CandB = FVector(-1.f, 0.f, 0.f);  // -X
-		}
+		// Surface normal = perpendicular to ladder face. Candidates are +/- normal direction.
+		FVector SurfaceNormal = Ladder->GetLadderSurfaceNormal();
+		FVector CandA = SurfaceNormal;
+		FVector CandB = -SurfaceNormal;
 
 		FVector TraceStart(LadderCenter.X, LadderCenter.Y, GetActorLocation().Z);
 		const float TraceLen = 200.f;
@@ -1953,12 +2144,7 @@ void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
 		FRotator LadderFacing = Ladder->GetClimbFacingRotation();
 
 		// Camera: face perpendicular to the ladder surface (fixed direction every time).
-		// The narrow horizontal axis of the mesh bounds = depth = surface normal.
-		FVector MeshExtent = Ladder->LadderMesh->Bounds.BoxExtent;
-		FVector LocalNormal = (MeshExtent.X <= MeshExtent.Y) ? FVector(1.f, 0.f, 0.f) : FVector(0.f, 1.f, 0.f);
-		FVector WorldNormal = Ladder->GetActorRotation().RotateVector(LocalNormal);
-		WorldNormal.Z = 0.f;
-		WorldNormal.Normalize();
+		FVector WorldNormal = Ladder->GetLadderSurfaceNormal();
 		// Pick the direction toward the ladder from the player's side
 		FVector ToLadder = LadderCenter - FVector(SnapXY.X, SnapXY.Y, 0.f);
 		ToLadder.Z = 0.f;
@@ -2030,18 +2216,11 @@ void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
 		Ladder->BottomAttachPoint->GetRelativeLocation().Z);
 	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] BottomAttachPoint world: (%.1f, %.1f, %.1f)"),
 		Ladder->GetBottomAttachLocation().X, Ladder->GetBottomAttachLocation().Y, Ladder->GetBottomAttachLocation().Z);
-	if (Ladder->LadderMesh)
 	{
-		FVector MeshWorldPos = Ladder->LadderMesh->GetComponentLocation();
-		FVector MeshRelPos = Ladder->LadderMesh->GetRelativeLocation();
-		FVector MeshCenter = Ladder->LadderMesh->Bounds.Origin;
-		FVector MeshExtent = Ladder->LadderMesh->Bounds.BoxExtent;
-		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderMesh relative: (%.1f, %.1f, %.1f)"),
-			MeshRelPos.X, MeshRelPos.Y, MeshRelPos.Z);
-		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderMesh world: (%.1f, %.1f, %.1f)"),
-			MeshWorldPos.X, MeshWorldPos.Y, MeshWorldPos.Z);
-		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderMesh bounds center: (%.1f, %.1f, %.1f) extent: (%.1f, %.1f, %.1f)"),
-			MeshCenter.X, MeshCenter.Y, MeshCenter.Z, MeshExtent.X, MeshExtent.Y, MeshExtent.Z);
+		FVector Center = Ladder->GetLadderCenter();
+		FVector Normal = Ladder->GetLadderSurfaceNormal();
+		UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] LadderCenter: (%.1f, %.1f, %.1f) SurfaceNormal: (%.2f, %.2f, %.2f)"),
+			Center.X, Center.Y, Center.Z, Normal.X, Normal.Y, Normal.Z);
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[LADDER-DIAG] Player position (no teleport): (%.1f, %.1f, %.1f)"),
 		GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
@@ -2075,9 +2254,19 @@ void AZP_GraceCharacter::ExitLadder(bool bExitTop)
 	{
 		if (bExitTop)
 		{
-			// Reached top: keep current XY, raise Z to upper floor.
+			// Reached top: raise Z and push toward/past the ladder onto the upper floor.
 			FVector ExitLoc = GetActorLocation();
 			ExitLoc.Z = Ladder->GetTopExitLocation().Z + GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+			// Push 120 UU toward the ladder center (and past it onto the upper floor).
+			// Player is ~75 UU from center, so 120 UU push = ~45 UU past center.
+			FVector ToLadder = Ladder->GetLadderCenter() - GetActorLocation();
+			ToLadder.Z = 0.f;
+			if (ToLadder.SizeSquared() > 1.f)
+			{
+				ExitLoc += ToLadder.GetSafeNormal() * 120.f;
+			}
+
 			SetActorLocation(ExitLoc);
 		}
 		// Otherwise (Space dismount): keep current position — don't snap to bottom.
@@ -2115,6 +2304,8 @@ void AZP_GraceCharacter::ExitLadder(bool bExitTop)
 	bOnLadder = false;
 	ActiveLadderActor = nullptr;
 	LadderClimbInput = 0.f;
+	bLadderMovingToRung = false;
+	LadderTargetRungZ = 0.f;
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ExitLadder: Dismounted (top=%d)"), bExitTop);
 }

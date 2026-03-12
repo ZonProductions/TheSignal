@@ -5,7 +5,7 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session: Session 50 — Ladder system MVP complete. Hold-to-climb (W/S must be held), top bound lowered 80 UU (hands at rung level), Space dismount position-aware (upper half=top exit, lower half=drop), camera faces mesh surface perpendicular (consistent every time), top exit keeps XY + raises Z. Multiple dead ends: ClimbDirection arrow camera (misconfigured), XY push on exit (wrong direction), TopExitPoint teleport (baked BP values), auto-exit (overcomplicated).
+- Last session: Sessions 51-52 — Ladder system polished. Modular style system (5 styles, per-instance EditAnywhere). Mesh alignment fixed (components at origin, mesh geometry handles X offset). Position-driven animation (anim time mapped from HeightInLadder, hands sync to rungs). Discrete rung-to-rung movement (committed steps, no stopping mid-rung). Top exit push (120 UU toward ladder center onto upper floor). Fixed centering (perpendicular snap from surface normal, not approach direction). Rhythmic sine-based speed per rung step. Diagnostic logging for rung/hand mapping.
 - Date: 2026-03-11
 
 ## CAMPAIGN BUILD
@@ -991,11 +991,16 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
 - Priority: HIGH
 - Category: Gameplay
 - Notes:
-  - MVP complete (sessions 47-50). Full C++ implementation in ZP_Ladder + ZP_GraceCharacter.
+  - MVP (sessions 47-50) + polish (sessions 51-52). Full C++ in ZP_Ladder + ZP_GraceCharacter.
+  - Modular style system: EZP_LadderStyle enum (1-5), per-instance EditAnywhere, LadderHeight auto-adjusts.
+  - Mesh assembly: ISM rungs + SM rails, mesh geometry handles positioning (no component X offsets).
+  - Position-driven animation: anim time mapped from HeightInLadder, hands sync exactly to rungs.
+  - Discrete rung-to-rung movement: committed steps (23.5 UU each), no stopping mid-rung, sine speed curve.
+  - Top exit: Z raise + 120 UU push toward ladder center onto upper floor.
+  - Centering: perpendicular snap from surface normal (approach-angle independent).
   - Hold-to-climb (W/S), Space dismount (position-aware), camera locked to surface perpendicular.
-  - Top bound -80 UU keeps hands at rung level. Top exit keeps XY, raises Z.
   - BP_Ladder in Maps_BigCompany stairwell with floor mesh at roof level.
-  - Polish remaining: mount/dismount anims, arm reach anims (LADDER-005), ClimbDirection arrow fix.
+  - Remaining: mount/dismount anims (LADDER-005), ClimbDirection arrow fix, per-style mesh pivot tuning (styles 1/5).
 
 ### TICKET-057 — Combination Lock System (Safes)
 - Status: PLANNED

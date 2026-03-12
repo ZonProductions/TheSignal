@@ -5,8 +5,16 @@
 #include "ZP_PlayerController.h"
 #include "ZP_HUDWidget.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/InstancedStaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Engine/StaticMesh.h"
+
+// Spacing values from BP_MasterLadder (consistent across all 5 styles)
+static constexpr float FootBarSpread = 23.5f;
+static constexpr float SideDistance = 23.5f;
+// NOTE: Rail meshes already contain correct X offsets in their geometry (~±28 UU from origin).
+// Components are placed at root origin (0,0,0) — no additional X offset needed.
 
 AZP_Ladder::AZP_Ladder()
 {
@@ -15,17 +23,49 @@ AZP_Ladder::AZP_Ladder()
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	RootComponent = DefaultSceneRoot;
 
+	// LadderMesh: kept for backward compat (BP instances may reference it).
+	// No mesh, no collision, no visibility — purely a placeholder.
 	LadderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LadderMesh"));
 	LadderMesh->SetupAttachment(RootComponent);
-	LadderMesh->SetCollisionProfileName(TEXT("BlockAll"));
+	LadderMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LadderMesh->SetVisibility(false);
+	LadderMesh->SetCastShadow(false);
 
-	// Default mesh — can be overridden per-instance in editor
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultLadderMesh(
-		TEXT("/Game/office_BigCompanyArchViz/StaticMesh/Probs/SM_Ladder"));
-	if (DefaultLadderMesh.Succeeded())
-	{
-		LadderMesh->SetStaticMesh(DefaultLadderMesh.Object);
-	}
+	// --- Modular visual components (hierarchy mirrors BP_MasterLadder) ---
+
+	// Footbar rungs — ISM attached to root
+	FootBarISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("FootBarISM"));
+	FootBarISM->SetupAttachment(RootComponent);
+	FootBarISM->SetRelativeLocation(FVector(0.f, 0.f, -2.059338f)); // from BP_MasterLadder
+	FootBarISM->SetCollisionProfileName(TEXT("BlockAll"));
+
+	// Left rail chain: BotL → MidL (ISM) → TopL
+	BottomLeftRail = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BottomLeftRail"));
+	BottomLeftRail->SetupAttachment(RootComponent);
+	BottomLeftRail->SetCollisionProfileName(TEXT("BlockAll"));
+
+	MidLeftISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MidLeftISM"));
+	MidLeftISM->SetupAttachment(BottomLeftRail); // child of BotL (like BP_MasterLadder)
+	MidLeftISM->SetRelativeLocation(FVector(0.f, 0.f, SideDistance));
+	MidLeftISM->SetCollisionProfileName(TEXT("BlockAll"));
+
+	TopLeftCap = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TopLeftCap"));
+	TopLeftCap->SetupAttachment(RootComponent); // attach to root, position manually
+	TopLeftCap->SetCollisionProfileName(TEXT("BlockAll"));
+
+	// Right rail chain: BotR → MidR (ISM) → TopR
+	BottomRightRail = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BottomRightRail"));
+	BottomRightRail->SetupAttachment(RootComponent);
+	BottomRightRail->SetCollisionProfileName(TEXT("BlockAll"));
+
+	MidRightISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MidRightISM"));
+	MidRightISM->SetupAttachment(BottomRightRail); // child of BotR
+	MidRightISM->SetRelativeLocation(FVector(0.f, 0.f, SideDistance));
+	MidRightISM->SetCollisionProfileName(TEXT("BlockAll"));
+
+	TopRightCap = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TopRightCap"));
+	TopRightCap->SetupAttachment(RootComponent);
+	TopRightCap->SetCollisionProfileName(TEXT("BlockAll"));
 
 	// Arrow shows the direction player faces while climbing (points INTO ladder surface)
 	ClimbDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ClimbDirection"));
@@ -36,19 +76,14 @@ AZP_Ladder::AZP_Ladder()
 	// Bottom: where player mounts from ground level
 	BottomAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("BottomAttachPoint"));
 	BottomAttachPoint->SetupAttachment(RootComponent);
-	// X=-100: capsule radius=55, so player's back is 45 UU from ladder root.
-	// Prevents clipping into the wall behind the ladder.
-	// Y=0 — SM_Ladder mesh is centered at Y≈-1, essentially on-center.
 	BottomAttachPoint->SetRelativeLocation(FVector(-100.f, 0.f, 0.f));
 
-	// Top: where player exits after climbing up
+	// Top: where player exits after climbing up — Z auto-adjusted in BuildLadderAssembly
 	TopExitPoint = CreateDefaultSubobject<USceneComponent>(TEXT("TopExitPoint"));
 	TopExitPoint->SetupAttachment(RootComponent);
-	// Z=585 is just above the SM_Ladder mesh top (582.4 UU). ExitLadder adds
-	// capsule half-height so the player's feet land on the upper floor surface.
 	TopExitPoint->SetRelativeLocation(FVector(-100.f, 0.f, 585.f));
 
-	// Interaction trigger volume — tall box covering the ladder area
+	// Interaction trigger volume — auto-adjusted in BuildLadderAssembly
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(RootComponent);
 	InteractionVolume->SetBoxExtent(FVector(100.f, 100.f, 350.f));
@@ -57,21 +92,177 @@ AZP_Ladder::AZP_Ladder()
 	InteractionVolume->SetGenerateOverlapEvents(true);
 }
 
+// ---------- Geometry helpers ----------
+
+FVector AZP_Ladder::GetLadderCenter() const
+{
+	// Center between left/right rails — mesh geometry is symmetric around X=0
+	FVector LocalCenter(0.f, 0.f, LadderHeight * 0.5f);
+	return GetActorLocation() + GetActorRotation().RotateVector(LocalCenter);
+}
+
+FVector AZP_Ladder::GetLadderSurfaceNormal() const
+{
+	// Ladder surface is perpendicular to the local Y axis (the thin/depth dimension).
+	// Returns the +Y direction in world space. GraceCharacter picks +/- based on player position.
+	FVector WorldNormal = GetActorRotation().RotateVector(FVector(0.f, 1.f, 0.f));
+	WorldNormal.Z = 0.f;
+	WorldNormal.Normalize();
+	return WorldNormal;
+}
+
+// ---------- Mesh path resolution ----------
+
+FString AZP_Ladder::GetMeshPath(EZP_LadderStyle Style, const FString& PieceName)
+{
+	const int32 N = static_cast<int32>(Style) + 1; // enum is 0-4, folders are Ladder1-5
+	const FString BaseDir = FString::Printf(TEXT("/Game/LadderClimbingSystem/Meshes/Ladders/Ladder%d"), N);
+
+	// The pack has inconsistent naming across styles. Map each piece to its actual asset name.
+	if (PieceName == TEXT("FootBar"))
+	{
+		if (N == 2 || N == 4)
+			return BaseDir / FString::Printf(TEXT("SM_Ladder%d_Footbar"), N);
+		return BaseDir / FString::Printf(TEXT("SM_Ladder%d_FootBar"), N);
+	}
+	if (PieceName == TEXT("BottomLeft"))
+	{
+		return BaseDir / FString::Printf(TEXT("SM_Ladder%d_BottomLeft"), N);
+	}
+	if (PieceName == TEXT("BottomRight"))
+	{
+		if (N == 2)
+			return BaseDir / FString::Printf(TEXT("SM_Ladder%d_BottomRIght"), N);
+		return BaseDir / FString::Printf(TEXT("SM_Ladder%d_BottomRight"), N);
+	}
+	if (PieceName == TEXT("MidLeftWithoutPanel"))
+	{
+		if (N == 2)
+			return BaseDir / FString::Printf(TEXT("SM_Ladder%d_LeftMidWithoutPanel"), N);
+		return BaseDir / FString::Printf(TEXT("SM_Ladder%d_MidLeft_WithoutPanel"), N);
+	}
+	if (PieceName == TEXT("MidRightWithoutPanel"))
+	{
+		if (N == 2)
+			return BaseDir / FString::Printf(TEXT("SM_Ladder%d_RightMidWithoutPanel"), N);
+		return BaseDir / FString::Printf(TEXT("SM_Ladder%d_MidRight_WithoutPanel"), N);
+	}
+	if (PieceName == TEXT("TopLeft"))
+	{
+		if (N == 5)
+			return BaseDir / FString::Printf(TEXT("SM_Ladder%d_TopL"), N);
+		return BaseDir / FString::Printf(TEXT("SM_Ladder%d_TopLeft"), N);
+	}
+	if (PieceName == TEXT("TopRight"))
+	{
+		if (N == 5)
+			return BaseDir / FString::Printf(TEXT("SM_Ladder%d_TopR"), N);
+		return BaseDir / FString::Printf(TEXT("SM_Ladder%d_TopRight"), N);
+	}
+
+	return FString();
+}
+
+bool AZP_Ladder::StyleHasTopCaps(EZP_LadderStyle Style)
+{
+	return (Style == EZP_LadderStyle::Style2 || Style == EZP_LadderStyle::Style4 || Style == EZP_LadderStyle::Style5);
+}
+
+// ---------- Assembly ----------
+
+void AZP_Ladder::BuildLadderAssembly()
+{
+	// Load meshes for the selected style
+	auto LoadMesh = [](const FString& Path) -> UStaticMesh*
+	{
+		if (Path.IsEmpty()) return nullptr;
+		return LoadObject<UStaticMesh>(nullptr, *Path);
+	};
+
+	UStaticMesh* FootBarMesh = LoadMesh(GetMeshPath(LadderStyle, TEXT("FootBar")));
+	UStaticMesh* BotLeftMesh = LoadMesh(GetMeshPath(LadderStyle, TEXT("BottomLeft")));
+	UStaticMesh* BotRightMesh = LoadMesh(GetMeshPath(LadderStyle, TEXT("BottomRight")));
+	UStaticMesh* MidLeftMesh = LoadMesh(GetMeshPath(LadderStyle, TEXT("MidLeftWithoutPanel")));
+	UStaticMesh* MidRightMesh = LoadMesh(GetMeshPath(LadderStyle, TEXT("MidRightWithoutPanel")));
+	UStaticMesh* TopLeftMesh = StyleHasTopCaps(LadderStyle) ? LoadMesh(GetMeshPath(LadderStyle, TEXT("TopLeft"))) : nullptr;
+	UStaticMesh* TopRightMesh = StyleHasTopCaps(LadderStyle) ? LoadMesh(GetMeshPath(LadderStyle, TEXT("TopRight"))) : nullptr;
+
+	// Assign meshes
+	if (FootBarISM) { FootBarISM->SetStaticMesh(FootBarMesh); }
+	if (BottomLeftRail) { BottomLeftRail->SetStaticMesh(BotLeftMesh); }
+	if (BottomRightRail) { BottomRightRail->SetStaticMesh(BotRightMesh); }
+	if (MidLeftISM) { MidLeftISM->SetStaticMesh(MidLeftMesh); }
+	if (MidRightISM) { MidRightISM->SetStaticMesh(MidRightMesh); }
+	if (TopLeftCap) { TopLeftCap->SetStaticMesh(TopLeftMesh); TopLeftCap->SetVisibility(TopLeftMesh != nullptr); }
+	if (TopRightCap) { TopRightCap->SetStaticMesh(TopRightMesh); TopRightCap->SetVisibility(TopRightMesh != nullptr); }
+
+	// Clear previous instances
+	FootBarISM->ClearInstances();
+	MidLeftISM->ClearInstances();
+	MidRightISM->ClearInstances();
+
+	// Spawn rung instances: (0, 0, Z) relative to FootBarISM
+	float BarZ = 0.f;
+	while (BarZ < LadderHeight)
+	{
+		FootBarISM->AddInstance(FTransform(FVector(0.f, 0.f, BarZ)));
+		BarZ += FootBarSpread;
+	}
+
+	// Spawn mid rail section instances (replicating BP_MasterLadder AdjustHeight)
+	// MidL/R are children of BotL/R respectively. Instances placed at (0, 0, Z) relative to ISM.
+	// bSyncedFootBar=true: top bound = LadderHeight - FootBarSpread
+	const float MidTopZ = LadderHeight - FootBarSpread;
+	float SideZ = -23.5f; // LocalSideHeightStored initial from BP_MasterLadder
+	while (SideZ < MidTopZ)
+	{
+		MidLeftISM->AddInstance(FTransform(FVector(0.f, 0.f, SideZ)));
+		MidRightISM->AddInstance(FTransform(FVector(0.f, 0.f, SideZ)));
+		SideZ += SideDistance;
+	}
+
+	// Position top caps at ladder top (mesh geometry contains X offset)
+	if (TopLeftCap && TopLeftMesh)
+	{
+		TopLeftCap->SetRelativeLocation(FVector(0.f, 0.f, LadderHeight));
+	}
+	if (TopRightCap && TopRightMesh)
+	{
+		TopRightCap->SetRelativeLocation(FVector(0.f, 0.f, LadderHeight));
+	}
+
+	// Auto-adjust TopExitPoint, InteractionVolume based on LadderHeight
+	if (TopExitPoint)
+	{
+		TopExitPoint->SetRelativeLocation(FVector(-100.f, 0.f, LadderHeight));
+	}
+	if (InteractionVolume)
+	{
+		const float HalfHeight = LadderHeight * 0.5f;
+		InteractionVolume->SetBoxExtent(FVector(100.f, 100.f, HalfHeight + 50.f));
+		InteractionVolume->SetRelativeLocation(FVector(-100.f, 0.f, HalfHeight));
+	}
+}
+
+void AZP_Ladder::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	BuildLadderAssembly();
+}
+
 void AZP_Ladder::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Force volume size at runtime — overrides any baked BP values
-	InteractionVolume->SetBoxExtent(FVector(100.f, 100.f, 350.f));
-	InteractionVolume->SetRelativeLocation(FVector(-100.f, 0.f, 300.f));
+	// Rebuild at runtime to ensure correct state
+	BuildLadderAssembly();
 
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_Ladder::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_Ladder::OnOverlapEnd);
 
-	UE_LOG(LogTemp, Log, TEXT("[ZP-BUG] Ladder %s: BeginPlay — InteractionVolume extent=(%.0f, %.0f, %.0f) at (%.0f, %.0f, %.0f)"),
-		*GetName(),
-		InteractionVolume->GetScaledBoxExtent().X, InteractionVolume->GetScaledBoxExtent().Y, InteractionVolume->GetScaledBoxExtent().Z,
-		InteractionVolume->GetComponentLocation().X, InteractionVolume->GetComponentLocation().Y, InteractionVolume->GetComponentLocation().Z);
+	UE_LOG(LogTemp, Log, TEXT("[Ladder] %s: Style=%d Height=%.0f Rungs=%d"),
+		*GetName(), static_cast<int32>(LadderStyle), LadderHeight,
+		FootBarISM ? FootBarISM->GetInstanceCount() : 0);
 }
 
 float AZP_Ladder::GetBottomZ() const
@@ -106,17 +297,12 @@ FText AZP_Ladder::GetInteractionPrompt_Implementation()
 
 void AZP_Ladder::OnInteract_Implementation(ACharacter* Interactor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Ladder %s: OnInteract fired — Interactor=%s"),
+	UE_LOG(LogTemp, Warning, TEXT("[Ladder] %s: OnInteract — Interactor=%s"),
 		*GetName(), Interactor ? *Interactor->GetName() : TEXT("NULL"));
 
 	if (AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(Interactor))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Ladder %s: Calling Grace->EnterLadder()"), *GetName());
 		Grace->EnterLadder(this);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Ladder %s: Interactor is NOT GraceCharacter!"), *GetName());
 	}
 }
 
@@ -126,8 +312,6 @@ void AZP_Ladder::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 {
 	AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(OtherActor);
 	if (!Grace) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Ladder %s: Player entered interaction range"), *GetName());
 
 	Grace->SetCurrentInteractable(this);
 
@@ -140,12 +324,6 @@ void AZP_Ladder::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	{
 		FText Prompt = IZP_Interactable::Execute_GetInteractionPrompt(this);
 		PC->HUDWidget->ShowInteractionPrompt(Prompt);
-		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Ladder %s: Showing prompt '%s'"), *GetName(), *Prompt.ToString());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Ladder %s: No PC/HUDWidget — can't show prompt (PC=%s, HUD=%s)"),
-			*GetName(), PC ? TEXT("OK") : TEXT("NULL"), (PC && PC->HUDWidget) ? TEXT("OK") : TEXT("NULL"));
 	}
 }
 
@@ -154,8 +332,6 @@ void AZP_Ladder::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Other
 {
 	AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(OtherActor);
 	if (!Grace) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Ladder %s: Player left interaction range"), *GetName());
 
 	Grace->ClearCurrentInteractable(this);
 

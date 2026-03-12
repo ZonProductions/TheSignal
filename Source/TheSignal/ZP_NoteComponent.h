@@ -5,9 +5,10 @@
 /**
  * UZP_NoteComponent
  *
- * Purpose: Tracks notes/documents the player has collected. Lives on Grace.
- *          Notes are displayed in the Notes tab of the inventory menu.
- *          Notes with bIsCode feed into the combination safe system.
+ * Purpose: Per-character interface to the global note collection.
+ *          Delegates storage to UZP_NoteSubsystem (GameInstance lifetime)
+ *          so notes persist across level transitions.
+ *          Lives on Grace. Notes tab reads from this component.
  *
  * Owner Subsystem: PlayerCharacter
  *
@@ -17,12 +18,15 @@
  *
  * Dependencies:
  *   - ZP_InventoryTabTypes.h (FZP_NoteEntry)
+ *   - ZP_NoteSubsystem (GameInstanceSubsystem — canonical storage)
  */
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "ZP_InventoryTabTypes.h"
 #include "ZP_NoteComponent.generated.h"
+
+class UZP_NoteSubsystem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoteAdded, const FZP_NoteEntry&, Note);
 
@@ -34,7 +38,7 @@ class THESIGNAL_API UZP_NoteComponent : public UActorComponent
 public:
 	UZP_NoteComponent();
 
-	/** Add a note to the collection. Ignores duplicates (by NoteID). */
+	/** Add a note to the permanent collection. Ignores duplicates (by NoteID). */
 	UFUNCTION(BlueprintCallable, Category = "Notes")
 	void AddNote(const FZP_NoteEntry& Note);
 
@@ -45,22 +49,26 @@ public:
 	/** Returns the full note entry for a given ID, or nullptr if not found. */
 	const FZP_NoteEntry* GetNote(FName NoteID) const;
 
-	/** Returns all collected notes (read-only). */
+	/** Returns all collected notes (read-only). Reads from global subsystem. */
 	UFUNCTION(BlueprintCallable, Category = "Notes")
-	const TArray<FZP_NoteEntry>& GetNotes() const { return CollectedNotes; }
+	const TArray<FZP_NoteEntry>& GetNotes() const;
 
 	/** Returns all collected codes (notes where bIsCode is true). */
 	UFUNCTION(BlueprintCallable, Category = "Notes")
 	TArray<FZP_NoteEntry> GetCodes() const;
 
-	/** Fired when a new note is collected. */
+	/** Fired when a new note is collected (only fires on this component instance). */
 	UPROPERTY(BlueprintAssignable, Category = "Notes")
 	FOnNoteAdded OnNoteAdded;
 
-private:
-	UPROPERTY()
-	TArray<FZP_NoteEntry> CollectedNotes;
+protected:
+	virtual void BeginPlay() override;
 
-	/** Fast lookup set for deduplication. */
-	TSet<FName> CollectedNoteIDs;
+private:
+	/** Cached ref to the global note subsystem. Resolved in BeginPlay. */
+	UPROPERTY()
+	TObjectPtr<UZP_NoteSubsystem> NoteSubsystem;
+
+	/** Fallback empty array for when subsystem isn't available. */
+	static const TArray<FZP_NoteEntry> EmptyNotes;
 };

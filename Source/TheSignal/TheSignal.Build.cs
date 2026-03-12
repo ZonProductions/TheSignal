@@ -21,7 +21,8 @@ public class TheSignal : ModuleRules
 			"Niagara", // ZP_GrenadeProjectile explosion VFX
 			"RenderCore", // ZP_LipSyncComponent morph target GPU buffer rebuild
 			"RHI", // ZP_LipSyncComponent GMaxRHIShaderPlatform
-			"AudioMixer" // ZP_LipSyncComponent submix buffer listener for OVRLipSync PCM capture
+			"AudioMixer", // ZP_LipSyncComponent submix buffer listener for OVRLipSync PCM capture
+			"GameplayTags" // Notes bridge — FGameplayTag::RequestGameplayTag for Item.Note tag
 		});
 
 		// OVRLipSync C API — ThirdParty lib, NOT a UE plugin module dependency.
