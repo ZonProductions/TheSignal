@@ -33,6 +33,7 @@ class UStaticMeshComponent;
 class UBoxComponent;
 class UPointLightComponent;
 class AZP_LockableDoor;
+class AZP_InteractDoor;
 
 UCLASS(Blueprintable)
 class THESIGNAL_API AZP_CardReaderPanel : public AActor, public IZP_Interactable
@@ -64,9 +65,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
 	FText RequiredItemName = FText::FromString(TEXT("Key Card"));
 
-	/** The door this panel unlocks. Set per-instance in level editor. */
+	/** The lockable door this panel unlocks (slide/gate type). */
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "CardReader")
 	TObjectPtr<AZP_LockableDoor> LinkedDoor;
+
+	/** Radius to auto-detect and lock nearby InteractDoors at BeginPlay. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
+	float DoorLockRadius = 300.f;
 
 	/** Whether to remove the key item from inventory after use. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
@@ -94,6 +99,9 @@ protected:
 
 private:
 	bool bUnlocked = false;
+
+	/** InteractDoors auto-locked by this panel at BeginPlay. */
+	TArray<TWeakObjectPtr<AZP_InteractDoor>> AutoLockedDoors;
 
 	/** Check if the character has RequiredItemDA in their Moonville inventory. */
 	bool CheckPlayerHasItem(ACharacter* Character);

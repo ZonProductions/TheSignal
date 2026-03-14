@@ -68,6 +68,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
 	float InterpSpeed = 4.f;
 
+	/** If true, door cannot be opened until Unlock() is called (e.g. by a card reader). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
+	bool bLocked = false;
+
+	/** Unlock this door. Called by AZP_CardReaderPanel or other systems. */
+	UFUNCTION(BlueprintCallable, Category = "Door")
+	void Unlock();
+
+	// --- Trace-based door lookup ---
+
+	/** Given a DoorActor mesh, find the InteractDoor trigger that owns it. */
+	static AZP_InteractDoor* FindDoorForActor(AActor* Actor);
+
 	// --- IZP_Interactable ---
 
 	virtual FText GetInteractionPrompt_Implementation() override;
@@ -75,11 +88,15 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 
 private:
 	bool bIsOpen = false;
 	bool bIsAnimating = false;
+
+	/** Maps DoorActor mesh → owning InteractDoor trigger for trace-based lookup. */
+	static TMap<TWeakObjectPtr<AActor>, TWeakObjectPtr<AZP_InteractDoor>> DoorActorMap;
 
 	// Rotate mode
 	FRotator ClosedRotation;

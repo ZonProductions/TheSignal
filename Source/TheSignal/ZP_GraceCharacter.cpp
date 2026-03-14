@@ -10,6 +10,7 @@
 #include "ZP_PlayerController.h"
 #include "ZP_HUDWidget.h"
 #include "ZP_Interactable.h"
+#include "ZP_InteractDoor.h"
 #include "ZP_MapComponent.h"
 #include "ZP_NoteComponent.h"
 #include "ZP_InventoryTabTypes.h"
@@ -22,6 +23,7 @@
 #include "ZP_NPCInteractionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimSingleNodeInstance.h"
@@ -928,6 +930,30 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 
 					if (bMatchPickup || bMatchContainer)
 					{
+						// --- Loot Locker filtering ---
+						bool bSkipLoot = false;
+						if (bMatchContainer)
+						{
+							// Skip if already looted and empty
+							if (LootedEmptyLockers.Contains(FName(*HitActorName)))
+							{
+								UE_LOG(LogTemp, Log, TEXT("[LootLocker] %s is looted and empty — skipping"), *HitActorName);
+								bSkipLoot = true;
+							}
+							// Filter ammo for weapons player doesn't have (not briefcases)
+							else if (!bIsBriefcase)
+							{
+								FilterLockerAmmo(HitActor);
+								if (IsLockerInventoryEmpty(HitActor))
+								{
+									DisableLockerInteraction(HitActor);
+									bSkipLoot = true;
+								}
+							}
+						}
+
+						if (!bSkipLoot)
+						{
 						// Pre-load ALL overlapping briefcases before Interact().
 						// Moonville opens the CLOSEST overlap, which may differ from our trace target.
 						// Loading all ensures whichever briefcase Moonville picks has correct data.
@@ -990,12 +1016,20 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 						{
 							UE_LOG(LogTemp, Error, TEXT("[ZP-BUG] Moonville Interact() function NOT FOUND!"));
 						}
+						} // end if (!bSkipLoot)
 					}
 					else if (HitActor->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()))
 					{
 						// Line trace hit an IZP_Interactable (ladder, door, etc.) — interact directly
 						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Line trace hit IZP_Interactable: %s — calling OnInteract"), *HitActorName);
 						IZP_Interactable::Execute_OnInteract(HitActor, this);
+						return;
+					}
+					else if (AZP_InteractDoor* DoorTrigger = AZP_InteractDoor::FindDoorForActor(HitActor))
+					{
+						// Trace hit a door mesh — route to its InteractDoor trigger
+						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Line trace hit door mesh %s — routing to trigger %s"), *HitActorName, *DoorTrigger->GetName());
+						IZP_Interactable::Execute_OnInteract(DoorTrigger, this);
 						return;
 					}
 					else
@@ -1025,9 +1059,34 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 		CurrentInteractable.IsValid() ? CurrentInteractable->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()) : 0);
 	if (CurrentInteractable.IsValid() && CurrentInteractable->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2: IZP_Interactable — %s (class: %s)"), *CurrentInteractable->GetName(), *CurrentInteractable->GetClass()->GetName());
-		IZP_Interactable::Execute_OnInteract(CurrentInteractable.Get(), this);
-		return;
+		// For doors: require line-of-sight (player must be looking toward the door).
+		// Prevents door overlap from consuming E when player is looking at nearby lockers/containers.
+		bool bShouldInteract = true;
+		if (Cast<AZP_InteractDoor>(CurrentInteractable.Get()))
+		{
+			APlayerController* LOSCheck_PC = Cast<APlayerController>(GetController());
+			if (LOSCheck_PC)
+			{
+				FVector LOSCamLoc;
+				FRotator LOSCamRot;
+				LOSCheck_PC->GetPlayerViewPoint(LOSCamLoc, LOSCamRot);
+				FVector ToDoor = (CurrentInteractable->GetActorLocation() - LOSCamLoc).GetSafeNormal();
+				float Dot = FVector::DotProduct(LOSCamRot.Vector(), ToDoor);
+				bShouldInteract = (Dot > 0.5f); // ~60° cone
+				UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2 door LOS check: Dot=%.2f, Pass=%d"), Dot, bShouldInteract);
+			}
+		}
+
+		if (bShouldInteract)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2: IZP_Interactable — %s (class: %s)"), *CurrentInteractable->GetName(), *CurrentInteractable->GetClass()->GetName());
+			IZP_Interactable::Execute_OnInteract(CurrentInteractable.Get(), this);
+			return;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2: Door LOS check FAILED — skipping to let Moonville handle"));
+		}
 	}
 
 	// Check for NPC Interaction Component (CC-based NPCs that don't inherit from AZP_NPC)
@@ -1979,6 +2038,12 @@ void AZP_GraceCharacter::CheckContainerClosed()
 	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container CLOSED (bPlayerIsUsingActor=false) on %s"), *ContainerToCheck->GetName());
 	bContainerWasOpen = false;
 
+	// Check if loot locker is now empty — disable interaction if so
+	if (IsLockerInventoryEmpty(ContainerToCheck))
+	{
+		DisableLockerInteraction(ContainerToCheck);
+	}
+
 	// Sync briefcase data back to subsystem
 	if (ActiveBriefcaseActor.IsValid())
 	{
@@ -2050,6 +2115,233 @@ void AZP_GraceCharacter::UnequipMissingWeapon()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Weapon still in inventory — no action needed"));
 	}
+}
+
+// ===========================================================================
+// Loot Locker Filtering
+// ===========================================================================
+
+void AZP_GraceCharacter::FilterLockerAmmo(AActor* LockerActor)
+{
+	if (!LockerActor || !MoonvilleInventoryComp) return;
+
+	// Find the locker's inventory component (BP_InventoryActorComponent)
+	UActorComponent* LockerInvComp = nullptr;
+	for (UActorComponent* Comp : LockerActor->GetComponents())
+	{
+		if (Comp->GetClass()->GetName().Contains(TEXT("InventoryActorComponent")) ||
+			Comp->GetClass()->GetName().Contains(TEXT("InventoryComponent")))
+		{
+			LockerInvComp = Comp;
+			break;
+		}
+	}
+	if (!LockerInvComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LootLocker] No inventory component found on %s"), *LockerActor->GetName());
+		return;
+	}
+
+	// Find ItemSlots array on locker
+	FProperty* SlotsProp = LockerInvComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	if (!SlotsProp) return;
+	FArrayProperty* ArrayProp = CastField<FArrayProperty>(SlotsProp);
+	if (!ArrayProp) return;
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(LockerInvComp));
+	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
+	if (!StructInner) return;
+
+	// Find Item_ field in slot struct
+	FObjectProperty* ItemObjProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("Item_")))
+		{
+			ItemObjProp = CastField<FObjectProperty>(*It);
+			break;
+		}
+	}
+	if (!ItemObjProp) return;
+
+	// Collect ammo items to remove
+	TArray<UObject*> AmmoToRemove;
+	for (int32 i = 0; i < ArrayHelper.Num(); i++)
+	{
+		void* ElementData = ArrayHelper.GetRawPtr(i);
+		UObject* SlotItem = ItemObjProp->GetObjectPropertyValue(ItemObjProp->ContainerPtrToValuePtr<void>(ElementData));
+		if (!SlotItem) continue;
+
+		FString ItemName = SlotItem->GetName();
+		// Only filter ammo items
+		if (!ItemName.Contains(TEXT("Ammo"))) continue;
+
+		if (!PlayerHasWeaponForAmmo(ItemName))
+		{
+			AmmoToRemove.Add(SlotItem);
+			UE_LOG(LogTemp, Log, TEXT("[LootLocker] Filtering out %s — player has no matching weapon"), *ItemName);
+		}
+	}
+
+	// Remove filtered ammo via Moonville API
+	UFunction* RemoveFunc = LockerInvComp->FindFunction(FName("RemoveItemByDataAsset"));
+	if (!RemoveFunc)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LootLocker] RemoveItemByDataAsset not found on locker inv comp"));
+		return;
+	}
+
+	for (UObject* AmmoDA : AmmoToRemove)
+	{
+		struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
+		Params.ItemDataAsset = AmmoDA;
+		Params.AmountToRemove = 999; // Remove all stacks
+		LockerInvComp->ProcessEvent(RemoveFunc, &Params);
+		UE_LOG(LogTemp, Log, TEXT("[LootLocker] Removed %s from locker %s"), *AmmoDA->GetName(), *LockerActor->GetName());
+	}
+}
+
+bool AZP_GraceCharacter::PlayerHasWeaponForAmmo(const FString& AmmoItemName)
+{
+	if (!MoonvilleInventoryComp) return false;
+
+	// Ammo→Weapon mapping: ammo pattern → weapon patterns that consume it
+	struct FAmmoWeaponMapping
+	{
+		const TCHAR* AmmoPattern;
+		TArray<FString> WeaponPatterns;
+	};
+
+	static const FAmmoWeaponMapping Mappings[] = {
+		{ TEXT("9mm"),      { TEXT("Pistol"), TEXT("Viper") } },
+		{ TEXT("Buckshot"), { TEXT("Shotgun"), TEXT("Herrington"), TEXT("SRM") } },
+		{ TEXT("556"),      { TEXT("Rifle"), TEXT("AK"), TEXT("TR15") } },
+	};
+
+	// Determine which weapon patterns to look for
+	TArray<FString> RequiredWeaponPatterns;
+	for (const auto& M : Mappings)
+	{
+		if (AmmoItemName.Contains(M.AmmoPattern))
+		{
+			RequiredWeaponPatterns = M.WeaponPatterns;
+			break;
+		}
+	}
+	if (RequiredWeaponPatterns.Num() == 0)
+	{
+		// Unknown ammo type — don't filter it out
+		return true;
+	}
+
+	// Check player's ItemSlots and ShortcutSlots for any matching weapon
+	auto CheckSlotArray = [&](const FName& ArrayName) -> bool
+	{
+		FProperty* SlotsProp = MoonvilleInventoryComp->GetClass()->FindPropertyByName(ArrayName);
+		if (!SlotsProp) return false;
+		FArrayProperty* ArrProp = CastField<FArrayProperty>(SlotsProp);
+		if (!ArrProp) return false;
+		FScriptArrayHelper ArrHelper(ArrProp, SlotsProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp));
+		FStructProperty* StructInner = CastField<FStructProperty>(ArrProp->Inner);
+		if (!StructInner) return false;
+
+		FObjectProperty* ItemObjProp = nullptr;
+		for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+		{
+			if (It->GetName().Contains(TEXT("Item_")))
+			{
+				ItemObjProp = CastField<FObjectProperty>(*It);
+				break;
+			}
+		}
+		if (!ItemObjProp) return false;
+
+		for (int32 i = 0; i < ArrHelper.Num(); i++)
+		{
+			void* ElementData = ArrHelper.GetRawPtr(i);
+			UObject* SlotItem = ItemObjProp->GetObjectPropertyValue(ItemObjProp->ContainerPtrToValuePtr<void>(ElementData));
+			if (!SlotItem) continue;
+
+			FString SlotItemName = SlotItem->GetName();
+			for (const FString& Pattern : RequiredWeaponPatterns)
+			{
+				if (SlotItemName.Contains(Pattern))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	};
+
+	return CheckSlotArray(FName("ItemSlots")) || CheckSlotArray(FName("ShortcutSlots"));
+}
+
+bool AZP_GraceCharacter::IsLockerInventoryEmpty(AActor* LockerActor)
+{
+	if (!LockerActor) return true;
+
+	// Find locker's inventory component
+	UActorComponent* LockerInvComp = nullptr;
+	for (UActorComponent* Comp : LockerActor->GetComponents())
+	{
+		if (Comp->GetClass()->GetName().Contains(TEXT("InventoryActorComponent")) ||
+			Comp->GetClass()->GetName().Contains(TEXT("InventoryComponent")))
+		{
+			LockerInvComp = Comp;
+			break;
+		}
+	}
+	if (!LockerInvComp) return true;
+
+	// Check ItemSlots for any non-null items
+	FProperty* SlotsProp = LockerInvComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	if (!SlotsProp) return true;
+	FArrayProperty* ArrayProp = CastField<FArrayProperty>(SlotsProp);
+	if (!ArrayProp) return true;
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(LockerInvComp));
+	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
+	if (!StructInner) return true;
+
+	FObjectProperty* ItemObjProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("Item_")))
+		{
+			ItemObjProp = CastField<FObjectProperty>(*It);
+			break;
+		}
+	}
+	if (!ItemObjProp) return true;
+
+	for (int32 i = 0; i < ArrayHelper.Num(); i++)
+	{
+		void* ElementData = ArrayHelper.GetRawPtr(i);
+		UObject* SlotItem = ItemObjProp->GetObjectPropertyValue(ItemObjProp->ContainerPtrToValuePtr<void>(ElementData));
+		if (SlotItem)
+		{
+			return false; // Found an item — not empty
+		}
+	}
+
+	return true;
+}
+
+void AZP_GraceCharacter::DisableLockerInteraction(AActor* LockerActor)
+{
+	if (!LockerActor) return;
+
+	// Disable all sphere colliders on the locker (Moonville's InteractionArea)
+	TArray<USphereComponent*> Spheres;
+	LockerActor->GetComponents(Spheres);
+	for (USphereComponent* S : Spheres)
+	{
+		S->SetGenerateOverlapEvents(false);
+		S->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		UE_LOG(LogTemp, Log, TEXT("[LootLocker] Disabled interaction sphere %s on %s"), *S->GetName(), *LockerActor->GetName());
+	}
+
+	LootedEmptyLockers.Add(FName(*LockerActor->GetName()));
+	UE_LOG(LogTemp, Log, TEXT("[LootLocker] Locker %s marked as looted and empty"), *LockerActor->GetName());
 }
 
 // ===========================================================================

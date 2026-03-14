@@ -18,6 +18,7 @@ AZP_KeyPickup::AZP_KeyPickup()
 
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
 	PickupMesh->SetupAttachment(Root);
+	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(Root);

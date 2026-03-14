@@ -2,6 +2,8 @@
 
 #include "ZP_CardReaderPanel.h"
 #include "ZP_LockableDoor.h"
+#include "ZP_InteractDoor.h"
+#include "EngineUtils.h"
 #include "ZP_GraceCharacter.h"
 #include "ZP_PlayerController.h"
 #include "ZP_HUDWidget.h"
@@ -19,6 +21,7 @@ AZP_CardReaderPanel::AZP_CardReaderPanel()
 
 	PanelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PanelMesh"));
 	PanelMesh->SetupAttachment(Root);
+	PanelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(Root);
@@ -42,10 +45,25 @@ void AZP_CardReaderPanel::BeginPlay()
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_CardReaderPanel::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_CardReaderPanel::OnOverlapEnd);
 
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Ready — RequiredItem=%s, LinkedDoor=%s"),
+	// Auto-lock any InteractDoors within DoorLockRadius
+	FVector MyLocation = GetActorLocation();
+	for (TActorIterator<AZP_InteractDoor> It(GetWorld()); It; ++It)
+	{
+		AZP_InteractDoor* Door = *It;
+		if (FVector::Dist(MyLocation, Door->GetActorLocation()) <= DoorLockRadius)
+		{
+			Door->bLocked = true;
+			AutoLockedDoors.Add(Door);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Auto-locked door %s (dist=%.0f)"),
+				*GetName(), *Door->GetName(), FVector::Dist(MyLocation, Door->GetActorLocation()));
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Ready — RequiredItem=%s, LinkedDoor=%s, AutoLockedDoors=%d"),
 		*GetName(),
 		*RequiredItemName.ToString(),
-		LinkedDoor ? *LinkedDoor->GetName() : TEXT("NONE"));
+		LinkedDoor ? *LinkedDoor->GetName() : TEXT("NONE"),
+		AutoLockedDoors.Num());
 }
 
 // --- IZP_Interactable ---
@@ -101,13 +119,15 @@ void AZP_CardReaderPanel::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 	AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(OtherActor);
 	if (!Grace) return;
 
+	// Don't register as interactable once unlocked — let the door handle E-press
+	if (bUnlocked) return;
+
 	Grace->SetCurrentInteractable(this);
 
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(Grace->GetController());
 	if (PC && PC->HUDWidget)
 	{
-		PC->HUDWidget->ShowInteractionPrompt(bUnlocked ?
-			FText::FromString(TEXT("Already Unlocked")) : PromptText);
+		PC->HUDWidget->ShowInteractionPrompt(PromptText);
 	}
 }
 
@@ -287,9 +307,21 @@ void AZP_CardReaderPanel::UseKey(ACharacter* Character)
 			*GetName(), *LinkedDoor->GetName(),
 			*UEnum::GetValueAsString(LinkedDoor->GetDoorState()));
 	}
-	else
+
+	// Unlock all auto-locked InteractDoors
+	for (auto& DoorRef : AutoLockedDoors)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] CardReaderPanel %s: LinkedDoor is NULL at UseKey time!"),
+		if (DoorRef.IsValid())
+		{
+			DoorRef->Unlock();
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: InteractDoor %s UNLOCKED"),
+				*GetName(), *DoorRef->GetName());
+		}
+	}
+
+	if (!LinkedDoor && AutoLockedDoors.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] CardReaderPanel %s: No linked door at UseKey time!"),
 			*GetName());
 	}
 

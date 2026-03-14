@@ -5,8 +5,8 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session: Sessions 51-52 — Ladder system polished. Modular style system (5 styles, per-instance EditAnywhere). Mesh alignment fixed (components at origin, mesh geometry handles X offset). Position-driven animation (anim time mapped from HeightInLadder, hands sync to rungs). Discrete rung-to-rung movement (committed steps, no stopping mid-rung). Top exit push (120 UU toward ladder center onto upper floor). Fixed centering (perpendicular snap from surface normal, not approach direction). Rhythmic sine-based speed per rung step. Diagnostic logging for rung/hand mapping.
-- Date: 2026-03-11
+- Last session: Session 61 — Door system overhaul: trace-based detection (DoorActorMap), card reader auto-lock (DoorLockRadius=300UU, auto-open on unlock), door frame collision fix (auto-disable co-located frames). Loot locker filtering: ammo removed if player lacks weapon (9mm→Pistol, Buckshot→Shotgun, 556→Rifle), empty lockers disabled. Card reader/KeyPickup mesh collision fixed (NoCollision). Floor plan cleanup (1,915 actors deleted F1-F4). Building mirror operation attempted.
+- Date: 2026-03-14
 
 ## CAMPAIGN BUILD
 - **Vertical slice complete.** Core systems proven (player, combat, creatures, inventory, save/load, UI, interaction, lock/key).
@@ -253,6 +253,7 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - Assets: DA_IDCard, BP_LockableDoor, BP_CardReaderPanel, BP_KeyPickup (at /Game/Core/Actors/ and /Game/Core/Items/)
   - Working in TreatmentStation: pickup ID card → use card reader → chain fence slides open
   - Inventory search uses ItemSlots (main) + ShortcutSlots arrays via reflection
+  - **Session 61:** Card reader auto-locks nearby InteractDoors (DoorLockRadius=300UU). Unlock() auto-opens door. Card reader stops registering as interactable after unlock. Door frame collision auto-disabled on co-located StaticMeshActors. InteractDoor now supports bLocked + Unlock() + trace-based detection (DoorActorMap).
 
 ### TICKET-025 — Level Design — TreatmentStation Vertical Slice
 - Status: DONE
@@ -262,7 +263,7 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
 - Summary: All base functionality proven. Vertical slice complete — core systems validated (player, combat, creatures, inventory, save/load, UI, interaction, lock/key, NPC dialogue). Moving to campaign build.
 
 ### TICKET-026 — Audio — Vertical Slice Polish
-- Status: PLANNED
+- Status: DONE
 - Priority: HIGH
 - Category: Audio
 - Notes:
@@ -273,7 +274,7 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - Ship-quality — no placeholder audio
 
 ### TICKET-027 — Lighting + Atmosphere
-- Status: PLANNED
+- Status: DONE
 - Priority: HIGH
 - Category: Level Design
 - Notes:
@@ -906,7 +907,7 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - **Remaining:** Wire C++ leg count properties to BP_Monster_Pawn's Monster Randomizer (MCP, requires editor open). Create variant child BPs.
 
 ### TICKET-051 — In-Game Map System
-- Status: IN PROGRESS
+- Status: DONE
 - Priority: HIGH
 - Category: Gameplay
 - Notes:
@@ -956,7 +957,7 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - See `memory/lighting.md` for full documentation.
 
 ### TICKET-054 — Inventory Tab System (Maps / Inventory / Notes)
-- Status: PLANNED
+- Status: DONE
 - Priority: HIGH
 - Category: Gameplay
 - Notes:
@@ -988,6 +989,7 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
 
 ### TICKET-058 — Ladder Climbing System
 - Status: DONE
+- Status: DONE
 - Priority: HIGH
 - Category: Gameplay
 - Notes:
@@ -1001,6 +1003,18 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - Hold-to-climb (W/S), Space dismount (position-aware), camera locked to surface perpendicular.
   - BP_Ladder in Maps_BigCompany stairwell with floor mesh at roof level.
   - Remaining: mount/dismount anims (LADDER-005), ClimbDirection arrow fix, per-style mesh pivot tuning (styles 1/5).
+
+### TICKET-059 — BigCompany Room Doors (ConferenceSecretaryRoom, etc.)
+- Status: PLANNED
+- Priority: LOW
+- Category: Level Design
+- Notes:
+  - Room doors baked into room mesh (SM_ConferenceSecretaryRoom, etc.) — can't rotate separately
+  - Pack's demo level had auto-open doors that worked on walk-up proximity
+  - After InteractDoor system was built (session 35-37), room doors stopped working
+  - Need to check pack's original demo level in a fresh project to find how they set up room doors
+  - Likely need separate door mesh actors placed at room doorways
+  - Not top priority — cosmetic/level-design issue
 
 ### TICKET-057 — Combination Lock System (Safes)
 - Status: PLANNED

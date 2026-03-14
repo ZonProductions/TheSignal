@@ -3,6 +3,19 @@
 #include "ZP_InteractDoor.h"
 #include "ZP_GraceCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Engine/StaticMeshActor.h"
+#include "EngineUtils.h"
+
+// --- Static door lookup map ---
+TMap<TWeakObjectPtr<AActor>, TWeakObjectPtr<AZP_InteractDoor>> AZP_InteractDoor::DoorActorMap;
+
+AZP_InteractDoor* AZP_InteractDoor::FindDoorForActor(AActor* Actor)
+{
+	if (!Actor) return nullptr;
+	auto* Found = DoorActorMap.Find(Actor);
+	if (Found && Found->IsValid()) return Found->Get();
+	return nullptr;
+}
 
 AZP_InteractDoor::AZP_InteractDoor()
 {
@@ -53,9 +66,42 @@ void AZP_InteractDoor::BeginPlay()
 		OpenLocation = ClosedLocation + SlideOffset;
 	}
 
+	// Register mesh → trigger mapping for trace-based interaction
+	DoorActorMap.Add(DoorActor, this);
+
+	// Disable collision on co-located actors (door frames).
+	// BigCompany pack frames have convex hulls that fill the doorway opening.
+	// Walls handle structural collision — frames are purely visual.
+	FVector DoorLoc = DoorActor->GetActorLocation();
+	AActor* DoorActorRaw = DoorActor.Get(); // Raw pointer for reliable comparison
+	for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It)
+	{
+		AActor* ItActor = Cast<AActor>(*It);
+		if (ItActor == DoorActorRaw) continue; // Skip the door panel itself
+		if (FVector::Dist(It->GetActorLocation(), DoorLoc) < 10.f)
+		{
+			UStaticMeshComponent* SMC = It->GetStaticMeshComponent();
+			if (SMC)
+			{
+				SMC->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: Disabled frame collision on %s (door panel is %s)"),
+					*GetName(), *It->GetName(), *DoorActorRaw->GetName());
+			}
+		}
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: Linked to %s (%s mode)"),
 		*GetName(), *DoorActor->GetName(),
 		OpenMode == EZP_InteractDoorMode::Rotate ? TEXT("Rotate") : TEXT("Slide"));
+}
+
+void AZP_InteractDoor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (DoorActor)
+	{
+		DoorActorMap.Remove(DoorActor);
+	}
+	Super::EndPlay(EndPlayReason);
 }
 
 void AZP_InteractDoor::Tick(float DeltaTime)
@@ -103,14 +149,20 @@ void AZP_InteractDoor::Tick(float DeltaTime)
 
 FText AZP_InteractDoor::GetInteractionPrompt_Implementation()
 {
-	// No prompt — doors are self-evident
+	if (bLocked)
+	{
+		return FText::FromString(TEXT("Locked"));
+	}
 	return FText::GetEmpty();
 }
 
 void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 {
-	if (!DoorActor)
+	if (!DoorActor) return;
+
+	if (bLocked)
 	{
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: LOCKED — ignoring interact"), *GetName());
 		return;
 	}
 
@@ -120,6 +172,21 @@ void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: %s"),
 		*GetName(), bIsOpen ? TEXT("Opening") : TEXT("Closing"));
+}
+
+void AZP_InteractDoor::Unlock()
+{
+	bLocked = false;
+
+	// Auto-open the door when unlocked (same behavior as AZP_LockableDoor)
+	if (!bIsOpen && DoorActor)
+	{
+		bIsOpen = true;
+		bIsAnimating = true;
+		SetActorTickEnabled(true);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: UNLOCKED + OPENED"), *GetName());
 }
 
 // --- Overlap ---

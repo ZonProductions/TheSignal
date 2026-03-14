@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-03-12T11:34:10",
+  "created": "2026-03-14T04:29:55",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -59536,8 +59536,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:0e752450e71d6f7293afb5c28c5c864d328000f45f20bbdf10ba96cbdda5a96a",
-      "size": 18642952
+      "hash": "sha256:033ea53897187e3dab2ff1468052921023d11edbc88aaa59d674f1890a5eda4f",
+      "size": 29856952
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",

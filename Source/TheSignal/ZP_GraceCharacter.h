@@ -407,6 +407,23 @@ private:
 	/** Weapon classes that have been fully consumed (thrown grenades). Blocks re-equip. */
 	TSet<TSubclassOf<AActor>> ConsumedWeaponClasses;
 
+	// --- Loot Locker Filtering ---
+
+	/** Lockers that have been opened and emptied — no longer interactable. */
+	TSet<FName> LootedEmptyLockers;
+
+	/** Remove ammo items from a locker for weapons the player doesn't own. */
+	void FilterLockerAmmo(AActor* LockerActor);
+
+	/** Returns true if the player has a weapon matching this ammo type. */
+	bool PlayerHasWeaponForAmmo(const FString& AmmoItemName);
+
+	/** Returns true if locker's inventory is empty. */
+	bool IsLockerInventoryEmpty(AActor* LockerActor);
+
+	/** Disable a locker's interaction sphere so it can't be reopened. */
+	void DisableLockerInteraction(AActor* LockerActor);
+
 	/** Reads the PDA_Item UObject from Moonville's ShortcutSlots[SlotIndex] via reflection. */
 	UObject* GetItemDAFromShortcutSlot(int32 SlotIndex);
 
