@@ -51,11 +51,11 @@ public:
 
 	/** Base walk speed. Grace is not a soldier — keep this grounded. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Walk")
-	float WalkSpeed = 115.0f;
+	float WalkSpeed = 138.0f;
 
 	/** Sprint speed. Panicked, not trained. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Sprint")
-	float SprintSpeed = 205.0f;
+	float SprintSpeed = 246.0f;
 
 	/** Braking deceleration when walking. Higher = stops faster. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Walk")
@@ -127,7 +127,7 @@ public:
 
 	/** Walk speed while crouched (cm/s). Slow, deliberate. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Crouch")
-	float CrouchWalkSpeed = 57.0f;
+	float CrouchWalkSpeed = 68.0f;
 
 	/** Interpolation speed for camera height when entering/exiting crouch. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Crouch")

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-03-14T04:29:55",
+  "created": "2026-03-15T01:17:16",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -22586,6 +22586,10 @@
     "Content/Core/LootTables/DA_LootTable_Locker.uasset": {
       "hash": "sha256:b6341296749142cbc771f2956e735334d7bb3386953fa216e4db2d7831a9838a",
       "size": 4005
+    },
+    "Content/Core/Maps/T_Map_F5.uasset": {
+      "hash": "sha256:5bb2b6371a3341b39cf0069cd154582d218ee5c434d0d09ac30d7280ad7520c9",
+      "size": 69920
     },
     "Content/Core/Materials/M_BulletHole.uasset": {
       "hash": "sha256:278b1f1a9295fd6b1afd94ddc038a56cc3b2536247f825d06f6387a52d0c368e",
@@ -59536,8 +59540,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:033ea53897187e3dab2ff1468052921023d11edbc88aaa59d674f1890a5eda4f",
-      "size": 29856952
+      "hash": "sha256:e00dd8e190b71d5fa6375bdf05662218202595c6f395fd8c88d44376777cb5d7",
+      "size": 27047013
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",
@@ -59660,8 +59664,8 @@
       "size": 112214
     },
     "Content/office_BigCompanyArchViz/Materials/MI_BrickMarble.uasset": {
-      "hash": "sha256:d7df3be3842e8fb556ad6a92baa3a919413acd722dd7aed08950bf23e911ee3d",
-      "size": 158880
+      "hash": "sha256:8e77797ef9cf7ea7eb2f97be4e5de81db5bfbb8bcc56214776024748b1a2b84f",
+      "size": 19917
     },
     "Content/office_BigCompanyArchViz/Materials/MI_BrickMarble2.uasset": {
       "hash": "sha256:2dd34703e381fefebe14350601d09383ddf4bb55c6aa5635aeeb9baad4082bf0",
@@ -60536,8 +60540,8 @@
       "size": 110602
     },
     "Content/office_BigCompanyArchViz/Materials/M_Highlight.uasset": {
-      "hash": "sha256:384b5314982615fbb5e202e07405d14ff63758c7945a7f7f3c21e64a997a2f54",
-      "size": 151900
+      "hash": "sha256:c0f46d527ed4fdb0f47681fa9f75947bd7f5e10b9de5a9bc6a13bb1c62ca730c",
+      "size": 39026
     },
     "Content/office_BigCompanyArchViz/Materials/M_Metal.uasset": {
       "hash": "sha256:2743ecc22cdb89e2a7eabc946980fb1624ff79b80dfefa2c9e345cff695747c4",

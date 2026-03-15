@@ -52,9 +52,29 @@ public:
 
 	// --- Config ---
 
-	/** Which map area this pickup unlocks. Must match an AZP_MapVolume's AreaID. */
+	/** Which map area this pickup unlocks. Auto-generated if empty. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
 	FName AreaID;
+
+	/** Map texture to display. Set this to your exported PNG texture. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
+	TObjectPtr<UTexture2D> MapTexture;
+
+	/** Display name shown on the map widget. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
+	FText AreaDisplayName = FText::FromString(TEXT("Floor Map"));
+
+	/** Auto-spawn a MapVolume covering this floor. Disable if placing volumes manually. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
+	bool bAutoCreateVolume = true;
+
+	/** World bounds used to render the map texture. Set by Dev Tools export.
+	 *  If set (non-zero), volume uses these exact bounds instead of scanning geometry. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
+	FVector2D MapBoundsMin = FVector2D::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
+	FVector2D MapBoundsMax = FVector2D::ZeroVector;
 
 	/** Text shown on HUD when player is in range. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup")

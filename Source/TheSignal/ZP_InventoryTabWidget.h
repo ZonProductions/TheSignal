@@ -50,7 +50,7 @@ public:
 
 	/** Size of the player marker on the map (pixels). */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab|Map")
-	FVector2D TabMarkerSize = FVector2D(12.0f, 12.0f);
+	FVector2D TabMarkerSize = FVector2D(20.0f, 20.0f);
 
 	/** Color for the active tab button text. */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab|Style")

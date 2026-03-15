@@ -249,23 +249,45 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		if (TabPlayerMarker && MoonvilleMapImage)
 		{
 			const FGeometry MapGeo = MoonvilleMapImage->GetCachedGeometry();
-			const FVector2D MapSize = MapGeo.GetLocalSize();
-			if (MapSize.X < 1.0f || MapSize.Y < 1.0f) return;
+			const FVector2D ImgSize = MapGeo.GetLocalSize();
+			if (ImgSize.X < 1.0f || ImgSize.Y < 1.0f) return;
 
 			const FVector PlayerLoc = PC->GetPawn()->GetActorLocation();
-			const FVector2D UV = WorldToMapUV(PlayerLoc);
-			const FVector2D MarkerPos = UV * MapSize - (TabMarkerSize * 0.5f);
+			FVector2D UV = WorldToMapUV(PlayerLoc);
+			// DEBUG: override disabled — using real UV
+			//UV = FVector2D(0.5f, 0.5f);
 
+			// When showing map: reset image to fill the widget area
+			MoonvilleMapImage->SetRenderScale(FVector2D(1.0f, 1.0f));
+			MoonvilleMapImage->SetRenderTranslation(FVector2D::ZeroVector);
+			if (UCanvasPanelSlot* ImgSlot = Cast<UCanvasPanelSlot>(MoonvilleMapImage->Slot))
+			{
+				ImgSlot->SetPosition(FVector2D::ZeroVector);
+				ImgSlot->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+				ImgSlot->SetOffsets(FMargin(0, 0, 0, 0));
+			}
+
+			// Marker at UV position on the image (image now starts at 0,0)
+			const FVector2D MarkerPos = UV * ImgSize - (TabMarkerSize * 0.5f);
+
+			// Use slot position if canvas, otherwise render translation
 			if (UCanvasPanelSlot* MarkerSlot = Cast<UCanvasPanelSlot>(TabPlayerMarker->Slot))
 			{
 				MarkerSlot->SetPosition(MarkerPos);
+				MarkerSlot->SetSize(TabMarkerSize);
 			}
 			else
 			{
 				TabPlayerMarker->SetRenderTranslation(MarkerPos);
 			}
+			TabPlayerMarker->SetRenderTransformAngle(-PC->GetControlRotation().Yaw - 90.0f);
 
-			TabPlayerMarker->SetRenderTransformAngle(-PC->GetControlRotation().Yaw + 90.0f);
+			static int32 MapLogCounter = 0;
+			if (MapLogCounter++ % 60 == 0)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[MAP-TAB] UV=(%.3f,%.3f) ImgSize=(%.0f,%.0f) Marker=(%.0f,%.0f)"),
+					UV.X, UV.Y, ImgSize.X, ImgSize.Y, MarkerPos.X, MarkerPos.Y);
+			}
 		}
 	}
 }
@@ -466,9 +488,56 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 		UPanelWidget* MapParent = MoonvilleMapImage->GetParent();
 		if (MapParent)
 		{
-			// Player marker — small green square
+			// Player marker — green triangle (arrow) that rotates with player direction
 			TabPlayerMarker = NewObject<UImage>(this);
-			TabPlayerMarker->SetColorAndOpacity(FLinearColor::Green);
+			TabPlayerMarker->SetColorAndOpacity(FLinearColor(0.0f, 1.0f, 0.3f, 1.0f));
+			TabPlayerMarker->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
+
+			// Create sleek chevron arrow: outlined V-shape pointing up
+			UTexture2D* ArrowTex = UTexture2D::CreateTransient(32, 32, PF_B8G8R8A8);
+			if (ArrowTex)
+			{
+				FTexture2DMipMap& Mip = ArrowTex->GetPlatformData()->Mips[0];
+				Mip.BulkData.Lock(LOCK_READ_WRITE);
+				uint8* Data = (uint8*)Mip.BulkData.Realloc(32 * 32 * 4);
+				FMemory::Memzero(Data, 32 * 32 * 4);
+
+				auto SetPixel = [&](int32 X, int32 Y, uint8 A = 255) {
+					if (X >= 0 && X < 32 && Y >= 0 && Y < 32) {
+						int32 Idx = (Y * 32 + X) * 4;
+						Data[Idx] = Data[Idx+1] = Data[Idx+2] = 255;
+						Data[Idx+3] = A;
+					}
+				};
+
+				// Outer chevron (filled arrow with hollow interior)
+				// Tip at Y=2, wings spread to Y=26
+				int32 CX = 16;
+				for (int32 Y = 2; Y <= 26; Y++)
+				{
+					float T = (float)(Y - 2) / 24.0f;
+					int32 OuterW = FMath::RoundToInt(T * 13.0f);
+					// Inner cutout starts at Y=10, creating the hollow V
+					int32 InnerW = 0;
+					if (Y > 10)
+					{
+						float IT = (float)(Y - 10) / 16.0f;
+						InnerW = FMath::Max(0, FMath::RoundToInt(IT * 10.0f));
+					}
+
+					for (int32 X = CX - OuterW; X <= CX + OuterW; X++)
+					{
+						// Skip inner area to create hollow chevron
+						if (InnerW > 0 && X > CX - InnerW && X < CX + InnerW)
+							continue;
+						SetPixel(X, Y);
+					}
+				}
+
+				Mip.BulkData.Unlock();
+				ArrowTex->UpdateResource();
+				TabPlayerMarker->SetBrushFromTexture(ArrowTex);
+			}
 			TabPlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
 			MapParent->AddChild(TabPlayerMarker);
 
@@ -818,6 +887,6 @@ FVector2D UZP_InventoryTabWidget::WorldToMapUV(const FVector& WorldLocation) con
 	FVector2D UV;
 	UV.X = FMath::Clamp((WorldLocation.X - WorldMin.X) / WorldSize.X, 0.0f, 1.0f);
 	UV.Y = FMath::Clamp((WorldLocation.Y - WorldMin.Y) / WorldSize.Y, 0.0f, 1.0f);
-	UV.Y = 1.0f - UV.Y; // Flip Y for screen coordinates
+	// No Y flip — PNG export already renders Y-down (screen convention)
 	return UV;
 }

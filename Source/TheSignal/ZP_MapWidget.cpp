@@ -41,6 +41,19 @@ void UZP_MapWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		const FVector PlayerLoc = PC->GetPawn()->GetActorLocation();
 		const FVector2D UV = WorldToMapUV(PlayerLoc);
 
+		// Log every 60 frames (~1 second)
+		static int32 LogCounter = 0;
+		if (LogCounter++ % 60 == 0)
+		{
+			const FVector2D WorldMin = CachedVolume->GetWorldBoundsMin();
+			const FVector2D WorldMax = CachedVolume->GetWorldBoundsMax();
+			UE_LOG(LogTemp, Warning, TEXT("[MAP] Player=(%.0f,%.0f,%.0f) UV=(%.3f,%.3f) VolMin=(%.0f,%.0f) VolMax=(%.0f,%.0f) Canvas=(%.0f,%.0f)"),
+				PlayerLoc.X, PlayerLoc.Y, PlayerLoc.Z,
+				UV.X, UV.Y,
+				WorldMin.X, WorldMin.Y, WorldMax.X, WorldMax.Y,
+				CanvasSize.X, CanvasSize.Y);
+		}
+
 		if (UCanvasPanelSlot* MarkerSlot = Cast<UCanvasPanelSlot>(PlayerMarker->Slot))
 		{
 			const FVector2D MarkerPos = UV * CanvasSize - (MarkerSize * 0.5f);
@@ -176,7 +189,6 @@ FVector2D UZP_MapWidget::WorldToMapUV(const FVector& WorldLocation) const
 	FVector2D UV;
 	UV.X = FMath::Clamp((WorldLocation.X - WorldMin.X) / WorldSize.X, 0.0f, 1.0f);
 	UV.Y = FMath::Clamp((WorldLocation.Y - WorldMin.Y) / WorldSize.Y, 0.0f, 1.0f);
-	UV.Y = 1.0f - UV.Y; // Flip Y: world Y+ right, screen Y+ down
 	return UV;
 }
 
