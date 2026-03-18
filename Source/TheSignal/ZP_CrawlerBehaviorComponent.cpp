@@ -18,7 +18,14 @@ TArray<UZP_CrawlerBehaviorComponent*> UZP_CrawlerBehaviorComponent::AllCrawlers;
 
 UZP_CrawlerBehaviorComponent::UZP_CrawlerBehaviorComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UZP_CrawlerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	// Movement is handled by ZP_CrawlerMovementComponent::PhysFlying directly reading MoveTarget.
+	// No AddMovementInput needed.
 }
 
 void UZP_CrawlerBehaviorComponent::BeginPlay()
@@ -164,7 +171,7 @@ void UZP_CrawlerBehaviorComponent::InitializeBehavior()
 	// Reveal creature — was hidden during InitialPatrolDelay to prevent visible settling
 	Owner->SetActorHiddenInGame(false);
 
-	// Ensure Flying movement mode — our CMC only works in PhysFlying
+	// MOVE_Flying: our CMC PhysFlying handles ground pursuit with manual gravity.
 	CrawlerCMC->SetMovementMode(MOVE_Flying);
 
 	// Record spawn location as home for wandering (used when no patrol points)
@@ -206,10 +213,42 @@ void UZP_CrawlerBehaviorComponent::InitializeBehavior()
 		}
 	}
 
+	// Find ceiling above spawn — this is the creature's perch/ambush spot.
+	{
+		FHitResult CeilingHit;
+		FCollisionQueryParams CeilParams;
+		CeilParams.AddIgnoredActor(Owner);
+		const FVector CeilTraceStart = HomeLocation;
+		const FVector CeilTraceEnd = HomeLocation + FVector(0.f, 0.f, 3000.f);
+
+		if (GetWorld()->LineTraceSingleByChannel(CeilingHit, CeilTraceStart, CeilTraceEnd, ECC_GameTraceChannel1, CeilParams))
+		{
+			// Offset down from ceiling so capsule fits
+			float CapsuleHH = 90.f;
+			if (ACharacter* Char = Cast<ACharacter>(Owner))
+			{
+				if (UCapsuleComponent* Cap = Char->GetCapsuleComponent())
+				{
+					CapsuleHH = Cap->GetScaledCapsuleHalfHeight();
+				}
+			}
+			PerchLocation = CeilingHit.ImpactPoint - FVector(0.f, 0.f, CapsuleHH + 10.f);
+			UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Ceiling perch found at Z=%.0f (ceiling Z=%.0f)"),
+				*Owner->GetName(), PerchLocation.Z, CeilingHit.ImpactPoint.Z);
+		}
+		else
+		{
+			// No ceiling — perch at home (ground creature)
+			PerchLocation = HomeLocation;
+			UE_LOG(LogTemp, Warning, TEXT("[ZP_Behavior] %s: No ceiling found — perching at ground level"),
+				*Owner->GetName());
+		}
+	}
+
 	// Initialize stall tracking
 	StallCheckLocation = Owner->GetActorLocation();
 
-	// Start in Patrol state
+	// Start in Patrol state (moves to perch, then waits)
 	SetState(ECrawlerState::Patrol);
 
 	// Start eval timer
@@ -235,19 +274,13 @@ void UZP_CrawlerBehaviorComponent::InitializeBehavior()
 
 void UZP_CrawlerBehaviorComponent::StartHunt(AActor* Target)
 {
-	if (!Target)
-	{
-		return;
-	}
+	if (!Target) return;
 
+	// Ambush predator: StartHunt triggers an attack drop, not a chase.
 	ChaseTargetActor = Target;
-	LastKnownPlayerLocation = Target->GetActorLocation();
-	LastSeenTimer = 0.f;
-
-	// No Alert delay — creature sees you, comes for you. Period.
-	if (CurrentState != ECrawlerState::Hunt && CurrentState != ECrawlerState::Attack)
+	if (CurrentState != ECrawlerState::Attack)
 	{
-		SetState(ECrawlerState::Hunt);
+		BeginSlamAttack();
 	}
 }
 
@@ -268,7 +301,6 @@ void UZP_CrawlerBehaviorComponent::SetState(ECrawlerState NewState)
 
 	const ECrawlerState OldState = CurrentState;
 
-	// Clean up attack state when leaving Attack
 	if (OldState == ECrawlerState::Attack)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(AttackTimerHandle);
@@ -278,77 +310,20 @@ void UZP_CrawlerBehaviorComponent::SetState(ECrawlerState NewState)
 
 	CurrentState = NewState;
 	StateTimer = 0.f;
-	bIsPaused = false;
-	bPerching = false;
-	PerchTimer = 0.f;
-	bBeingObserved = false;
-	ObservedTimer = 0.f;
-
-	// Clear any waypoint pause timer on state change
-	GetWorld()->GetTimerManager().ClearTimer(WaypointPauseTimerHandle);
 
 	switch (NewState)
 	{
 	case ECrawlerState::Patrol:
+		// Return to ceiling perch
 		SetSpeed(PatrolSpeed);
 		bSeekingWall = false;
-		if (PatrolPoints.Num() > 0)
-		{
-			AdvanceToNextWaypoint();
-		}
-		else if (CrawlerCMC)
-		{
-			// Start with ground wander — wall climbing happens via 30% roll in eval tick.
-			// No immediate wall-seek on patrol entry. Ground movement is primary.
-			const FVector2D RandCircle = FMath::RandPointInCircle(WanderRadius);
-			const FVector WanderTarget = HomeLocation + FVector(RandCircle.X, RandCircle.Y, 0.f);
-			CrawlerCMC->MoveTarget = WanderTarget;
-			CrawlerCMC->MoveTargetActor = nullptr;
-		}
-		break;
-
-	case ECrawlerState::Hunt:
-		SetSpeed(HuntSpeed);
-		LastSeenTimer = 0.f;
-		// Force immediate retarget on Hunt entry
-		LastRetargetTime = 0.0;
-		DistanceAtLastRetarget = MAX_FLT;
-		if (CrawlerCMC && ChaseTargetActor)
-		{
-			CrawlerCMC->MoveTargetActor = ChaseTargetActor;
-		}
-		break;
-
-	case ECrawlerState::Stalk:
-		SetSpeed(StalkSpeed);
+		bReachedPerch = false;
 		if (CrawlerCMC)
 		{
-			if (IsOnGround())
-			{
-				// On ground — find a wall first, then climb to elevation
-				FVector WallPoint, WallNormal;
-				if (FindNearestWall(WallPoint, WallNormal))
-				{
-					CrawlerCMC->MoveTarget = WallPoint - WallNormal * 100.f;
-					CrawlerCMC->MoveTargetActor = nullptr;
-				}
-				else
-				{
-					// No walls — target elevated position as fallback
-					FVector StalkTarget = LastKnownPlayerLocation + FVector(0.f, 0.f, StalkVerticalBias);
-					StalkTarget.Z = FMath::Min(StalkTarget.Z, LastKnownPlayerLocation.Z + MaxStalkHeight);
-					CrawlerCMC->MoveTarget = StalkTarget;
-					CrawlerCMC->MoveTargetActor = nullptr;
-				}
-			}
-			else
-			{
-				// Already climbing/elevated — target elevated position
-				FVector StalkTarget = LastKnownPlayerLocation + FVector(0.f, 0.f, StalkVerticalBias);
-				StalkTarget.Z = FMath::Min(StalkTarget.Z, LastKnownPlayerLocation.Z + MaxStalkHeight);
-				CrawlerCMC->MoveTarget = StalkTarget;
-				CrawlerCMC->MoveTargetActor = nullptr;
-			}
+			CrawlerCMC->bOnCeiling = false;
+			CrawlerCMC->bClimbEnabled = true;
+			CrawlerCMC->MoveTarget = PerchLocation;
+			CrawlerCMC->MoveTargetActor = nullptr;
 		}
 		break;
 
@@ -356,21 +331,11 @@ void UZP_CrawlerBehaviorComponent::SetState(ECrawlerState NewState)
 		SetSpeed(0.f);
 		if (CrawlerCMC)
 		{
+			CrawlerCMC->bClimbEnabled = false;
+			CrawlerCMC->bOnCeiling = false;
 			CrawlerCMC->MoveTargetActor = nullptr;
 		}
 		break;
-	}
-
-	// Floor probe: only active during Patrol to avoid casual wandering into water/void.
-	// Hunt/Stalk creatures charge aggressively and don't care about edges.
-	if (CrawlerCMC)
-	{
-		CrawlerCMC->bFloorProbeActive = (NewState == ECrawlerState::Patrol);
-
-		// Climb control: only allow climbing when behavior explicitly wants it.
-		// Patrol: disabled (ground wander primary). Hunt/Stalk: enabled (walls as shortcuts/territory).
-		// Attack: disabled (stay on ground and fight).
-		CrawlerCMC->bClimbEnabled = (NewState == ECrawlerState::Hunt || NewState == ECrawlerState::Stalk);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: %s -> %s"),
@@ -384,47 +349,179 @@ void UZP_CrawlerBehaviorComponent::SetState(ECrawlerState NewState)
 void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 {
 	AActor* Owner = GetOwner();
-	if (!Owner || !CrawlerCMC)
+	if (!Owner || !CrawlerCMC) return;
+
+	// Death guard
+	if (UZP_HealthComponent* HC = Owner->FindComponentByClass<UZP_HealthComponent>())
 	{
-		return;
+		if (HC->bIsDead) return;
 	}
 
-	StateTimer += EvalInterval;
+	const FVector CurrentLocation = Owner->GetActorLocation();
 
-	// --- Update indoor/outdoor status each eval tick ---
-	UpdateIndoorStatus();
+	// --- Player detection: LOS + within range ---
+	bool bPlayerInRange = false;
 
-	// --- Pounce post-landing damage check (any state) ---
-	if (bPounceInFlight && CrawlerCMC && !CrawlerCMC->IsLaunching())
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
-		bPounceInFlight = false;
-
-		if (ChaseTargetActor)
+		if (APawn* PlayerPawn = PC->GetPawn())
 		{
-			const float Dist = FVector::Dist(Owner->GetActorLocation(), ChaseTargetActor->GetActorLocation());
-			if (Dist <= LungeDamageRadius)
+			const float Dist = FVector::Dist(CurrentLocation, PlayerPawn->GetActorLocation());
+			if (Dist <= DetectionRange)
 			{
-				ApplyAttackDamage(PounceDamage, 0.f);
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POUNCE HIT — %.0f damage at %.0f UU"),
-					*Owner->GetName(), PounceDamage, Dist);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POUNCE MISSED — player at %.0f UU (need %.0f)"),
-					*Owner->GetName(), Dist, LungeDamageRadius);
+				FHitResult LOSHit;
+				FCollisionQueryParams QueryParams;
+				QueryParams.AddIgnoredActor(Owner);
+
+				const bool bBlocked = GetWorld()->LineTraceSingleByChannel(
+					LOSHit, CurrentLocation, PlayerPawn->GetActorLocation(),
+					ECC_Visibility, QueryParams);
+				const bool bClearLOS = !bBlocked || LOSHit.GetActor() == PlayerPawn;
+
+				if (bClearLOS)
+				{
+					bPlayerInRange = true;
+					ChaseTargetActor = PlayerPawn;
+				}
 			}
 		}
 	}
 
-	// Stall detection — if creature hasn't moved enough, handle it
-	const FVector CurrentLocation = Owner->GetActorLocation();
-	StallTimer += EvalInterval;
-	if (StallTimer >= StallTimeout)
+	// --- State logic ---
+	switch (CurrentState)
 	{
-		// Dist2D: ignore vertical movement so falling creatures still stall-detect
-		const float Moved = FVector::Dist2D(CurrentLocation, StallCheckLocation);
-		if (Moved < StallDistance && !bPerching && !bBeingObserved
-			&& !(CrawlerCMC && CrawlerCMC->IsClimbing()))
+	case ECrawlerState::Patrol:
+	{
+		// PERCH ON CEILING AND WAIT
+
+		if (bReachedPerch || CrawlerCMC->bOnCeiling)
+		{
+			// On ceiling — check for player
+			bReachedPerch = true;
+			SetSpeed(0.f);
+			CrawlerCMC->bClimbEnabled = false;
+
+			if (bPlayerInRange)
+			{
+				// Player detected! Drop and attack.
+				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: PLAYER DETECTED — dropping from ceiling!"),
+					*Owner->GetName());
+				BeginSlamAttack();
+			}
+			break;
+		}
+
+		if (CrawlerCMC->IsClimbing())
+		{
+			// Climbing wall toward ceiling — let CMC handle
+			CrawlerCMC->MoveTarget = PerchLocation;
+			break;
+		}
+
+		// On ground — find wall and head toward it
+		if (!bSeekingWall)
+		{
+			FVector WallPoint, WallNormal;
+			if (FindNearestWall(WallPoint, WallNormal))
+			{
+				CrawlerCMC->MoveTarget = WallPoint - WallNormal * 50.f;
+				CrawlerCMC->MoveTargetActor = nullptr;
+				CrawlerCMC->bClimbEnabled = true;
+				bSeekingWall = true;
+			}
+			else
+			{
+				bReachedPerch = true;
+				SetSpeed(0.f);
+			}
+		}
+		break;
+	}
+
+	case ECrawlerState::Attack:
+	{
+		if (!CrawlerCMC) break;
+
+		// --- Check for slam impact (may complete between eval ticks) ---
+		if (CrawlerCMC->HasSlamImpacted())
+		{
+			CrawlerCMC->ClearSlamImpact();
+
+			if (ChaseTargetActor)
+			{
+				const float Dist = FVector::Dist(CurrentLocation, ChaseTargetActor->GetActorLocation());
+				if (Dist <= SlamDamageRadius)
+				{
+					ApplyAttackDamage(LungeDamage, 0.f);
+					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: SLAM HIT — %.0f damage at %.0f UU"),
+						*Owner->GetName(), LungeDamage, Dist);
+				}
+			}
+
+			LastAttackTime = GetWorld()->GetTimeSeconds();
+		}
+
+		// --- Ground chase: follow floor path, slam when close ---
+		if (!ChaseTargetActor)
+		{
+			SetState(ECrawlerState::Patrol);
+			break;
+		}
+
+		const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();
+		const float DistToPlayer = FVector::Dist(CurrentLocation, PlayerLoc);
+
+		// Player escaped — return to ceiling
+		if (DistToPlayer > DetectionRange * 3.f)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Player escaped — returning to ceiling"),
+				*Owner->GetName());
+			SetState(ECrawlerState::Patrol);
+			break;
+		}
+
+		// Stall detection — stuck on obstacle, give up
+		StallTimer += EvalInterval;
+		if (StallTimer >= 2.0f)
+		{
+			const float Moved = FVector::Dist2D(CurrentLocation, StallCheckLocation);
+			if (Moved < 30.f)
+			{
+				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: STUCK — returning to ceiling"),
+					*Owner->GetName());
+				SetState(ECrawlerState::Patrol);
+				break;
+			}
+			StallCheckLocation = CurrentLocation;
+			StallTimer = 0.f;
+		}
+
+		// Close enough to slam?
+		const float ZDiff = FMath::Abs(CurrentLocation.Z - PlayerLoc.Z);
+		const double Now = GetWorld()->GetTimeSeconds();
+		if (ZDiff <= 200.f && DistToPlayer <= AttackRange
+			&& (Now - LastAttackTime) >= AttackCooldown)
+		{
+			// Keep chasing during slam — no stop
+			CrawlerCMC->BeginSlam(0.f, DropAttackHoldTime, 0.f);
+			break;
+		}
+
+		// Chase on ground — no climbing
+		CrawlerCMC->bClimbEnabled = false;
+		SetSpeed(HuntSpeed);
+		CrawlerCMC->MoveTargetActor = ChaseTargetActor;
+		break;
+	}
+
+	} // end switch
+}
+
+// Dead code removed — old stall/threat/hunt/patrol eval logic.
+// Replaced by clean 2-state ambush predator above.
+
+#if 0 // === DEAD CODE START — kept for reference, will not compile ===
+static void DeadCode_OldEvalBehavior()
 		{
 			UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: STALL detected (moved %.1f UU in %.1fs) — re-evaluating target."),
 				*Owner->GetName(), Moved, StallTimeout);
@@ -545,21 +642,6 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 					}
 				}
 				break;
-			case ECrawlerState::Stalk:
-				{
-					// Stall during stalk — retreat away from last known and climb
-					FVector AwayDir = (CurrentLocation - LastKnownPlayerLocation).GetSafeNormal2D();
-					if (AwayDir.IsNearlyZero())
-					{
-						AwayDir = Owner->GetActorForwardVector().GetSafeNormal2D();
-					}
-					FVector StallTarget = CurrentLocation + AwayDir * 600.f + FVector(0.f, 0.f, StalkVerticalBias);
-					// Cap stalk height to prevent vertical spiraling
-					StallTarget.Z = FMath::Min(StallTarget.Z, LastKnownPlayerLocation.Z + MaxStalkHeight);
-					CrawlerCMC->MoveTarget = StallTarget;
-					CrawlerCMC->MoveTargetActor = nullptr;
-				}
-				break;
 			default:
 				break;
 			}
@@ -607,19 +689,13 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 								*Owner->GetName(), DistToPlayerThisTick);
 							StartHunt(PlayerPawn);
 						}
-						else if (CurrentState == ECrawlerState::Stalk)
-						{
-							ChaseTargetActor = PlayerPawn;
-							LastKnownPlayerLocation = PlayerPawn->GetActorLocation();
-							LastSeenTimer = 0.f;
-						}
 					}
 				}
 			}
 		}
 
-		// --- Threat accumulation (Patrol and Stalk only — Hunt already committed) ---
-		if (CurrentState == ECrawlerState::Patrol || CurrentState == ECrawlerState::Stalk)
+		// --- Threat accumulation (Patrol only — Hunt already committed) ---
+		if (CurrentState == ECrawlerState::Patrol)
 		{
 			if (bPlayerVisibleThisTick)
 			{
@@ -665,99 +741,57 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 	{
 	case ECrawlerState::Patrol:
 	{
-		if (bIsPaused)
+		// AMBUSH BEHAVIOR: find wall → climb to ceiling → perch and wait.
+		if (!CrawlerCMC) break;
+
+		if (bReachedPerch || CrawlerCMC->bOnCeiling)
 		{
-			return; // Waiting at waypoint/wander point, timer will advance us
+			// On ceiling — stop and wait for prey.
+			bReachedPerch = true;
+			SetSpeed(0.f);
+			CrawlerCMC->bClimbEnabled = false;
+			break;
 		}
 
-		if (PatrolPoints.Num() > 0)
+		if (CrawlerCMC->IsClimbing())
 		{
-			// --- Waypoint patrol (existing behavior) ---
-			const float DistToWaypoint = FVector::Dist2D(CurrentLocation, PatrolPoints[CurrentPatrolIndex]);
-			if (DistToWaypoint <= ArrivalThreshold)
+			// Currently climbing a wall toward ceiling — let CMC handle it.
+			// Target is the ceiling perch point (set when we started climbing).
+			break;
+		}
+
+		// On ground — find nearest wall and head toward it
+		if (!bSeekingWall)
+		{
+			FVector WallPoint, WallNormal;
+			if (FindNearestWall(WallPoint, WallNormal))
 			{
-				bIsPaused = true;
-				const float PauseDuration = FMath::RandRange(WaypointPauseMin, WaypointPauseMax);
+				// Target: slightly past the wall so we collide with it
+				const FVector WallTarget = WallPoint - WallNormal * 50.f;
+				CrawlerCMC->MoveTarget = WallTarget;
+				CrawlerCMC->MoveTargetActor = nullptr;
+				CrawlerCMC->bClimbEnabled = true;
+				bSeekingWall = true;
 
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Arrived at waypoint %d, pausing %.1fs."),
-					*Owner->GetName(), CurrentPatrolIndex, PauseDuration);
-
-				GetWorld()->GetTimerManager().SetTimer(
-					WaypointPauseTimerHandle,
-					[this]()
-					{
-						bIsPaused = false;
-						CurrentPatrolIndex = (CurrentPatrolIndex + 1) % PatrolPoints.Num();
-						AdvanceToNextWaypoint();
-					},
-					PauseDuration,
-					false
-				);
+				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Heading to wall for ceiling climb"),
+					*Owner->GetName());
+			}
+			else
+			{
+				// No wall found — just sit at home
+				bReachedPerch = true;
+				SetSpeed(0.f);
+				UE_LOG(LogTemp, Warning, TEXT("[ZP_Behavior] %s: No wall found — perching at ground"),
+					*Owner->GetName());
 			}
 		}
 		else
 		{
-			// --- Wall crawler patrol: seek walls, climb them, repeat ---
-			const float HeightAboveHome = CurrentLocation.Z - HomeLocation.Z;
-
-			if (HeightAboveHome > MaxStalkHeight)
+			// Approaching wall — once we start climbing, target the ceiling
+			if (CrawlerCMC->IsClimbing())
 			{
-				// Too high — target ground to come back down, disable climbing
+				CrawlerCMC->MoveTarget = PerchLocation;
 				bSeekingWall = false;
-				CrawlerCMC->bClimbEnabled = false;
-				CrawlerCMC->MoveTarget = HomeLocation;
-				CrawlerCMC->MoveTargetActor = nullptr;
-
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: PATROL HEIGHT CAP — %.0f UU above home, returning to ground"),
-					*Owner->GetName(), HeightAboveHome);
-			}
-			else if (CrawlerCMC && CrawlerCMC->IsClimbing())
-			{
-				// Currently climbing — let CMC handle it
-				bSeekingWall = false;
-			}
-			else if (!bSeekingWall || FVector::Dist2D(CurrentLocation, CrawlerCMC->MoveTarget) <= ArrivalThreshold)
-			{
-				// Arrived at destination — pause, then pick next action.
-				// Ground wander is primary (70%). Wall seek is occasional (30%).
-				bSeekingWall = false;
-				if (CrawlerCMC) { CrawlerCMC->bClimbEnabled = false; } // Done with wall, back to ground
-				bIsPaused = true;
-				const float PauseDuration = FMath::RandRange(WaypointPauseMin, WaypointPauseMax);
-
-				GetWorld()->GetTimerManager().SetTimer(
-					WaypointPauseTimerHandle,
-					[this]()
-					{
-						bIsPaused = false;
-
-						// 30% chance: seek a wall to climb
-						if (FMath::FRand() < 0.3f)
-						{
-							FVector WallPoint, WallNormal;
-							if (FindNearestWall(WallPoint, WallNormal))
-							{
-								const FVector PastWall = WallPoint - WallNormal * 100.f;
-								CrawlerCMC->MoveTarget = PastWall;
-								CrawlerCMC->MoveTargetActor = nullptr;
-								bSeekingWall = true;
-								CrawlerCMC->bClimbEnabled = true; // Enable climbing for wall-seek
-
-								UE_LOG(LogTemp, Log, TEXT("[Crawler] %s: WALL SEEK — targeting wall (30%% roll)"),
-									*GetOwner()->GetName());
-								return;
-							}
-						}
-
-						// 70% (or wall seek failed): ground wander
-						const FVector2D RandCircle = FMath::RandPointInCircle(WanderRadius);
-						const FVector WanderTarget = HomeLocation + FVector(RandCircle.X, RandCircle.Y, 0.f);
-						CrawlerCMC->MoveTarget = WanderTarget;
-						CrawlerCMC->MoveTargetActor = nullptr;
-					},
-					PauseDuration,
-					false
-				);
 			}
 		}
 		break;
@@ -765,150 +799,64 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 
 	case ECrawlerState::Hunt:
 	{
-		// --- Perch & Pounce check ---
-		if (bPerching)
-		{
-			PerchTimer += EvalInterval;
-			if (PerchTimer >= PerchDuration)
-			{
-				bPerching = false;
-				PerchTimer = 0.f;
-
-				// POUNCE — re-check distance (player may have moved during 2.5s perch)
-				if (CrawlerCMC && ChaseTargetActor)
-				{
-					const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();
-					const float PounceElev = CurrentLocation.Z - PlayerLoc.Z;
-					const float PounceHDist = FVector::Dist2D(CurrentLocation, PlayerLoc);
-
-					if (PounceHDist > MaxPounceHorizDist || PounceElev > MaxPounceElevation)
-					{
-						UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POUNCE CANCELLED — too far (horiz=%.0f elev=%.0f)"),
-							*Owner->GetName(), PounceHDist, PounceElev);
-					}
-					else
-					{
-					FVector OffsetDir = (CurrentLocation - PlayerLoc).GetSafeNormal2D();
-
-					if (OffsetDir.IsNearlyZero(0.1f))
-					{
-						if (APlayerController* PouncPC = GetWorld()->GetFirstPlayerController())
-						{
-							FRotator CamRot;
-							FVector CamLoc;
-							PouncPC->GetPlayerViewPoint(CamLoc, CamRot);
-							OffsetDir = CamRot.Vector().GetSafeNormal2D();
-						}
-						if (OffsetDir.IsNearlyZero(0.1f))
-						{
-							OffsetDir = FVector(1.f, 0.f, 0.f);
-						}
-					}
-
-					const FVector OffsetTarget = PlayerLoc + OffsetDir * LungeOffset;
-					CrawlerCMC->LaunchAtTarget(OffsetTarget);
-					bPounceInFlight = true;
-
-					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POUNCE from %.0f above, %.0f horiz! (Hunt)"),
-						*Owner->GetName(), PounceElev, PounceHDist);
-					} // else (distance check passed)
-				}
-
-				SetSpeed(HuntSpeed);
-			}
-			break; // Don't do anything else while perching
-		}
-
-		// --- Post-crest perch: brief pause at fence/wall top ---
+		// --- Post-crest: brief pause at fence/wall top ---
 		if (CrawlerCMC && CrawlerCMC->bJustCrested)
 		{
 			CrawlerCMC->bJustCrested = false;
 
-			const float ElevAbovePlayer = ChaseTargetActor
-				? (CurrentLocation.Z - ChaseTargetActor->GetActorLocation().Z) : 0.f;
+			// Brief 0.5s pause at fence top, then resume
+			SetSpeed(0.f);
+			bIsPaused = true;
 
-			if (ElevAbovePlayer >= LaunchElevationThreshold && !CrawlerCMC->IsLaunchOnCooldown())
-			{
-				// Elevated after crest — enter full perch (triggers pounce)
-				bPerching = true;
-				PerchTimer = 0.f;
-				SetSpeed(0.f);
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POST-CREST PERCH (elevated %.0f) — pounce in %.1fs"),
-					*Owner->GetName(), ElevAbovePlayer, PerchDuration);
-				break;
-			}
-			else
-			{
-				// Not elevated — brief 0.5s pause at fence top, then resume
-				SetSpeed(0.f);
-				bIsPaused = true;
-
-				FTimerHandle CrestPauseHandle;
-				TWeakObjectPtr<UZP_CrawlerBehaviorComponent> WeakThis(this);
-				GetWorld()->GetTimerManager().SetTimer(CrestPauseHandle,
-					[WeakThis]()
+			FTimerHandle CrestPauseHandle;
+			TWeakObjectPtr<UZP_CrawlerBehaviorComponent> WeakThis(this);
+			GetWorld()->GetTimerManager().SetTimer(CrestPauseHandle,
+				[WeakThis]()
+				{
+					if (WeakThis.IsValid() && WeakThis->CurrentState == ECrawlerState::Hunt)
 					{
-						if (WeakThis.IsValid() && WeakThis->CurrentState == ECrawlerState::Hunt)
+						WeakThis->bIsPaused = false;
+						WeakThis->SetSpeed(WeakThis->HuntSpeed);
+						if (WeakThis->CrawlerCMC && WeakThis->ChaseTargetActor)
 						{
-							WeakThis->bIsPaused = false;
-							WeakThis->SetSpeed(WeakThis->HuntSpeed);
-							if (WeakThis->CrawlerCMC && WeakThis->ChaseTargetActor)
-							{
-								WeakThis->CrawlerCMC->MoveTargetActor = WeakThis->ChaseTargetActor;
-							}
+							WeakThis->CrawlerCMC->MoveTargetActor = WeakThis->ChaseTargetActor;
 						}
-					},
-					0.5f, false);
+					}
+				},
+				0.5f, false);
 
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POST-CREST PAUSE 0.5s at fence top"),
-					*Owner->GetName());
-				break;
-			}
+			UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POST-CREST PAUSE 0.5s at fence top"),
+				*Owner->GetName());
+			break;
 		}
 
-		// --- Ground attack check FIRST: close enough -> attack even when observed ---
-		// Close range (0-AttackRange): alternating drop/lunge
-		// Mid range (AttackRange-LungeMaxRange): lunge only
-		// Same Z axis required (ZDiff <= 200)
-		if (ChaseTargetActor && CrawlerCMC && !CrawlerCMC->IsLaunching() && !CrawlerCMC->IsSlamming())
+		// --- Ground attack check: close enough -> slam attack ---
+		if (ChaseTargetActor && CrawlerCMC && !CrawlerCMC->IsSlamming())
 		{
 			const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();
 			const float HorizDist = FVector::Dist2D(CurrentLocation, PlayerLoc);
 			const float ZDiff = FMath::Abs(CurrentLocation.Z - PlayerLoc.Z);
 			const double AttackNow = GetWorld()->GetTimeSeconds();
 
-			if (ZDiff <= 200.f && HorizDist <= LungeMaxRange && (AttackNow - LastAttackTime) >= AttackCooldown)
+			if (ZDiff <= 200.f && HorizDist <= AttackRange && (AttackNow - LastAttackTime) >= AttackCooldown)
 			{
 				bBeingObserved = false; // Break freeze for attack
-				if (HorizDist <= AttackRange)
-				{
-					// Close range — alternating drop/lunge
-					if (bLastAttackWasLunge)
-					{
-						BeginSlamAttack();
-					}
-					else
-					{
-						BeginLungeAttack();
-					}
-				}
-				else
-				{
-					// Mid-to-long range — lunge only
-					BeginLungeAttack();
-				}
+				BeginSlamAttack();
 				break;
 			}
 		}
 
-		// --- Gaze behavior: WALL = freeze when watched. GROUND = aggressive charge. ---
+		// --- Gaze behavior: WALL = freeze when watched (long range only). GROUND = aggressive charge. ---
 		{
 			const bool bOnWall = CrawlerCMC && CrawlerCMC->IsClimbing();
 			const bool bLookedAt = IsPlayerLookingAtCreature();
+			const float DistToPlayer = ChaseTargetActor
+				? FVector::Dist(CurrentLocation, ChaseTargetActor->GetActorLocation()) : 0.f;
+			const bool bFarEnoughToFreeze = DistToPlayer >= GazeFreezeMinDistance;
 
-			if (bOnWall && bLookedAt)
+			if (bOnWall && bLookedAt && bFarEnoughToFreeze)
 			{
-				// ON WALL + being watched → freeze (SH2 horror moment)
+				// ON WALL + being watched at distance → freeze ("is that... something?")
 				if (!bBeingObserved)
 				{
 					bBeingObserved = true;
@@ -933,82 +881,6 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 					CrawlerCMC->MoveTargetActor = ChaseTargetActor;
 				}
 				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Unfreeze — resuming hunt."), *Owner->GetName());
-			}
-
-			// ON GROUND + direct LOS for 2s + within lunge range + same Z → lunge attack
-			// Mid-to-long range lunge from sustained eye contact. Same Z axis required.
-			if (!bOnWall && bLookedAt && ChaseTargetActor)
-			{
-				const FVector PlayerLoc2 = ChaseTargetActor->GetActorLocation();
-				const float HorizDist2 = FVector::Dist2D(CurrentLocation, PlayerLoc2);
-				const float ZDiff2 = FMath::Abs(CurrentLocation.Z - PlayerLoc2.Z);
-
-				if (HorizDist2 <= LungeMaxRange && ZDiff2 <= 200.f)
-				{
-					ObservedTimer += EvalInterval;
-					if (ObservedTimer >= 2.0f)
-					{
-						ObservedTimer = 0.f;
-						const double AttackNow = GetWorld()->GetTimeSeconds();
-						if ((AttackNow - LastAttackTime) >= AttackCooldown)
-						{
-							bBeingObserved = false;
-							if (HorizDist2 <= AttackRange)
-							{
-								// Close range — alternating
-								if (bLastAttackWasLunge)
-								{
-									UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: GROUND LOS 2s at %.0f UU — DROP ATTACK!"),
-										*Owner->GetName(), HorizDist2);
-									BeginSlamAttack();
-								}
-								else
-								{
-									UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: GROUND LOS 2s at %.0f UU — LUNGE!"),
-										*Owner->GetName(), HorizDist2);
-									BeginLungeAttack();
-								}
-							}
-							else
-							{
-								// Mid range — lunge only
-								UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: GROUND LOS 2s at %.0f UU — MID-RANGE LUNGE!"),
-									*Owner->GetName(), HorizDist2);
-								BeginLungeAttack();
-							}
-							break;
-						}
-					}
-				}
-				else
-				{
-					ObservedTimer = 0.f; // Too far or wrong Z — reset timer
-				}
-			}
-			else if (!bOnWall)
-			{
-				ObservedTimer = 0.f; // Reset if LOS broken on ground
-			}
-		}
-
-		// Check if we should start perching (elevated above player, within pounce range)
-		// Must be within MaxPounceHorizDist horizontally — no cross-map pounces.
-		if (ChaseTargetActor && CrawlerCMC && !CrawlerCMC->IsLaunching() && !CrawlerCMC->IsLaunchOnCooldown())
-		{
-			const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();
-			const float ElevationAbovePlayer = CurrentLocation.Z - PlayerLoc.Z;
-			const float PounceHorizDist = FVector::Dist2D(CurrentLocation, PlayerLoc);
-
-			if (ElevationAbovePlayer >= LaunchElevationThreshold && ElevationAbovePlayer <= MaxPounceElevation
-				&& PounceHorizDist <= MaxPounceHorizDist)
-			{
-				bPerching = true;
-				PerchTimer = 0.f;
-				SetSpeed(0.f);
-
-				UE_LOG(LogTemp, Log, TEXT("[Crawler] %s: PERCHING at %.0f UU above, %.0f UU horiz — pounce in %.1fs (Hunt)"),
-					*Owner->GetName(), ElevationAbovePlayer, PounceHorizDist, PerchDuration);
-				break;
 			}
 		}
 
@@ -1095,10 +967,10 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 			const float DistToLastKnown = FVector::Dist(CurrentLocation, LastKnownPlayerLocation);
 			if (DistToLastKnown <= ArrivalThreshold)
 			{
-				// Reached last known position, player not found — switch to stalk
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Reached last known pos, player gone — stalking."),
+				// Reached last known position, player not found — give up
+				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Reached last known pos, player gone — returning to patrol."),
 					*Owner->GetName());
-				SetState(ECrawlerState::Stalk);
+				SetState(ECrawlerState::Patrol);
 			}
 			else
 			{
@@ -1107,242 +979,16 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 				CrawlerCMC->MoveTargetActor = nullptr;
 			}
 		}
-		break;
-	}
 
-	case ECrawlerState::Stalk:
-	{
-		// --- Perch & Pounce check (lower threshold — more aggressive) ---
-		if (bPerching)
-		{
-			PerchTimer += EvalInterval;
-			if (PerchTimer >= PerchDuration)
-			{
-				bPerching = false;
-				PerchTimer = 0.f;
-
-				// POUNCE — re-check distance (player may have moved during perch)
-				if (CrawlerCMC && ChaseTargetActor)
-				{
-					const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();
-					const float PounceElev = CurrentLocation.Z - PlayerLoc.Z;
-					const float PounceHDist = FVector::Dist2D(CurrentLocation, PlayerLoc);
-
-					if (PounceHDist > MaxPounceHorizDist || PounceElev > MaxPounceElevation)
-					{
-						UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POUNCE CANCELLED (Stalk) — too far (horiz=%.0f elev=%.0f)"),
-							*Owner->GetName(), PounceHDist, PounceElev);
-					}
-					else
-					{
-					FVector OffsetDir = (CurrentLocation - PlayerLoc).GetSafeNormal2D();
-
-					// If directly above, use player's forward to prevent head-landing
-					if (OffsetDir.IsNearlyZero(0.1f))
-					{
-						if (APlayerController* PouncPC = GetWorld()->GetFirstPlayerController())
-						{
-							FRotator CamRot;
-							FVector CamLoc;
-							PouncPC->GetPlayerViewPoint(CamLoc, CamRot);
-							OffsetDir = CamRot.Vector().GetSafeNormal2D();
-						}
-						if (OffsetDir.IsNearlyZero(0.1f))
-						{
-							OffsetDir = FVector(1.f, 0.f, 0.f);
-						}
-					}
-
-					const FVector OffsetTarget = PlayerLoc + OffsetDir * LungeOffset;
-					CrawlerCMC->LaunchAtTarget(OffsetTarget);
-					bPounceInFlight = true;
-
-					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: POUNCE from %.0f above, %.0f horiz! (Stalk)"),
-						*Owner->GetName(), PounceElev, PounceHDist);
-					} // else (distance check passed)
-				}
-
-				SetSpeed(StalkSpeed);
-			}
-			break;
-		}
-
-		// Check perch with Stalk's lower threshold — but only after MinStalkTime on the wall
-		// Must be within MaxPounceHorizDist horizontally — no cross-map pounces.
-		if (ChaseTargetActor && CrawlerCMC && !CrawlerCMC->IsLaunching() && !CrawlerCMC->IsLaunchOnCooldown()
-			&& StateTimer >= MinStalkTimeBeforePounce)
-		{
-			const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();
-			const float ElevationAbovePlayer = CurrentLocation.Z - PlayerLoc.Z;
-			const float StalkPounceHDist = FVector::Dist2D(CurrentLocation, PlayerLoc);
-
-			if (ElevationAbovePlayer >= StalkPounceElevation && ElevationAbovePlayer <= MaxPounceElevation
-				&& StalkPounceHDist <= MaxPounceHorizDist)
-			{
-				bPerching = true;
-				PerchTimer = 0.f;
-				SetSpeed(0.f);
-
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: PERCHING at %.0f above, %.0f horiz (Stalk)"),
-					*Owner->GetName(), ElevationAbovePlayer, StalkPounceHDist);
-				break;
-			}
-		}
-
-		// --- Post-crest perch in Stalk ---
-		if (CrawlerCMC && CrawlerCMC->bJustCrested)
-		{
-			CrawlerCMC->bJustCrested = false;
-
-			const float ElevAbovePlayer = ChaseTargetActor
-				? (CurrentLocation.Z - ChaseTargetActor->GetActorLocation().Z) : 0.f;
-
-			if (ElevAbovePlayer >= StalkPounceElevation && !CrawlerCMC->IsLaunchOnCooldown()
-				&& StateTimer >= MinStalkTimeBeforePounce)
-			{
-				bPerching = true;
-				PerchTimer = 0.f;
-				SetSpeed(0.f);
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: STALK POST-CREST PERCH (elevated %.0f)"),
-					*Owner->GetName(), ElevAbovePlayer);
-				break;
-			}
-			else
-			{
-				// Brief pause at crest, then resume stalk
-				SetSpeed(0.f);
-				bIsPaused = true;
-
-				FTimerHandle StalkCrestHandle;
-				TWeakObjectPtr<UZP_CrawlerBehaviorComponent> WeakThis(this);
-				GetWorld()->GetTimerManager().SetTimer(StalkCrestHandle,
-					[WeakThis]()
-					{
-						if (WeakThis.IsValid() && WeakThis->CurrentState == ECrawlerState::Stalk)
-						{
-							WeakThis->bIsPaused = false;
-							WeakThis->SetSpeed(WeakThis->StalkSpeed);
-						}
-					},
-					0.5f, false);
-
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: STALK POST-CREST PAUSE 0.5s"),
-					*Owner->GetName());
-				break;
-			}
-		}
-
-		// --- Gaze awareness: freeze when watched, aggro on prolonged stare ---
-		{
-			const bool bLookedAt = IsPlayerLookingAtCreature();
-			if (bLookedAt)
-			{
-				if (!bBeingObserved)
-				{
-					bBeingObserved = true;
-					ObservedTimer = 0.f;
-					SetSpeed(0.f);
-					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Player is WATCHING — freezing."), *Owner->GetName());
-				}
-
-				ObservedTimer += EvalInterval;
-
-				if (ObservedTimer >= GazeAggroDuration)
-				{
-					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: STARE AGGRO — player stared %.1fs, attacking!"),
-						*Owner->GetName(), ObservedTimer);
-					SetState(ECrawlerState::Hunt);
-					break;
-				}
-			}
-			else if (bBeingObserved)
-			{
-				bBeingObserved = false;
-				ObservedTimer = 0.f;
-				SetSpeed(StalkSpeed);
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Player looked away — resuming stalk."), *Owner->GetName());
-			}
-		}
-
-		// --- Proximity aggro: too close -> Hunt ---
+		// If player is beyond HuntMaxRange, give up pursuit
 		if (ChaseTargetActor)
 		{
-			const float DistToPlayer = GetEffectiveDistance(CurrentLocation, ChaseTargetActor->GetActorLocation());
-			if (DistToPlayer <= ProximityAggroRange)
+			const float DistToPlayer = FVector::Dist(CurrentLocation, ChaseTargetActor->GetActorLocation());
+			if (DistToPlayer > HuntMaxRange)
 			{
-				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: PROXIMITY AGGRO — player at %.0f UU (threshold %.0f)"),
-					*Owner->GetName(), DistToPlayer, ProximityAggroRange);
-				SetState(ECrawlerState::Hunt);
-				break;
-			}
-		}
-
-		// Timeout — return to patrol
-		if (StateTimer >= StalkDuration)
-		{
-			UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Stalk timeout (%.0fs) — returning to patrol."),
-				*Owner->GetName(), StalkDuration);
-			SetState(ECrawlerState::Patrol);
-		}
-		else if (!bBeingObserved)
-		{
-			// Only reposition when NOT being observed — creature freezes when watched
-			const float DistToSearch = FVector::Dist(CurrentLocation, CrawlerCMC->MoveTarget);
-			if (DistToSearch <= ArrivalThreshold)
-			{
-				if (IsOnGround())
-				{
-					// On ground during Stalk — find a wall to climb first
-					FVector WallPoint, WallNormal;
-					if (FindNearestWall(WallPoint, WallNormal))
-					{
-						CrawlerCMC->MoveTarget = WallPoint - WallNormal * 100.f;
-						CrawlerCMC->MoveTargetActor = nullptr;
-
-						UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Stalk WALL SEEK — finding wall before climbing to elevation"),
-							*Owner->GetName());
-					}
-					else
-					{
-						// No wall — elevated retreat as fallback
-						FVector AwayFromPlayer = (CurrentLocation - LastKnownPlayerLocation).GetSafeNormal2D();
-						if (AwayFromPlayer.IsNearlyZero())
-						{
-							AwayFromPlayer = FMath::VRand();
-							AwayFromPlayer.Z = 0.f;
-							AwayFromPlayer.Normalize();
-						}
-						const float RetreatDistance = FMath::RandRange(400.f, 800.f);
-						FVector NewTarget = CurrentLocation + AwayFromPlayer * RetreatDistance + FVector(0.f, 0.f, StalkVerticalBias);
-						NewTarget.Z = FMath::Min(NewTarget.Z, LastKnownPlayerLocation.Z + MaxStalkHeight);
-						CrawlerCMC->MoveTarget = NewTarget;
-						CrawlerCMC->MoveTargetActor = nullptr;
-					}
-				}
-				else
-				{
-					// Already on wall/elevated — retreat away from player at height
-					FVector AwayFromPlayer = (CurrentLocation - LastKnownPlayerLocation).GetSafeNormal2D();
-					if (AwayFromPlayer.IsNearlyZero())
-					{
-						AwayFromPlayer = FMath::VRand();
-						AwayFromPlayer.Z = 0.f;
-						AwayFromPlayer.Normalize();
-					}
-
-					const float RandomAngle = FMath::RandRange(-45.f, 45.f);
-					const FVector RotatedDir = AwayFromPlayer.RotateAngleAxis(RandomAngle, FVector::UpVector);
-
-					const float RetreatDistance = FMath::RandRange(400.f, 800.f);
-					FVector NewTarget = CurrentLocation + RotatedDir * RetreatDistance + FVector(0.f, 0.f, StalkVerticalBias);
-					NewTarget.Z = FMath::Min(NewTarget.Z, LastKnownPlayerLocation.Z + MaxStalkHeight);
-
-					CrawlerCMC->MoveTarget = NewTarget;
-					CrawlerCMC->MoveTargetActor = nullptr;
-
-					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Stalking — retreat+climb to %s (%.0f UU away, +%.0f Z)"),
-						*Owner->GetName(), *NewTarget.ToString(), RetreatDistance, StalkVerticalBias);
-				}
+				UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: Player at %.0f UU — beyond hunt range (%.0f), returning to patrol."),
+					*Owner->GetName(), DistToPlayer, HuntMaxRange);
+				SetState(ECrawlerState::Patrol);
 			}
 		}
 		break;
@@ -1352,101 +998,45 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 	{
 		AttackPhaseTimer += EvalInterval;
 
-		switch (CurrentAttackType)
+		// Slam attack: CMC handles hold/impact, we wait for it
+		if (CrawlerCMC && CrawlerCMC->HasSlamImpacted())
 		{
-		case EAttackType::Lunge:
-		{
-			// Phase 1: Wind-up — creature freezes, builds tension
-			if (!bLungeExecuted && AttackPhaseTimer >= LungeWindUpTime)
-			{
-				ExecuteLunge();
-				bLungeExecuted = true;
-			}
+			CrawlerCMC->ClearSlamImpact();
 
-			// Phase 2: Post-launch — wait for landing, check damage
-			if (bLungeExecuted && CrawlerCMC && !CrawlerCMC->IsLaunching()
-				&& AttackPhaseTimer > LungeWindUpTime + 0.3f)
+			if (ChaseTargetActor)
 			{
-				if (!bAttackDamageApplied && ChaseTargetActor)
+				const float Dist = FVector::Dist(CurrentLocation, ChaseTargetActor->GetActorLocation());
+				if (Dist <= SlamDamageRadius)
 				{
-					const float Dist = FVector::Dist(CurrentLocation, ChaseTargetActor->GetActorLocation());
-					if (Dist <= LungeDamageRadius)
-					{
-						ApplyAttackDamage(LungeDamage, 0.f);
-						UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: LUNGE HIT — %.0f damage at %.0f UU"),
-							*Owner->GetName(), LungeDamage, Dist);
-					}
-					else
-					{
-						UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: LUNGE MISSED — player at %.0f UU"),
-							*Owner->GetName(), Dist);
-					}
-					bAttackDamageApplied = true;
+					ApplyAttackDamage(LungeDamage, 0.f);
+					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: SLAM HIT — %.0f damage at %.0f UU"),
+						*Owner->GetName(), LungeDamage, Dist);
 				}
-
-				LastAttackTime = GetWorld()->GetTimeSeconds();
-				SetState(ECrawlerState::Hunt);
-			}
-
-			// Safety timeout
-			if (AttackPhaseTimer > 4.0f)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("[ZP_Behavior] %s: LUNGE TIMEOUT — forcing Hunt"),
-					*Owner->GetName());
-				LastAttackTime = GetWorld()->GetTimeSeconds();
-				SetState(ECrawlerState::Hunt);
-			}
-			break;
-		}
-
-		case EAttackType::Slam:
-		{
-			// Drop attack: CMC handles hold/impact, we wait for it
-			if (CrawlerCMC && CrawlerCMC->HasSlamImpacted())
-			{
-				CrawlerCMC->ClearSlamImpact();
-
-				// Drop attack damage — single target (not AoE)
-				if (ChaseTargetActor)
+				else
 				{
-					const float Dist = FVector::Dist(CurrentLocation, ChaseTargetActor->GetActorLocation());
-					if (Dist <= LungeDamageRadius)
-					{
-						ApplyAttackDamage(LungeDamage, 0.f);
-						UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: DROP ATTACK HIT — %.0f damage at %.0f UU"),
-							*Owner->GetName(), LungeDamage, Dist);
-					}
-					else
-					{
-						UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: DROP ATTACK MISSED — player at %.0f UU"),
-							*Owner->GetName(), Dist);
-					}
+					UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: SLAM MISSED — player at %.0f UU"),
+						*Owner->GetName(), Dist);
 				}
-
-				LastAttackTime = GetWorld()->GetTimeSeconds();
-				SetState(ECrawlerState::Hunt);
 			}
 
-			// Safety timeout
-			if (AttackPhaseTimer > 3.0f)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("[ZP_Behavior] %s: DROP TIMEOUT — forcing Hunt"),
-					*Owner->GetName());
-				LastAttackTime = GetWorld()->GetTimeSeconds();
-				SetState(ECrawlerState::Hunt);
-			}
-			break;
-		}
-
-		default:
+			LastAttackTime = GetWorld()->GetTimeSeconds();
 			SetState(ECrawlerState::Hunt);
-			break;
+		}
+
+		// Safety timeout
+		if (AttackPhaseTimer > 3.0f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ZP_Behavior] %s: SLAM TIMEOUT — forcing Hunt"),
+				*Owner->GetName());
+			LastAttackTime = GetWorld()->GetTimeSeconds();
+			SetState(ECrawlerState::Hunt);
 		}
 		break;
 	}
 
 	}
 }
+#endif // === DEAD CODE END ===
 
 // --- Perception ---
 
@@ -1457,26 +1047,9 @@ void UZP_CrawlerBehaviorComponent::OnSeePawn(APawn* SeenPawn)
 		return;
 	}
 
-	// Update last known position every time we see the player
 	LastKnownPlayerLocation = SeenPawn->GetActorLocation();
 
-	if (CurrentState == ECrawlerState::Hunt)
-	{
-		// Reset sight timer — still tracking player
-		LastSeenTimer = 0.f;
-		return;
-	}
-
-	if (CurrentState == ECrawlerState::Stalk)
-	{
-		// Stay in Stalk — Hunt only via gaze/proximity/pounce
-		ChaseTargetActor = SeenPawn;
-		LastKnownPlayerLocation = SeenPawn->GetActorLocation();
-		LastSeenTimer = 0.f;
-		return;
-	}
-
-	// Patrol — start hunt directly (no Alert)
+	// Ambush predator: seeing player triggers attack if perched
 	StartHunt(SeenPawn);
 }
 
@@ -1488,6 +1061,7 @@ void UZP_CrawlerBehaviorComponent::SetSpeed(float Speed)
 	{
 		if (UCharacterMovementComponent* CMC = Character->GetCharacterMovement())
 		{
+			CMC->MaxWalkSpeed = Speed;
 			CMC->MaxFlySpeed = Speed;
 		}
 	}
@@ -1521,7 +1095,7 @@ void UZP_CrawlerBehaviorComponent::UpdateIndoorStatus()
 	const FVector Start = Owner->GetActorLocation();
 	const FVector End = Start + FVector(0.f, 0.f, IndoorTraceDistance);
 
-	bIsIndoors = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params);
+	bIsIndoors = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_GameTraceChannel1, Params);
 }
 
 float UZP_CrawlerBehaviorComponent::GetEffectiveDistance(const FVector& From, const FVector& To) const
@@ -1585,7 +1159,7 @@ bool UZP_CrawlerBehaviorComponent::FindNearestWall(FVector& OutWallPoint, FVecto
 		const FVector TraceEnd = Origin + Dir * WallSeekRadius;
 
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, Origin, TraceEnd, ECC_Visibility, Params))
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Origin, TraceEnd, ECC_GameTraceChannel1, Params))
 		{
 			if (FMath::Abs(Hit.ImpactNormal.Z) < 0.5f)
 			{
@@ -1636,34 +1210,16 @@ void UZP_CrawlerBehaviorComponent::OnHearGunshot(const FVector& NoiseLocation, A
 		return;
 	}
 
-	// Spike threat — one shot maxes it out for Patrol/Stalk creatures
-	ThreatLevel = FMath::Min(ThreatLevel + ThreatFromGunshot, ThreatThreshold * 1.5f);
-	LastKnownPlayerLocation = NoiseLocation;
-
-	// Update chase target to the shooter regardless of current state
+	// Ambush predator: gunshot triggers attack drop if perched
 	ChaseTargetActor = Shooter;
 	LastKnownPlayerLocation = NoiseLocation;
 
-	// If already hunting, refresh tracking and redirect toward shooter
-	if (CurrentState == ECrawlerState::Hunt)
+	if (CurrentState == ECrawlerState::Patrol && bReachedPerch)
 	{
-		LastSeenTimer = 0.f;
-		if (CrawlerCMC)
-		{
-			CrawlerCMC->MoveTargetActor = ChaseTargetActor;
-		}
-		UE_LOG(LogTemp, Log, TEXT("[Crawler] %s: GUNSHOT while hunting — retarget to shooter at %.0f UU"),
-			*GetOwner()->GetName(),
-			FVector::Dist(GetOwner()->GetActorLocation(), NoiseLocation));
-		return;
+		UE_LOG(LogTemp, Log, TEXT("[Crawler] %s: GUNSHOT HEARD — dropping from perch to attack!"),
+			*GetOwner()->GetName());
+		BeginSlamAttack();
 	}
-
-	// Any other state: instant Hunt
-	UE_LOG(LogTemp, Log, TEXT("[Crawler] %s: GUNSHOT HEARD at %.0f UU — instant Hunt!"),
-		*GetOwner()->GetName(),
-		FVector::Dist(GetOwner()->GetActorLocation(), NoiseLocation));
-
-	SetState(ECrawlerState::Hunt);
 }
 
 void UZP_CrawlerBehaviorComponent::BroadcastGunshot(UWorld* World, const FVector& Location, float Radius, AActor* Shooter)
@@ -1730,74 +1286,21 @@ bool UZP_CrawlerBehaviorComponent::IsPlayerLookingAtCreature() const
 
 // --- Attack System ---
 
-void UZP_CrawlerBehaviorComponent::BeginLungeAttack()
-{
-	CurrentAttackType = EAttackType::Lunge;
-	bAttackDamageApplied = false;
-	bLungeExecuted = false;
-	AttackPhaseTimer = 0.f;
-	bLastAttackWasLunge = true;
-	SetState(ECrawlerState::Attack);
-	SetSpeed(0.f);
-
-	// Wind-up: creature freezes for LungeWindUpTime before launching.
-	// ExecuteLunge called from Attack tick after wind-up completes.
-
-	UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: LUNGE WIND-UP — launching in %.1fs"),
-		*GetOwner()->GetName(), LungeWindUpTime);
-}
-
-void UZP_CrawlerBehaviorComponent::ExecuteLunge()
-{
-	if (!CrawlerCMC || !ChaseTargetActor)
-	{
-		return;
-	}
-
-	const FVector PlayerLoc = ChaseTargetActor->GetActorLocation();
-	const FVector CreatureLoc = GetOwner()->GetActorLocation();
-	FVector OffsetDir = (CreatureLoc - PlayerLoc).GetSafeNormal2D();
-
-	// If directly above/below, use player forward to avoid landing on head
-	if (OffsetDir.IsNearlyZero(0.1f))
-	{
-		if (APlayerController* LungePC = GetWorld()->GetFirstPlayerController())
-		{
-			FRotator CamRot;
-			FVector CamLoc;
-			LungePC->GetPlayerViewPoint(CamLoc, CamRot);
-			OffsetDir = CamRot.Vector().GetSafeNormal2D();
-		}
-		if (OffsetDir.IsNearlyZero(0.1f))
-		{
-			OffsetDir = FVector(1.f, 0.f, 0.f);
-		}
-	}
-
-	const FVector OffsetTarget = PlayerLoc + OffsetDir * LungeOffset;
-	CrawlerCMC->LaunchAtTarget(OffsetTarget);
-
-	UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: LUNGE launched — offset target %s"),
-		*GetOwner()->GetName(), *OffsetTarget.ToString());
-}
-
 void UZP_CrawlerBehaviorComponent::BeginSlamAttack()
 {
 	CurrentAttackType = EAttackType::Slam;
 	bAttackDamageApplied = false;
 	AttackPhaseTimer = 0.f;
-	bLastAttackWasLunge = false;
 	SetState(ECrawlerState::Attack);
-	SetSpeed(0.f);
+	// No SetSpeed(0) — creature keeps moving during slam
 
 	if (CrawlerCMC)
 	{
-		// Drop attack: 0 rise, short hold (rear-up), 0 explicit fall speed (uses default)
 		CrawlerCMC->BeginSlam(0.f, DropAttackHoldTime, 0.f);
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: DROP ATTACK — rear-up %.1fs then impact"),
-		*GetOwner()->GetName(), DropAttackHoldTime);
+	UE_LOG(LogTemp, Log, TEXT("[ZP_Behavior] %s: SLAM ATTACK"),
+		*GetOwner()->GetName());
 }
 
 void UZP_CrawlerBehaviorComponent::ApplyAttackDamage(float Damage, float Radius)
@@ -1806,6 +1309,15 @@ void UZP_CrawlerBehaviorComponent::ApplyAttackDamage(float Damage, float Radius)
 	if (!Owner)
 	{
 		return;
+	}
+
+	// Death guard — never deal damage after death
+	if (UZP_HealthComponent* HC = Owner->FindComponentByClass<UZP_HealthComponent>())
+	{
+		if (HC->bIsDead)
+		{
+			return;
+		}
 	}
 
 	AController* CreatureController = nullptr;

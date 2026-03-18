@@ -19,24 +19,39 @@ AZP_CrawlerBase::AZP_CrawlerBase(const FObjectInitializer& ObjectInitializer)
 		ACharacter::CharacterMovementComponentName))
 {
 	HealthComp = CreateDefaultSubobject<UZP_HealthComponent>(TEXT("HealthComp"));
+	HealthComp->MaxHealth = 50.f;
 	BehaviorComp = CreateDefaultSubobject<UZP_CrawlerBehaviorComponent>(TEXT("BehaviorComp"));
+
+	// Pawn profile ignores Visibility by default — hitscan uses Visibility channel.
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	}
 }
 
 void AZP_CrawlerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Disable tick on the purchased plugin's BPC_Climbing component.
-	// We handle all climbing in ZP_CrawlerMovementComponent.
-	// BPC_Climbing spams Sqrt() on negative numbers every frame → FPS killer.
-	TArray<UActorComponent*> AllComps;
-	GetComponents(AllComps);
-	for (UActorComponent* Comp : AllComps)
+	// Force capsule to block Visibility at runtime (Pawn profile ignores it by default,
+	// and placed instances may have stale CDO). Hitscan uses ECC_Visibility channel.
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
 	{
-		if (Comp && Comp->GetName().Contains(TEXT("BPC_Climbing")))
+		Capsule->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	}
+
+	// Disable BPC_Climbing — we handle all movement in ZP_CrawlerMovementComponent::PhysFlying.
+	// BPC_Climbing spams Sqrt() on negative numbers every frame and conflicts with our CMC.
+	{
+		TArray<UActorComponent*> AllComps;
+		GetComponents(AllComps);
+		for (UActorComponent* Comp : AllComps)
 		{
-			Comp->PrimaryComponentTick.SetTickFunctionEnable(false);
-			Comp->SetComponentTickEnabled(false);
+			if (Comp && Comp->GetClass()->GetName().Contains(TEXT("BPC_Climbing")))
+			{
+				Comp->PrimaryComponentTick.SetTickFunctionEnable(false);
+				Comp->SetComponentTickEnabled(false);
+			}
 		}
 	}
 
@@ -55,6 +70,25 @@ void AZP_CrawlerBase::BeginPlay()
 			&AZP_CrawlerBase::ApplyTentacleMaterial,
 			4.5f, false
 		);
+	}
+}
+
+void AZP_CrawlerBase::SetClimbingEnabled(bool bEnabled)
+{
+	TArray<UActorComponent*> AllComps;
+	GetComponents(AllComps);
+	for (UActorComponent* Comp : AllComps)
+	{
+		if (Comp && Comp->GetClass()->GetName().Contains(TEXT("BPC_Climbing")))
+		{
+			FBoolProperty* EnabledProp = CastField<FBoolProperty>(
+				Comp->GetClass()->FindPropertyByName(TEXT("Enabled")));
+			if (EnabledProp)
+			{
+				EnabledProp->SetPropertyValue_InContainer(Comp, bEnabled);
+			}
+			return;
+		}
 	}
 }
 
@@ -159,10 +193,11 @@ void AZP_CrawlerBase::ApplyTentacleMaterial()
 
 /**
  * Recursively freeze an actor and all its child/attached actors.
- * Stops: tick, animation (SK->Stop), timelines (breathing), timers (blink loops).
- * Also handles dynamically-spawned attached actors (eyes on body surface).
+ * Stops: tick, animation, timelines (breathing), timers (blink loops).
+ * bRagdollLegs: if true, skeletal meshes get physics sim (for detached leg actors).
+ *               if false, skeletal meshes just stop animation (for main body).
  */
-static void FreezeActorHierarchy(AActor* Actor)
+static void FreezeActorHierarchy(AActor* Actor, bool bRagdollLegs = false)
 {
 	if (!Actor)
 	{
@@ -180,6 +215,7 @@ static void FreezeActorHierarchy(AActor* Actor)
 
 		if (USkeletalMeshComponent* SK = Cast<USkeletalMeshComponent>(Comp))
 		{
+			// Freeze in last animated pose — no ragdoll (tentacle legs lack physics bodies)
 			SK->Stop();
 		}
 
@@ -191,7 +227,7 @@ static void FreezeActorHierarchy(AActor* Actor)
 
 		if (UChildActorComponent* ChildAC = Cast<UChildActorComponent>(Comp))
 		{
-			FreezeActorHierarchy(ChildAC->GetChildActor());
+			FreezeActorHierarchy(ChildAC->GetChildActor(), bRagdollLegs);
 		}
 	}
 
@@ -200,7 +236,7 @@ static void FreezeActorHierarchy(AActor* Actor)
 	Actor->GetAttachedActors(AttachedActors);
 	for (AActor* Attached : AttachedActors)
 	{
-		FreezeActorHierarchy(Attached);
+		FreezeActorHierarchy(Attached, bRagdollLegs);
 	}
 
 	// Clear all timers on this actor — kills blink loops, IK stepping, etc.
@@ -214,10 +250,11 @@ void AZP_CrawlerBase::OnDied()
 {
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CrawlerBase %s: Death sequence started"), *GetName());
 
-	// 1. Disable behavior
+	// 1. Disable behavior and clear its timers (eval timer is bound to component, not actor)
 	if (BehaviorComp)
 	{
 		BehaviorComp->Deactivate();
+		GetWorldTimerManager().ClearAllTimersForObject(BehaviorComp);
 	}
 
 	// 2. Stop movement
@@ -236,15 +273,71 @@ void AZP_CrawlerBase::OnDied()
 		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
-	// 5. Freeze entire hierarchy in place: stop timelines (breathing), timers (blink loops),
-	//    tick, animation, leg IK. Everything stops where it is — no ragdoll, no detach.
-	FreezeActorHierarchy(this);
+	// 5. Drop body to ground FIRST — while children are still attached, so everything moves together.
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		const float OrigHalfHeight = Capsule->GetScaledCapsuleHalfHeight();
+		Capsule->SetCapsuleHalfHeight(10.f);
 
-	// 6. World-scan: catch ALL actors in our attachment chain.
-	//    FreezeActorHierarchy walks ChildActorComponent + GetAttachedActors, but eye actors
-	//    spawned dynamically by BP_MonsterBody may be missed if the plugin attaches them
-	//    in a way the component tree doesn't capture. Walk every world actor's attachment
-	//    parent chain — if it leads back to us, freeze it.
+		const FVector DeathPos = GetActorLocation();
+		FVector GroundPos = DeathPos;
+		GroundPos.Z -= (OrigHalfHeight - 10.f);
+
+		FHitResult GroundHit;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		if (GetWorld()->LineTraceSingleByChannel(GroundHit, DeathPos, DeathPos - FVector(0.f, 0.f, 5000.f), ECC_Visibility, Params))
+		{
+			GroundPos = GroundHit.ImpactPoint + FVector(0.f, 0.f, 10.f);
+		}
+
+		SetActorLocation(GroundPos);
+
+		FRotator DeathRot = GetActorRotation();
+		DeathRot.Pitch = 0.f;
+		DeathRot.Roll = 0.f;
+		SetActorRotation(DeathRot);
+
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] %s: Death drop — from Z=%.0f to Z=%.0f (fell %.0f)"),
+			*GetName(), DeathPos.Z, GroundPos.Z, DeathPos.Z - GroundPos.Z);
+	}
+
+	// 6. NOW detach all child/attached actors (legs, body, eyes) so the Pieria plugin's
+	//    cleanup can't destroy them. They're already at ground level from step 5.
+	TArray<AActor*> OrphanedActors;
+	{
+		TArray<AActor*> ChildrenToOrphan;
+		GetAttachedActors(ChildrenToOrphan, false, true);
+		for (AActor* Child : ChildrenToOrphan)
+		{
+			if (Child)
+			{
+				Child->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				OrphanedActors.AddUnique(Child);
+			}
+		}
+		TArray<UChildActorComponent*> ChildActorComps;
+		GetComponents(ChildActorComps);
+		for (UChildActorComponent* CAC : ChildActorComps)
+		{
+			if (AActor* ChildActor = CAC->GetChildActor())
+			{
+				ChildActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				OrphanedActors.AddUnique(ChildActor);
+				FreezeActorHierarchy(ChildActor);
+			}
+		}
+		for (AActor* Child : ChildrenToOrphan)
+		{
+			FreezeActorHierarchy(Child);
+		}
+	}
+
+	// Freeze self (body stays frozen, no ragdoll)
+	FreezeActorHierarchy(this, false);
+
+	// 7. World-scan: catch dynamically-spawned attached actors
 	int32 ExtraFrozen = 0;
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
@@ -269,44 +362,15 @@ void AZP_CrawlerBase::OnDied()
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] %s: World-scan froze %d additional actors"), *GetName(), ExtraFrozen);
 
-	// 7. Drop body to ground — trace down to find the floor, teleport there.
-	//    Handles wall deaths: creature falls to ground instead of sticking to wall.
-	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
-	{
-		const float OrigHalfHeight = Capsule->GetScaledCapsuleHalfHeight();
-		Capsule->SetCapsuleHalfHeight(10.f);
-
-		const FVector DeathPos = GetActorLocation();
-		FVector GroundPos = DeathPos;
-		GroundPos.Z -= (OrigHalfHeight - 10.f); // default: just shrink capsule
-
-		// Trace down to find actual ground
-		FHitResult GroundHit;
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-		const FVector TraceStart = DeathPos;
-		const FVector TraceEnd = DeathPos - FVector(0.f, 0.f, 5000.f);
-
-		if (GetWorld()->LineTraceSingleByChannel(GroundHit, TraceStart, TraceEnd, ECC_Visibility, Params))
-		{
-			// Land on the ground + small offset so body doesn't clip into floor
-			GroundPos = GroundHit.ImpactPoint + FVector(0.f, 0.f, 10.f);
-		}
-
-		SetActorLocation(GroundPos);
-
-		// Reset rotation to upright (creature may be wall-tilted)
-		FRotator DeathRot = GetActorRotation();
-		DeathRot.Pitch = 0.f;
-		DeathRot.Roll = 0.f;
-		SetActorRotation(DeathRot);
-
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] %s: Death drop — from Z=%.0f to Z=%.0f (fell %.0f)"),
-			*GetName(), DeathPos.Z, GroundPos.Z, DeathPos.Z - GroundPos.Z);
-	}
-
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CrawlerBase %s: Dead — frozen on ground"), *GetName());
 
-	// 8. Destroy corpse after 30 seconds
+	// 8. Destroy corpse + orphaned parts after 30 seconds
 	SetLifeSpan(30.0f);
+	for (AActor* Orphan : OrphanedActors)
+	{
+		if (Orphan)
+		{
+			Orphan->SetLifeSpan(30.0f);
+		}
+	}
 }

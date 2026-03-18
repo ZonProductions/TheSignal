@@ -69,7 +69,7 @@ void FZP_WallMap::Build(UWorld* World, const FVector& ScanCenter)
 				{
 					FHitResult Hit;
 					if (World->LineTraceSingleByChannel(Hit, Origin, Origin + Dir * TraceLength,
-						ECC_Visibility, Params))
+						ECC_GameTraceChannel1, Params))
 					{
 						// Wall surface: normal is roughly horizontal
 						if (FMath::Abs(Hit.ImpactNormal.Z) < 0.5f)
@@ -180,7 +180,7 @@ float FZP_WallMap::TraceWallTop(UWorld* World, const FVector& WallPoint, const F
 		const FVector End = Start - WallNormal * 200.f;
 
 		FHitResult Hit;
-		if (!World->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+		if (!World->LineTraceSingleByChannel(Hit, Start, End, ECC_GameTraceChannel1, Params))
 		{
 			// No wall at this height — found the top
 			TopZ = WallPoint.Z + DZ;

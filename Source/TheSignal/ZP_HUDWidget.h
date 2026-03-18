@@ -44,6 +44,9 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> HealthArc;
 
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> StaminaArc;
+
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> AmmoText;
 
@@ -117,6 +120,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void SetHealth(float HealthPercent);
 
+	/** Update stamina arc fill. 0.0 = empty, 1.0 = full. Green interior arc. */
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+	void SetStamina(float StaminaPercent);
+
 	/** Update ammo display. Shows "Current / Reserve". */
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void SetAmmo(int32 CurrentAmmo, int32 ReserveAmmo);
@@ -142,11 +149,18 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
 	UPROPERTY()
+	TObjectPtr<AZP_GraceCharacter> BoundCharacter;
+
+	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> HealthArcDMI;
+
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> StaminaArcDMI;
 
 	EZP_WeaponType CachedWeaponType = EZP_WeaponType::Ranged;
 
@@ -174,4 +188,7 @@ private:
 
 	UFUNCTION()
 	void OnDamageReductionChangedHandler(bool bActive);
+
+	UFUNCTION()
+	void OnStaminaChangedHandler(float NormalizedStamina);
 };

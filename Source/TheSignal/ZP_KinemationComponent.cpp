@@ -712,15 +712,9 @@ void UZP_KinemationComponent::PerformHitscan()
 	Params.AddIgnoredActor(GetOwner());
 	Params.AddIgnoredActor(ActiveWeapon);
 
-	// Object-type query: hits walls, dynamic actors, characters, physics bodies.
-	// ECC_Visibility channel alone misses creatures whose capsule doesn't block it.
-	FCollisionObjectQueryParams ObjectParams;
-	ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	ObjectParams.AddObjectTypesToQuery(ECC_Pawn);
-	ObjectParams.AddObjectTypesToQuery(ECC_PhysicsBody);
-
-	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectParams, Params))
+	// Channel trace: hits anything that BLOCKS Visibility (walls, pawns, physics).
+	// Volumes set to Overlap pass through — no more MapVolume eating bullets.
+	if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
 	{
 		return;
 	}

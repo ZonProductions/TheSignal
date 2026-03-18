@@ -62,6 +62,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsSprinting = false;
 
+	/** Returns the event broadcaster for external binding (HUD, etc). */
+	UZP_EventBroadcaster* GetEventBroadcaster() const { return EventBroadcaster; }
+
 	/** GASP gait state: 0=Walk, 1=Run, 2=Sprint. Matches E_Gait enum order.
 	 *  Read by BP_GraceCharacter EventGraph → written to BP Gait variable for AnimBP. */
 	UPROPERTY(BlueprintReadOnly, Category = "Movement|GASP")

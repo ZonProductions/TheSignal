@@ -62,10 +62,10 @@ public:
 	int32 MaxLegCount = 6;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	float MinGeneralScale = 0.5f;
+	float MinGeneralScale = 0.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	float MaxGeneralScale = 0.6f;
+	float MaxGeneralScale = 0.3f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
 	float MinLegScale = 0.9f;
@@ -87,6 +87,9 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
+
+	/** Toggle BPC_Climbing's Enabled property. Controls wall/ceiling climbing. */
+	void SetClimbingEnabled(bool bEnabled);
 
 protected:
 	virtual void BeginPlay() override;

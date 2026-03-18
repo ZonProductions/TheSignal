@@ -15,6 +15,9 @@ AZP_MapVolume::AZP_MapVolume()
 	AreaBounds->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	AreaBounds->SetGenerateOverlapEvents(true);
 	AreaBounds->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	// Block NO traces — this volume is for overlap detection only.
+	// Without this, hitscan LineTraceByObjectType hits the box before reaching actors inside it.
+	AreaBounds->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	// Visible in editor wireframe, hidden at runtime
 	AreaBounds->SetHiddenInGame(true);
@@ -24,6 +27,10 @@ AZP_MapVolume::AZP_MapVolume()
 void AZP_MapVolume::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Force overlap-only at runtime — placed instances may have stale collision from old CDO.
+	// Without this, hitscan LineTraceByObjectType hits the box before reaching actors inside it.
+	AreaBounds->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	AreaBounds->OnComponentBeginOverlap.AddDynamic(this, &AZP_MapVolume::OnOverlapBegin);
 	AreaBounds->OnComponentEndOverlap.AddDynamic(this, &AZP_MapVolume::OnOverlapEnd);

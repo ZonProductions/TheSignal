@@ -4,6 +4,8 @@
 #include "ZP_GraceCharacter.h"
 #include "ZP_KinemationComponent.h"
 #include "ZP_HealthComponent.h"
+#include "ZP_GraceGameplayComponent.h"
+#include "ZP_EventBroadcaster.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -18,6 +20,18 @@ void UZP_HUDWidget::NativeConstruct()
 		HealthArcDMI = UMaterialInstanceDynamic::Create(HealthArcMaterial, this);
 		HealthArc->SetBrushFromMaterial(HealthArcDMI);
 		SetHealth(1.0f);
+	}
+
+	// Create stamina arc DMI — same material, green color, scaled down to fit inside health arc
+	if (HealthArcMaterial && StaminaArc)
+	{
+		StaminaArcDMI = UMaterialInstanceDynamic::Create(HealthArcMaterial, this);
+		StaminaArc->SetBrushFromMaterial(StaminaArcDMI);
+		StaminaArcDMI->SetVectorParameterValue(FName("ArcColor"), FLinearColor(0.2f, 0.9f, 0.3f, 1.0f));
+		// Scale down to 65% — fits inside the health arc ring
+		StaminaArc->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
+		StaminaArc->SetRenderScale(FVector2D(0.65f, 0.65f));
+		SetStamina(1.0f);
 	}
 	else
 	{
@@ -111,6 +125,16 @@ void UZP_HUDWidget::SetHealth(float HealthPercent)
 	}
 }
 
+void UZP_HUDWidget::SetStamina(float StaminaPercent)
+{
+	StaminaPercent = FMath::Clamp(StaminaPercent, 0.0f, 1.0f);
+
+	if (StaminaArcDMI)
+	{
+		StaminaArcDMI->SetScalarParameterValue(FName("HealthPercent"), StaminaPercent);
+	}
+}
+
 void UZP_HUDWidget::SetAmmo(int32 CurrentAmmo, int32 ReserveAmmo)
 {
 	if (!AmmoText)
@@ -174,9 +198,37 @@ void UZP_HUDWidget::SetCrosshairVisible(bool bVisible)
 	}
 }
 
+void UZP_HUDWidget::NativeDestruct()
+{
+	// Unbind all delegates to prevent crash when widget is destroyed before character
+	if (BoundCharacter)
+	{
+		if (BoundCharacter->KinemationComp)
+		{
+			BoundCharacter->KinemationComp->OnAmmoChanged.RemoveDynamic(this, &UZP_HUDWidget::OnAmmoChangedHandler);
+			BoundCharacter->KinemationComp->OnWeaponTypeChanged.RemoveDynamic(this, &UZP_HUDWidget::OnWeaponTypeChangedHandler);
+		}
+		if (BoundCharacter->HealthComp)
+		{
+			BoundCharacter->HealthComp->OnHealthChanged.RemoveDynamic(this, &UZP_HUDWidget::OnHealthChangedHandler);
+			BoundCharacter->HealthComp->OnInvincibilityChanged.RemoveDynamic(this, &UZP_HUDWidget::OnInvincibilityChangedHandler);
+			BoundCharacter->HealthComp->OnDamageReductionChanged.RemoveDynamic(this, &UZP_HUDWidget::OnDamageReductionChangedHandler);
+		}
+		if (BoundCharacter->GameplayComp && BoundCharacter->GameplayComp->GetEventBroadcaster())
+		{
+			BoundCharacter->GameplayComp->GetEventBroadcaster()->OnStaminaChanged.RemoveDynamic(this, &UZP_HUDWidget::OnStaminaChangedHandler);
+		}
+		BoundCharacter = nullptr;
+	}
+
+	Super::NativeDestruct();
+}
+
 void UZP_HUDWidget::BindToCharacter(AZP_GraceCharacter* Character)
 {
 	if (!Character) return;
+
+	BoundCharacter = Character;
 
 	// Bind ammo and weapon type updates
 	if (Character->KinemationComp)
@@ -197,6 +249,13 @@ void UZP_HUDWidget::BindToCharacter(AZP_GraceCharacter* Character)
 		{
 			SetHealth(Character->HealthComp->CurrentHealth / Character->HealthComp->MaxHealth);
 		}
+	}
+
+	// Bind stamina updates via EventBroadcaster
+	if (Character->GameplayComp && Character->GameplayComp->GetEventBroadcaster())
+	{
+		Character->GameplayComp->GetEventBroadcaster()->OnStaminaChanged.AddDynamic(this, &UZP_HUDWidget::OnStaminaChangedHandler);
+		SetStamina(1.0f);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_HUDWidget: Bound to %s"), *Character->GetName());
@@ -261,6 +320,11 @@ void UZP_HUDWidget::OnDamageReductionChangedHandler(bool bActive)
 	{
 		DamageReductionVignetteTarget = 0.f;
 	}
+}
+
+void UZP_HUDWidget::OnStaminaChangedHandler(float NormalizedStamina)
+{
+	SetStamina(NormalizedStamina);
 }
 
 void UZP_HUDWidget::OnWeaponTypeChangedHandler(EZP_WeaponType NewWeaponType)

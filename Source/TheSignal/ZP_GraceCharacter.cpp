@@ -811,7 +811,14 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 		const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector RightDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		AddMovementInput(ForwardDir, MoveInput.Y);
+		// Backward penalty: scale backward input to 55%.
+		// CMC's AnalogInputModifier reads input magnitude → reduces MaxSpeed proportionally.
+		float ForwardScale = MoveInput.Y;
+		if (ForwardScale < 0.f)
+		{
+			ForwardScale *= 0.55f;
+		}
+		AddMovementInput(ForwardDir, ForwardScale);
 		AddMovementInput(RightDir, MoveInput.X);
 	}
 }
@@ -831,13 +838,23 @@ void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_SprintStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
-	if (GameplayComp) GameplayComp->StartSprint();
+	// Toggle sprint: press to start, press again to stop
+	if (GameplayComp)
+	{
+		if (GameplayComp->bIsSprinting)
+		{
+			GameplayComp->StopSprint();
+		}
+		else
+		{
+			GameplayComp->StartSprint();
+		}
+	}
 }
 
 void AZP_GraceCharacter::Input_SprintCompleted(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
-	if (GameplayComp) GameplayComp->StopSprint();
+	// Toggle mode: release does nothing. Sprint stops on next press or stamina depletion.
 }
 
 void AZP_GraceCharacter::Input_Jump(const FInputActionValue& Value)
