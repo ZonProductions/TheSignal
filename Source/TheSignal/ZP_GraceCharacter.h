@@ -320,6 +320,7 @@ private:
 
 	// --- Input Handlers ---
 	void Input_Move(const FInputActionValue& Value);
+	void Input_MoveCompleted(const FInputActionValue& Value);
 	void Input_Look(const FInputActionValue& Value);
 	void Input_SprintStarted(const FInputActionValue& Value);
 	void Input_SprintCompleted(const FInputActionValue& Value);

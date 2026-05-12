@@ -232,15 +232,43 @@ void UZP_GraceGameplayComponent::UpdateStamina(float DeltaTime)
 
 	if (bIsSprinting)
 	{
-		CurrentStamina = FMath::Max(0.0f, CurrentStamina - DrainRate * DeltaTime);
+		const bool bOnGround = CachedMovement && CachedMovement->IsMovingOnGround();
+		const FVector Velocity = CachedMovement ? CachedMovement->Velocity : FVector::ZeroVector;
+		const FVector Forward = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ForwardVector;
+		const float ForwardSpeed = FVector::DotProduct(Velocity, Forward);
+		const float PlanarSpeed = Velocity.Size2D();
 
-		if (CurrentStamina <= 0.0f)
+		const bool bWantsForward = CurrentForwardInput > 0.1f;
+		const bool bDrainConditions = bOnGround && bWantsForward && ForwardSpeed > 50.0f;
+
+		// Wall stall: pressing forward on ground but not actually moving → killed by wall.
+		if (bOnGround && bWantsForward && PlanarSpeed < 30.0f)
 		{
-			StopSprint();
+			WallStuckTimer += DeltaTime;
+			if (WallStuckTimer > 0.25f)
+			{
+				StopSprint();
+				WallStuckTimer = 0.0f;
+			}
+		}
+		else
+		{
+			WallStuckTimer = 0.0f;
+		}
+
+		if (bDrainConditions)
+		{
+			CurrentStamina = FMath::Max(0.0f, CurrentStamina - DrainRate * DeltaTime);
+
+			if (CurrentStamina <= 0.0f)
+			{
+				StopSprint();
+			}
 		}
 	}
 	else
 	{
+		WallStuckTimer = 0.0f;
 		// Regen delay countdown
 		if (StaminaRegenTimer > 0.0f)
 		{

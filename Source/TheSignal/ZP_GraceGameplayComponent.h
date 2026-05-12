@@ -108,6 +108,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void StopSprint();
 
+	/** Forward-axis move input (W=+1, S=-1). Set every Input_Move tick; reset to 0 on Completed. */
+	void SetForwardInput(float Value) { CurrentForwardInput = Value; }
+
 	/** Apply MovementConfig values to the owner's CharacterMovementComponent and camera. */
 	UFUNCTION(BlueprintCallable, Category = "Config")
 	void ApplyMovementConfig();
@@ -153,6 +156,8 @@ private:
 
 	// --- Stamina ---
 	float StaminaRegenTimer = 0.0f;
+	float CurrentForwardInput = 0.0f;
+	float WallStuckTimer = 0.0f;
 	void UpdateStamina(float DeltaTime);
 
 	// --- GASP State ---

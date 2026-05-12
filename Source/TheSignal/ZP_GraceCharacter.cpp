@@ -707,6 +707,7 @@ void AZP_GraceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	if (MoveAction)
 	{
 		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AZP_GraceCharacter::Input_Move);
+		EIC->BindAction(MoveAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_MoveCompleted);
 	}
 	if (LookAction)
 	{
@@ -805,6 +806,11 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 		return;
 	}
 
+	if (GameplayComp)
+	{
+		GameplayComp->SetForwardInput(MoveInput.Y);
+	}
+
 	if (Controller)
 	{
 		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
@@ -821,6 +827,15 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDir, ForwardScale);
 		AddMovementInput(RightDir, MoveInput.X);
 	}
+}
+
+void AZP_GraceCharacter::Input_MoveCompleted(const FInputActionValue& Value)
+{
+	if (GameplayComp)
+	{
+		GameplayComp->SetForwardInput(0.0f);
+	}
+	LadderClimbInput = 0.f;
 }
 
 void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-03-17T21:45:26",
+  "created": "2026-05-12T10:30:45",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -26719,10 +26719,6 @@
       "hash": "sha256:b85d5e1db66812368fbc589eb76a9c2e547f9723935793b25c174366e4468725",
       "size": 48388668
     },
-    "Content/gasp_Characters/Echo/Meshes/SKM_Echo_Hair.uasset": {
-      "hash": "sha256:985352e323ca181918ce1642a7c9626476c714250db14ca760eac8b5a7f7baad",
-      "size": 47401158
-    },
     "Content/gasp_Characters/Echo/Meshes/SK_Echo.uasset": {
       "hash": "sha256:79dfdbd2aa57a185251429a8d294b2cac390e4f1bec4146bed056721ae8839ef",
       "size": 180868
@@ -26903,10 +26899,6 @@
       "hash": "sha256:a09e3a9710600578be0873f0193e3e127f35441d8bb05c4015c690e81cf6f858",
       "size": 16458104
     },
-    "Content/gasp_Characters/Echo/Textures/T_ScleraBase_001_D.uasset": {
-      "hash": "sha256:75e8cb7bbfd9b5dafd912f3d1914affc1d2c07f232e796a5be45b1cfd6cf6111",
-      "size": 62917316
-    },
     "Content/gasp_Characters/Echo/Textures/T_ScleraVeins_001_D.uasset": {
       "hash": "sha256:cd3951b1650eb9f149ad61d39c794dda259567546c48fb51eea51253d2c36952",
       "size": 31317384
@@ -26918,10 +26910,6 @@
     "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume1_AO.uasset": {
       "hash": "sha256:accf6248b165bd3616470bd1cb447ea27de9360a53f8471a57c15dbed2936a27",
       "size": 27123592
-    },
-    "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume1_BN.uasset": {
-      "hash": "sha256:d04105f7751c466a714eca67ce91effa019688c922eebf9839b94f9c50554e2b",
-      "size": 74790458
     },
     "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume1_D.uasset": {
       "hash": "sha256:8865f2f39e3ad12bb62b504976898bfc152b697a00ec5d5e575a276a4843dc4d",
@@ -26943,10 +26931,6 @@
       "hash": "sha256:3eb487fb9ad2dfa7e609d4740b939b8c4fdd96ddd288c326c01f4e27d830694a",
       "size": 38760380
     },
-    "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume2_BN.uasset": {
-      "hash": "sha256:146c965ae2d2fd5eb9e0adc49fa7a6bb3837f32bce3f0a8fb70b5c9514b535fe",
-      "size": 77567058
-    },
     "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume2_D.uasset": {
       "hash": "sha256:e443c1e699577ea08d59bd7dc9a5f41e20f2069af00be66d572c0a143c731bbb",
       "size": 27692285
@@ -26966,10 +26950,6 @@
     "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume3_AO.uasset": {
       "hash": "sha256:fd37bf5ea804c237e34cc47752c49b1b3995bda24a99606c71b604ddf0ef733f",
       "size": 5218010
-    },
-    "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume3_BN.uasset": {
-      "hash": "sha256:fb3630185fb33a9e03f0ba6b7a4a7211b16cee983ea8d02c6ff7723d3960aafc",
-      "size": 83940777
     },
     "Content/gasp_Characters/Echo/Textures/Costume/T_echo_Costume3_D.uasset": {
       "hash": "sha256:df736e401cd31c5d21474feae751c0d1297c38b67980aa8b801b1f15f74a59e4",
@@ -27063,10 +27043,6 @@
       "hash": "sha256:ba8af9e0e211b2c31d92bd665b1e32a1f35982325e9ffdebd94e4ba3a3eaa31e",
       "size": 18462909
     },
-    "Content/gasp_Characters/Echo/Textures/Head/T_echo_Head_BN.uasset": {
-      "hash": "sha256:a9b1dae920a92b3d12fa9e8b09572a4dc9e113fb364b9e0ccab0c5f06ef9f5a0",
-      "size": 81189975
-    },
     "Content/gasp_Characters/Echo/Textures/Head/T_echo_Head_Brow_M.uasset": {
       "hash": "sha256:a71bfa67f8f7d6758ab731dbca51f0fb6456e0fb8795912b0b6a9f2371b29526",
       "size": 294390
@@ -27102,14 +27078,6 @@
     "Content/gasp_Characters/Echo/Textures/Head/T_Head_additional_R.uasset": {
       "hash": "sha256:5659675b93a51dc34754fde1d31ab34af0f84f0830f168fe368271e8bf5f1eeb",
       "size": 373046
-    },
-    "Content/gasp_Characters/Echo/Textures/Head/T_Head_highpass_S.uasset": {
-      "hash": "sha256:fa25f892fa52afe9c0e32e553614ddf8331ae68e4b2394c9e7e3e999d12b3dc0",
-      "size": 105077349
-    },
-    "Content/gasp_Characters/Echo/Textures/Head/T_Head_NM.uasset": {
-      "hash": "sha256:016e005f52d36f4cf4ddf54c2535f31dda9c7980734c9e0dc59eb16270a06739",
-      "size": 90309018
     },
     "Content/gasp_Characters/Echo/Textures/Head/T_Head_thickness_M.uasset": {
       "hash": "sha256:08c62338f0398a26701ba8422c459a1750b0c2ade565c2ff789053dfa8d32869",
@@ -27898,10 +27866,6 @@
     "Content/gasp_Characters/Paragon/Heroes/TwinBlast/Textures/T_TwinBlast_Pistol_N.uasset": {
       "hash": "sha256:5555dcde5564480d90bb45de92641c099c853eaa9bd60691f24e281cc74b7b99",
       "size": 15793901
-    },
-    "Content/gasp_Characters/Paragon/Heroes/TwinBlast/Textures/T_TwinBlast_Pistol_RGB.uasset": {
-      "hash": "sha256:aeaabb718791771615ee31eebdd53903aa2d55ecfc17dc312036455a2cfe0f9e",
-      "size": 27135266
     },
     "Content/gasp_Characters/Paragon/Heroes/TwinBlast/Textures/T_TwinBlast_UE4_Demo_Hair_A.uasset": {
       "hash": "sha256:362d4871390c0ce3c2008512f36f02fa5f34783d9c0c2690309bb61346e6b5f2",
@@ -38651,10 +38615,6 @@
       "hash": "sha256:991555283aa6192cb7024290033e386b0b52c4eefc2dcfb1ad6b37f179070b99",
       "size": 34535365
     },
-    "Content/InventorySystemPro/ExampleContent/Common/Characters/Mannequins/Meshes/SKM_Manny_Simple.uasset": {
-      "hash": "sha256:95419ce1ac0724e74c4bbb4e30ca8fd7e97307be0871bd04e822b4bfb5f01abf",
-      "size": 18527503
-    },
     "Content/InventorySystemPro/ExampleContent/Common/Characters/Mannequins/Meshes/SKM_Quinn.uasset": {
       "hash": "sha256:64431fd6a1ad55ba06f228d78cf6bfb4e6c778ad8eba4e0db8638fe1ec402299",
       "size": 36496264
@@ -44311,10 +44271,6 @@
       "hash": "sha256:fe03e77847c8ef52ba6c0efac45aa6217e9c5e64f8d91f061d5cd8d72e072783",
       "size": 3867067
     },
-    "Content/KINEMATION/TacticalShooterPack/Casings/338_Lapua/Textures/T_338-Lapua_Casing_Normal.uasset": {
-      "hash": "sha256:7167b4b6a2d8a4744d5212a3230f8cc9e19cd1fc8658c45d236e15e0ac70936a",
-      "size": 59091413
-    },
     "Content/KINEMATION/TacticalShooterPack/Casings/338_Lapua/Textures/T_338-Lapua_Casing_Roughness.uasset": {
       "hash": "sha256:95063acc2344fe5cdf48982cc68bc184419e73d46f01ef38933d9aee5fcf1cd9",
       "size": 13199470
@@ -45883,10 +45839,6 @@
       "hash": "sha256:aa9d273062832a5f7bce84e1385b107ab95ce01612eaa81913ea3a2178aebceb",
       "size": 4123436
     },
-    "Content/KINEMATION/TacticalShooterPack/Weapons/TR15/Attachments/Magazine/Textures/T_Mag_TR15_Normal.uasset": {
-      "hash": "sha256:b216f5785ea7b405b319ee83c33f72bd52365f719c0635c52d398897aadbb74b",
-      "size": 24936756
-    },
     "Content/KINEMATION/TacticalShooterPack/Weapons/TR15/Attachments/Magazine/Textures/T_Mag_TR15_Roughness.uasset": {
       "hash": "sha256:812e37dfbd43eef300a8fba6098c83ded5a4cccb4ebdd5a4115e4bc8b4dbc9cb",
       "size": 13340564
@@ -45918,10 +45870,6 @@
     "Content/KINEMATION/TacticalShooterPack/Weapons/TR15/Textures/T_TR15_Attachments_Normal.uasset": {
       "hash": "sha256:2550d89da48f0381ef6fed0a886993bc0056654e4100c10ff6ebe9927709f81b",
       "size": 24959861
-    },
-    "Content/KINEMATION/TacticalShooterPack/Weapons/TR15/Textures/T_TR15_Attachments_Roughness.uasset": {
-      "hash": "sha256:8c4f5a5dfab700c41cddec5c75db164b843e36e6448edb9c2c2745fe92303b6e",
-      "size": 12838140
     },
     "Content/KINEMATION/TacticalShooterPack/Weapons/TR15/Textures/T_TR15_Body_Alpha.uasset": {
       "hash": "sha256:4c161deaf7cf33d73afb9628aec5bed118633111e0b5ee450d2a737068068fb1",
@@ -59540,8 +59488,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:25d95435a074ef5d952016b6bb3b767c83ccfb82d44c138892da0b729e474aac",
-      "size": 28175746
+      "hash": "sha256:9d20018acd82ffc7ab6ecb6bd52d0c8ba12c44fcf09b521c2faba0ae1b7d6489",
+      "size": 27390878
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",
@@ -67439,10 +67387,6 @@
       "hash": "sha256:88c98fbfef83dd80433fc6e48cb8c9f0c4d4f6b0a8a19251b8cb38639a37109a",
       "size": 14326428
     },
-    "Content/TreatmentStation/Textures/T_Concrete_3_R.uasset": {
-      "hash": "sha256:bc02be8ff9c3e3252098229fd40454062efe538fd143eb1ae0145ff2a9c3302e",
-      "size": 3329889
-    },
     "Content/TreatmentStation/Textures/T_Concrete_4_AO.uasset": {
       "hash": "sha256:1c83655b44f47ac990174612810781376886afa827b6af8672a844d0b7af5948",
       "size": 5172598
@@ -67510,10 +67454,6 @@
     "Content/TreatmentStation/Textures/T_Concrete_Block_1_N.uasset": {
       "hash": "sha256:48fdd7960819f626354dcd11ee76605258d4f07f65adf7dc34ab8d2e5efbf2bf",
       "size": 10892193
-    },
-    "Content/TreatmentStation/Textures/T_Concrete_Block_1_R.uasset": {
-      "hash": "sha256:163d267249c101a6f12117acd0f49cd7a362882503435dc178596f6b52f63365",
-      "size": 5099604
     },
     "Content/TreatmentStation/Textures/T_Concrete_Wall_1_A_N.uasset": {
       "hash": "sha256:fa5141938ef8eecce96c25e91be5be39b7dd529be2e0966b0d4595389cb6e154",

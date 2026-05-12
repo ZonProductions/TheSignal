@@ -43,9 +43,21 @@
       "mcp__blueprint-mcp__disconnect_material_pin",
       "mcp__blueprint-mcp__disconnect_pin",
       "mcp__blueprint-mcp__set_pin_default",
-      "mcp__blueprint-mcp__delete_graph"
+      "mcp__blueprint-mcp__delete_graph",
+      "PowerShell(Test-Path *)",
+      "PowerShell(cmd /c \"dir W:\\\\ /b /ad\" 2>&1)",
+      "PowerShell(New-Item *)",
+      "PowerShell(cmd /c \"dir /s /b W:\\\\DialoguePlugin.uplugin 2>nul\"; Write-Host \"--- folder name ---\"; cmd /c \"dir /s /b /ad W:\\\\DialoguePlugin 2>nul\"; Write-Host \"--- end ---\")",
+      "PowerShell(Get-Process *)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Epic Games\\\\UE_5.4\\\\Engine\\\\Build\\\\BatchFiles\\\\Build.bat\" TheSignalEditor Win64 Development -Project=\"C:\\\\Users\\\\Ommei\\\\workspace\\\\Signal\\\\TheSignal.uproject\" -WaitMutex -FromMsBuild)",
+      "Bash(python -c \"import PyInstaller; print\\('pyinstaller', PyInstaller.__version__\\)\")",
+      "Bash(pyinstaller --onefile --windowed --icon=icon.ico --name=run --hidden-import=google.cloud.storage --hidden-import=google.auth --hidden-import=google.auth.transport.requests --hidden-import=google.oauth2 --hidden-import=requests --add-data \"icon.ico;.\" --add-data \"C:/Users/Ommei/workspace/zon-portal/night-485603-62da2bd145d3.json;.\" src/main.py)"
     ]
   },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "blueprint-mcp"
+  ],
   "hooks": {
     "PostToolUse": [
       {
