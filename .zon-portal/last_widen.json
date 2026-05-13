@@ -1,0 +1,250 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "World: <Object '/Game/office_BigCompanyArchViz/Maps/Maps_BigCompany.Maps_BigCompany' (0x000005F715EC0000) Class 'World'>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Discovered walls and pillars ==="
+		},
+		{
+			"type": "info",
+			"message": "\r\nF1: walls=0 pillars=0"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF2: walls=4 pillars=32"
+		},
+		{
+			"type": "info",
+			"message": "  WARN: F2 stairwell A has 2 candidate walls. Picking by Y proximity to F4 reference.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell A: wall=F2_SM_Cube60 @(366,-1473,701) push_sign=-1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F2_SM_Cube59 @(364,-1325,701) (corner at wall.plus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    (no duplicate pillar)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  WARN: F2 stairwell B has 2 candidate walls. Picking by Y proximity to F4 reference.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell B: wall=F2_SM_Cube104 @(-2809,5268,701) push_sign=+1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F2_SM_Cube103 @(-2807,5120,701) (corner at wall.minus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    (no duplicate pillar)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF3: walls=4 pillars=32"
+		},
+		{
+			"type": "info",
+			"message": "  WARN: F3 stairwell A has 2 candidate walls. Picking by Y proximity to F4 reference.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell A: wall=F3_SM_Cube60 @(366,-1473,1201) push_sign=-1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F3_SM_Cube59 @(364,-1325,1201) (corner at wall.plus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    (no duplicate pillar)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  WARN: F3 stairwell B has 2 candidate walls. Picking by Y proximity to F4 reference.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell B: wall=F3_SM_Cube105 @(-2809,5268,1201) push_sign=+1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F3_SM_Cube104 @(-2807,5120,1201) (corner at wall.minus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    (no duplicate pillar)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF4: walls=2 pillars=32"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell A: wall=F4_SM_Cube60 @(355,-1473,1701) push_sign=-1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F4_SM_Cube59 @(364,-1325,1701) (corner at wall.plus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    duplicate pillar: F4_SM_Cube122  -> WILL DELETE\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell B: wall=F4_SM_Cube101 @(-2809,5268,1701) push_sign=+1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F4_SM_Cube100 @(-2807,5120,1701) (corner at wall.minus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    (no duplicate pillar)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF5: walls=8 pillars=31"
+		},
+		{
+			"type": "info",
+			"message": "  WARN: F5 stairwell A has 4 candidate walls. Picking by Y proximity to F4 reference.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell A: wall=F5_SM_Cube82 @(994,-1473,1741) push_sign=-1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F5_SM_Cube59 @(364,-1325,2201) (corner at wall.plus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    (no duplicate pillar)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  WARN: F5 stairwell B has 4 candidate walls. Picking by Y proximity to F4 reference.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Stairwell B: wall=F5_SM_Cube143 @(-3437,5268,1741) push_sign=+1\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    pillar=F5_SM_Cube105 @(-2807,5120,2201) (corner at wall.minus-Y end)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    (no duplicate pillar)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Plan summary ==="
+		},
+		{
+			"type": "info",
+			"message": "  8 (floor, stairwell) edits to apply.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Each: move wall 30.0 UU outward + spawn return piece + delete dup pillar (if any).\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Applying changes ==="
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F2_SM_Cube60          (  366.5,-1473.2, 700.7) -> (  336.5,-1473.2, 700.7)  ok=<Struct 'HitResult' (0x0000063BFA715500) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F2_SM_Cube104         (-2809.4, 5268.4, 700.7) -> (-2779.4, 5268.4, 700.7)  ok=<Struct 'HitResult' (0x0000063BFA714F00) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F3_SM_Cube60          (  366.5,-1473.2,1200.7) -> (  336.5,-1473.2,1200.7)  ok=<Struct 'HitResult' (0x0000063BFA71A700) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F3_SM_Cube105         (-2809.4, 5268.4,1200.7) -> (-2779.4, 5268.4,1200.7)  ok=<Struct 'HitResult' (0x0000063BFA711500) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F4_SM_Cube60          (  355.0,-1473.2,1700.7) -> (  325.0,-1473.2,1700.7)  ok=<Struct 'HitResult' (0x0000063BFA71F500) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F4_SM_Cube101         (-2809.4, 5268.4,1700.7) -> (-2779.4, 5268.4,1700.7)  ok=<Struct 'HitResult' (0x0000063BFA715400) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F5_SM_Cube82          (  994.4,-1473.2,1740.9) -> (  964.4,-1473.2,1740.9)  ok=<Struct 'HitResult' (0x0000063BFA71EF00) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F5_SM_Cube143         (-3437.3, 5268.4,1740.9) -> (-3407.3, 5268.4,1740.9)  ok=<Struct 'HitResult' (0x0000063BFA719500) {}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F2_SM_StairwellReturn_A @(351.5,-1327.2,700.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F2_SM_StairwellReturn_B @(-2794.4,5122.3,700.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F3_SM_StairwellReturn_A @(351.5,-1327.2,1200.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F3_SM_StairwellReturn_B @(-2794.4,5122.3,1200.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F4_SM_StairwellReturn_A @(340.0,-1327.2,1700.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F4_SM_StairwellReturn_B @(-2794.4,5122.3,1700.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F5_SM_StairwellReturn_A @(979.4,-1327.2,1740.9) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F5_SM_StairwellReturn_B @(-3422.3,5122.3,1740.9) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "warning",
+			"message": "<string>:236: DeprecationWarning: EditorLevelLibrary: Function 'destroy_actor' on 'EditorLevelLibrary' is deprecated: The Editor Scripting Utilities Plugin is deprecated - Use the function in Editor Actor Utilities Subsystem\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F4_SM_Cube122 (duplicate) ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nSnapshot saved: C:/Users/Ommei/workspace/Signal\\.zon-portal\\level_snapshots\\2026-05-12T13-24-07_all_stairwell_widen.json"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone. Review in viewport (PIE off), then Ctrl-S to persist the level edits."
+		}
+	]
+}

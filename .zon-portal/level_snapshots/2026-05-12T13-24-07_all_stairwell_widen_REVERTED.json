@@ -1,0 +1,354 @@
+{
+  "timestamp": "2026-05-12T13-24-07",
+  "purpose": "Widen L-turn landing on both stairwells, F1-F5. Push outer walls 30 UU outward, add corner return wall, delete duplicate pillars.",
+  "push_uu": 30.0,
+  "moves": [
+    {
+      "label": "F2_SM_Cube60",
+      "before_location": [
+        366.45752,
+        -1473.239014,
+        700.747559
+      ],
+      "after_location": [
+        336.45752,
+        -1473.239014,
+        700.747559
+      ]
+    },
+    {
+      "label": "F2_SM_Cube104",
+      "before_location": [
+        -2809.4233398750002,
+        5268.41211,
+        700.747559
+      ],
+      "after_location": [
+        -2779.4233398750002,
+        5268.41211,
+        700.747559
+      ]
+    },
+    {
+      "label": "F3_SM_Cube60",
+      "before_location": [
+        366.45752,
+        -1473.239014,
+        1200.747559
+      ],
+      "after_location": [
+        336.45752,
+        -1473.239014,
+        1200.747559
+      ]
+    },
+    {
+      "label": "F3_SM_Cube105",
+      "before_location": [
+        -2809.4233398750002,
+        5268.41211,
+        1200.747559
+      ],
+      "after_location": [
+        -2779.4233398750002,
+        5268.41211,
+        1200.747559
+      ]
+    },
+    {
+      "label": "F4_SM_Cube60",
+      "before_location": [
+        355.0,
+        -1473.239014,
+        1700.747559
+      ],
+      "after_location": [
+        325.0,
+        -1473.239014,
+        1700.747559
+      ]
+    },
+    {
+      "label": "F4_SM_Cube101",
+      "before_location": [
+        -2809.4233398750002,
+        5268.41211,
+        1700.747559
+      ],
+      "after_location": [
+        -2779.4233398750002,
+        5268.41211,
+        1700.747559
+      ]
+    },
+    {
+      "label": "F5_SM_Cube82",
+      "before_location": [
+        994.378845,
+        -1473.239010179535,
+        1740.8927280803239
+      ],
+      "after_location": [
+        964.378845,
+        -1473.239010179535,
+        1740.8927280803239
+      ]
+    },
+    {
+      "label": "F5_SM_Cube143",
+      "before_location": [
+        -3437.3446648750005,
+        5268.412106179535,
+        1740.8927280803239
+      ],
+      "after_location": [
+        -3407.3446648750005,
+        5268.412106179535,
+        1740.8927280803239
+      ]
+    },
+    {
+      "label": "SM_Cube12",
+      "before_location": [
+        366.45751953125,
+        -1473.239013671875,
+        200.74755859375
+      ],
+      "after_location": [
+        336.45751953125,
+        -1473.239013671875,
+        200.74755859375
+      ]
+    },
+    {
+      "label": "SM_Cube54",
+      "before_location": [
+        -2809.4233394062503,
+        5268.412109671875,
+        200.74755859375
+      ],
+      "after_location": [
+        -2779.4233394062503,
+        5268.412109671875,
+        200.74755859375
+      ]
+    },
+    {
+      "label": "F5_SM_Cube60",
+      "before_location": [
+        366.45752,
+        -1473.239014,
+        2200.747559
+      ],
+      "after_location": [
+        336.45752,
+        -1473.239014,
+        2200.747559
+      ]
+    },
+    {
+      "label": "F5_SM_Cube106",
+      "before_location": [
+        -2809.4233398750002,
+        5268.41211,
+        2200.747559
+      ],
+      "after_location": [
+        -2779.4233398750002,
+        5268.41211,
+        2200.747559
+      ]
+    }
+  ],
+  "spawns": [
+    {
+      "label": "F2_SM_StairwellReturn_A",
+      "location": [
+        351.45752,
+        -1327.1691168395687,
+        700.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F2_SM_StairwellReturn_B",
+      "location": [
+        -2794.4233398750002,
+        5122.342210723316,
+        700.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F3_SM_StairwellReturn_A",
+      "location": [
+        351.45752,
+        -1327.1691168395687,
+        1200.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F3_SM_StairwellReturn_B",
+      "location": [
+        -2794.4233398750002,
+        5122.342210723316,
+        1200.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F4_SM_StairwellReturn_A",
+      "location": [
+        340.0,
+        -1327.1691168395687,
+        1700.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F4_SM_StairwellReturn_B",
+      "location": [
+        -2794.4233398750002,
+        5122.342210723316,
+        1700.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F5_SM_StairwellReturn_A",
+      "location": [
+        979.378845,
+        -1327.1692010105062,
+        1740.8927280803239
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F5_SM_StairwellReturn_B",
+      "location": [
+        -3422.3446648750005,
+        5122.342295234578,
+        1740.8927280803239
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.5
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F1_SM_StairwellReturn_A",
+      "location": [
+        351.45751953125,
+        -1327.1691284576914,
+        200.74755859375
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.50000583508161
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F1_SM_StairwellReturn_B",
+      "location": [
+        -2794.4233394062503,
+        5122.342210395192,
+        200.74755859375
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        5.500005835082168
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F5_SM_StairwellReturn_A",
+      "location": [
+        351.45752,
+        -1327.169204830971,
+        2200.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        4.615525812602561
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    },
+    {
+      "label": "F5_SM_StairwellReturn_B",
+      "location": [
+        -2794.4233398750002,
+        5122.342299055043,
+        2200.747559
+      ],
+      "scale": [
+        0.3,
+        0.18,
+        4.615525835083936
+      ],
+      "mesh": "/Engine/BasicShapes/Cube"
+    }
+  ],
+  "deletions": [
+    {
+      "label": "F4_SM_Cube122",
+      "location": [
+        364.46347,
+        -1324.74585,
+        1700.747559
+      ],
+      "scale": [
+        0.18,
+        5.5,
+        0.18
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        90.00011400000001
+      ],
+      "mesh": "SM_Cube"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "Using world: <Object '/Game/office_BigCompanyArchViz/Maps/Maps_BigCompany.Maps_BigCompany' (0x000005F715EC0000) Class 'World'>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== F4_SM_Cube59 ==="
+		},
+		{
+			"type": "info",
+			"message": "  Loc:   (364.5,-1324.7,1700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Rot:   (0,0,90)  Scale: (0.18,5.50,0.18)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  World box: x=[355,373] y=[-1334,-1316] z=[1426,1976]\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Component collision: enabled=<CollisionEnabled.QUERY_AND_PHYSICS: 3> profile=BlockAll\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== F4_SM_Cube60 ==="
+		},
+		{
+			"type": "info",
+			"message": "  Loc:   (355.0,-1473.2,1700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Rot:   (0,0,90)  Scale: (0.19,5.50,2.92)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  World box: x=[346,364] y=[-1619,-1327] z=[1426,1976]\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Component collision: enabled=<CollisionEnabled.QUERY_AND_PHYSICS: 3> profile=BlockAll\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== F4_SM_Cube122 ==="
+		},
+		{
+			"type": "info",
+			"message": "  Loc:   (364.5,-1324.7,1700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Rot:   (0,0,90)  Scale: (0.18,5.50,0.18)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  World box: x=[355,373] y=[-1334,-1316] z=[1426,1976]\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Component collision: enabled=<CollisionEnabled.QUERY_AND_PHYSICS: 3> profile=BlockAll\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nNothing behind F4_SM_Cube60 in -X direction within 500 UU — disabling its collision would expose open space"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone."
+		}
+	]
+}

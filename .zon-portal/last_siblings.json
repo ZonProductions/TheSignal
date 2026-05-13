@@ -1,0 +1,14 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "warning",
+			"message": "<string>:13: RuntimeWarning: GameplayStatics: A null object was passed as a world context object to UEngine::GetWorldFromContextObject().\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone."
+		}
+	]
+}

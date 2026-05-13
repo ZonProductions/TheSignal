@@ -1,0 +1,286 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "=== 2 F4_SM_Steps actor(s) ===\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== F4_SM_Steps2 @ (749,-1468,1501) rot=(0,0,0) ==="
+		},
+		{
+			"type": "info",
+			"message": "World bounds: origin=(559,-1465,1782) extent=(191,139,283)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  => box mins (368,-1605,1499)  maxs (750,-1326,2065)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "BodySetup box primitives: 3\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Box[0]: center=(-143,74,239) size=(308,123,13) rot=(30,0,0)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    >>> LARGE BOX (>200UU on some axis) — could act as shell <<<\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Box[1]: center=(-153,-70,90) size=(308,123,13) rot=(-30,0,0)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    >>> LARGE BOX (>200UU on some axis) — could act as shell <<<\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Box[2]: center=(-341,10,161) size=(99,247,13) rot=(-0,0,0)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    >>> LARGE BOX (>200UU on some axis) — could act as shell <<<\r\n"
+		},
+		{
+			"type": "info",
+			"message": "Overlapping actors (bounds intersect, excluding self & floor tiles):\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_pipe_line_long39 [StaticMeshActor] profile=BlockAll penetration=(15,16,16)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Steps2 [StaticMeshActor] profile=BlockAll penetration=(382,279,66)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Cube74 [StaticMeshActor] profile=BlockAll penetration=(1,277,8)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_Pipe_Bending13 [StaticMeshActor] profile=BlockAll penetration=(15,16,176)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_pipe_line_long38 [StaticMeshActor] profile=BlockAll penetration=(15,16,276)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_pipe_line_long39 [StaticMeshActor] profile=BlockAll penetration=(15,16,290)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_wallBrick31 [StaticMeshActor] profile=BlockAll penetration=(133,1,456)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_Cube59 [StaticMeshActor] profile=BlockAll penetration=(6,8,477)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_ElevatorWall2 [StaticMeshActor] profile=BlockAll penetration=(389,2,400)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_case_pCube255 [StaticMeshActor] profile=BlockAll penetration=(5,3,64)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_plant_a5 [StaticMeshActor] profile=BlockAll penetration=(61,18,64)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_wallBrick31 [StaticMeshActor] profile=BlockAll penetration=(133,1,132)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_Cube59 [StaticMeshActor] profile=BlockAll penetration=(6,8,77)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_Cube60 [StaticMeshActor] profile=BlockAll penetration=(8,277,95)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_ElevatorWall2 [StaticMeshActor] profile=BlockAll penetration=(389,2,66)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DoorTrigger_F4_F4_Exit_door_pCube164_Rotate [ZP_InteractDoor] profile=OverlapOnlyPawn penetration=(61,248,170)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DoorTrigger_F5_F5_Exit_door_pCube164_Rotate [ZP_InteractDoor] profile=OverlapOnlyPawn penetration=(61,248,136)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_wallBrick49 [StaticMeshActor] profile=BlockAll penetration=(276,1,440)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_wallBrick50 [StaticMeshActor] profile=BlockAll penetration=(276,1,139)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Cube82 [StaticMeshActor] profile=BlockAll penetration=(1,276,79)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SM_wallBrick29 [StaticMeshActor] profile=BlockAll penetration=(383,2,4)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SM_wallBrick30 [StaticMeshActor] profile=BlockAll penetration=(376,3,286)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MapVolume_BigCompany [ZP_MapVolume] profile=Custom penetration=(2150,624,915)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SM_wallBrick57 [StaticMeshActor] profile=BlockAll penetration=(297,11,312)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_Cube122 [StaticMeshActor] profile=BlockAll penetration=(6,8,477)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== F4_SM_Steps3 @ (-3192,5263,1501) rot=(0,180,0) ==="
+		},
+		{
+			"type": "info",
+			"message": "World bounds: origin=(-3002,5260,1782) extent=(191,139,283)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  => box mins (-3193,5121,1499)  maxs (-2811,5400,2065)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "BodySetup box primitives: 3\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Box[0]: center=(-143,74,239) size=(308,123,13) rot=(30,0,0)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    >>> LARGE BOX (>200UU on some axis) — could act as shell <<<\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Box[1]: center=(-153,-70,90) size=(308,123,13) rot=(-30,0,0)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    >>> LARGE BOX (>200UU on some axis) — could act as shell <<<\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Box[2]: center=(-341,10,161) size=(99,247,13) rot=(-0,0,0)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    >>> LARGE BOX (>200UU on some axis) — could act as shell <<<\r\n"
+		},
+		{
+			"type": "info",
+			"message": "Overlapping actors (bounds intersect, excluding self & floor tiles):\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_pipe_line_long60 [StaticMeshActor] profile=BlockAll penetration=(15,16,16)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Steps3 [StaticMeshActor] profile=BlockAll penetration=(382,279,66)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Cube119 [StaticMeshActor] profile=BlockAll penetration=(1,277,8)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_Pipe_Bending20 [StaticMeshActor] profile=BlockAll penetration=(15,16,176)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_pipe_line_long59 [StaticMeshActor] profile=BlockAll penetration=(15,16,276)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_pipe_line_long60 [StaticMeshActor] profile=BlockAll penetration=(15,16,290)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_wallBrick53 [StaticMeshActor] profile=BlockAll penetration=(133,1,456)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_Cube100 [StaticMeshActor] profile=BlockAll penetration=(6,8,477)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_Cube101 [StaticMeshActor] profile=BlockAll penetration=(8,277,477)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_ElevatorWall3 [StaticMeshActor] profile=BlockAll penetration=(389,2,400)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_wallBrick54 [StaticMeshActor] profile=BlockAll penetration=(133,1,132)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_Cube105 [StaticMeshActor] profile=BlockAll penetration=(6,8,77)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_Cube106 [StaticMeshActor] profile=BlockAll penetration=(8,277,95)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F5_SM_ElevatorWall3 [StaticMeshActor] profile=BlockAll penetration=(389,2,66)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DoorTrigger_F4_F4_Exit_door_pCube164_Rotate2 [ZP_InteractDoor] profile=OverlapOnlyPawn penetration=(61,248,170)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DoorTrigger_F5_F5_Exit_door_pCube164_Rotate2 [ZP_InteractDoor] profile=OverlapOnlyPawn penetration=(61,248,136)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_wallBrick74 [StaticMeshActor] profile=BlockAll penetration=(276,1,440)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_wallBrick75 [StaticMeshActor] profile=BlockAll penetration=(276,1,139)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Cube142 [StaticMeshActor] profile=BlockAll penetration=(1,276,79)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SM_wallBrick56 [StaticMeshActor] profile=BlockAll penetration=(383,2,4)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Cube143 [StaticMeshActor] profile=BlockAll penetration=(383,142,79)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone."
+		}
+	]
+}

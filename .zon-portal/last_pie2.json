@@ -1,0 +1,62 @@
+{
+	"success": false,
+	"commandResult": "Traceback (most recent call last):\n\n  File \"<string>\", line 1, in <module>\n\n  File \"<string>\", line 89, in <module>\n\nAttributeError: 'HitResult' object has no attribute 'impact_point'\n",
+	"log": [
+		{
+			"type": "info",
+			"message": "GRACE @ (419.4,-1414.7,1837.9) yaw=135  r=55.0 hh=88.0\r\n"
+		},
+		{
+			"type": "info",
+			"message": "F4_SM_Steps2 @ (749.0,-1467.9,1501.1) yaw=0\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Player in F4_SM_Steps2 local frame: (-329.6,53.2,224.5)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Mesh local bounds: x=[-381,1] y=[-137,142] z=[-1,376]\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n--- Capsule overlap probes around player ---"
+		},
+		{
+			"type": "info",
+			"message": "  AT_PLAYER                @ (419,-1415,1838)  n=3: ['F4_SM_Steps2[SM_Steps]', 'ZP_MapVolume0[?]', 'MapVolume_BigCompany[?]']\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  FWD_30                   @ (398,-1393,1838)  n=3: ['F4_SM_Cube60[SM_Cube]', 'ZP_MapVolume0[?]', 'MapVolume_BigCompany[?]']\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  FWD_60                   @ (377,-1372,1838)  n=8: ['SM_wallBrick30[SM_Cube]', 'SM_wallBrick57[SM_Cube]', 'F4_SM_ElevatorWall2[SM_ElevatorWall]', 'F4_SM_Cube59[SM_Cube]', 'F4_SM_Cube122[SM_Cube]', 'F4_SM_Cube60[SM_Cube]'] +2 more\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  BACK_30                  @ (440,-1436,1838)  n=3: ['F4_SM_Steps2[SM_Steps]', 'ZP_MapVolume0[?]', 'MapVolume_BigCompany[?]']\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  LEFT_30                  @ (398,-1436,1838)  n=3: ['F4_SM_Cube60[SM_Cube]', 'ZP_MapVolume0[?]', 'MapVolume_BigCompany[?]']\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  RIGHT_30                 @ (441,-1394,1838)  n=3: ['F4_SM_Steps2[SM_Steps]', 'ZP_MapVolume0[?]', 'MapVolume_BigCompany[?]']\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DOWN_30                  @ (419,-1415,1808)  n=3: ['F4_SM_Steps2[SM_Steps]', 'ZP_MapVolume0[?]', 'MapVolume_BigCompany[?]']\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DOWN_50                  @ (419,-1415,1788)  n=3: ['F4_SM_Steps2[SM_Steps]', 'ZP_MapVolume0[?]', 'MapVolume_BigCompany[?]']\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n--- Line trace DOWN (find floor) ---"
+		}
+	]
+}

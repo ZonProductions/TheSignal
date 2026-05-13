@@ -1,0 +1,142 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "=== Reverting wrong F5 moves ===\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F5_SM_Cube82: (964.4,-1473.2,1740.9) -> (994.4,-1473.2,1740.9)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F5_SM_Cube143: (-3407.3,5268.4,1740.9) -> (-3437.3,5268.4,1740.9)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Deleting wrong F5 return pieces ==="
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F5_SM_StairwellReturn_A: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F5_SM_StairwellReturn_B: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Probing expected F1 + F5 wall positions ==="
+		},
+		{
+			"type": "info",
+			"message": "\r\nF1_A_expected probe @ (355,-1473,201) ±50:"
+		},
+		{
+			"type": "info",
+			"message": "    other: SM_Steps3[SM_Steps] @(561,-1465,274) ±(191,139,283)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  WALL CANDIDATE: SM_Cube12 @(366,-1473,201) ±(9,146,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF1_B_expected probe @ (-2809,5268,201) ±50:"
+		},
+		{
+			"type": "info",
+			"message": "    other: SM_Steps4[SM_Steps] @(-3004,5260,274) ±(191,139,283)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  WALL CANDIDATE: SM_Cube54 @(-2809,5268,201) ±(9,146,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF5_A_expected probe @ (355,-1473,2201) ±50:"
+		},
+		{
+			"type": "info",
+			"message": "    other: F5_hanged_coat_polySurface35[SM_ClothHanged] @(344,-1498,2112) ±(12,19,74)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    other: F5_hanged_coat_Hanger_W_23[SM_ClothHanger] @(357,-1511,2187) ±(4,39,12)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    other: F5_hanged_coat_polySurface36[SM_ClothScarf] @(351,-1525,2143) ±(7,14,45)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  WALL CANDIDATE: F5_SM_Cube60 @(366,-1473,2201) ±(9,146,231)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF5_B_expected probe @ (-2809,5268,2201) ±50:"
+		},
+		{
+			"type": "info",
+			"message": "  WALL CANDIDATE: F5_SM_Cube106 @(-2809,5268,2201) ±(9,146,231)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Probing for stair flights at each transition ==="
+		},
+		{
+			"type": "info",
+			"message": "\r\nF1->F2 (Z~451):"
+		},
+		{
+			"type": "info",
+			"message": "  SM_Steps3              @(561,-1465,274)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SM_Steps4              @(-3004,5260,274)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF2->F3 (Z~951):"
+		},
+		{
+			"type": "info",
+			"message": "  F2_SM_Steps2           @(559,-1465,780)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F2_SM_Steps3           @(-3002,5260,780)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF3->F4 (Z~1451):"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Steps2           @(559,-1465,1282)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F3_SM_Steps3           @(-3002,5260,1282)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF4->F5 (Z~1951):"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_Steps2           @(559,-1465,1782)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  F4_SM_Steps3           @(-3002,5260,1782)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone."
+		}
+	]
+}

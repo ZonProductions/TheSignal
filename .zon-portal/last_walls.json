@@ -1,0 +1,158 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "World: <Object '/Game/office_BigCompanyArchViz/Maps/Maps_BigCompany.Maps_BigCompany' (0x000005F715EC0000) Class 'World'>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "StaticMeshActors in world: 27759\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nF4_SM_Steps3 @ (-3192.0,5263.1,1501.1)"
+		},
+		{
+			"type": "info",
+			"message": "\r\nLooking for outer-wall slab matching Cube60 near F4_SM_Steps3 (within 600 UU):"
+		},
+		{
+			"type": "info",
+			"message": "  Expected mirrored wall location ~(-2798,5268,1700)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  CANDIDATE: F4_SM_Cube100 @ (-2807,5120,1701) scale=(0.18,5.50,0.18) extent=(9,9,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  CANDIDATE: F4_SM_Cube101 @ (-2809,5268,1701) scale=(0.19,5.50,2.92) extent=(9,146,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  --> PICKED as F4_SM_Steps3 outer wall: F4_SM_Cube101\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Neighbors of F4_SM_Cube60 at its Y-seams ==="
+		},
+		{
+			"type": "info",
+			"message": "Cube60 world box: x=[346,364] y=[-1619,-1327] z=[1426,1976]\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  -Y seam mid probe @ (355,-1640,1701) ±30: 1 actors\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    MapVolume_BigCompany[?]@(-1222,74,2150)±(3740,2024,1000)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  +Y seam mid probe @ (355,-1310,1701) ±30: 6 actors\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    SM_wallBrick57[SM_Cube]@(522,-1323,1756)±(143,14,55)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F4_SM_Steps2[SM_Steps]@(559,-1465,1782)±(191,139,283)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F4_SM_ElevatorWall2[SM_ElevatorWall]@(1050,-1322,1699)±(689,6,200)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F4_SM_Cube59[SM_Cube]@(364,-1325,1701)±(9,9,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F4_SM_Cube122[SM_Cube]@(364,-1325,1701)±(9,9,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    MapVolume_BigCompany[?]@(-1222,74,2150)±(3740,2024,1000)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  -Y seam low probe @ (355,-1640,1450) ±30: 3 actors\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    FloorTile_F4_51_01[SM_Cube]@(350,-1654,1487)±(50,50,14)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F3_SM_Cube60[SM_Cube]@(366,-1473,1201)±(9,146,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    MapVolume_BigCompany[?]@(-1222,74,2150)±(3740,2024,1000)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  +Y seam low probe @ (355,-1310,1450) ±30: 9 actors\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    SM_wallBrick29[SM_Cube]@(1217,-1323,1448)±(850,5,55)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    FloorTile_F4_55_8[SM_Cube]@(601,-1309,1487)±(450,12,14)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    FloorTile_F4_51_05[SM_Cube]@(350,-1250,1487)±(50,50,14)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F4_SM_Cube59[SM_Cube]@(364,-1325,1701)±(9,9,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F4_SM_Cube122[SM_Cube]@(364,-1325,1701)±(9,9,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    FloorTile_F4_50_4[SM_Cube]@(324,-1450,1487)±(35,150,14)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F3_SM_Cube59[SM_Cube]@(364,-1325,1201)±(9,9,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    F3_SM_Cube60[SM_Cube]@(366,-1473,1201)±(9,146,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    +1 more\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  -X behind mid probe @ (320,-1473,1701) ±30: 1 actors\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    MapVolume_BigCompany[?]@(-1222,74,2150)±(3740,2024,1000)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  -X way behind probe @ (280,-1473,1701) ±30: 1 actors\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    MapVolume_BigCompany[?]@(-1222,74,2150)±(3740,2024,1000)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone."
+		}
+	]
+}

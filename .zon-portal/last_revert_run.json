@@ -1,0 +1,142 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "Reverting from: C:/Users/Ommei/workspace/Signal\\.zon-portal\\level_snapshots\\2026-05-12T13-24-07_all_stairwell_widen.json\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Destroying spawned return pieces ==="
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F2_SM_StairwellReturn_A: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F2_SM_StairwellReturn_B: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F3_SM_StairwellReturn_A: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F3_SM_StairwellReturn_B: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F4_SM_StairwellReturn_A: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F4_SM_StairwellReturn_B: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F5_SM_StairwellReturn_A: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  (already gone) F5_SM_StairwellReturn_B\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F1_SM_StairwellReturn_A: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F1_SM_StairwellReturn_B: ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  DELETE F5_SM_StairwellReturn_A: ok=False\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  (already gone) F5_SM_StairwellReturn_B\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Moving walls back ==="
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F2_SM_Cube60: (336.5,-1473.2,700.7) -> (366.5,-1473.2,700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F2_SM_Cube104: (-2779.4,5268.4,700.7) -> (-2809.4,5268.4,700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F3_SM_Cube60: (336.5,-1473.2,1200.7) -> (366.5,-1473.2,1200.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F3_SM_Cube105: (-2779.4,5268.4,1200.7) -> (-2809.4,5268.4,1200.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F4_SM_Cube60: (325.0,-1473.2,1700.7) -> (355.0,-1473.2,1700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F4_SM_Cube101: (-2779.4,5268.4,1700.7) -> (-2809.4,5268.4,1700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F5_SM_Cube82: (994.4,-1473.2,1740.9) -> (994.4,-1473.2,1740.9)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F5_SM_Cube143: (-3437.3,5268.4,1740.9) -> (-3437.3,5268.4,1740.9)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT SM_Cube12: (336.5,-1473.2,200.7) -> (366.5,-1473.2,200.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT SM_Cube54: (-2779.4,5268.4,200.7) -> (-2809.4,5268.4,200.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F5_SM_Cube60: (336.5,-1473.2,2200.7) -> (366.5,-1473.2,2200.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  REVERT F5_SM_Cube106: (-2779.4,5268.4,2200.7) -> (-2809.4,5268.4,2200.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Re-spawning deleted duplicate pillars ==="
+		},
+		{
+			"type": "info",
+			"message": "  RESTORE F4_SM_Cube122 @(364.5,-1324.7,1700.7) scale=(0.18,5.50,0.18)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nSnapshot file moved to: C:/Users/Ommei/workspace/Signal\\.zon-portal\\level_snapshots\\2026-05-12T13-24-07_all_stairwell_widen_REVERTED.json"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Revert complete ==="
+		},
+		{
+			"type": "info",
+			"message": "DO NOT save the level yet — verify visually that everything is back to original first.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "If the level appears correct, you can Ctrl-S to persist the revert.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "If anything looks wrong, close the editor WITHOUT saving and reopen — the unsaved revert will be discarded.\r\n"
+		}
+	]
+}

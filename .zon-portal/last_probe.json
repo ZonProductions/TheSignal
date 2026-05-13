@@ -1,0 +1,42 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "editor world: None\r\n"
+		},
+		{
+			"type": "info",
+			"message": "get_game_world() -> <Object '/Game/office_BigCompanyArchViz/Maps/UEDPIE_0_Maps_BigCompany.Maps_BigCompany' (0x000005F72E799000) Class 'World'>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  pawns in game world: 2\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    BP_GraceCharacter0 [ZP_GraceCharacter] @ <Struct 'Vector' (0x000001A8FFD00F10) {x: 419.409433, y: -1414.738292, z: 1837.920128}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "    BP_PatrolCreature [ZP_CrawlerBase] @ <Struct 'Vector' (0x000001A8FFD01000) {x: -1829.134980, y: -532.333430, z: 2428.345623}>\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nKnown subsystem methods on UnrealEditorSubsystem:"
+		},
+		{
+			"type": "info",
+			"message": "  get_editor_world\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  get_game_world\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  get_world\r\n"
+		}
+	]
+}

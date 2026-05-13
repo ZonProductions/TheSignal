@@ -1,0 +1,22 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "BEFORE  CapsuleRadius=55.0  CapsuleHalfHeight=88.0  CrouchedHalfHeight=44.0  PlayerMeshOffsetZ=-90.0\r\n"
+		},
+		{
+			"type": "info",
+			"message": "AFTER   CapsuleRadius=34.0\r\n"
+		},
+		{
+			"type": "info",
+			"message": "SAVE    ok=True\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone. Restart PIE (no C++ rebuild needed — DataAsset only) and test the stairwell."
+		}
+	]
+}

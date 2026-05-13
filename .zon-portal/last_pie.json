@@ -1,0 +1,14 @@
+{
+	"success": true,
+	"commandResult": "",
+	"log": [
+		{
+			"type": "warning",
+			"message": "<string>:11: RuntimeWarning: GameplayStatics: A null object was passed as a world context object to UEngine::GetWorldFromContextObject().\n"
+		},
+		{
+			"type": "info",
+			"message": "No PIE pawn found. Confirm you're in PIE and try again.\r\n"
+		}
+	]
+}

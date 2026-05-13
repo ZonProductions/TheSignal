@@ -1,0 +1,38 @@
+{
+	"success": false,
+	"commandResult": "Traceback (most recent call last):\n\n  File \"<string>\", line 1, in <module>\n\n  File \"<string>\", line 34, in <module>\n\nTypeError: Transform: Failed to convert parameter 'location' when calling function 'KismetMathLibrary.MakeTransform' on 'Default__KismetMathLibrary'\n  TypeError: NativizeProperty: Cannot nativize 'Rotator' as 'Location' (StructProperty)\n    TypeError: NativizeStructInstance: Cannot nativize 'Rotator' as 'Vector'\n",
+	"log": [
+		{
+			"type": "info",
+			"message": "\r\n=== F4_SM_Cube60 ==="
+		},
+		{
+			"type": "info",
+			"message": "  Mesh:  SM_Cube\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Loc:   (355.0,-1473.2,1700.7)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Rot:   (0,0,90)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Scale: (0.19,5.50,2.92)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  Bounds origin (355,-1473,1701) extent (9,146,275)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  World box: x=[346,364] y=[-1619,-1327] z=[1426,1976]\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  XY distance from stuck-spot player: 87.0 UU\r\n"
+		}
+	]
+}

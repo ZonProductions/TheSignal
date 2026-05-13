@@ -1,0 +1,18 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "try '/Game/Core/Player/BP_GraceCharacter.BP_GraceCharacter' -> None\r\n"
+		},
+		{
+			"type": "info",
+			"message": "try '/Game/Core/Player/BP_GraceCharacter' -> None\r\n"
+		},
+		{
+			"type": "info",
+			"message": "try \"Blueprint'/Game/Core/Player/BP_GraceCharacter.BP_GraceCharacter'\" -> None\r\n"
+		}
+	]
+}

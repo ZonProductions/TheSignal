@@ -1,0 +1,62 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "Appending to snapshot: C:/Users/Ommei/workspace/Signal\\.zon-portal\\level_snapshots\\2026-05-12T13-24-07_all_stairwell_widen.json\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Applying F1 + F5 changes ==="
+		},
+		{
+			"type": "info",
+			"message": "  MOVE SM_Cube12          (  366.5,-1473.2, 200.7) -> (  336.5,-1473.2, 200.7)  pillar=SM_Cube11 @(364,-1325,201) dist=3\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F1_SM_StairwellReturn_A @(351.5,-1327.2,200.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE SM_Cube54          (-2809.4, 5268.4, 200.7) -> (-2779.4, 5268.4, 200.7)  pillar=SM_Cube53 @(-2807,5120,201) dist=3\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F1_SM_StairwellReturn_B @(-2794.4,5122.3,200.7) scale=(0.30,0.18,5.50)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F5_SM_Cube60       (  366.5,-1473.2,2200.7) -> (  336.5,-1473.2,2200.7)  pillar=F5_SM_Cube59 @(364,-1325,2201) dist=3\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F5_SM_StairwellReturn_A @(351.5,-1327.2,2200.7) scale=(0.30,0.18,4.62)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  MOVE F5_SM_Cube106      (-2809.4, 5268.4,2200.7) -> (-2779.4, 5268.4,2200.7)  pillar=F5_SM_Cube105 @(-2807,5120,2201) dist=3\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  SPAWN F5_SM_StairwellReturn_B @(-2794.4,5122.3,2200.7) scale=(0.30,0.18,4.62)\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\n=== Hunting for any remaining duplicate pillars (F2/F3) ==="
+		},
+		{
+			"type": "info",
+			"message": "  Found and removed 0 duplicates in F2/F3.\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nSnapshot updated: C:/Users/Ommei/workspace/Signal\\.zon-portal\\level_snapshots\\2026-05-12T13-24-07_all_stairwell_widen.json"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone."
+		}
+	]
+}

@@ -1,0 +1,134 @@
+{
+	"success": true,
+	"commandResult": "None",
+	"log": [
+		{
+			"type": "info",
+			"message": "Direct lookup failed — scanning /Game for Character-based BPs…\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/ProceduralMonster/ClimbingSystem/Blueprints/BP_ClimbingSystem_Character\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/Blueprints/Player/BP_InventoryCharacterComponent\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/Blueprints/Equipment/BP_CharacterEquipmentComponent\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/Core/Player/BP_GraceCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/Core/Player/PC_Grace\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/FirstPerson/Blueprints/BP_FirstPersonCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/LadderClimbingSystem/Blueprints/Character/BP_MasterCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/KINEMATION/TacticalShooterPack/Blueprints/BP_TacticalShooterCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/Blueprints/AI/BP_FighterAICharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/Blueprints/AI/BP_GathererAICharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/ExampleContent/RPG/Blueprints/BP_InventoryCharacter_RPG\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/ExampleContent/RPG/Blueprints/BP_GathererAICharacter_RPG\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/ExampleContent/Horror/Blueprints/BP_InventoryCharacter_Horror\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/ExampleContent/Horror/Blueprints/BP_GathererAICharacter_Horror\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/Blueprints/AI/BP_DropAICharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/InventorySystemPro/ExampleContent/Common/Characters/FirstPerson/BP_FirstPersonCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/EasyGameUI/DemoContent/BP_DemoMainCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/Blueprints/Player/BP_InventoryCharacterComponent\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/Blueprints/Equipment/BP_CharacterEquipmentComponent\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/Blueprints/AI/BP_FighterAICharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/Blueprints/AI/BP_GathererAICharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/ExampleContent/RPG/Blueprints/BP_InventoryCharacter_RPG\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/ExampleContent/RPG/Blueprints/BP_GathererAICharacter_RPG\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/ExampleContent/Horror/Blueprints/BP_InventoryCharacter_Horror\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/ExampleContent/Horror/Blueprints/BP_GathererAICharacter_Horror\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/ExampleContent/Common/Characters/FirstPerson/BP_FirstPersonCharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/BACKUP_InventorySystemPro/Blueprints/AI/BP_DropAICharacter\r\n"
+		},
+		{
+			"type": "info",
+			"message": "  candidate: /Game/AIBehaviorSystem/Blueprint/BP_CharacterExample\r\n"
+		},
+		{
+			"type": "info",
+			"message": "\r\nSpawned pawns in level:"
+		},
+		{
+			"type": "info",
+			"message": "\r\nDone."
+		}
+	]
+}

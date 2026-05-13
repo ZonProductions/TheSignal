@@ -1,0 +1,26 @@
+{
+	"success": false,
+	"commandResult": "Traceback (most recent call last):\n\n  File \"<string>\", line 1, in <module>\n\n  File \"<string>\", line 73, in <module>\n\nSystemExit: No F4 SM_Steps actor found\n",
+	"log": [
+		{
+			"type": "info",
+			"message": "EditorActorSubsystem reports 0 actors in editor world\r\n"
+		},
+		{
+			"type": "info",
+			"message": "editor world: None\r\n"
+		},
+		{
+			"type": "warning",
+			"message": "<string>:53: RuntimeWarning: GameplayStatics: A null object was passed as a world context object to UEngine::GetWorldFromContextObject().\n"
+		},
+		{
+			"type": "info",
+			"message": "GameplayStatics on editor world: 0 StaticMeshActors\r\n"
+		},
+		{
+			"type": "info",
+			"message": "F4_SM_Steps2 substring matches: 0 -> []\r\n"
+		}
+	]
+}

@@ -51,7 +51,12 @@
       "PowerShell(Get-Process *)",
       "PowerShell(& \"C:\\\\Program Files\\\\Epic Games\\\\UE_5.4\\\\Engine\\\\Build\\\\BatchFiles\\\\Build.bat\" TheSignalEditor Win64 Development -Project=\"C:\\\\Users\\\\Ommei\\\\workspace\\\\Signal\\\\TheSignal.uproject\" -WaitMutex -FromMsBuild)",
       "Bash(python -c \"import PyInstaller; print\\('pyinstaller', PyInstaller.__version__\\)\")",
-      "Bash(pyinstaller --onefile --windowed --icon=icon.ico --name=run --hidden-import=google.cloud.storage --hidden-import=google.auth --hidden-import=google.auth.transport.requests --hidden-import=google.oauth2 --hidden-import=requests --add-data \"icon.ico;.\" --add-data \"C:/Users/Ommei/workspace/zon-portal/night-485603-62da2bd145d3.json;.\" src/main.py)"
+      "Bash(pyinstaller --onefile --windowed --icon=icon.ico --name=run --hidden-import=google.cloud.storage --hidden-import=google.auth --hidden-import=google.auth.transport.requests --hidden-import=google.oauth2 --hidden-import=requests --add-data \"icon.ico;.\" --add-data \"C:/Users/Ommei/workspace/zon-portal/night-485603-62da2bd145d3.json;.\" src/main.py)",
+      "Read(//c/Program Files/Epic Games/**)",
+      "Read(//c/Program Files/Epic Games/UE_5.4/Engine/Binaries/Win64/**)",
+      "Read(//c/Program Files/Epic Games/UE_5.5/Engine/Binaries/Win64/**)",
+      "Read(//c/Users/Ommei/workspace/ZonPortalDev/**)",
+      "Read(//c/Users/Ommei/workspace/**)"
     ]
   },
   "enableAllProjectMcpServers": true,
