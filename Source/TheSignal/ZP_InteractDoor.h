@@ -25,6 +25,7 @@
 #include "ZP_InteractDoor.generated.h"
 
 class UBoxComponent;
+class UStaticMeshComponent;
 
 UENUM(BlueprintType)
 enum class EZP_InteractDoorMode : uint8
@@ -46,9 +47,21 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Door")
 	TObjectPtr<UBoxComponent> InteractionVolume;
 
+	/**
+	 * Built-in door mesh. Assign a mesh here to make a SELF-CONTAINED door
+	 * (one actor = mesh + interaction). Used when DoorActor is left empty —
+	 * ideal for a reusable BP you can drag/copy/paste freely. If DoorActor IS
+	 * set, this stays empty and the external actor is moved instead.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Door")
+	TObjectPtr<UStaticMeshComponent> DoorMesh;
+
 	// --- Config ---
 
-	/** The door actor in the level to move. */
+	/**
+	 * Optional external door actor in the level to move. Leave EMPTY for a
+	 * self-contained door (assign DoorMesh instead).
+	 */
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Door")
 	TObjectPtr<AActor> DoorActor;
 
@@ -94,6 +107,19 @@ protected:
 private:
 	bool bIsOpen = false;
 	bool bIsAnimating = false;
+
+	/** True when moving our own DoorMesh (no external DoorActor linked). */
+	bool bSelfContained = false;
+
+	/** Whether there is anything to move (external actor or built-in mesh). */
+	bool HasDoorTarget() const { return DoorActor != nullptr || bSelfContained; }
+
+	// Unified accessors — operate on the external DoorActor (world space)
+	// or the built-in DoorMesh (relative space) depending on bSelfContained.
+	FRotator GetDoorRotation() const;
+	void SetDoorRotation(const FRotator& InRot);
+	FVector GetDoorLocation() const;
+	void SetDoorLocation(const FVector& InLoc);
 
 	/** Maps DoorActor mesh → owning InteractDoor trigger for trace-based lookup. */
 	static TMap<TWeakObjectPtr<AActor>, TWeakObjectPtr<AZP_InteractDoor>> DoorActorMap;

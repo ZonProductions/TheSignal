@@ -1026,6 +1026,22 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - Ren integration opportunity — hints at combinations through dialogue/audio cues
   - Each safe contains high-value loot (ammo, key items, narrative items)
 
+### TICKET-060 — Keycard Security Clearance System (1-5)
+- Status: PLANNED
+- Priority: MEDIUM
+- Category: Gameplay
+- Notes:
+  - RE/Control-style security clearance: keycards level 1-5, doors/areas require a minimum level. A level-3 card opens level 1/2/3 doors.
+  - **ARCHITECTURE RULE (locked, prevents debt): doors stay dumb.** AZP_InteractDoor only knows bLocked + Unlock() + how it moves. ALL access logic lives in AZP_CardReaderPanel. Never add clearance levels to the door class. A door participates in security for free — reader proximity-locks it (DoorLockRadius) and calls Unlock().
+  - Self-contained BP_InteractDoor (built session 62) is fully compatible: reader finds it by GetActorLocation(), sets bLocked, calls Unlock() — identical to external-DoorActor doors. No door changes ever needed.
+  - **Where the work lands (reader-side + card DA only):**
+    1. SecurityLevel (1-5) field on keycard item DA — likely a ZP_KeycardItem subclass of the Moonville item DA (DA_IDCard is currently a plain Moonville item; adding a field needs a subclass or side mapping).
+    2. RequiredLevel int on AZP_CardReaderPanel.
+    3. Change CheckPlayerHasItem from exact-DA-match (SlotItem == TargetDA) to "holds any card with SecurityLevel >= RequiredLevel". THIS is the one real refactor — current exact-match + consume model is built for one-time puzzle keys.
+    4. bConsumeKeyOnUse default false for clearance cards (reusable, not consumed). One-time keys keep bConsumeKeyOnUse=true.
+  - Existing working example to preserve: BP_CardReaderPanel2 + BP_ItemPickup12 (DA_IDCard) — exact-match one-time key. The clearance system must coexist with this model, not replace it.
+  - Known existing debt (defer, isolated): two door classes exist — AZP_InteractDoor (Building 1, all new work) and AZP_LockableDoor (TreatmentStation slide-gate). Do NOT consolidate now. Steer all new doors to AZP_InteractDoor.
+
 ## BLOCKERS
 - **BLOCKER 002:** Cannot override parent BP functions via MCP (blocks GASP camera override)
 - **BLOCKER 003:** Cannot set pin default object references reliably (partial)

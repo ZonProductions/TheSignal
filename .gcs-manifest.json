@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-05-13T11:57:49",
+  "created": "2026-06-10T07:17:34",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -22390,6 +22390,10 @@
     "Content/Core/Actors/BP_CardReaderPanel.uasset": {
       "hash": "sha256:028e56f30da3754881a5a8358664a3a990d47a69024ae3ce1c8562f2a5eed6ac",
       "size": 26102
+    },
+    "Content/Core/Actors/BP_InteractDoor.uasset": {
+      "hash": "sha256:621d267f07da02f677a9f0cd554dd23d89291f4b99799682534d312a8cc57633",
+      "size": 31968
     },
     "Content/Core/Actors/BP_KeyPickup.uasset": {
       "hash": "sha256:7b6e0b114be779a6c78aabb819e3bdc5688235bfb0eb450a7600c34c15c0ffd4",
@@ -59488,8 +59492,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:d275eb9cdcbb1da5939c986ec528302a46520d8d9aa93499f840a294c3b8ec5b",
-      "size": 27402728
+      "hash": "sha256:631db75e210cc62a882746d4d1ace62f4aa88c7f5f2c46fc3f9d7b409cfbd1e7",
+      "size": 24888527
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",

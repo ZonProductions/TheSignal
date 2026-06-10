@@ -3,6 +3,7 @@
 #include "ZP_InteractDoor.h"
 #include "ZP_GraceCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "EngineUtils.h"
 
@@ -17,6 +18,32 @@ AZP_InteractDoor* AZP_InteractDoor::FindDoorForActor(AActor* Actor)
 	return nullptr;
 }
 
+// --- Unified door target accessors (external actor vs built-in mesh) ---
+
+FRotator AZP_InteractDoor::GetDoorRotation() const
+{
+	if (bSelfContained) return DoorMesh->GetRelativeRotation();
+	return DoorActor ? DoorActor->GetActorRotation() : FRotator::ZeroRotator;
+}
+
+void AZP_InteractDoor::SetDoorRotation(const FRotator& InRot)
+{
+	if (bSelfContained) DoorMesh->SetRelativeRotation(InRot);
+	else if (DoorActor) DoorActor->SetActorRotation(InRot);
+}
+
+FVector AZP_InteractDoor::GetDoorLocation() const
+{
+	if (bSelfContained) return DoorMesh->GetRelativeLocation();
+	return DoorActor ? DoorActor->GetActorLocation() : FVector::ZeroVector;
+}
+
+void AZP_InteractDoor::SetDoorLocation(const FVector& InLoc)
+{
+	if (bSelfContained) DoorMesh->SetRelativeLocation(InLoc);
+	else if (DoorActor) DoorActor->SetActorLocation(InLoc);
+}
+
 AZP_InteractDoor::AZP_InteractDoor()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,6 +51,13 @@ AZP_InteractDoor::AZP_InteractDoor()
 
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
+
+	// Built-in door mesh for self-contained doors. Empty by default — only used
+	// when no external DoorActor is linked (assign a mesh in the BP).
+	DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
+	DoorMesh->SetupAttachment(Root);
+	DoorMesh->SetMobility(EComponentMobility::Movable);
+	DoorMesh->SetCollisionProfileName(TEXT("BlockAll"));
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(Root);
@@ -39,9 +73,35 @@ void AZP_InteractDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Self-contained mode: no external actor, but a built-in mesh is assigned.
+	bSelfContained = (DoorActor == nullptr) && DoorMesh && (DoorMesh->GetStaticMesh() != nullptr);
+
+	if (bSelfContained)
+	{
+		DoorMesh->SetMobility(EComponentMobility::Movable);
+
+		if (OpenMode == EZP_InteractDoorMode::Rotate)
+		{
+			ClosedRotation = DoorMesh->GetRelativeRotation();
+			OpenRotation = ClosedRotation;
+			OpenRotation.Yaw += OpenAngle;
+		}
+		else
+		{
+			ClosedLocation = DoorMesh->GetRelativeLocation();
+			OpenLocation = ClosedLocation + SlideOffset;
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: Self-contained (%s mode, mesh %s)"),
+			*GetName(),
+			OpenMode == EZP_InteractDoorMode::Rotate ? TEXT("Rotate") : TEXT("Slide"),
+			*DoorMesh->GetStaticMesh()->GetName());
+		return;
+	}
+
 	if (!DoorActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] InteractDoor %s: No DoorActor linked!"), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] InteractDoor %s: No DoorActor linked and no DoorMesh set!"), *GetName());
 		return;
 	}
 
@@ -108,7 +168,7 @@ void AZP_InteractDoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!DoorActor || !bIsAnimating)
+	if (!HasDoorTarget() || !bIsAnimating)
 	{
 		SetActorTickEnabled(false);
 		bIsAnimating = false;
@@ -118,13 +178,13 @@ void AZP_InteractDoor::Tick(float DeltaTime)
 	if (OpenMode == EZP_InteractDoorMode::Rotate)
 	{
 		const FRotator& Target = bIsOpen ? OpenRotation : ClosedRotation;
-		FRotator Current = DoorActor->GetActorRotation();
+		FRotator Current = GetDoorRotation();
 		FRotator NewRot = FMath::RInterpTo(Current, Target, DeltaTime, InterpSpeed);
-		DoorActor->SetActorRotation(NewRot);
+		SetDoorRotation(NewRot);
 
 		if (NewRot.Equals(Target, 0.5f))
 		{
-			DoorActor->SetActorRotation(Target);
+			SetDoorRotation(Target);
 			bIsAnimating = false;
 			SetActorTickEnabled(false);
 		}
@@ -132,13 +192,13 @@ void AZP_InteractDoor::Tick(float DeltaTime)
 	else // Slide
 	{
 		const FVector& Target = bIsOpen ? OpenLocation : ClosedLocation;
-		FVector Current = DoorActor->GetActorLocation();
+		FVector Current = GetDoorLocation();
 		FVector NewLoc = FMath::VInterpTo(Current, Target, DeltaTime, InterpSpeed);
-		DoorActor->SetActorLocation(NewLoc);
+		SetDoorLocation(NewLoc);
 
 		if (FVector::Dist(NewLoc, Target) < 1.f)
 		{
-			DoorActor->SetActorLocation(Target);
+			SetDoorLocation(Target);
 			bIsAnimating = false;
 			SetActorTickEnabled(false);
 		}
@@ -158,7 +218,7 @@ FText AZP_InteractDoor::GetInteractionPrompt_Implementation()
 
 void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 {
-	if (!DoorActor) return;
+	if (!HasDoorTarget()) return;
 
 	if (bLocked)
 	{
@@ -179,7 +239,7 @@ void AZP_InteractDoor::Unlock()
 	bLocked = false;
 
 	// Auto-open the door when unlocked (same behavior as AZP_LockableDoor)
-	if (!bIsOpen && DoorActor)
+	if (!bIsOpen && HasDoorTarget())
 	{
 		bIsOpen = true;
 		bIsAnimating = true;
