@@ -344,6 +344,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Weapon")
 	void RestockThrowable();
 
+	/** Hide/show the head region during reload/swap montages (see-own-head fix). */
+	void SetCameraBonePinned(bool bPinned);
+
 	/** Add ammo to reserve pool. Called by ammo pickup items. */
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Ammo")
 	void AddReserveAmmo(int32 Amount);
@@ -443,6 +446,8 @@ private:
 
 	/** Releases the fire lock after the weapon Draw montage lands. */
 	FTimerHandle WeaponSwitchAnimHandle;
+	/** Restores the head region after the swap draw animation fully ends. */
+	FTimerHandle HeadHideHandle;
 	/** True while weapon switch animation is playing — blocks fire input. */
 	bool bWeaponSwitching = false;
 	/** Timer to re-enter ADS after melee weapon equip (ready stance). */
@@ -462,4 +467,31 @@ public:
 	/** Fire-input lock while the weapon Draw montage plays after a swap. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
 	float WeaponDrawLockTime = 0.6f;
+
+	/** How long the head region stays hidden after a swap — must outlast the
+	 *  longest draw animation (the body doesn't track the view during it).
+	 *  1.8 flashed the head at the end of the pistol draw (dev-caught). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float SwapHeadHideTime = 2.5f;
+
+	/** Mag-swap reload duration (pistol/rifles). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float ReloadTime = 3.0f;
+
+	/** Shell loaders (shotguns) reload per shell: Start + shells*Loop + End.
+	 *  Times measured from the Kinemation Herrington reload anims. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float ShellReloadEmptyStartTime = 2.7f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float ShellReloadTacStartTime = 0.7f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float ShellReloadLoopTime = 0.92f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float ShellReloadEndTime = 0.85f;
+
+	/** True for shell-by-shell reloaders (set per weapon in ApplyWeaponConfig). */
+	bool bShellReload = false;
 };

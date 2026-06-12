@@ -451,17 +451,26 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 
 	// Swap immediately — the transition is the Draw montage (ranged) or the
 	// Kubold view-model raise (melee AND throwable, via ApplyWeaponConfig)
+	SetCameraBonePinned(true); // hide head region through the draw animation
+	GetWorld()->GetTimerManager().ClearTimer(HeadHideHandle);
 	if (!PerformWeaponSwap(ActorClass))
 	{
 		bWeaponSwitching = false;
+		SetCameraBonePinned(false);
 		return false;
 	}
 
-	// Release the fire lock once the draw animation lands
+	// Release the fire lock once the draw animation lands. The head hide runs
+	// on its OWN longer timer — draw montages outlast the fire lock, and
+	// unhiding early flashes the misaligned head (dev-caught).
 	GetWorld()->GetTimerManager().SetTimer(WeaponSwitchAnimHandle, [this]()
 	{
 		bWeaponSwitching = false;
 	}, WeaponDrawLockTime, false);
+	GetWorld()->GetTimerManager().SetTimer(HeadHideHandle, [this]()
+	{
+		SetCameraBonePinned(false);
+	}, SwapHeadHideTime, false);
 
 	return true;
 }
@@ -503,6 +512,7 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 
 	// Default all to ranged — overridden for melee/throwable below
 	CurrentWeaponType = EZP_WeaponType::Ranged;
+	bShellReload = false;
 
 	if (WeaponName.Contains(TEXT("Viper")))
 	{
@@ -521,6 +531,7 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		HitscanBodyDamage = 35.f;
 		HitscanWeakPointDamage = 100.f;
 		ReserveAmmo = 24;
+		bShellReload = true;
 	}
 	else if (WeaponName.Contains(TEXT("AK105")))
 	{
@@ -549,6 +560,7 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		HitscanBodyDamage = 30.f;
 		HitscanWeakPointDamage = 90.f;
 		ReserveAmmo = 32;
+		bShellReload = true;
 	}
 	else if (WeaponName.Contains(TEXT("Pipe")))
 	{
@@ -647,6 +659,7 @@ void UZP_KinemationComponent::UnequipWeapon()
 		GetWorld()->GetTimerManager().ClearTimer(MeleeDamageHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeUnequipHideHandle);
 		GetWorld()->GetTimerManager().ClearTimer(WeaponSwitchAnimHandle);
+		GetWorld()->GetTimerManager().ClearTimer(HeadHideHandle);
 	}
 	bFireCooldown = false;
 	bIsReloading = false;
@@ -654,6 +667,7 @@ void UZP_KinemationComponent::UnequipWeapon()
 	bMeleeSwingActive = false;
 
 	bWeaponSwitching = false;
+	SetCameraBonePinned(false);
 
 	// Destroy the weapon actor
 	ActiveWeapon->Destroy();
@@ -848,10 +862,23 @@ void UZP_KinemationComponent::Reload()
 
 	FKinemationBridge::WeaponOnReload(ActiveWeapon);
 
+	// Shell loaders animate per shell — lock/refill/head-hide must run for
+	// the REAL duration or the head pops back mid-animation (dev-caught on
+	// the shotgun: ~9s full reload vs the old flat 3s).
+	float ThisReloadTime = ReloadTime;
+	if (bShellReload)
+	{
+		const int32 Shells = FMath::Min(MagSize - CurrentAmmo, ReserveAmmo);
+		const float StartTime = (CurrentAmmo == 0) ? ShellReloadEmptyStartTime : ShellReloadTacStartTime;
+		ThisReloadTime = StartTime + Shells * ShellReloadLoopTime + ShellReloadEndTime;
+	}
+
 	bIsReloading = true;
+	SetCameraBonePinned(true); // reload montage animates the camera's neck bone
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
 	{
 		bIsReloading = false;
+		SetCameraBonePinned(false);
 
 		// Transfer ammo from reserve to magazine
 		const int32 AmmoNeeded = MagSize - CurrentAmmo;
@@ -859,7 +886,7 @@ void UZP_KinemationComponent::Reload()
 		CurrentAmmo += AmmoAvailable;
 		ReserveAmmo -= AmmoAvailable;
 		OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
-	}, 3.0f, false);
+	}, ThisReloadTime, false);
 }
 
 // --- Melee ---
@@ -1271,6 +1298,27 @@ void UZP_KinemationComponent::ThrowProjectile()
 	{
 		bFireCooldown = false;
 	}, 0.8f, false);
+}
+
+void UZP_KinemationComponent::SetCameraBonePinned(bool bPinned)
+{
+	// Reload/draw montages take over the spine/neck — the body stops tracking
+	// the view and the player can see inside their own head (session 63).
+	// Neck-bone pinning in PostEval FAILED (Kinemation overwrites the neck,
+	// same dead end as the arms). Render-level bone hide is the mechanism
+	// that always works (proven by the clavicle hides): hide the head region
+	// during these windows — it's never legitimately visible in first person.
+	if (PlayerMeshComponent)
+	{
+		if (bPinned)
+		{
+			PlayerMeshComponent->HideBoneByName(FName("neck_01"), PBO_None);
+		}
+		else
+		{
+			PlayerMeshComponent->UnHideBoneByName(FName("neck_01"));
+		}
+	}
 }
 
 void UZP_KinemationComponent::RestockThrowable()

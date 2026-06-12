@@ -40,6 +40,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
 	bool bThrowableGripSpread = false;
 
+
 	/** Additive LOCAL-space rotation applied at every right finger joint while
 	 *  the grip spread is active (negative pitch opens a UE-manny curl).
 	 *  Tune live in PIE via MCP. */

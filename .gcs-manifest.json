@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-11T22:45:40",
+  "created": "2026-06-12T00:29:16",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -22624,8 +22624,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:d85a93a7f2717924a4adb12c33e37aec199758be43f976cc345ea74b3e022b77",
-      "size": 129296
+      "hash": "sha256:f3337a92f5cfacf55208b207fd80bb6af5ee922c564d75be8ede5f69d0137632",
+      "size": 129350
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -61076,8 +61076,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:63bda32c42e7b812607718b5dd97f0ee0098ca4477342f4392c042d206fbf028",
-      "size": 24927541
+      "hash": "sha256:b7092f90f2cb6beee4f2bd11ca9c0c501875427132560670cb1d436a32a4c7b6",
+      "size": 25420197
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",
