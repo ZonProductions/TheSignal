@@ -17,6 +17,9 @@
 #include "ZP_InventoryTabWidget.h"
 #include "GameplayTagContainer.h"
 #include "UObject/UnrealType.h"
+#include "EngineUtils.h"
+#include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "ZP_FloorCullingComponent.h"
 #include "ZP_RuntimeISMBatcher.h"
 #include "ZP_MapWidget.h"
@@ -24,6 +27,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/ShapeComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimSingleNodeInstance.h"
@@ -471,6 +475,21 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// --- Interaction state watchdog (session 63 diagnostics) ---
+	// Polls Moonville's interaction state 4x/sec and logs ONLY transitions,
+	// catching the exact moment popups/interaction die without log spam.
+	InteractStateLogAccum += DeltaTime;
+	if (InteractStateLogAccum >= 0.25f)
+	{
+		InteractStateLogAccum = 0.f;
+		const FString State = GetMoonvilleInteractionStateString();
+		if (State != LastInteractStateDump)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[INTERACT-STATE] CHANGED: %s"), *State);
+			LastInteractStateDump = State;
+		}
+	}
+
 	// Switch hidden Mesh animation based on ground speed and crouch state
 	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
 	{
@@ -906,6 +925,16 @@ void AZP_GraceCharacter::Input_Jump(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 {
+	// NOTE (session 63): do NOT hook transfer-all here. Driving Moonville's
+	// menu state machine from the Interact key (via reflection + its toggle)
+	// desynced its menu state and killed ALL interaction popups/interacts.
+	// Loot-all belongs inside WBP_ItemContainerMenu_Horror, where the open
+	// container and the close path are unambiguous.
+
+	UE_LOG(LogTemp, Warning, TEXT("[INTERACT-STATE] E pressed: %s | ZP: InvMenu=%d Map=%d Ladder=%d CurrentInteractable=%s"),
+		*GetMoonvilleInteractionStateString(), bInventoryMenuOpen, bMapOpen, bOnLadder,
+		CurrentInteractable.IsValid() ? *CurrentInteractable->GetName() : TEXT("None"));
+
 	if (bInventoryMenuOpen || bMapOpen)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Blocked — bInventoryMenuOpen=%d, bMapOpen=%d"), bInventoryMenuOpen, bMapOpen);
@@ -940,16 +969,26 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 			TArray<FHitResult> AllHits;
 			GetWorld()->LineTraceMultiByObjectType(AllHits, CamLoc, TraceEnd, ObjParams, Params);
 
-			// Find first non-volume hit
+			// Find first non-volume hit on VISIBLE geometry. Invisible
+			// interaction spheres (Moonville lockers) bulge over doorways and
+			// through walls — hitting them here hijacked the press from doors
+			// and looted lockers through walls (session 63, log-proven:
+			// every E at the door hit BP_LootLocker's hidden sphere).
 			FHitResult* BestHit = nullptr;
 			for (FHitResult& H : AllHits)
 			{
 				AActor* A = H.GetActor();
-				if (A && !A->GetClass()->GetName().Contains(TEXT("Volume")))
+				if (!A || A->GetClass()->GetName().Contains(TEXT("Volume")))
 				{
-					BestHit = &H;
-					break;
+					continue;
 				}
+				UPrimitiveComponent* HC = H.GetComponent();
+				if (HC && (HC->IsA<UShapeComponent>() || !HC->IsVisible()))
+				{
+					continue;
+				}
+				BestHit = &H;
+				break;
 			}
 
 			bool bTraceHit = (BestHit != nullptr);
@@ -981,28 +1020,17 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 					if (bMatchPickup || bMatchContainer)
 					{
 						// --- Loot Locker filtering ---
-						bool bSkipLoot = false;
-						if (bMatchContainer)
+						// Ammo for weapons the player doesn't own is stripped, but
+						// EMPTY lockers stay fully interactable (dev call, session
+						// 63): the old DisableLockerInteraction/LootedEmptyLockers
+						// path permanently killed filtered-empty lockers — popup
+						// gone, never openable again — which read as "half the
+						// lockers are broken".
+						if (bMatchContainer && !bIsBriefcase)
 						{
-							// Skip if already looted and empty
-							if (LootedEmptyLockers.Contains(FName(*HitActorName)))
-							{
-								UE_LOG(LogTemp, Log, TEXT("[LootLocker] %s is looted and empty — skipping"), *HitActorName);
-								bSkipLoot = true;
-							}
-							// Filter ammo for weapons player doesn't have (not briefcases)
-							else if (!bIsBriefcase)
-							{
-								FilterLockerAmmo(HitActor);
-								if (IsLockerInventoryEmpty(HitActor))
-								{
-									DisableLockerInteraction(HitActor);
-									bSkipLoot = true;
-								}
-							}
+							FilterLockerAmmo(HitActor);
 						}
 
-						if (!bSkipLoot)
 						{
 						// Pre-load ALL overlapping briefcases before Interact().
 						// Moonville opens the CLOSEST overlap, which may differ from our trace target.
@@ -1066,7 +1094,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 						{
 							UE_LOG(LogTemp, Error, TEXT("[ZP-BUG] Moonville Interact() function NOT FOUND!"));
 						}
-						} // end if (!bSkipLoot)
+						}
 					}
 					else if (HitActor->GetClass()->ImplementsInterface(UZP_Interactable::StaticClass()))
 					{
@@ -1112,7 +1140,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 		// For doors: require line-of-sight (player must be looking toward the door).
 		// Prevents door overlap from consuming E when player is looking at nearby lockers/containers.
 		bool bShouldInteract = true;
-		if (Cast<AZP_InteractDoor>(CurrentInteractable.Get()))
+		if (AZP_InteractDoor* LOSDoor = Cast<AZP_InteractDoor>(CurrentInteractable.Get()))
 		{
 			APlayerController* LOSCheck_PC = Cast<APlayerController>(GetController());
 			if (LOSCheck_PC)
@@ -1120,10 +1148,30 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 				FVector LOSCamLoc;
 				FRotator LOSCamRot;
 				LOSCheck_PC->GetPlayerViewPoint(LOSCamLoc, LOSCamRot);
-				FVector ToDoor = (CurrentInteractable->GetActorLocation() - LOSCamLoc).GetSafeNormal();
+
+				// Aim the cone at the DOOR PANEL, not the trigger actor — the
+				// trigger pivot often sits beside the doorway, failing the cone
+				// while the player looks straight at the door. The failed check
+				// fell through to Moonville's fallback, which grabbed whatever
+				// locker was closest ("doors blocked by other interactions",
+				// session 63).
+				FVector DoorTargetLoc = CurrentInteractable->GetActorLocation();
+				if (LOSDoor->DoorActor)
+				{
+					DoorTargetLoc = LOSDoor->DoorActor->GetActorLocation();
+				}
+				else if (LOSDoor->DoorMesh && LOSDoor->DoorMesh->GetStaticMesh())
+				{
+					DoorTargetLoc = LOSDoor->DoorMesh->GetComponentLocation();
+				}
+
+				FVector ToDoor = (DoorTargetLoc - LOSCamLoc).GetSafeNormal();
 				float Dot = FVector::DotProduct(LOSCamRot.Vector(), ToDoor);
 				bShouldInteract = (Dot > 0.5f); // ~60° cone
-				UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2 door LOS check: Dot=%.2f, Pass=%d"), Dot, bShouldInteract);
+				UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2 door LOS check: Dot=%.2f (target %s), Pass=%d"),
+					Dot,
+					LOSDoor->DoorActor ? *LOSDoor->DoorActor->GetName() : TEXT("self DoorMesh"),
+					bShouldInteract);
 			}
 		}
 
@@ -1153,6 +1201,44 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 	// Route through Moonville interaction if available (inventory pickups, etc.)
 	if (MoonvilleInteractionComp)
 	{
+		// Lockers now open through THIS proximity path (the crosshair trace
+		// skips their invisible spheres) — run the same container prep the
+		// trace path does, aimed at Moonville's actual target.
+		if (FObjectProperty* ClosestProp = CastField<FObjectProperty>(
+			MoonvilleInteractionComp->GetClass()->FindPropertyByName(TEXT("ClosestInteractable"))))
+		{
+			UActorComponent* ClosestComp = Cast<UActorComponent>(ClosestProp->GetObjectPropertyValue(
+				ClosestProp->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp)));
+			AActor* ClosestOwner = ClosestComp ? ClosestComp->GetOwner() : nullptr;
+			if (ClosestOwner)
+			{
+				bool bClosestContainer = false;
+				bool bClosestBriefcase = false;
+				for (UClass* C = ClosestOwner->GetClass(); C; C = C->GetSuperClass())
+				{
+					const FString CName = C->GetName();
+					if (CName.Contains(TEXT("ItemContainer")) || CName.Contains(TEXT("Chest")) || CName.Contains(TEXT("LootLocker"))) bClosestContainer = true;
+					if (CName.Contains(TEXT("Briefcase"))) { bClosestContainer = true; bClosestBriefcase = true; }
+				}
+				if (bClosestContainer)
+				{
+					if (!bClosestBriefcase)
+					{
+						FilterLockerAmmo(ClosestOwner);
+					}
+					else
+					{
+						ActiveBriefcaseActor = ClosestOwner;
+					}
+					bWaitingForContainerOpen = true;
+					bContainerWasOpen = false;
+					ContainerOpenWaitFrames = 0;
+					ActiveContainerActor = ClosestOwner;
+					UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 3 container prep: %s"), *ClosestOwner->GetName());
+				}
+			}
+		}
+
 		UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
 		if (InteractFunc)
 		{
@@ -1449,6 +1535,269 @@ void AZP_GraceCharacter::OnThrowableConsumedHandler()
 
 	LastThrowableItemDA = nullptr;
 	LastThrowableSlotIndex = -1;
+}
+
+// The ONLY reliable way to find a container's item storage: the component
+// that actually has an ItemSlots property. Name matching grabbed
+// BP_InventoryActorComponent (the interaction comp, NO items) first —
+// every locker read as "empty" and got permanently disabled on close
+// (session 63, log-proven: "contents: no ItemSlots" on item-bearing lockers).
+static UActorComponent* FindItemSlotsComponent(AActor* Actor)
+{
+	if (!Actor) return nullptr;
+	for (UActorComponent* Comp : Actor->GetComponents())
+	{
+		if (Comp && Comp->GetClass()->FindPropertyByName(FName("ItemSlots")))
+		{
+			return Comp;
+		}
+	}
+	return nullptr;
+}
+
+FString AZP_GraceCharacter::DescribeLockerContents(AActor* LockerActor)
+{
+	if (!LockerActor) return TEXT("null");
+
+	UActorComponent* LockerInvComp = FindItemSlotsComponent(LockerActor);
+	if (!LockerInvComp) return TEXT("no inv comp");
+
+	FProperty* SlotsProp = LockerInvComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	FArrayProperty* ArrayProp = SlotsProp ? CastField<FArrayProperty>(SlotsProp) : nullptr;
+	FStructProperty* StructInner = ArrayProp ? CastField<FStructProperty>(ArrayProp->Inner) : nullptr;
+	if (!StructInner) return TEXT("no ItemSlots");
+
+	FObjectProperty* ItemObjProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("Item_")))
+		{
+			ItemObjProp = CastField<FObjectProperty>(*It);
+			break;
+		}
+	}
+	if (!ItemObjProp) return TEXT("no Item field");
+
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(LockerInvComp));
+	TArray<FString> Names;
+	for (int32 i = 0; i < ArrayHelper.Num(); ++i)
+	{
+		UObject* SlotItem = ItemObjProp->GetObjectPropertyValue(
+			ItemObjProp->ContainerPtrToValuePtr<void>(ArrayHelper.GetRawPtr(i)));
+		if (SlotItem)
+		{
+			Names.Add(SlotItem->GetName());
+		}
+	}
+	return FString::Printf(TEXT("%d items [%s]"), Names.Num(), *FString::Join(Names, TEXT(", ")));
+}
+
+FString AZP_GraceCharacter::GetMoonvilleInteractionStateString() const
+{
+	if (!MoonvilleInteractionComp)
+	{
+		return TEXT("MoonvilleInteractionComp=NULL");
+	}
+
+	auto GetBool = [this](const TCHAR* Name) -> int32
+	{
+		FBoolProperty* P = CastField<FBoolProperty>(
+			MoonvilleInteractionComp->GetClass()->FindPropertyByName(Name));
+		if (!P) return -1;
+		return P->GetPropertyValue(P->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp)) ? 1 : 0;
+	};
+
+	FString Closest = TEXT("None");
+	if (FObjectProperty* OP = CastField<FObjectProperty>(
+		MoonvilleInteractionComp->GetClass()->FindPropertyByName(TEXT("ClosestInteractable"))))
+	{
+		UObject* O = OP->GetObjectPropertyValue(OP->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp));
+		if (UActorComponent* AC = Cast<UActorComponent>(O))
+		{
+			Closest = AC->GetOwner() ? AC->GetOwner()->GetName() : AC->GetName();
+		}
+		else if (O)
+		{
+			Closest = O->GetName();
+		}
+	}
+
+	int32 NumInteractables = -1;
+	FProperty* IntsProp = MoonvilleInteractionComp->GetClass()->FindPropertyByName(TEXT("Interactables"));
+	if (FArrayProperty* AP = IntsProp ? CastField<FArrayProperty>(IntsProp) : nullptr)
+	{
+		FScriptArrayHelper H(AP, IntsProp->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp));
+		NumInteractables = H.Num();
+	}
+
+	return FString::Printf(TEXT("MenuOpen=%d CooledDown=%d FirstPickup=%d Closest=%s NearbyInteractables=%d"),
+		GetBool(TEXT("bInventoryMenuOpen")), GetBool(TEXT("bIsInteractionCooledDown")),
+		GetBool(TEXT("bFirstTimePickupMenuOpen")), *Closest, NumInteractables);
+}
+
+bool AZP_GraceCharacter::TransferAllFromOpenContainer()
+{
+	if (!MoonvilleInventoryComp) return false;
+
+	// While a container menu is up, Moonville points the player's inventory
+	// component at the container's via OtherInventory.
+	// GATE 1 — Moonville's CLIENT-side menu flag must be up. The container's
+	// bPlayerIsUsingActor is set by a server event that sticks in standalone
+	// (TICKET-016: Moonville server events fail silently) — acting on it alone
+	// ate every E press once any locker had been opened (session 63
+	// regression: doors and other lockers went dead).
+	if (!MoonvilleInteractionComp)
+	{
+		return false;
+	}
+	FBoolProperty* MenuProp = CastField<FBoolProperty>(
+		MoonvilleInteractionComp->GetClass()->FindPropertyByName(FName("bInventoryMenuOpen")));
+	if (!MenuProp || !MenuProp->GetPropertyValue(
+		MenuProp->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp)))
+	{
+		return false;
+	}
+
+	// Find the container flagged in-use (the link runs container→player;
+	// the player-side OtherInventory is never set — proven session 63).
+	AActor* ContainerActor = nullptr;
+	FBoolProperty* ContainerUsingProp = nullptr;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		FBoolProperty* UsingProp = CastField<FBoolProperty>(
+			It->GetClass()->FindPropertyByName(FName("bPlayerIsUsingActor")));
+		if (UsingProp && UsingProp->GetPropertyValue(
+			UsingProp->ContainerPtrToValuePtr<void>(*It)))
+		{
+			ContainerActor = *It;
+			ContainerUsingProp = UsingProp;
+			break;
+		}
+	}
+	if (!ContainerActor)
+	{
+		return false;
+	}
+
+	// GATE 2 — the in-use container must be at arm's reach. A stale flag on a
+	// locker across the map must never hijack the Interact key.
+	if (FVector::DistSquared(ContainerActor->GetActorLocation(), GetActorLocation())
+		> FMath::Square(500.f))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[TransferAll] ignoring stale in-use flag on distant %s"),
+			*ContainerActor->GetName());
+		return false;
+	}
+
+	UActorComponent* ContainerComp = FindItemSlotsComponent(ContainerActor);
+	if (!ContainerComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TransferAll] %s is in use but has no ItemSlots component"),
+			*ContainerActor->GetName());
+		return false;
+	}
+
+	FProperty* SlotsProp = ContainerComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	FArrayProperty* ArrayProp = SlotsProp ? CastField<FArrayProperty>(SlotsProp) : nullptr;
+	FStructProperty* StructInner = ArrayProp ? CastField<FStructProperty>(ArrayProp->Inner) : nullptr;
+	if (!StructInner)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TransferAll] ItemSlots array not found on %s"),
+			*ContainerComp->GetClass()->GetName());
+		return false;
+	}
+
+	UFunction* TransferFunc = ContainerComp->FindFunction(FName("TransferItem"));
+	if (!TransferFunc)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TransferAll] TransferItem function not found on %s"),
+			*ContainerComp->GetClass()->GetName());
+		return false;
+	}
+
+	// Snapshot the slots first — TransferItem mutates the array as it moves items
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(ContainerComp));
+	const int32 Num = ArrayHelper.Num();
+	if (Num == 0)
+	{
+		// Empty container: E just closes the menu (and must NOT fall through
+		// to world interaction underneath the open menu)
+		if (UFunction* ToggleFunc = MoonvilleInventoryComp->FindFunction(FName("ToggleInventoryMenu")))
+		{
+			struct { APlayerController* PlayerController; } CloseParams;
+			CloseParams.PlayerController = Cast<APlayerController>(GetController());
+			MoonvilleInventoryComp->ProcessEvent(ToggleFunc, &CloseParams);
+		}
+		if (ContainerUsingProp)
+		{
+			ContainerUsingProp->SetPropertyValue(
+				ContainerUsingProp->ContainerPtrToValuePtr<void>(ContainerActor), false);
+		}
+		UE_LOG(LogTemp, Log, TEXT("[TransferAll] %s empty — closed menu"),
+			ContainerActor ? *ContainerActor->GetName() : TEXT("?"));
+		return true;
+	}
+
+	TArray<TArray<uint8>> SlotCopies;
+	SlotCopies.SetNum(Num);
+	for (int32 i = 0; i < Num; ++i)
+	{
+		SlotCopies[i].SetNumZeroed(StructInner->Struct->GetStructureSize());
+		StructInner->Struct->InitializeStruct(SlotCopies[i].GetData());
+		StructInner->Struct->CopyScriptStruct(SlotCopies[i].GetData(), ArrayHelper.GetRawPtr(i));
+	}
+
+	// TransferItem(ItemSlot, TargetInventory = player's inventory) per slot
+	int32 Transferred = 0;
+	for (TArray<uint8>& SlotData : SlotCopies)
+	{
+		TArray<uint8> Parms;
+		Parms.SetNumZeroed(TransferFunc->ParmsSize);
+		for (TFieldIterator<FProperty> It(TransferFunc); It && It->HasAnyPropertyFlags(CPF_Parm); ++It)
+		{
+			It->InitializeValue_InContainer(Parms.GetData());
+			if (FStructProperty* SP = CastField<FStructProperty>(*It))
+			{
+				SP->Struct->CopyScriptStruct(It->ContainerPtrToValuePtr<void>(Parms.GetData()), SlotData.GetData());
+			}
+			else if (FObjectProperty* OP = CastField<FObjectProperty>(*It))
+			{
+				OP->SetObjectPropertyValue(It->ContainerPtrToValuePtr<void>(Parms.GetData()), MoonvilleInventoryComp);
+			}
+		}
+		ContainerComp->ProcessEvent(TransferFunc, Parms.GetData());
+		++Transferred;
+		for (TFieldIterator<FProperty> It(TransferFunc); It && It->HasAnyPropertyFlags(CPF_Parm); ++It)
+		{
+			It->DestroyValue_InContainer(Parms.GetData());
+		}
+	}
+	for (TArray<uint8>& SlotData : SlotCopies)
+	{
+		StructInner->Struct->DestroyStruct(SlotData.GetData());
+	}
+
+	// Close the menu after looting (dev design: E opens, E loots-and-closes).
+	// Same client-side ToggleInventoryMenu call the Tab key uses — the only
+	// close path proven reliable in standalone.
+	if (UFunction* ToggleFunc = MoonvilleInventoryComp->FindFunction(FName("ToggleInventoryMenu")))
+	{
+		struct { APlayerController* PlayerController; } CloseParams;
+		CloseParams.PlayerController = Cast<APlayerController>(GetController());
+		MoonvilleInventoryComp->ProcessEvent(ToggleFunc, &CloseParams);
+	}
+
+	// Clear the container's in-use flag ourselves — the Moonville server
+	// event that should clear it never runs in standalone (TICKET-016).
+	if (ContainerUsingProp)
+	{
+		ContainerUsingProp->SetPropertyValue(
+			ContainerUsingProp->ContainerPtrToValuePtr<void>(ContainerActor), false);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Transfer All — moved %d slots from %s, menu closed"),
+		Transferred, ContainerActor ? *ContainerActor->GetName() : TEXT("container"));
+	return true;
 }
 
 int32 AZP_GraceCharacter::CountWeaponClassInInventory(TSubclassOf<AActor> InWeaponClass)
@@ -2031,7 +2380,8 @@ void AZP_GraceCharacter::CheckContainerClosed()
 		if (bStillUsing)
 		{
 			// Our traced container opened — use it
-			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container OPENED (bPlayerIsUsingActor=true) on %s after %d frames"), *ContainerToCheck->GetName(), ContainerOpenWaitFrames);
+			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container OPENED (bPlayerIsUsingActor=true) on %s after %d frames — contents: %s"),
+				*ContainerToCheck->GetName(), ContainerOpenWaitFrames, *DescribeLockerContents(ContainerToCheck));
 			bWaitingForContainerOpen = false;
 			bContainerWasOpen = true;
 			ContainerOpenWaitFrames = 0;
@@ -2089,7 +2439,16 @@ void AZP_GraceCharacter::CheckContainerClosed()
 
 			// Timeout: if no container opened after 30 frames (~0.5s), the container was instant-loot
 			// (no lingering UI, bPlayerIsUsingActor never set true). Run unequip check and reset.
-			if (bWaitingForContainerOpen && ContainerOpenWaitFrames >= 30)
+			if (bWaitingForContainerOpen && ContainerOpenWaitFrames >= 30 && ActiveContainerActor.IsValid())
+		{
+			// Enriched (session 63): the timeout means E targeted this container
+			// but Moonville never opened it — the refusal case. Dump everything.
+			UE_LOG(LogTemp, Error, TEXT("[ZP-BUG] CONTAINER REFUSED TO OPEN: %s — contents: %s | Moonville: %s"),
+				*ActiveContainerActor->GetName(),
+				*DescribeLockerContents(ActiveContainerActor.Get()),
+				*GetMoonvilleInteractionStateString());
+		}
+		if (bWaitingForContainerOpen && ContainerOpenWaitFrames >= 30)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Phase 1 TIMEOUT after %d frames — container has no lingering UI. Running UnequipMissingWeapon."), ContainerOpenWaitFrames);
 				bWaitingForContainerOpen = false;
@@ -2124,14 +2483,59 @@ void AZP_GraceCharacter::CheckContainerClosed()
 	{
 		bStillUsing = UsingProp->GetPropertyValue_InContainer(ContainerToCheck);
 	}
-	if (bStillUsing) return; // Still open
 
-	// Container is now closed
-	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container CLOSED (bPlayerIsUsingActor=false) on %s"), *ContainerToCheck->GetName());
+	// bPlayerIsUsingActor is cleared by a Moonville close event that NEVER
+	// fires in standalone (TICKET-016) — waiting on it left lockers flagged
+	// in-use forever, refusing to reopen ("can't loot the item again").
+	// Close signal = the menu WIDGET actually on screen. (The interaction
+	// component's bInventoryMenuOpen flag tracks the Tab menu, NOT container
+	// menus — keying on it cleared the flag 13ms after opening and wrecked
+	// the open state. Log-proven, session 63.)
+	bool bMenuStillOpen = false;
+	{
+		TArray<UUserWidget*> Widgets;
+		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), Widgets, UUserWidget::StaticClass(), false);
+		for (UUserWidget* W : Widgets)
+		{
+			if (!W || !W->IsInViewport() || !W->IsVisible())
+			{
+				continue;
+			}
+			const FString WClassName = W->GetClass()->GetName();
+			if (WClassName.Contains(TEXT("ContainerMenu")) || WClassName.Contains(TEXT("InventoryMenu")))
+			{
+				bMenuStillOpen = true;
+				break;
+			}
+		}
+	}
+	if (bStillUsing && bMenuStillOpen) return; // Still open
+
+	// Container is now closed. Clear a stuck in-use flag so it can reopen.
+	if (bStillUsing && UsingProp)
+	{
+		UsingProp->SetPropertyValue_InContainer(ContainerToCheck, false);
+		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Cleared stuck bPlayerIsUsingActor on %s (menu closed, flag was still true)"),
+			*ContainerToCheck->GetName());
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container CLOSED on %s — contents: %s"),
+		*ContainerToCheck->GetName(), *DescribeLockerContents(ContainerToCheck));
 	bContainerWasOpen = false;
 
-	// Check if loot locker is now empty — disable interaction if so
-	if (IsLockerInventoryEmpty(ContainerToCheck))
+	// Check if loot locker is now empty — disable interaction if so.
+	// NEVER the briefcase: it's the player's persistent storage chest and
+	// must stay interactable for the whole game (session 63: closing it
+	// empty permanently disabled the player's own storage).
+	bool bClosedBriefcase = false;
+	for (UClass* C = ContainerToCheck->GetClass(); C; C = C->GetSuperClass())
+	{
+		if (C->GetName().Contains(TEXT("Briefcase")))
+		{
+			bClosedBriefcase = true;
+			break;
+		}
+	}
+	if (!bClosedBriefcase && IsLockerInventoryEmpty(ContainerToCheck))
 	{
 		DisableLockerInteraction(ContainerToCheck);
 	}
@@ -2217,20 +2621,11 @@ void AZP_GraceCharacter::FilterLockerAmmo(AActor* LockerActor)
 {
 	if (!LockerActor || !MoonvilleInventoryComp) return;
 
-	// Find the locker's inventory component (BP_InventoryActorComponent)
-	UActorComponent* LockerInvComp = nullptr;
-	for (UActorComponent* Comp : LockerActor->GetComponents())
-	{
-		if (Comp->GetClass()->GetName().Contains(TEXT("InventoryActorComponent")) ||
-			Comp->GetClass()->GetName().Contains(TEXT("InventoryComponent")))
-		{
-			LockerInvComp = Comp;
-			break;
-		}
-	}
+	// Find the component that actually holds the items (has ItemSlots)
+	UActorComponent* LockerInvComp = FindItemSlotsComponent(LockerActor);
 	if (!LockerInvComp)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[LootLocker] No inventory component found on %s"), *LockerActor->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[LootLocker] No ItemSlots component found on %s"), *LockerActor->GetName());
 		return;
 	}
 
@@ -2372,18 +2767,11 @@ bool AZP_GraceCharacter::IsLockerInventoryEmpty(AActor* LockerActor)
 {
 	if (!LockerActor) return true;
 
-	// Find locker's inventory component
-	UActorComponent* LockerInvComp = nullptr;
-	for (UActorComponent* Comp : LockerActor->GetComponents())
-	{
-		if (Comp->GetClass()->GetName().Contains(TEXT("InventoryActorComponent")) ||
-			Comp->GetClass()->GetName().Contains(TEXT("InventoryComponent")))
-		{
-			LockerInvComp = Comp;
-			break;
-		}
-	}
-	if (!LockerInvComp) return true;
+	// Find the component that actually holds the items. If none exists we
+	// must NOT call it empty — "can't read it" used to disable item-bearing
+	// lockers forever (session 63).
+	UActorComponent* LockerInvComp = FindItemSlotsComponent(LockerActor);
+	if (!LockerInvComp) return false;
 
 	// Check ItemSlots for any non-null items
 	FProperty* SlotsProp = LockerInvComp->GetClass()->FindPropertyByName(FName("ItemSlots"));

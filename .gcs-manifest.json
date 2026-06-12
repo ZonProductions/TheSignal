@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-12T00:29:16",
+  "created": "2026-06-12T11:03:16",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -11876,8 +11876,8 @@
       "size": 93402
     },
     "Content/Blueprints/Gameplay/BP_LootLocker.uasset": {
-      "hash": "sha256:3939e884d504facf13134c5b92740c195ceeafc47d778e8cd9dabd7df52e4538",
-      "size": 73130
+      "hash": "sha256:b5d5b89d74a43cee7d74438afe2ce11061dd24e9932d2d91f426e1287f0d784f",
+      "size": 87824
     },
     "Content/Blueprints/Gameplay/BP_SavePoint.uasset": {
       "hash": "sha256:7ba8f19e2acb24cde9c030fc0c82797be722691f6450fc257d3219a73576da69",
@@ -34692,8 +34692,8 @@
       "size": 16267
     },
     "Content/InventorySystemPro/Blueprints/Interaction/BP_InteractionComponent.uasset": {
-      "hash": "sha256:6d91e31623e752a31467ac406f1b0c5cc1580c36049bbfa0233a33a03873a402",
-      "size": 513114
+      "hash": "sha256:b3626a701a35aa8c6d8df55c27a765f40ffb4dd10e1f537bfab6c6bb5537a288",
+      "size": 548601
     },
     "Content/InventorySystemPro/Blueprints/Interaction/BP_InventoryActorComponent.uasset": {
       "hash": "sha256:df943ee4da64bead37948d1fcfcc0ca3c476d5170ffc55a5495ac4198cb1d281",
@@ -61076,8 +61076,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:b7092f90f2cb6beee4f2bd11ca9c0c501875427132560670cb1d436a32a4c7b6",
-      "size": 25420197
+      "hash": "sha256:f86b7aa80671b50e8ff1cba2a5678596b06cc17115a3d9a83cdeb8ef88f1fa80",
+      "size": 25539385
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",

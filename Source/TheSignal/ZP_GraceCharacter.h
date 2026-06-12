@@ -417,6 +417,22 @@ private:
 	 *  (sums stack amounts). Stack-aware supply check for throwables. */
 	int32 CountWeaponClassInInventory(TSubclassOf<AActor> InWeaponClass);
 
+	/** Move every item from the open Moonville container into the player
+	 *  inventory ("E again to loot all"). False if no container menu is open. */
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool TransferAllFromOpenContainer();
+
+	/** One-line dump of Moonville's interaction state (menu flag, closest
+	 *  interactable, cooldown) — session 63 diagnostics. */
+	FString GetMoonvilleInteractionStateString() const;
+
+	/** Item count + names inside a container's inventory — diagnostics. */
+	FString DescribeLockerContents(AActor* LockerActor);
+
+	/** Last logged interaction state — change detection in Tick. */
+	FString LastInteractStateDump;
+	float InteractStateLogAccum = 0.f;
+
 	// --- Loot Locker Filtering ---
 
 	/** Lockers that have been opened and emptied — no longer interactable. */

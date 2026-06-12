@@ -227,6 +227,25 @@ void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 	}
 
 	bIsOpen = !bIsOpen;
+
+	// Hinged doors always swing AWAY from whoever opens them (dev call:
+	// never hit the player). Pick the yaw sign from which side of the door
+	// plane the interactor stands on. Decided fresh on every open.
+	if (bIsOpen && OpenMode == EZP_InteractDoorMode::Rotate && Interactor)
+	{
+		const FVector DoorLoc = bSelfContained
+			? DoorMesh->GetComponentLocation()
+			: (DoorActor ? DoorActor->GetActorLocation() : GetActorLocation());
+		const FVector DoorFwd = bSelfContained
+			? DoorMesh->GetForwardVector()
+			: (DoorActor ? DoorActor->GetActorForwardVector() : GetActorForwardVector());
+		const float Side = FVector::DotProduct(DoorFwd, Interactor->GetActorLocation() - DoorLoc);
+		// Sign flipped after testing: these door assets swing INTO the player
+		// with the textbook convention (dev-caught).
+		OpenRotation = ClosedRotation;
+		OpenRotation.Yaw += (Side >= 0.f) ? -OpenAngle : OpenAngle;
+	}
+
 	bIsAnimating = true;
 	SetActorTickEnabled(true);
 
