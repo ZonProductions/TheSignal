@@ -143,6 +143,10 @@ private:
 	UPROPERTY()
 	TArray<TObjectPtr<UWidget>> InventoryContentWidgets;
 
+	/** Visibility each content widget had when captured — restored on show
+	 *  (never blanket Visible: it breaks Moonville's hit-testing). */
+	TArray<ESlateVisibility> InventoryContentSavedVis;
+
 	// --- Tab button row (HorizontalBox inside TabHeader VerticalBox) ---
 	UPROPERTY()
 	TObjectPtr<UHorizontalBox> TabButtonRow;

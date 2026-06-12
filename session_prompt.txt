@@ -5,8 +5,9 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session: Session 61 — Door system overhaul: trace-based detection (DoorActorMap), card reader auto-lock (DoorLockRadius=300UU, auto-open on unlock), door frame collision fix (auto-disable co-located frames). Loot locker filtering: ammo removed if player lacks weapon (9mm→Pistol, Buckshot→Shotgun, 556→Rifle), empty lockers disabled. Card reader/KeyPickup mesh collision fixed (NoCollision). Floor plan cleanup (1,915 actors deleted F1-F4). Building mirror operation attempted.
-- Date: 2026-03-14
+- Last session: Session 63 (a–e, see checkpoints grenade_*/swap_* 2026-06-11/12) — (1) Weapon swaps = traditional Kinemation (instant + Draw montage; 4-phase hack deleted; WeaponDrawLockTime=0.6s). (2) Grenade system rebuilt: held on the Kubold view-model RIGHT fist ("one half of the pipe animation"), equip = back half of Kubold Equip (rise only), no throw gesture, each mid-stack throw replays the rise; stacks to 5 (MaxStackAmount); stays equipped while supply remains (CountWeaponClassInInventory + RestockThrowable); hotkey = live count check (ConsumedWeaponClasses blocklist deleted); fuse 5s; grip baked (offset/rot/scale FVector 0.6,0.6,1.01). (3) Inventory item grid mouse fixed: restore Moonville-authored visibilities, never blanket Visible (ItemShortcutCross was an invisible click-eater). (4) Pipe: Attack_F stab dropped (R/L only). (5) SM_PoliceShotgun re-pointed at real Kinemation Police MI (was blank FBX dummy). (6) AK-105 0.47→0.15s. (7) NearClipPlane 10→2.5cm (ADS camera bled into gun meshes). DEAD END added: NEVER translate PlayerMesh for transitions — camera is socketed to it (forced-crouch incident). All dev-verified in PIE except near-clip ADS check. (8) Pipe grip straight-line refit (Scripts/Python/fit_pipe_grip_channel_offline.py, samples A_MeleePipe_Idle across the whole loop). KEY LESSON: wrist→knuckle interpolation lays the shaft against the BACK of the fist (metacarpals run under the back of the hand — dev caught it). Correct channel center = centroid of the curled finger-joint ring (12 finger joints + thumb_02/03) which physically wraps the shaft. MeleeGripOffset=(-24.49,5.10,22.47), MeleeGripRotation=(p-24.02,y119.26,r33.57) — baked in ZP_KinemationComponent.h + BP_GraceCharacter CDO, rebuilt, set_all_cdo run. NEEDS: PIE visual check (incl. elbow-end roll orientation — fit constrains the shaft line, not spin around it).
+- Session 62 — Melee view-model system (TICKET-054 fix): Kubold FPP Melee Animset on dedicated MeleeViewMesh (camera-child, SingleNode, UE4 skeleton native — no retarget). Replaces ADS-toggle swing hack AND ToggleReadyPose pipe swap hack. Equip/Unequip/Idle/Attack_F from Longsword set (two-handed, matches DA_Pipe). PlayerMesh clavicles hidden while melee held; Moonville pipe actor stays hidden for inventory bookkeeping; SM_Pipe attached to view-model hand_r. ALSO: bullet decals were silently broken (stale /Game/UniversalWallClutter paths in set_all_cdo.py) — fixed to /Game/UWC_Bullet_Holes Metal_Solid 1-5, set + saved on CDO. NEEDS: PIE validation + view-model offset tuning.
+- Date: 2026-06-11
 
 ## CAMPAIGN BUILD
 - **Vertical slice complete.** Core systems proven (player, combat, creatures, inventory, save/load, UI, interaction, lock/key).
@@ -24,8 +25,8 @@
 4. TICKET-046–050: Creature roster — Blind Monster, Oozling (BigBlob), Environmental Hazards (Biomass + Muscle Tentacles), Void Ink reskin. Brute DEFERRED.
 5. TICKET-042: Custom dialogue widget — Replace DemoDialogueWidget with project-styled WBP
 6. Rebuild C++ — ZP_CrawlerMovementComponent debug log wrapping needs build to take effect
-7. TICKET-054: Melee swing feel — pipe swing uses ADS hack (Kinemation has zero melee support). Timing adjusted session 41 (250ms/250ms/700ms). May need further tuning. Camera on PlayerMesh blocks all approaches that move/rotate the mesh (3P montages, Z offset, bone overlays).
-8. FIX: Grenade/pipe weapon swap animation — currently uses ToggleReadyPose which works but is the same "ADS hack" as melee. No proper swap animation exists for non-ranged weapons.
+7. TICKET-054 (melee swing feel): REBUILT session 62 — Kubold FPP view model replaces ADS hack. Pipe grip refit session 63 (straight-line channel fit, Scripts/Python/fit_pipe_grip_channel_offline.py). NEEDS PIE VALIDATION: grip alignment visual, equip/unequip transitions, swing visual, damage timing (MeleeDamageDelay=0.35s), view-model offset tuning (MeleeViewMesh relative transform Z=-155/yaw=-90).
+8. ~~FIX: Grenade swap animation~~ DONE session 63 — grenade lives on the Kubold view-model right fist with the rise-from-below equip; full stack flow (stay equipped, rearm, hotkey, stacking to 5) working and dev-verified.
 
 ### Post-Rebuild Reminder
 After every C++ rebuild, run ALL CDO properties via MCP Python:
@@ -139,7 +140,7 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
 - Notes:
   - Line trace + UWC Metal_Solid decals
   - Fire 0.25s cooldown, reload 3.0s lock
-  - Must run set_bullet_decals.py after rebuild
+  - Decals set by set_all_cdo.py (set_bullet_decals.py no longer exists; stale paths fixed session 62 — /Game/UWC_Bullet_Holes/Instances/Decals/Metal_Solid/MI_Metal_Solid_1-5)
 
 ### TICKET-016 — Moonville Inventory System Pro Integration
 - Status: DONE
@@ -1114,7 +1115,8 @@ Capsule (root)
 - **BlendSpace1D in SingleNode mode is BROKEN** — use direct AnimSequence switching
 - AC_FirstPersonCamera drives camera ROTATION only, never position
 - AnimBP (ABP_TacticalShooter_UE5) computes Pitch → UE5_ABP_IK_Main rotates spine bones
-- **After every C++ rebuild, run set_bullet_decals.py** — CDO resets on Blueprint reinstancing
+- **After every C++ rebuild, run set_all_cdo.py** — CDO resets on Blueprint reinstancing (includes bullet decals; set_bullet_decals.py no longer exists)
+- **Melee view model (session 62):** MeleeViewMesh (camera-child SK comp, Kubold UE4 mannequin) plays FPP melee anims via SingleNode. NEVER play melee anims on PlayerMesh — camera is socketed to it. ZP_KinemationComponent owns lifecycle (Activate/DeactivateMeleeViewModel).
 - **Kinemation ADS:** `AC_TacticalShooterAnimation.IsAiming` is a PROPERTY (not function). Must set via `FBoolProperty::SetPropertyValue` with `ContainerPtrToValuePtr`. `UE5_ABP_IK_Ads` reads it from the component ref each frame. `AC_RecoilAnimation` HAS a proper `SetAiming` function.
 
 ## CRAWLER ARCHITECTURE (SESSION 21 — MVP DONE)

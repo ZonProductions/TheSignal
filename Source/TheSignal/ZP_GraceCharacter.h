@@ -68,6 +68,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<USkeletalMeshComponent> PlayerMesh;
 
+	/** First-person melee view model (Kubold FPP Melee Animset, UE4 skeleton).
+	 *  Child of FirstPersonCamera: the camera drives it, it can never move the
+	 *  camera — the constraint that killed montage/retarget approaches on
+	 *  PlayerMesh (TICKET-054). SingleNode playback, same path as the hidden
+	 *  locomotion mesh. ZP_KinemationComponent owns its lifecycle. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<USkeletalMeshComponent> MeleeViewMesh;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	TObjectPtr<UZP_GraceGameplayComponent> GameplayComp;
 
@@ -405,8 +413,9 @@ private:
 
 	void ToggleFlashlight();
 
-	/** Weapon classes that have been fully consumed (thrown grenades). Blocks re-equip. */
-	TSet<TSubclassOf<AActor>> ConsumedWeaponClasses;
+	/** Total amount of items in Moonville ItemSlots whose weapon class matches
+	 *  (sums stack amounts). Stack-aware supply check for throwables. */
+	int32 CountWeaponClassInInventory(TSubclassOf<AActor> InWeaponClass);
 
 	// --- Loot Locker Filtering ---
 

@@ -197,6 +197,7 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		TabNoMapText = nullptr;
 		NotesWidget = nullptr;
 		InventoryContentWidgets.Empty();
+		InventoryContentSavedVis.Empty();
 		SelectedNoteIndex = -1;
 
 		// Sync GraceCharacter state (Moonville may have closed via right-click)
@@ -376,6 +377,7 @@ void UZP_InventoryTabWidget::CleanupInjectedWidgets()
 	if (NotesWidget) { NotesWidget->RemoveFromParent(); NotesWidget = nullptr; }
 
 	InventoryContentWidgets.Empty();
+	InventoryContentSavedVis.Empty();
 	TabHeaderPanel = nullptr;
 	MoonvilleMapImage = nullptr;
 }
@@ -480,6 +482,16 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 				InventoryContentWidgets.AddUnique(W);
 			}
 		}
+	}
+
+	// Record Moonville's authored visibility for each captured widget —
+	// restore must put THESE back, never blanket Visible: forcing hidden
+	// modals (ItemShortcutCross) visible parks an invisible click-eater over
+	// the item grid (session 63 bug: no hover/clicks on inventory items).
+	InventoryContentSavedVis.Reset();
+	for (UWidget* W : InventoryContentWidgets)
+	{
+		InventoryContentSavedVis.Add(W ? W->GetVisibility() : ESlateVisibility::Collapsed);
 	}
 
 	// --- Create player marker for map ---
@@ -748,9 +760,20 @@ void UZP_InventoryTabWidget::SwitchToTab(EZP_InventoryTab Tab)
 
 void UZP_InventoryTabWidget::SetInventoryContentVisibility(ESlateVisibility InVisibility)
 {
-	for (UWidget* W : InventoryContentWidgets)
+	for (int32 i = 0; i < InventoryContentWidgets.Num(); ++i)
 	{
-		if (W)
+		UWidget* W = InventoryContentWidgets[i];
+		if (!W)
+		{
+			continue;
+		}
+		// "Show" = restore what Moonville authored (captured at wiring) so
+		// hidden modals stay hidden and hit-testing matches their design.
+		if (InVisibility == ESlateVisibility::Visible && InventoryContentSavedVis.IsValidIndex(i))
+		{
+			W->SetVisibility(InventoryContentSavedVis[i]);
+		}
+		else
 		{
 			W->SetVisibility(InVisibility);
 		}

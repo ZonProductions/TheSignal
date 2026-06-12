@@ -35,6 +35,26 @@ public:
 	 *  Used during ladder climbing to override Kinemation's upper body with climb anim. */
 	bool bCopyAllBones = false;
 
+	/** Throwable grip spread — opens the right hand's pistol curl into a wide
+	 *  grenade grip. Set by KinemationComponent while a throwable is held. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
+	bool bThrowableGripSpread = false;
+
+	/** Additive LOCAL-space rotation applied at every right finger joint while
+	 *  the grip spread is active (negative pitch opens a UE-manny curl).
+	 *  Tune live in PIE via MCP. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
+	FRotator GripSpreadPerJoint = FRotator(-20.f, 0.f, 0.f);
+
+	/** Index finger gets this fraction of the spread (full spread splays it
+	 *  too wide — dev verdict, session 63 screenshot). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
+	float GripSpreadIndexScale = 0.4f;
+
+	/** Thumb gets this fraction of the spread (same reason as index). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
+	float GripSpreadThumbScale = 0.3f;
+
 	/** Copy matching bone transforms from source mesh to this mesh.
 	 *  Call AFTER animation evaluation (e.g. from Character Tick). */
 	void CopyBonesFromSource();

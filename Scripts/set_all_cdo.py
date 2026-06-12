@@ -61,10 +61,11 @@ ia_slot1    = load('/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter
 ia_slot2    = load('/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot2')
 ia_slot3    = load('/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot3')
 
-# Bullet decal materials
+# Bullet decal materials (UWC pack — TICKET-015 Metal_Solid set).
+# Old /Game/UniversalWallClutter/... paths were stale and silently loaded nothing.
 decal_mats = []
-for name in ['MI_BulletHole_Metal_01', 'MI_BulletHole_Metal_02', 'MI_BulletHole_Metal_03']:
-    mat = load(f'/Game/UniversalWallClutter/Materials/BulletHoles/{name}')
+for i in range(1, 6):
+    mat = load(f'/Game/UWC_Bullet_Holes/Instances/Decals/Metal_Solid/MI_Metal_Solid_{i}')
     if mat:
         decal_mats.append(mat)
 

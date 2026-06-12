@@ -54,7 +54,7 @@ public:
 
 	/** Seconds after spawn before detonation. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grenade|Explosion")
-	float FuseTime = 2.5f;
+	float FuseTime = 5.0f;
 
 	/** Inner radius — full damage zone (UU). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grenade|Explosion")

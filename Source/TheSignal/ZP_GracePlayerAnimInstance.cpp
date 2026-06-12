@@ -312,6 +312,62 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 		ApplyBoneRotationCS(CSTransforms, RefSkel, FName("upperarm_l"),
 			FRotator(-DropRot, 0.f, 0.f));
 	}
+
+	// --- Throwable grip spread: open the right hand's pistol curl wide ---
+	// Finger writes survive Kinemation (proven session 63 — unlike arm-level
+	// overlays, its IK never targets fingers). Each joint bends around its
+	// OWN local axis and its children follow — uniform component-space
+	// rotation scrambles the hand ("acid trip", session 63).
+	if (bThrowableGripSpread)
+	{
+		static const TCHAR* FingerChains[][3] = {
+			{ TEXT("index_01_r"),  TEXT("index_02_r"),  TEXT("index_03_r")  },
+			{ TEXT("middle_01_r"), TEXT("middle_02_r"), TEXT("middle_03_r") },
+			{ TEXT("ring_01_r"),   TEXT("ring_02_r"),   TEXT("ring_03_r")   },
+			{ TEXT("pinky_01_r"),  TEXT("pinky_02_r"),  TEXT("pinky_03_r")  },
+			{ TEXT("thumb_01_r"),  TEXT("thumb_02_r"),  TEXT("thumb_03_r")  } };
+
+		for (int32 ChainIdx = 0; ChainIdx < 5; ++ChainIdx)
+		{
+			const auto& Chain = FingerChains[ChainIdx];
+			// Index (0) and thumb (4) splay too wide at full spread
+			float Scale = 1.f;
+			if (ChainIdx == 0) { Scale = GripSpreadIndexScale; }
+			else if (ChainIdx == 4) { Scale = GripSpreadThumbScale; }
+			const FQuat SpreadQuat = (GripSpreadPerJoint * Scale).Quaternion();
+			// Capture all locals from the unmodified pose first, then rebuild
+			// the chain top-down so each child rides its parent's new frame.
+			int32 Idx[3];
+			FTransform Local[3];
+			bool bChainValid = true;
+			for (int32 i = 0; i < 3; ++i)
+			{
+				Idx[i] = RefSkel.FindBoneIndex(FName(Chain[i]));
+				if (Idx[i] == INDEX_NONE || Idx[i] >= CSTransforms.Num())
+				{
+					bChainValid = false;
+					break;
+				}
+				const int32 ParentIdx = (i == 0) ? RefSkel.GetParentIndex(Idx[0]) : Idx[i - 1];
+				if (ParentIdx == INDEX_NONE)
+				{
+					bChainValid = false;
+					break;
+				}
+				Local[i] = CSTransforms[Idx[i]].GetRelativeTransform(CSTransforms[ParentIdx]);
+			}
+			if (!bChainValid)
+			{
+				continue;
+			}
+			for (int32 i = 0; i < 3; ++i)
+			{
+				Local[i].SetRotation(Local[i].GetRotation() * SpreadQuat);
+				const int32 ParentIdx = (i == 0) ? RefSkel.GetParentIndex(Idx[0]) : Idx[i - 1];
+				CSTransforms[Idx[i]] = Local[i] * CSTransforms[ParentIdx];
+			}
+		}
+	}
 }
 
 void UZP_GracePlayerAnimInstance::StartBoneBlend(float InterpSpeed)

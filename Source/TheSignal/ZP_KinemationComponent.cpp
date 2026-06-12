@@ -6,7 +6,10 @@
 #include "KinemationBridge.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/DecalComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "Engine/StaticMesh.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimSequenceBase.h"
 #include "ZP_GracePlayerAnimInstance.h"
@@ -20,6 +23,10 @@ UZP_KinemationComponent::UZP_KinemationComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
+
+// NEVER move PlayerMesh to animate weapon transitions — the first-person
+// camera is socketed to it (FPCamera), so any Z offset moves the VIEW and
+// reads as a crouch. Proven the hard way, session 63.
 
 void UZP_KinemationComponent::BeginPlay()
 {
@@ -60,6 +67,22 @@ void UZP_KinemationComponent::BeginPlay()
 		}
 	}
 
+	// Auto-discover melee view mesh (TICKET-054)
+	if (!MeleeViewMeshComponent)
+	{
+		for (UActorComponent* Comp : Owner->GetComponents())
+		{
+			if (USkeletalMeshComponent* SK = Cast<USkeletalMeshComponent>(Comp))
+			{
+				if (SK->GetName() == TEXT("MeleeViewMesh"))
+				{
+					MeleeViewMeshComponent = SK;
+					break;
+				}
+			}
+		}
+	}
+
 	// NOTE: Do NOT wire Kinemation here. SCS Blueprint components
 	// (AC_FirstPersonCamera, AC_TacticalShooterAnimation, etc.) may not have
 	// had their BeginPlay yet — their init would overwrite our wiring.
@@ -78,15 +101,55 @@ void UZP_KinemationComponent::InitializeKinemation()
 	// Wire Kinemation animation components (gracefully skips if not present)
 	InitKinemationAnimation();
 
-	// Load animation sequences for melee/throwable weapons
-	MeleeSwingAnim = LoadObject<UAnimSequenceBase>(nullptr,
-		TEXT("/Game/Animations/FPS/A_FP_PipeSwing.A_FP_PipeSwing"));
+	// Load animation sequences for melee/throwable weapons.
+	// Melee: Kubold Longsword set RETARGETED onto the Operator skeleton
+	// (Scripts/Python/retarget_melee_anims.py). ONE BODY — the view model
+	// wears the same SKM_Operator_Mono the player sees with every weapon.
+	// Plays on the dedicated MeleeViewMesh (TICKET-054), never on PlayerMesh.
+	// Attack_F dropped from the cycle (dev call): it's a longsword forward
+	// stab and reads wrong with a pipe. R/L swings only.
+	MeleeLightAnims.Reset();
+	for (const FString& Name : { FString(TEXT("A_MeleePipe_Attack_R")),
+	                             FString(TEXT("A_MeleePipe_Attack_L")) })
+	{
+		const FString Path = FString::Printf(TEXT("/Game/TheSignal/Animations/Melee/%s.%s"), *Name, *Name);
+		if (UAnimSequenceBase* Anim = LoadObject<UAnimSequenceBase>(nullptr, *Path))
+		{
+			MeleeLightAnims.Add(Anim);
+		}
+	}
+	MeleeIdleAnim = LoadObject<UAnimSequenceBase>(nullptr,
+		TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Idle.A_MeleePipe_Idle"));
+	MeleeEquipAnim = LoadObject<UAnimSequenceBase>(nullptr,
+		TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Equip.A_MeleePipe_Equip"));
+	MeleeUnequipAnim = LoadObject<UAnimSequenceBase>(nullptr,
+		TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Unequip.A_MeleePipe_Unequip"));
 	GrenadeThrowAnim = LoadObject<UAnimSequenceBase>(nullptr,
-		TEXT("/Game/Animations/FPS/A_FP_GrenadeThrow.A_FP_GrenadeThrow"));
+		TEXT("/Game/Animations/FPS/AM_FP_GrenadeThrow.AM_FP_GrenadeThrow"));
 
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: Anims — MeleeSwing:%s, GrenadeThrow:%s"),
-		MeleeSwingAnim ? TEXT("OK") : TEXT("NOT FOUND"),
-		GrenadeThrowAnim ? TEXT("OK") : TEXT("NOT FOUND"));
+	// View-model mesh: the SAME Operator body PlayerMesh wears — identical
+	// arms, identical materials. Legs hidden: never visible from the FP camera.
+	if (MeleeViewMeshComponent && !MeleeViewMeshComponent->GetSkeletalMeshAsset())
+	{
+		if (USkeletalMesh* ViewMesh = LoadObject<USkeletalMesh>(nullptr,
+			TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SKM_Operator_Mono.SKM_Operator_Mono")))
+		{
+			MeleeViewMeshComponent->SetSkeletalMesh(ViewMesh);
+			MeleeViewMeshComponent->HideBoneByName(FName("thigh_l"), PBO_None);
+			MeleeViewMeshComponent->HideBoneByName(FName("thigh_r"), PBO_None);
+			// The Operator's face geometry sits at camera height on the view
+			// model — without this the player sees inside their own head.
+			MeleeViewMeshComponent->HideBoneByName(FName("head"), PBO_None);
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: Anims — MeleeLight:%d, MeleeIdle:%s, MeleeEquip:%s, MeleeUnequip:%s, GrenadeThrow:%s, ViewMesh:%s"),
+		MeleeLightAnims.Num(),
+		MeleeIdleAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		MeleeEquipAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		MeleeUnequipAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		GrenadeThrowAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		(MeleeViewMeshComponent && MeleeViewMeshComponent->GetSkeletalMeshAsset()) ? TEXT("OK") : TEXT("NOT FOUND"));
 
 	// Load grenade projectile class
 	if (!GrenadeProjectileClass)
@@ -351,21 +414,15 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 		PreviousWeaponClass = WeaponClass;
 	}
 
-	// --- Deferred weapon switch: drop arms → swap weapon off screen → raise arms ---
-	// Phase 1 (0.0s): Arms drop off screen with current weapon
-	// Phase 2 (0.5s): Destroy old weapon, spawn new weapon (off screen)
-	// Phase 3 (1.5s): Hold off screen so player registers the change
-	// Phase 4 (2.0s): Arms rise back with new weapon
+	// --- Traditional Kinemation swap (session 63): the new weapon's Draw
+	// montage IS the transition, exactly like the pack's demo character —
+	// set ActiveSettings, call Draw, done. Replaces the old 4-phase
+	// drop/hold/raise hack (ToggleReadyPose lower + off-screen timers).
 
 	bWeaponSwitching = true;
-	PendingSwapWeaponClass = ActorClass;
 
-	// Cancel any in-progress switch timers
+	// Cancel any in-progress switch/melee timers
 	GetWorld()->GetTimerManager().ClearTimer(WeaponSwitchAnimHandle);
-	GetWorld()->GetTimerManager().ClearTimer(WeaponSwapDeferredHandle);
-	GetWorld()->GetTimerManager().ClearTimer(WeaponSwitchRiseHandle);
-
-	// Cancel melee/grenade timers that may still be running
 	GetWorld()->GetTimerManager().ClearTimer(MeleeCooldownHandle);
 	bMeleeCooldown = false;
 
@@ -379,74 +436,59 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 		}
 	}
 
+	// Release ADS — the draw montage starts from the hip pose
 	if (TacticalAnimComp)
 	{
-		// Release ADS + drop to low ready for visual transition
 		SetAiming(false);
-		FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, false);
 	}
 
-	// Hide old weapon immediately so it disappears as arms drop
+	// Leaving melee: pop the view model off instantly — the incoming
+	// weapon's draw animation covers the transition
+	if (bMeleeViewModelActive)
+	{
+		DeactivateMeleeViewModel(false);
+	}
+
+	// Swap immediately — the transition is the Draw montage (ranged) or the
+	// Kubold view-model raise (melee AND throwable, via ApplyWeaponConfig)
+	if (!PerformWeaponSwap(ActorClass))
+	{
+		bWeaponSwitching = false;
+		return false;
+	}
+
+	// Release the fire lock once the draw animation lands
+	GetWorld()->GetTimerManager().SetTimer(WeaponSwitchAnimHandle, [this]()
+	{
+		bWeaponSwitching = false;
+	}, WeaponDrawLockTime, false);
+
+	return true;
+}
+
+bool UZP_KinemationComponent::PerformWeaponSwap(TSubclassOf<AActor> ActorClass)
+{
 	if (ActiveWeapon)
 	{
-		ActiveWeapon->SetActorHiddenInGame(true);
+		ActiveWeapon->Destroy();
+		ActiveWeapon = nullptr;
 	}
 
-	// Phase 2: After arms are off screen, do the actual weapon swap
-	GetWorld()->GetTimerManager().SetTimer(WeaponSwapDeferredHandle, [this]()
+	WeaponClass = ActorClass;
+	SpawnAndEquipWeapon(); // sets ActiveSettings + plays the Draw montage (deferred one tick)
+
+	if (!ActiveWeapon)
 	{
-		TSubclassOf<AActor> SwapClass = PendingSwapWeaponClass;
-		PendingSwapWeaponClass = nullptr;
+		return false;
+	}
 
-		if (!SwapClass) { bWeaponSwitching = false; return; }
+	ApplyWeaponConfig(ActorClass); // melee raises its Kubold view model in here
+	CurrentAmmo = MagSize;
+	OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
+	OnWeaponTypeChanged.Broadcast(CurrentWeaponType);
+	OnWeaponChanged.Broadcast(ActiveWeapon);
 
-		// Destroy old weapon
-		if (ActiveWeapon)
-		{
-			ActiveWeapon->Destroy();
-			ActiveWeapon = nullptr;
-		}
-
-		// Spawn new weapon
-		WeaponClass = SwapClass;
-		SpawnAndEquipWeapon();
-
-		if (!ActiveWeapon) { bWeaponSwitching = false; return; }
-
-		// Apply config + broadcast
-		ApplyWeaponConfig(SwapClass);
-		CurrentAmmo = MagSize;
-		OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
-		OnWeaponTypeChanged.Broadcast(CurrentWeaponType);
-		OnWeaponChanged.Broadcast(ActiveWeapon);
-
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent — swapped to %s (off screen)"), *SwapClass->GetName());
-
-		// Hide new weapon until arms rise
-		if (ActiveWeapon)
-		{
-			ActiveWeapon->SetActorHiddenInGame(true);
-		}
-
-		// Phase 3+4: Hold off screen, then rise with new weapon visible
-		GetWorld()->GetTimerManager().SetTimer(WeaponSwitchRiseHandle, [this]()
-		{
-			if (ActiveWeapon)
-			{
-				ActiveWeapon->SetActorHiddenInGame(false);
-			}
-			// Only raise ready pose for melee/throwable — ranged weapons
-			// use WeaponDraw which handles the pose. Calling ToggleReadyPose
-			// on top of WeaponDraw creates a tilt conflict.
-			if (TacticalAnimComp && CurrentWeaponType != EZP_WeaponType::Ranged)
-			{
-				FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, true);
-			}
-			bWeaponSwitching = false;
-		}, 0.4f, false);
-
-	}, 0.5f, false);
-
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent — swapped to %s"), *ActorClass->GetName());
 	return true;
 }
 
@@ -482,9 +524,10 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	}
 	else if (WeaponName.Contains(TEXT("AK105")))
 	{
-		// AK-105 Carbine — Assault Rifle (128 BPM = 60/128 = 0.47s)
+		// AK-105 Carbine — Assault Rifle. Semi-auto: limited by trigger pull,
+		// not cycling — 0.47s read as ~1 shot/sec in play (dev call).
 		MagSize = 30;
-		FireCooldownTime = 0.47f;
+		FireCooldownTime = 0.15f;
 		HitscanBodyDamage = 15.f;
 		HitscanWeakPointDamage = 60.f;
 		ReserveAmmo = 90;
@@ -532,17 +575,32 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] KinemationComponent::ApplyWeaponConfig — unknown weapon '%s', using defaults."), *WeaponName);
 	}
 
-	// Throwables are one-handed (right hand only) — hide left arm on PlayerMesh
-	if (PlayerMeshComponent)
+	// View model lifecycle (TICKET-054): the Kubold mesh replaces PlayerMesh
+	// arms while a melee weapon (both arms + pipe) or a throwable (right arm
+	// + grenade in the same fist) is held.
+	if (CurrentWeaponType == EZP_WeaponType::Melee)
 	{
-		if (CurrentWeaponType == EZP_WeaponType::Throwable)
-		{
-			PlayerMeshComponent->HideBoneByName(FName("clavicle_l"), PBO_None);
-		}
-		else
-		{
-			PlayerMeshComponent->UnHideBoneByName(FName("clavicle_l"));
-		}
+		ActivateMeleeViewModel();
+	}
+	else if (CurrentWeaponType == EZP_WeaponType::Throwable)
+	{
+		ActivateThrowableViewModel();
+	}
+	else
+	{
+		// No-op when not active. During a swap away from the view model,
+		// EquipWeaponClass already popped it off.
+		DeactivateMeleeViewModel(false);
+	}
+
+	// PlayerMesh arm visibility — ranged weapons show both Kinemation arms;
+	// melee/throwable hide them inside their view-model activation.
+	if (PlayerMeshComponent
+		&& CurrentWeaponType != EZP_WeaponType::Melee
+		&& CurrentWeaponType != EZP_WeaponType::Throwable)
+	{
+		PlayerMeshComponent->UnHideBoneByName(FName("clavicle_r"));
+		PlayerMeshComponent->UnHideBoneByName(FName("clavicle_l"));
 	}
 }
 
@@ -573,6 +631,9 @@ void UZP_KinemationComponent::UnequipWeapon()
 		SetAiming(false);
 	}
 
+	// Retire the melee view model immediately (no lower animation on hard unequip)
+	DeactivateMeleeViewModel(false);
+
 	// Cancel pending timers
 	if (GetWorld())
 	{
@@ -582,9 +643,10 @@ void UZP_KinemationComponent::UnequipWeapon()
 		GetWorld()->GetTimerManager().ClearTimer(MeleeSwingReturnHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeWindupHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeReadyStanceHandle);
+		GetWorld()->GetTimerManager().ClearTimer(MeleeEquipIdleHandle);
+		GetWorld()->GetTimerManager().ClearTimer(MeleeDamageHandle);
+		GetWorld()->GetTimerManager().ClearTimer(MeleeUnequipHideHandle);
 		GetWorld()->GetTimerManager().ClearTimer(WeaponSwitchAnimHandle);
-		GetWorld()->GetTimerManager().ClearTimer(WeaponSwapDeferredHandle);
-		GetWorld()->GetTimerManager().ClearTimer(WeaponSwitchRiseHandle);
 	}
 	bFireCooldown = false;
 	bIsReloading = false;
@@ -640,6 +702,7 @@ void UZP_KinemationComponent::FirePressed()
 	// Route to weapon-type-specific action
 	if (CurrentWeaponType == EZP_WeaponType::Melee)
 	{
+		// Swing fires immediately on press (heavy/hold mechanic removed by design)
 		PerformMeleeSwing();
 		return;
 	}
@@ -808,37 +871,54 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 		return;
 	}
 
-	// --- Animation: ADS wind-up → strike (low ready) → return ---
-	// Phase 1 (0ms):    SetAiming(true)           = arms pull BACK (wind-up)
-	// Phase 2 (250ms):  SetAiming(false) + LowReady = FORWARD+DOWN (strike)
-	// Phase 3 (500ms):  HighReady                  = return to idle
-	bMeleeSwingActive = true;
-	if (TacticalAnimComp)
+	// --- Pick the swing: cycles F → R → L (variety is dev-approved) ---
+	UAnimSequenceBase* SwingAnim = nullptr;
+	if (MeleeLightAnims.Num() > 0)
 	{
-		SetAiming(true); // Wind-up: arms pull back
+		SwingAnim = MeleeLightAnims[MeleeLightAnimIndex % MeleeLightAnims.Num()];
+		++MeleeLightAnimIndex;
 	}
 
-	// After wind-up completes: strike outward + downward
-	GetWorld()->GetTimerManager().SetTimer(MeleeWindupHandle, [this]()
+	// --- Animation: retargeted Kubold swing on the view model (TICKET-054) ---
+	float SwingDuration = 0.7f; // fallback if anim missing
+	if (bMeleeViewModelActive && MeleeViewMeshComponent && SwingAnim)
 	{
-		if (TacticalAnimComp)
-		{
-			SetAiming(false); // Release = arms push OUTWARD
-			FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, false); // + DOWN
-		}
+		PlayMeleeViewAnim(SwingAnim, false, MeleeSwingRate);
+		SwingDuration = SwingAnim->GetPlayLength() / FMath::Max(MeleeSwingRate, 0.1f);
 
-		// Return to high ready after strike follow-through
+		bMeleeSwingActive = true;
 		GetWorld()->GetTimerManager().SetTimer(MeleeSwingReturnHandle, [this]()
 		{
-			if (TacticalAnimComp)
+			if (bMeleeViewModelActive && MeleeIdleAnim)
 			{
-				FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, true);
+				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
 			}
 			bMeleeSwingActive = false;
-		}, 0.25f, false);
-	}, 0.25f, false);
+		}, SwingDuration, false);
+	}
+	else
+	{
+		// Fail loud — swing still does damage, but the visual is missing.
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PerformMeleeSwing — no view model visual (active=%d, anim=%s)"),
+			bMeleeViewModelActive ? 1 : 0, SwingAnim ? TEXT("OK") : TEXT("NULL"));
+	}
 
-	// --- Damage: sphere sweep at click time (instant hit, animation is cosmetic) ---
+	// --- Damage: sweep on the impact frame, not at click time ---
+	GetWorld()->GetTimerManager().SetTimer(MeleeDamageHandle, [this]()
+	{
+		DoMeleeDamageSweep();
+	}, MeleeDamageDelay, false);
+
+	// Cooldown covers the full swing so a re-click can't restart mid-animation
+	bMeleeCooldown = true;
+	GetWorld()->GetTimerManager().SetTimer(MeleeCooldownHandle, [this]()
+	{
+		bMeleeCooldown = false;
+	}, FMath::Max(MeleeCooldown, SwingDuration), false);
+}
+
+void UZP_KinemationComponent::DoMeleeDamageSweep()
+{
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	AController* PC = OwnerPawn ? OwnerPawn->GetController() : nullptr;
 	if (PC && CameraComponent)
@@ -882,20 +962,246 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 		}
 	}
 
-	// Alert nearby creatures — melee is quieter than gunshots
+	// Alert nearby creatures — impact noise, quieter than gunshots
 	UZP_CrawlerBehaviorComponent::BroadcastGunshot(
 		GetWorld(),
 		GetOwner()->GetActorLocation(),
 		2000.f,
 		GetOwner()
 	);
+}
 
-	// Start cooldown
-	bMeleeCooldown = true;
-	GetWorld()->GetTimerManager().SetTimer(MeleeCooldownHandle, [this]()
+// --- Melee view model (TICKET-054) ---
+
+void UZP_KinemationComponent::ActivateMeleeViewModel()
+{
+	if (bMeleeViewModelActive)
 	{
-		bMeleeCooldown = false;
-	}, MeleeCooldown, false);
+		return;
+	}
+	if (!MeleeViewMeshComponent || !MeleeViewMeshComponent->GetSkeletalMeshAsset())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ActivateMeleeViewModel — MeleeViewMesh missing or has no skeletal mesh."));
+		return;
+	}
+	bMeleeViewModelActive = true;
+	GetWorld()->GetTimerManager().ClearTimer(MeleeUnequipHideHandle);
+
+	// Kinemation arms off — the view model IS the arms while melee is held.
+	// Same HideBoneByName pattern as the throwable one-handed clavicle hide.
+	if (PlayerMeshComponent)
+	{
+		PlayerMeshComponent->HideBoneByName(FName("clavicle_l"), PBO_None);
+		PlayerMeshComponent->HideBoneByName(FName("clavicle_r"), PBO_None);
+	}
+
+	// The Moonville pipe actor stays alive for inventory bookkeeping but is
+	// never rendered — its hand attachment collapses once clavicles are hidden.
+	if (ActiveWeapon)
+	{
+		ActiveWeapon->SetActorHiddenInGame(true);
+	}
+
+	// Pipe rigid in the right hand — Kubold convention ("parent weapons
+	// directly to hands"), proven in Reliquary. The anims are authored so the
+	// weapon follows hand_r; left hand tracks the weapon by authoring.
+	if (!MeleeWeaponMeshComp)
+	{
+		MeleeWeaponMeshComp = NewObject<UStaticMeshComponent>(GetOwner(), TEXT("MeleeViewWeapon"));
+		MeleeWeaponMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		MeleeWeaponMeshComp->SetOnlyOwnerSee(true);
+		MeleeWeaponMeshComp->bCastDynamicShadow = false;
+		MeleeWeaponMeshComp->CastShadow = false;
+		MeleeWeaponMeshComp->RegisterComponent();
+		if (UStaticMesh* PipeMesh = LoadObject<UStaticMesh>(nullptr,
+			TEXT("/Game/InventorySystemPro/ExampleContent/Common/Art/Pipe/SM_Pipe.SM_Pipe")))
+		{
+			MeleeWeaponMeshComp->SetStaticMesh(PipeMesh);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ActivateMeleeViewModel — SM_Pipe not found, view model swings empty-handed."));
+		}
+	}
+	MeleeWeaponMeshComp->AttachToComponent(MeleeViewMeshComponent,
+		FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r"));
+	MeleeWeaponMeshComp->SetRelativeLocation(MeleeGripOffset);
+	MeleeWeaponMeshComp->SetRelativeRotation(MeleeGripRotation);
+	MeleeWeaponMeshComp->SetVisibility(true);
+
+	MeleeViewMeshComponent->SetVisibility(true);
+
+	// Raise: Kubold Equip → Idle loop. Swing is blocked until the raise lands.
+	if (MeleeEquipAnim)
+	{
+		PlayMeleeViewAnim(MeleeEquipAnim, false, MeleeEquipRate);
+		const float EquipTime = MeleeEquipAnim->GetPlayLength() / FMath::Max(MeleeEquipRate, 0.1f);
+
+		GetWorld()->GetTimerManager().SetTimer(MeleeEquipIdleHandle, [this]()
+		{
+			if (bMeleeViewModelActive && MeleeIdleAnim)
+			{
+				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+			}
+		}, EquipTime, false);
+
+		bMeleeCooldown = true;
+		GetWorld()->GetTimerManager().SetTimer(MeleeCooldownHandle, [this]()
+		{
+			bMeleeCooldown = false;
+		}, EquipTime, false);
+	}
+	else if (MeleeIdleAnim)
+	{
+		PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee view model ACTIVE (Kubold FPP)"));
+}
+
+void UZP_KinemationComponent::ActivateThrowableViewModel()
+{
+	// "One half of the pipe animation" (dev design, session 63): the Kubold
+	// view model's RIGHT arm holds the grenade in its fist — the same fist
+	// grip the pipe uses — while the left arm is hidden. Reuses the melee
+	// view-model lifecycle so every existing teardown path applies.
+	if (bMeleeViewModelActive)
+	{
+		return;
+	}
+	if (!MeleeViewMeshComponent || !MeleeViewMeshComponent->GetSkeletalMeshAsset())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ActivateThrowableViewModel — MeleeViewMesh missing or has no skeletal mesh."));
+		return;
+	}
+	bMeleeViewModelActive = true;
+	bViewModelThrowable = true;
+	GetWorld()->GetTimerManager().ClearTimer(MeleeUnequipHideHandle);
+
+	// Kinemation arms off — the view model IS the arm while the grenade is held
+	if (PlayerMeshComponent)
+	{
+		PlayerMeshComponent->HideBoneByName(FName("clavicle_l"), PBO_None);
+		PlayerMeshComponent->HideBoneByName(FName("clavicle_r"), PBO_None);
+	}
+
+	// Right arm only — hide the view model's left arm
+	MeleeViewMeshComponent->HideBoneByName(FName("clavicle_l"), PBO_None);
+
+	// No pipe — the grenade is the held prop
+	if (MeleeWeaponMeshComp)
+	{
+		MeleeWeaponMeshComp->SetVisibility(false);
+	}
+	if (ActiveWeapon)
+	{
+		ActiveWeapon->AttachToComponent(MeleeViewMeshComponent,
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r"));
+		ActiveWeapon->SetActorRelativeLocation(ThrowableGripOffset);
+		ActiveWeapon->SetActorRelativeRotation(ThrowableGripRotation);
+		ActiveWeapon->SetActorRelativeScale3D(ThrowableGripScale);
+		ActiveWeapon->SetActorHiddenInGame(false);
+	}
+
+	MeleeViewMeshComponent->SetVisibility(true);
+
+	// Only the back half of the Kubold Equip — the first half mimes drawing
+	// a pipe (a remnant, no pipe in hand); the simple rise from below is the
+	// grenade-out animation (dev call)
+	if (MeleeEquipAnim)
+	{
+		PlayMeleeViewAnim(MeleeEquipAnim, false, MeleeEquipRate);
+		const float StartTime = MeleeEquipAnim->GetPlayLength() * ThrowableEquipStartFraction;
+		MeleeViewMeshComponent->SetPosition(StartTime, false);
+		const float EquipTime = (MeleeEquipAnim->GetPlayLength() - StartTime) / FMath::Max(MeleeEquipRate, 0.1f);
+		GetWorld()->GetTimerManager().SetTimer(MeleeEquipIdleHandle, [this]()
+		{
+			if (bMeleeViewModelActive && MeleeIdleAnim)
+			{
+				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+			}
+		}, EquipTime, false);
+	}
+	else if (MeleeIdleAnim)
+	{
+		PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Throwable view model ACTIVE (Kubold right fist)"));
+}
+
+void UZP_KinemationComponent::DeactivateMeleeViewModel(bool bPlayUnequip)
+{
+	if (!bMeleeViewModelActive)
+	{
+		return;
+	}
+	bMeleeViewModelActive = false;
+
+	// Restore the view model's left arm for the next melee equip
+	if (bViewModelThrowable)
+	{
+		bViewModelThrowable = false;
+		if (MeleeViewMeshComponent)
+		{
+			MeleeViewMeshComponent->UnHideBoneByName(FName("clavicle_l"));
+		}
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(MeleeEquipIdleHandle);
+	GetWorld()->GetTimerManager().ClearTimer(MeleeDamageHandle);
+	GetWorld()->GetTimerManager().ClearTimer(MeleeSwingReturnHandle);
+	bMeleeSwingActive = false;
+
+	if (MeleeViewMeshComponent && bPlayUnequip && MeleeUnequipAnim)
+	{
+		// Lower the pipe through the swap drop window; hide at the off-screen
+		// moment (0.5s — matches EquipWeaponClass phase 2). Clavicle restore is
+		// handled by ApplyWeaponConfig when the new weapon's config lands.
+		PlayMeleeViewAnim(MeleeUnequipAnim, false, MeleeUnequipRate);
+		GetWorld()->GetTimerManager().SetTimer(MeleeUnequipHideHandle, [this]()
+		{
+			if (!bMeleeViewModelActive && MeleeViewMeshComponent)
+			{
+				MeleeViewMeshComponent->SetVisibility(false);
+				if (MeleeWeaponMeshComp)
+				{
+					MeleeWeaponMeshComp->SetVisibility(false);
+				}
+			}
+		}, 0.5f, false);
+	}
+	else
+	{
+		// Hard deactivate: hide now, restore Kinemation arms now.
+		if (MeleeViewMeshComponent)
+		{
+			MeleeViewMeshComponent->SetVisibility(false);
+		}
+		if (MeleeWeaponMeshComp)
+		{
+			MeleeWeaponMeshComp->SetVisibility(false);
+		}
+		if (PlayerMeshComponent)
+		{
+			PlayerMeshComponent->UnHideBoneByName(FName("clavicle_l"));
+			PlayerMeshComponent->UnHideBoneByName(FName("clavicle_r"));
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee view model INACTIVE (unequip anim: %s)"),
+		bPlayUnequip ? TEXT("yes") : TEXT("no"));
+}
+
+void UZP_KinemationComponent::PlayMeleeViewAnim(UAnimSequenceBase* Anim, bool bLoop, float Rate)
+{
+	if (!MeleeViewMeshComponent || !Anim)
+	{
+		return;
+	}
+	MeleeViewMeshComponent->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	MeleeViewMeshComponent->PlayAnimation(Anim, bLoop);
+	MeleeViewMeshComponent->SetPlayRate(Rate);
 }
 
 // --- Throwable ---
@@ -912,14 +1218,9 @@ void UZP_KinemationComponent::ThrowProjectile()
 		return;
 	}
 
-	// Trigger bone-level throw overlay (runs post-Kinemation)
-	if (PlayerMeshComponent)
-	{
-		if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMeshComponent->GetAnimInstance()))
-		{
-			AnimInst->StartGrenadeThrow(0.4f);
-		}
-	}
+	// No throw gesture (dev call): the swing anims read as sword moves. The
+	// hand stays in the idle hold and the grenade just flies — same look the
+	// last-grenade swap produces.
 
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	AController* PC = OwnerPawn ? OwnerPawn->GetController() : nullptr;
@@ -970,4 +1271,33 @@ void UZP_KinemationComponent::ThrowProjectile()
 	{
 		bFireCooldown = false;
 	}, 0.8f, false);
+}
+
+void UZP_KinemationComponent::RestockThrowable()
+{
+	// Called by the owner when inventory still holds more of the equipped
+	// throwable after a throw — rearm so the auto-switch-back doesn't fire.
+	if (CurrentWeaponType != EZP_WeaponType::Throwable)
+	{
+		return;
+	}
+	CurrentAmmo = MagSize > 0 ? MagSize : 1;
+	OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
+
+	// Bring the next grenade up like a fresh equip (dev call) — replay the
+	// rise-from-below on the view model, same as the initial grenade equip.
+	if (bMeleeViewModelActive && MeleeEquipAnim && MeleeViewMeshComponent)
+	{
+		PlayMeleeViewAnim(MeleeEquipAnim, false, MeleeEquipRate);
+		const float StartTime = MeleeEquipAnim->GetPlayLength() * ThrowableEquipStartFraction;
+		MeleeViewMeshComponent->SetPosition(StartTime, false);
+		const float EquipTime = (MeleeEquipAnim->GetPlayLength() - StartTime) / FMath::Max(MeleeEquipRate, 0.1f);
+		GetWorld()->GetTimerManager().SetTimer(MeleeEquipIdleHandle, [this]()
+		{
+			if (bMeleeViewModelActive && MeleeIdleAnim)
+			{
+				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+			}
+		}, EquipTime, false);
+	}
 }

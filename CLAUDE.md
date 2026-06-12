@@ -313,6 +313,7 @@ Document every failed approach here so no session re-attempts them.
 | 2026-03-09 | Deleting emissive light fixture meshes (SM_LampBig, SM_Florosent) to fix swimming pool | Wrong root cause. The swimming pool effect is fundamental to Lumen GI, not caused by specific meshes. Incorrectly deleted fixtures. |
 | 2026-03-09 | `auto_exposure_bias` on PPV to control editor viewport brightness | No visible effect in editor viewport. Use `indirect_lighting_intensity` instead (0.0025 = good horror level). |
 | 2026-03-09 | DefaultEngine.ini / console commands to disable Lumen GI | Editor caches settings, ignores ini changes. Console commands target wrong context. Only PPV `dynamic_global_illumination_method = NONE` works. |
+| 2026-06-12 | Lowering PlayerMesh relative Z to drop arms off screen (weapon swap dip) | The FP camera is socketed to PlayerMesh (FPCamera) — moving the mesh moves the VIEW; player sees a forced crouch. NEVER translate PlayerMesh for transitions. Arm motion must come from animation (ToggleReadyPose, montages) or bone hiding. |
 
 ---
 

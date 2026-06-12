@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-10T07:17:34",
+  "created": "2026-06-11T22:45:40",
   "files": {
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -22516,8 +22516,8 @@
       "size": 5261
     },
     "Content/Core/Items/DA_ExplosiveGrenade.uasset": {
-      "hash": "sha256:98e4a2b4f3639f9070c6b6f6ed3f6d2b4d5a2726af59f0e9355de60322eada9c",
-      "size": 5304
+      "hash": "sha256:f1fe52a3e3d5f418a454b70e2cdf1f660bb5435115d4f01d3dd2976ddc8674ac",
+      "size": 5392
     },
     "Content/Core/Items/DA_Grace_Pistol.uasset": {
       "hash": "sha256:e26e0480a534f1f2bfc8234718684ecff14e688a5c5aba41c3f923a016fc85a8",
@@ -22604,8 +22604,8 @@
       "size": 9042
     },
     "Content/Core/Meshes/SM_PoliceShotgun.uasset": {
-      "hash": "sha256:b8c9bd6660680a9d61f45eae0f6fc58913b61e8db055898a8d47df4da76732ca",
-      "size": 368937
+      "hash": "sha256:c2f4fc3c74bcf069cbe8e06e06f6bd7fe75a70b79e036e92defce55fc1c71eaa",
+      "size": 369570
     },
     "Content/Core/Meshes/SM_PoliceShotgun_PhysicsAsset.uasset": {
       "hash": "sha256:91594e9018398b4a1bdaa716690d12eb711a7e388a890c496f8579d25e22fad4",
@@ -22624,8 +22624,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:a887f6268c62e7d14b4405c07e6b891e8229289d1fe066c3059559389200c8bd",
-      "size": 126899
+      "hash": "sha256:d85a93a7f2717924a4adb12c33e37aec199758be43f976cc345ea74b3e022b77",
+      "size": 129296
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -25170,6 +25170,1590 @@
     "Content/FontsToImport/Rajdhani-Bold_Font.uasset": {
       "hash": "sha256:af38e0f8ec7d61d22d8dde9d0a2bf0d46432857272d2a8744a49a90b3349f06c",
       "size": 2653
+    },
+    "Content/FPPMeleeAnimset/Animations/BindPose.uasset": {
+      "hash": "sha256:58fdc4ec92263a1a8fa1f6eed1925428da1795f0070c937158471ce15109ecd1",
+      "size": 101582
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackD.uasset": {
+      "hash": "sha256:e4ae6d888bce3a1173addeb112ed17afb9e0baac331c76937c2668a9a1a6779c",
+      "size": 126062
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackD2.uasset": {
+      "hash": "sha256:a9cec6babb1f656577b2e9469ebde4f27154c40ef348e4f917ccb4146eaa1903",
+      "size": 137962
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackDHook.uasset": {
+      "hash": "sha256:25ce390e75e7a203348d4fead2c4c8574228ffe9c86b0a0b4f53e75ad3ff461f",
+      "size": 152828
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackD_fast.uasset": {
+      "hash": "sha256:200b53b6a3a61f8dce3529d2d48cdda70f538f6a514e1d2736781070f7d53173",
+      "size": 123199
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackF.uasset": {
+      "hash": "sha256:db55c7c890c0bf0f642e2965284cd48a8daf3e2d25d35492ddc9b63587c30917",
+      "size": 134133
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyD_End.uasset": {
+      "hash": "sha256:0c3230c17ea6f84e4d394df38973c798986bab4d4b764f659b0658379f128b41",
+      "size": 139000
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyD_Idle.uasset": {
+      "hash": "sha256:19ada2acc0697ca95240b5dfda999ab8a3a1c817b659c8a4d71cfb6cc79316fe",
+      "size": 366663
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyD_Start.uasset": {
+      "hash": "sha256:fe485e58a39973d98c38e69bbdcc38dc2ce8dceea834a16c257327809f7b8de3",
+      "size": 132811
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyD_Walk.uasset": {
+      "hash": "sha256:a30f2e6e70ed2b342e01fd203c75ade876c52eb80bca6ce4a1fccc7ad37d7682",
+      "size": 223550
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyF_End.uasset": {
+      "hash": "sha256:16d93015f0ed84d6974ae58e51fc80bab63a62d2adb2283a1031e5dcdc53bfb5",
+      "size": 174387
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyF_Idle.uasset": {
+      "hash": "sha256:732ca09ef09c3d976501d0de6b50a19d5f367bbd1bc7feb0f5058af44b6de8d1",
+      "size": 367524
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyF_Start.uasset": {
+      "hash": "sha256:3cb6507d7073b5735d4c4e8ba8a2201983621a4ca3013d535fd81a01c61be9d0",
+      "size": 124372
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackHeavyF_Walk.uasset": {
+      "hash": "sha256:77f2987ce589e379f9a596fa6d307800dd2aa37cfa6553776ac326f07a2b2ab4",
+      "size": 219902
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackL.uasset": {
+      "hash": "sha256:0e3843711df282aa712321a2028c66734a524480366ff32e44b21ee7b09c01f9",
+      "size": 127250
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackLSlash.uasset": {
+      "hash": "sha256:1c67d37db7763a3440eeb3526b1bc946cc75e060a0b6b27f2564c4ee2cf322da",
+      "size": 124932
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_AttackR.uasset": {
+      "hash": "sha256:4f7186b21ea25d8abc1d65ba7fc1c6f19cb1c4a5f706a774269c958de8abe3b0",
+      "size": 124407
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockEnd.uasset": {
+      "hash": "sha256:54c9080b58b4ff49ef414969f3959c234d739ff430443a3087fe82bb70848409",
+      "size": 127290
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockImpact1.uasset": {
+      "hash": "sha256:239ffb917d217d09f07a7bf97d97a2553b5639cddd16f0637d287ac344bb7b14",
+      "size": 136131
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockImpact2.uasset": {
+      "hash": "sha256:3f1fe3ed5fa431df6870475d3cc9fb0e2cbbf845cf0d86778272ef7f992643f0",
+      "size": 136253
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockImpact3.uasset": {
+      "hash": "sha256:d9ca5c7465d0e54bf53c116ab5dc81e4509726a71430bf1d4abb69a80bedccc6",
+      "size": 141476
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockLoop.uasset": {
+      "hash": "sha256:4399d19d7a5f0349714d8ba7737bacba7cff5e79f5cf27939eb6905c84b5bdd1",
+      "size": 368544
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockPush.uasset": {
+      "hash": "sha256:fec015884672022379b7af1a72004378585b6891a357ed5f5620a653cfd26697",
+      "size": 208681
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockStart.uasset": {
+      "hash": "sha256:956d04d567cd28355b195e6ae468c8e42f8633ff2001afd11a058cd5f277cefa",
+      "size": 129552
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_BlockWalk.uasset": {
+      "hash": "sha256:d7d80434b87ddefec5148168296983432f0aeb030e1a318e267df8effe28b77c",
+      "size": 220999
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_combo1_a.uasset": {
+      "hash": "sha256:842998b9fda450a7a1219b72773d6949092bccf3531f93dba18dc1cbb4a44c2d",
+      "size": 149045
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_combo1_b.uasset": {
+      "hash": "sha256:82d5f9400497c2b3718b56cbff59bab9398e227d72058bc9e45c9cfd06c21299",
+      "size": 140616
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_combo2_a.uasset": {
+      "hash": "sha256:d8c64800a841ef5eef9409c51b9d314eb8bd6bc72c362c0d67994f27a1fb2322",
+      "size": 128082
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_combo2_b.uasset": {
+      "hash": "sha256:2f77f17bfa77f2bb69eb46b8dc6f1c61c3450c803a85bb5ef8ff001a42b6533d",
+      "size": 125793
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_combo2_b2.uasset": {
+      "hash": "sha256:18cb9bb0aae32e949f29aabf9451662b1ea357a64e1cce9882c01eb0dc31187a",
+      "size": 121358
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_CrouchStart.uasset": {
+      "hash": "sha256:95e187bfc55780986e8283483114c0e4b6d182075787baa463fb0ac1d35d9226",
+      "size": 137913
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_CrouchStop.uasset": {
+      "hash": "sha256:721fb220bd5016352d6d4831f7f006e9a03580c2042cc17efde6a435303fbef0",
+      "size": 138280
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Death1.uasset": {
+      "hash": "sha256:c5440b0a0ce883ac8600bd5461ac21441226f0ab0ba82e64df8b553597f07a4f",
+      "size": 260920
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Death2.uasset": {
+      "hash": "sha256:2ed2934654bc1929c7084baa98b7938706264c1b41e582d9b2630b8ddb1ed160",
+      "size": 301608
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Dodge.uasset": {
+      "hash": "sha256:1746bc03c27e990a055603bccd750997d89d9597be107183743ecff64c332ab4",
+      "size": 141110
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Equip.uasset": {
+      "hash": "sha256:c2bdd5ef3376d5ca896efaf2c669b6dea11fd0b154bfba224d15157887cdf571",
+      "size": 209576
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Fall.uasset": {
+      "hash": "sha256:b35923812fdf43da75ae0fef6a60f9c5249db99a2dd09507ea45b8205663576e",
+      "size": 164631
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_FallLoop.uasset": {
+      "hash": "sha256:db5450d94a8044188f0650d6a7241e9d83e02eda75ffb5218d318065e982f39e",
+      "size": 263350
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_HitC.uasset": {
+      "hash": "sha256:a69955b0e06a34b7b8de896b10225167ffa5d3ea9f95f6dc9eb59312e4301b6d",
+      "size": 173729
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_HitL.uasset": {
+      "hash": "sha256:ed5054aa83dcc219a71346f3ea014a4a9c5e1a29e860970f6244d261f6a256af",
+      "size": 175532
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_HitR.uasset": {
+      "hash": "sha256:1587a1a8085738f26a10903899bd77c75c4f179a05632d5939a164f52d4ee3eb",
+      "size": 171998
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Idle.uasset": {
+      "hash": "sha256:70048873c924af76ab4ef8faf8ecdf02bf2720127758b51256a0e8507b452e33",
+      "size": 368483
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_IdleAdjust.uasset": {
+      "hash": "sha256:cec087179d1db759f275ae1317c88b15cbd9d26431824851ab9d53bdddc35fe5",
+      "size": 206116
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Jump.uasset": {
+      "hash": "sha256:628bdd34b479b7dfc93896ca0884dc60b15ec84a8f61b3c0ba39f41ccb16a1f8",
+      "size": 167227
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Kick.uasset": {
+      "hash": "sha256:dc2622d9d72c6e98039877479306bde768f406eb2dcdfc2aa5abd5da53cbdc55",
+      "size": 219391
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Knockdown.uasset": {
+      "hash": "sha256:363eccf36a10ead4ccb825efab8db65603e6045ef4de0388b44f92a876a59fe2",
+      "size": 349005
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Land.uasset": {
+      "hash": "sha256:ed5c4240cfbefce4dde5b63d905fc0b2b98731a0061c0174b0d2bb658b499349",
+      "size": 128233
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_LandHard.uasset": {
+      "hash": "sha256:8d79e4da28d67731c6f1d4da9232033c6c7b4d00bb22cbf88d6b2f18ed7544b8",
+      "size": 223428
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_LandLight.uasset": {
+      "hash": "sha256:f9cc3abddaccbfae123c07d2eb60235de547a12b040966f9f710dbb277020449",
+      "size": 137457
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Magic.uasset": {
+      "hash": "sha256:88d1254e0253b6e4d16c461cf1d3a9c032d3b3fcca0e350135a6d0eb4ce519ba",
+      "size": 176566
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Run.uasset": {
+      "hash": "sha256:f5016b06b2dc5d376aa85d86c1d84abc4b98d732c1f87a5fb35939ebb2e85fe0",
+      "size": 296573
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_RunStop.uasset": {
+      "hash": "sha256:a62b0ebc2eaa09c511c5ee4ce0e2913542773061da585c6ea83d1a115bbe01d2",
+      "size": 189214
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Slide.uasset": {
+      "hash": "sha256:0fe52d9438f91db307d5ef5664623e89ebbea1e2fc2a6835d1daee16574b0114",
+      "size": 183235
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_SlideLegs.uasset": {
+      "hash": "sha256:e8394a142e41b3888b83796610bd6458826e779ffb6168e29efb03ce4cb68d9d",
+      "size": 183391
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Sprint.uasset": {
+      "hash": "sha256:8aa4be18424ea36897a5bfdfd69b42eb2a3add4caa7c5f7655debff245e5f74f",
+      "size": 268435
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_SprintStart.uasset": {
+      "hash": "sha256:c7dddfe208a305d14fcd6c62e63edeb53de3336d86d28e15142d898bfcea616f",
+      "size": 154854
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_SprintStop.uasset": {
+      "hash": "sha256:f4b308ae3f682bb6db58170122bf812f9e3e54ae2b9a9c233af4b425d11f768d",
+      "size": 144624
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Stun1.uasset": {
+      "hash": "sha256:e201e623ef6d2fae277fe3e7da0b4b6846ab6ae9d552531ce88ae5eb1e9ae430",
+      "size": 248673
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Stun2.uasset": {
+      "hash": "sha256:19365cacce40bca183f7fd2f61319f0c026e24d20ca1e54542de1a4d666a52a5",
+      "size": 296060
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Unequip.uasset": {
+      "hash": "sha256:ee7d11fae310fdcefb2b86df1e27123aa61ba610a4c4185a65f2241e05a4f6c2",
+      "size": 190587
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Walk1.uasset": {
+      "hash": "sha256:d40a6399ec54d8b3a139b099c63151bdb24201ff6d1c9f0b04f701fa8f755a0a",
+      "size": 221722
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_Walk2.uasset": {
+      "hash": "sha256:b72314ce0b50ded4301e9cb2d7211abe58a5b3a9ac75a04484a24ffb314244f7",
+      "size": 425016
+    },
+    "Content/FPPMeleeAnimset/Animations/Dagger/FPP_Dag_WalkStop.uasset": {
+      "hash": "sha256:3778c783d1bec27616412ae4d9b9ee93bb6d02cb6ca3aa52f260f3d1492af5cf",
+      "size": 131241
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackButt.uasset": {
+      "hash": "sha256:362e76663fa94e3d40f94c4cea10806126215aa4855b356cf38e1af59cef5114",
+      "size": 144860
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackButt2.uasset": {
+      "hash": "sha256:c38b1e5e7a2e95d0a0caecfb75b64fc3b157ac342ea9745d6a35e34c25454816",
+      "size": 137198
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackD_stop.uasset": {
+      "hash": "sha256:0d28698d39a88ce983200c9451f8749ceb74bd7b350f95245227351ea9ba2a6b",
+      "size": 171108
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackF_stop.uasset": {
+      "hash": "sha256:645f7b38ca7b9c930ff41f0481914d07cd16926b0931e895967689fc66287e31",
+      "size": 183930
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_D.uasset": {
+      "hash": "sha256:cd7778d50e27ccf21c470cc9cff41e63d32aba1da71c75d0749b6b7b2eeae238",
+      "size": 215895
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_D_End.uasset": {
+      "hash": "sha256:6b8aabfe89c4bf3443e3687e115671d4ce9c108292c2cc73b40d441d7f24d58f",
+      "size": 187147
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_D_Loop.uasset": {
+      "hash": "sha256:c0e04132dc7e8b8ffc6b63c6a668774987fc1d1310c73d186c6c424cb2d3c0d5",
+      "size": 228506
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_D_Start.uasset": {
+      "hash": "sha256:068109bd6b85cddd4d4d900e337ee54036e957c330fd1bcd7fa48bc9326e62d0",
+      "size": 157760
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_D_Walk.uasset": {
+      "hash": "sha256:e22de604afdea47a17d116190e0363c481b4eaf0e65050dfc791454344658c3e",
+      "size": 228650
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_F.uasset": {
+      "hash": "sha256:2135434948162a12557ed386e121cb477feb8b0f7d4be25b3f47127c3499673e",
+      "size": 209626
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_F_Loop.uasset": {
+      "hash": "sha256:87b50ebea5d3d3bddfcd65de5ad0426af4984a8e0c453a400c8b52e0b5c0fc29",
+      "size": 233441
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_F_Start.uasset": {
+      "hash": "sha256:fd98211c0e777bb15ec3c0bd522754471e77fddd4b3353fe0ccd437c98a81623",
+      "size": 146211
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_F_Stop.uasset": {
+      "hash": "sha256:278d2b8675efb4ce64f5476b26a8cf81eebb08620de6da82761fa93c3f1ed3d1",
+      "size": 166053
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_F_Walk.uasset": {
+      "hash": "sha256:a1ab1e0792b12980a80ed310ad95df228d53108abef3aab58903f923540b5c8d",
+      "size": 233871
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_L.uasset": {
+      "hash": "sha256:678febc67d3d93a46f9ab521b2d3eb44082aebd38f6c774c2734789945b0a61a",
+      "size": 210477
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_L_Loop.uasset": {
+      "hash": "sha256:f641fe34ebcfb71cc5fb0f9000e9b4e76e718aa2361fb08426a9c2a2c4e39b3c",
+      "size": 232126
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_L_Start.uasset": {
+      "hash": "sha256:ce7af20a6d5e96f548706f432c12b988e263511768ab6203ed2ebd23bb3b7357",
+      "size": 147296
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_L_Stop.uasset": {
+      "hash": "sha256:e884b0139abf8a839f93950eeaa1c0264aaed44b6d3c590c5a14bc2a70b47b83",
+      "size": 183486
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_L_Walk.uasset": {
+      "hash": "sha256:46912d4cd9efa2571892807a0fb53080af02b9d607e47fe06f141b310254f433",
+      "size": 234416
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_R.uasset": {
+      "hash": "sha256:ecf63bbc343a9e492ce6b518176898fd6efbcc43d922ebbde8430da7b7f331b8",
+      "size": 220522
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_R_End.uasset": {
+      "hash": "sha256:56a3049b8c48aa2d123dd75eff5483c24251957073e06e3f73e1c8e162ff4e57",
+      "size": 179119
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_R_Loop.uasset": {
+      "hash": "sha256:d1a07d90c4b3660c09efb5b83df3851e430c8192ffec3fc8b52baaee85a8c0d0",
+      "size": 225967
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_R_Start.uasset": {
+      "hash": "sha256:a88f506be58c827de3e3ad60054e3ebe176968c10023263c039f7d4d8ad01b43",
+      "size": 144587
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackHeavy_R_Walk.uasset": {
+      "hash": "sha256:ac5629dc0d53bf7f21e39d210e0b7bdba3194c17b251ea40e61939a4b79254e9",
+      "size": 214897
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackLD_stop.uasset": {
+      "hash": "sha256:d3898b0f18d94c22ae6c6b5c21c679524d571555fa8dbe1795fb312dd3979e6b",
+      "size": 180443
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_AttackRU_stop.uasset": {
+      "hash": "sha256:aa6d62f354b76ccd0d072ff08efa7965f43a2f65f7e9abafd7f3d0f32a3a0ee7",
+      "size": 159550
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Attack_D.uasset": {
+      "hash": "sha256:620a3a56a4964c741438339010903f45aebf409ab7484df47d90276a944e311b",
+      "size": 201868
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Attack_D2.uasset": {
+      "hash": "sha256:8bdf9765e3e47a664940d4d9ee2a10efdab806762344f601f2471ee4fc550a00",
+      "size": 167851
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Attack_F.uasset": {
+      "hash": "sha256:941c398ca5b55a002513f53fa7900150397cc3fd9602149b359e948ebdee6104",
+      "size": 169042
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Attack_LD.uasset": {
+      "hash": "sha256:d153663384c8be110f08df3a4ed7e9267d49b833c554b748ac9b0fc5ec304383",
+      "size": 185659
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Attack_R.uasset": {
+      "hash": "sha256:31fa3d8000ee5dd42aabdb64ad0f1b4a4c25ad3d56f394d76242ff85a0d41e7c",
+      "size": 196359
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Attack_RDfast.uasset": {
+      "hash": "sha256:e836cd67e913349e235be210392b6c688db3515d4c7d90ffd8dfa869dbb81d5a",
+      "size": 159884
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Attack_RU.uasset": {
+      "hash": "sha256:95007f110aa33df1d4a3ea1337896df3c640002f9c7fe27f8f8d68ad87c6f8e3",
+      "size": 170970
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockImpact1.uasset": {
+      "hash": "sha256:43864e375fe8552b259c4a3d1a126f70269c33414d932648d0180145a5814c70",
+      "size": 130416
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockImpact2.uasset": {
+      "hash": "sha256:2f7b9ff5adfaceea00d498cc44bdb1c96e871e649fa650b90ed2eb7f540bac29",
+      "size": 135349
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockImpact3.uasset": {
+      "hash": "sha256:cc28b067e5bf71458ec127d988a4734fade05499e3dbf1c4ee162ad226eb87a3",
+      "size": 129617
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockLoop.uasset": {
+      "hash": "sha256:ff9cbd8ae3654084dff0fddda4b8ce24ee580d3dd3945cb751ea882f47ea9710",
+      "size": 224381
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockPush.uasset": {
+      "hash": "sha256:0c2c967d1ca212f3e2d68ca40fad9196b66e0a9e7cbf45c27e439a56e6eb1f04",
+      "size": 142681
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockStart.uasset": {
+      "hash": "sha256:9704c2ee50a98638341459e53f2f2edc01b36e41cb0f601743bacd41ee4b68de",
+      "size": 124084
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockStop.uasset": {
+      "hash": "sha256:c1b77638cf78445b6502436a65d249eec545fdb0c83d4eec0cc4b3bfcebaac0b",
+      "size": 152771
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockStun.uasset": {
+      "hash": "sha256:c8ee2ba39e3aa75353ed12b5b08a292e90c4366dc165db3bc10dc271e4ac37d0",
+      "size": 201623
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockWalk.uasset": {
+      "hash": "sha256:798cb2e27761b44fb33bb8ab384e7a4fb6026e1d344bad61b9d4d4982aa7ea7a",
+      "size": 229648
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_BlockWalkStop.uasset": {
+      "hash": "sha256:88ba1839c0ccf3d943da78fb16ca1c3c6e791191feef938597ef8949d0be5332",
+      "size": 130184
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_CrouchStart.uasset": {
+      "hash": "sha256:019ebd4e93c8fd5379299b8560e9c198b008706341aed3825f04193f98960ec8",
+      "size": 129056
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_CrouchStop.uasset": {
+      "hash": "sha256:23df2df6f557667f9d16dcaf10c4e2c3911be6ed607f692218ef628703c0f9ac",
+      "size": 131196
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Death1.uasset": {
+      "hash": "sha256:27c677480ed46fd38a7e7d4bf5fedbc2d6cf239cf0abc151e37b3335061b60d8",
+      "size": 233405
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Death2.uasset": {
+      "hash": "sha256:6fa275aaf2fec33c7f7ad55b99ee83b6c92c9c5e6d8a31983a45523cdb2a32fe",
+      "size": 336455
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Dodge.uasset": {
+      "hash": "sha256:24fee87e3e26a994c84ec61916b8acf8317da142c5a0b5ad0f94c8d9b040558e",
+      "size": 140274
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Equip.uasset": {
+      "hash": "sha256:c89331de41c086d03d5cde1e3342cef5e29d1ec4ecdb0b37201e63afe94286ba",
+      "size": 265741
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Fall.uasset": {
+      "hash": "sha256:e99b2b2ab94e653e710b9826a81ce12908c1b532827c61bf1ba66837a5dddafb",
+      "size": 173512
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Hit1.uasset": {
+      "hash": "sha256:76fef8a15bb3ad93929c9845d9ccd4b0dc97100cf5e65b8de2542721eac416b7",
+      "size": 134683
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Hit2.uasset": {
+      "hash": "sha256:e41872d7af74c6f711300a1ac870c1e850f71ce62340b115004fc0c44db72661",
+      "size": 140444
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Hit3.uasset": {
+      "hash": "sha256:35d5f6e4fe78ea5b908dc6c22da07e00b6d7cb2b32e65b983cbe92e5ad872cb2",
+      "size": 144168
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Idle.uasset": {
+      "hash": "sha256:31130b7097d495449e08c680a9d190d5a591285ffbf2d74eb8d14f021983c9c9",
+      "size": 268826
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_IdleAdjust.uasset": {
+      "hash": "sha256:c9f7372e3caa739c0ec9447ecc6182bf6822f4587064cb03f0471aa88bb5d24e",
+      "size": 196456
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Jump.uasset": {
+      "hash": "sha256:3999a384b74a7e584cbdf15df0e3ce60decc4a37bec721a03837a4bb305ea428",
+      "size": 141380
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_JumpLoop.uasset": {
+      "hash": "sha256:9e0680812a4da84e95bdf898a08ce9009c4648e8c5ebeb81f88dba104d56eed4",
+      "size": 196772
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Kick.uasset": {
+      "hash": "sha256:84f667c70b1293c503f0b820e29a3762ddac6d5a87a9a4aadf07cc8010edc2f5",
+      "size": 179896
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Knockdown.uasset": {
+      "hash": "sha256:6a4ea0e4aff0027be9923acabf13bff84b6c723260d07ca26e5519d0761ec970",
+      "size": 194494
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Land.uasset": {
+      "hash": "sha256:84ea11ce02410bdd0e4a4665436eb95b639ef90c3b9bd85b1ba1b16f517a6d04",
+      "size": 136670
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_LandHeavy.uasset": {
+      "hash": "sha256:ba15e58dd870d0eeffe521bc25f27297a5a08eed5c0070a3b47637c86608651f",
+      "size": 166961
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_LandLight.uasset": {
+      "hash": "sha256:82031f5a6c8ddf9c90dea9724e6dec5096935eb630855f6f9b82889f2b267890",
+      "size": 130999
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Magic.uasset": {
+      "hash": "sha256:407a43287559aafd7a744366f16635cdf06a89d7a639d25324d6aae28c9c4f72",
+      "size": 201089
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Push.uasset": {
+      "hash": "sha256:7e0aa20c7bc826a7ceb10040a816c9f78590bba39cc5b4093a1cf4170590148c",
+      "size": 167387
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Run.uasset": {
+      "hash": "sha256:afeac49482ecfa1d24325b1e340e02f9afbd3a539d1e3d8f387d8df90cc23bb7",
+      "size": 205899
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_RunStop.uasset": {
+      "hash": "sha256:81f7a83dcbb28e13b5ecf646f9ebb4608c6b5e6e04e1ac17bf6874a19d692022",
+      "size": 143545
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Slide.uasset": {
+      "hash": "sha256:ab9d1fd0a8b6573f5a2965a9d904407c875f1371ea36e6c052d96df295dcc5ff",
+      "size": 188383
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_SlideLegs.uasset": {
+      "hash": "sha256:de48f8d0fcf87a112ad146bbc52f158dd92ccab3dfac187020ef5e4797937bcc",
+      "size": 189412
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Sprint.uasset": {
+      "hash": "sha256:56eb15ec43726afe25ae0e35fa75144edcfbbed27710429d1abf04d1030cde19",
+      "size": 181271
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_SprintStart.uasset": {
+      "hash": "sha256:e89987f8dd2cbfd11d4b897b8d08ebcbfc25a80eb8980f8396b3d9cc42c4381e",
+      "size": 134889
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_SprintStop.uasset": {
+      "hash": "sha256:62dc18b0edb895b89308a91f00b8d2c38505dd8f341d44d639b499ae56cc44dd",
+      "size": 142497
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Stun.uasset": {
+      "hash": "sha256:6005cdbebab92d529cfa4ebb0823e2b65566639a25255de01297dedaae524d1f",
+      "size": 169359
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Unequip.uasset": {
+      "hash": "sha256:7557069feb1b825da6fedcb97b20aacbea2af8f7f110f3f2c0fad941734f295d",
+      "size": 200015
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_Walk.uasset": {
+      "hash": "sha256:29b41aa50b09d88c0118e971eee3aac3e57a5f3a66110cc2057c40634938f82b",
+      "size": 230106
+    },
+    "Content/FPPMeleeAnimset/Animations/Halberd/FPP_Halb_WalkStop.uasset": {
+      "hash": "sha256:c3c3e0fee854bd813182b1059bb4ce1b3d6af86190a5be60c96dfdeca53c18c3",
+      "size": 130627
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_D.uasset": {
+      "hash": "sha256:0f8d0c1d3232f452dce5e75d6484ee63f4caaa4f983750babe05343c20e1e724",
+      "size": 253026
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_D_End.uasset": {
+      "hash": "sha256:2d0b1bf4fbbd71a14f0eda8f07d4e903f9a39d9e454f0cb0c1e32e02de036932",
+      "size": 190451
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_D_Idle.uasset": {
+      "hash": "sha256:f7a53d7e0e9b20b79105606819fe101f63eac6efe363db50c6833bb6a677f0a8",
+      "size": 214771
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_D_Start.uasset": {
+      "hash": "sha256:66f1ef311a5f73db524c1ea845dd12c249ccf28d8af8c468fa42867ea0f2c829",
+      "size": 162407
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_D_Walk.uasset": {
+      "hash": "sha256:c031f2524ccd420f5fde48b8f32d08e1da56d1e8a9ba5a078cdc68c183bdc664",
+      "size": 208584
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_F.uasset": {
+      "hash": "sha256:db5077b05e50e96bfede3fc22f7990e16ab5f526306f62e55d95edd0cf9b7e7c",
+      "size": 189294
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_F_End.uasset": {
+      "hash": "sha256:be8c313a4ce52c344d10e40ecd48399da4136a5821662824a4a6ed24e5b5f2c6",
+      "size": 185344
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_F_Idle.uasset": {
+      "hash": "sha256:c4c646b0a2ee7c0c0bb16441e07d83101010272405d0e24996c25245476f5ec2",
+      "size": 228179
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_F_Start.uasset": {
+      "hash": "sha256:a7ea7ac802b3947b786d22f5188f33e7c65eaf0480c5e91684c0c2e20b2852a2",
+      "size": 142003
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_F_Walk.uasset": {
+      "hash": "sha256:8daf9fd1d2dea38b5c3cdede4e5070445799a718cc772864435c56aaa853dcff",
+      "size": 230168
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_L.uasset": {
+      "hash": "sha256:5044ec4147d5e1b9f0b294c1f2500270332a4347a7148f217ee53ae5b87e0dd2",
+      "size": 150545
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_L_End.uasset": {
+      "hash": "sha256:7c7efb38c39839c38f314336d4c6bb9b777dfbc434f963828c038bcb293c0544",
+      "size": 150401
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_L_Idle.uasset": {
+      "hash": "sha256:75f88f88690524b24c0c70ca9ceb386d60a1885e223e125a0bfe4b93777250e9",
+      "size": 222015
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_L_Start.uasset": {
+      "hash": "sha256:8ff63fc7111afd0b8a049e61ef9645b3158dc8cf65f8239dbc6c5c0245834e15",
+      "size": 131656
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_L_Walk.uasset": {
+      "hash": "sha256:cbf62523f74cae47597db1f66c8d43235c25f718e5f42b993c5224c1325eb5d8",
+      "size": 219429
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_R.uasset": {
+      "hash": "sha256:9defcb332d973f757aab5faf84b6c0b870ffb31c70b6ea459661458f1d8a9555",
+      "size": 192114
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_R_End.uasset": {
+      "hash": "sha256:a38debe452d594aa04a37b1a88e8120d222f403698e3345d87a5c579214bec49",
+      "size": 165825
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_R_Idle.uasset": {
+      "hash": "sha256:81b4aa63f26068b136fff43630750b0c976ffeac8db3a540502637130bdf63e1",
+      "size": 221363
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_R_Start.uasset": {
+      "hash": "sha256:f14866a27c9be1e16948ff01f804100054b3640221348fe653f64fa2c7a95cde",
+      "size": 130706
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_AttackHeavy_R_Walk.uasset": {
+      "hash": "sha256:a48ab514bd248c949e583dd4f3e01b0eaa6de3ae2f446d5262e9a75915fb7123",
+      "size": 218976
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_D.uasset": {
+      "hash": "sha256:3988e74dbe5e0cb585013820a587f938e90ecc2c0717ac51ebf901809488d70a",
+      "size": 168456
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_F.uasset": {
+      "hash": "sha256:207c769e424d78bd130af9d7c352be6d39b3e390189ad49e7d5547ce278eb429",
+      "size": 173990
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_F2.uasset": {
+      "hash": "sha256:6be31eca445dcf610470b4721bb801c5b2ef4ad3fd4b59d3493fbe876990f962",
+      "size": 151686
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_Fstop.uasset": {
+      "hash": "sha256:a2122062b5320815f58f0c7e4dc40f32c032c8cc893c1ef94d6ba0f55a8c2fa0",
+      "size": 180178
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_L.uasset": {
+      "hash": "sha256:adf94c6da08eb92d7f9762e3038aae56cce8a47d0efd50c697bcd1e72d46a435",
+      "size": 133375
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_LD.uasset": {
+      "hash": "sha256:8b08ca4daa36b1470e6293f85f158bd6733dff6c39545ebca5dd67ece071d973",
+      "size": 150028
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_LDstop.uasset": {
+      "hash": "sha256:bd38ffc8324c177bf85c24d127eea70a28e7f44c6c1ea3b5a72ecddd78b5aa71",
+      "size": 140180
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_LUstop.uasset": {
+      "hash": "sha256:662576e4f3f7cbc46778ad68ac7e461a2505cbd25a4988101b48f6fc797633c8",
+      "size": 138713
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_R.uasset": {
+      "hash": "sha256:2c122d784735ddc88eb349ad7c427ae6905248ff55b6a3e9f2272eb3c4584ec5",
+      "size": 161121
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_RD.uasset": {
+      "hash": "sha256:bec6ad8abac58bdd89cca8b6bda39a70279a1be3d6f31d2dfacc7d5b4bc0debf",
+      "size": 152718
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_RDstop.uasset": {
+      "hash": "sha256:1f3d7fb324c8e8b80497d3ac062d6fb167f8fc7f9a0e59e553b9cfa273f7b3bd",
+      "size": 148559
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Attack_RUstop.uasset": {
+      "hash": "sha256:eaa84a026d24c2303dd40e24f08a4632bdd490cea04ead3cb0ecdc82195cafe2",
+      "size": 128653
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact1.uasset": {
+      "hash": "sha256:8d6b7cbf47608d79b1e03e214dc8f0a64c9fa00dc240852e319849cc5216052d",
+      "size": 131385
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact2.uasset": {
+      "hash": "sha256:1721d8aeac1620ad77b0f927be8e53eccfe236a6539d5c3b8f52698c1ebed340",
+      "size": 131806
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact3.uasset": {
+      "hash": "sha256:9ae3d3fdf688bf4da1cc2e0ae6ecfb6828af8ac6c80ccb545c263f818512979c",
+      "size": 131252
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockLoop.uasset": {
+      "hash": "sha256:3f409cf6507e735f52568c72e96aca10e3f29de43810c14b773e0cca56d005d7",
+      "size": 220781
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockPush.uasset": {
+      "hash": "sha256:220e6fe17ce255f067a2fe4282f7b7ee99a567c1c46187155089ce4612f46aa5",
+      "size": 140236
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockStart.uasset": {
+      "hash": "sha256:7ace0a40768e45505be6a3f54d5118904e9abe1b3243d5deccbd90a96497cf85",
+      "size": 125846
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockStop.uasset": {
+      "hash": "sha256:49d63dd16f42cdae5eea17a03e701cc78afbdbabbe09dbc9f72e95677b30ede3",
+      "size": 130557
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockWalk.uasset": {
+      "hash": "sha256:b74465261eb21ce24d3b2158b494abc29daf246eb6cfa189f8cd5e86c4d23d65",
+      "size": 240399
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockWalkStop.uasset": {
+      "hash": "sha256:6c6bbcd406b00e8cb62871b9935f307d9fdd5f7da6e500d165e5b79ae9d3c4f1",
+      "size": 139486
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_combo_1a.uasset": {
+      "hash": "sha256:d6a212c53345cf4fb330505b5d5b2911570f6e885bf9dc46d84ce822e795f35a",
+      "size": 159922
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_combo_1b.uasset": {
+      "hash": "sha256:0ecbecb7226695a7df00bfa387577b991534436f0e21dd760469d3ec8ef078f9",
+      "size": 132483
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_combo_2a.uasset": {
+      "hash": "sha256:59ceb8833fda9fd7bec69f02f6acf27311830cc946f1831f71880a9c44bb871c",
+      "size": 144899
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_combo_2b.uasset": {
+      "hash": "sha256:8571f9ca655cd24131a160951edbc53756e1d3fa6644b0765a174813d54a62fd",
+      "size": 138319
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_CrouchStart.uasset": {
+      "hash": "sha256:7c3fcfdcc2c9870eeb22f63ce33ef4245718f0bd13412fdd194131d7c119fe9b",
+      "size": 129339
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_CrouchStop.uasset": {
+      "hash": "sha256:78a6cad478ee61c0fe9a7e5e15de4f8145adb5cfcb61336d7aea6d1ec9a0e79c",
+      "size": 131401
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Death1.uasset": {
+      "hash": "sha256:3b4c5255fd7c616dab4317f684f420dadb74093445a1e385128679c2f8b7fb95",
+      "size": 259586
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Death2.uasset": {
+      "hash": "sha256:0260be102d910c963b9f0527d65b8a733b8f9be6036988bda45754cc976d58d0",
+      "size": 399362
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Dodge.uasset": {
+      "hash": "sha256:af8616b05800c6c5293ddc40bf1a1d6412ecb5dad056c6db383bf32b821b6e7f",
+      "size": 150930
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Equip.uasset": {
+      "hash": "sha256:c57a0b19dd6dc2ca467ce0bc022fff7f4a778d06ca4c06a2d7472e9133eb4672",
+      "size": 217983
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Fall.uasset": {
+      "hash": "sha256:2c0f6e4d637148a42cf4729ca720d002b1e8d6160a0977d284392c530648dae3",
+      "size": 206802
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Hit1.uasset": {
+      "hash": "sha256:2631a013130ee12b71e9e7075014ebdd06b728e77b0688553537f802d7f82508",
+      "size": 147547
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Hit2.uasset": {
+      "hash": "sha256:7077c695359500b893cdfb590f7f8bf8f2b87b08c3576179a60944abc3edc421",
+      "size": 145942
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Hit3.uasset": {
+      "hash": "sha256:997a1da4e52ecd4d636751b455348c82daa99be8f312f3669f110adb3e9f5ca3",
+      "size": 146374
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Idle.uasset": {
+      "hash": "sha256:7e6e5a804b12426debe75ad058791bb775c63b10c0b485d21a55ce8e6fa0f6ca",
+      "size": 216938
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_IdleAdjust.uasset": {
+      "hash": "sha256:5b123e13274f71f9b14002b89b30cd8b33a7f7eaa983fea3901c4b7f2410071f",
+      "size": 257918
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Jump.uasset": {
+      "hash": "sha256:4ed921189f9568daee3df49a4c30212f0d0f81038734cd6168b91c58f8f10935",
+      "size": 138859
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_JumpLoop.uasset": {
+      "hash": "sha256:ea8fd968b260da83ba1608edcd2d6da0ecf21e153559456df76f152f22db6420",
+      "size": 221073
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Kick.uasset": {
+      "hash": "sha256:17e634d08cf2c28f30b8ffc43ae1d702fbb57f687fe0c64597ef1cf2890d3b73",
+      "size": 193813
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Knockdown.uasset": {
+      "hash": "sha256:357254a15db25346e445266d0abea8690e10a99195488a08d4568a06b6e9e6e9",
+      "size": 263799
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Land.uasset": {
+      "hash": "sha256:a20498095c9d578fcab956066795bd4a5474aeab65b31d2abd209316c4494e36",
+      "size": 128520
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_LandHard.uasset": {
+      "hash": "sha256:0d69cf03cea29eec942c8ceba88e0588378ab3445819e49f3bbbb048e6e2d246",
+      "size": 192349
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_LandLight.uasset": {
+      "hash": "sha256:b41d3957766a3b9274ddd462e2e509d90f6766528ce93a37ba38c07467996547",
+      "size": 138033
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Magic.uasset": {
+      "hash": "sha256:76a23ec0203b3d2b6408bc69db6ec3dcf74980d384b24eb90d870eeee21e4374",
+      "size": 179926
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Pommel.uasset": {
+      "hash": "sha256:5f7916c891445e89e4ddf637f8954a138ce5710ea54b3d23ac1952f36623c2de",
+      "size": 224212
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Run1.uasset": {
+      "hash": "sha256:979c5f698b90fbd990b01fa0fe6f0a560ef6ca8ceef31f7891ef1b5db0483acc",
+      "size": 189768
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Run2.uasset": {
+      "hash": "sha256:0ae33ef68256f32e83d74c291c35ec4eb5c9920c4da4f58e9c099acf363a4bd5",
+      "size": 209447
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_RunStop.uasset": {
+      "hash": "sha256:25e32e370f1eaf27b8fd21ba313bb34a723b849aac01b5deac15bde62b9f665d",
+      "size": 130303
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Slide.uasset": {
+      "hash": "sha256:709ec4801eaec9e9de6183b237db144a5959b212add75a98a34d3ead8e915101",
+      "size": 185880
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_SlideLegs.uasset": {
+      "hash": "sha256:6ba41deb046983adc5fcd9e926e63227b0d57ff94eed68381a51f55f7b2ff745",
+      "size": 160808
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Sprint.uasset": {
+      "hash": "sha256:0e6f0a2ef76f79e1c024fb9dc5e45ed18cedcca90a4a654a6fe5fa103c3add94",
+      "size": 183615
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_SprintStart.uasset": {
+      "hash": "sha256:38312d0f0c1ea409290e2b371d8c31f4e8a64dde8f3686b2c75b96b1b9a9026b",
+      "size": 132915
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_SprintStop.uasset": {
+      "hash": "sha256:f123ad00aaeac86b95ccd8f05e78fbce98b09f423c6d086888bc6f438b6b49a1",
+      "size": 150713
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Stun.uasset": {
+      "hash": "sha256:0c15f6166445766c75bfbb8d70246622ad47ff2b9d33adea9cd0756dd42a84df",
+      "size": 215791
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Taunt1.uasset": {
+      "hash": "sha256:c245342905b5512fb954186d2db55f725cf7b9ba49ea77bf868bbd8c16b2bde9",
+      "size": 286043
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Unequip.uasset": {
+      "hash": "sha256:d241f1e594c938c3a6aa93bdbcf41586876fba68fe6d9c788b868495ea299750",
+      "size": 242059
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Walk1.uasset": {
+      "hash": "sha256:3ffac4c8d374cba14e8b2e821a00bd1f6b768109cf157b6089f6aeda3b085f2e",
+      "size": 217550
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_Walk2.uasset": {
+      "hash": "sha256:7c763421b3d1d954503a3dba785aec08ef845de9105e53ea5fba4c70e30c3fd4",
+      "size": 221446
+    },
+    "Content/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_WalkStop.uasset": {
+      "hash": "sha256:137d0a41faab0c6dce2a9e1c685e6a985bb5f48ee1090ddb4a97369873b02e33",
+      "size": 139021
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Attack1.uasset": {
+      "hash": "sha256:15539097b99041e12fd59e4f69a6298f6a1fa8479b3df440e6d7cb61c66a0351",
+      "size": 126763
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackHeavy.uasset": {
+      "hash": "sha256:4783f8dd4f33b2e62c1e1701673396847c642f94b8dea0e755dfbcad9cd4a036",
+      "size": 177342
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackHeavyEnd.uasset": {
+      "hash": "sha256:af89b14decad3354a534a793e9e6d2d7c0280c525caa876631a7f153638f91ec",
+      "size": 135596
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackHeavyLoop.uasset": {
+      "hash": "sha256:7fa99c6355b63d229c1c16eb1c2360d55fb604e4fdc19d1fb3de5b4b16488484",
+      "size": 172460
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackHeavyStart.uasset": {
+      "hash": "sha256:08bc5cc203c3465a03e0a5656da7967d9f02faa457037ef8676b58581d7cf1eb",
+      "size": 138588
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackHeavyWalk.uasset": {
+      "hash": "sha256:0c1360df53ad8d26af236d3b7942f8fdfe9b8ecc361c8cf9bec5913e87180c50",
+      "size": 285841
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackHigh.uasset": {
+      "hash": "sha256:95ee16cde06a34168cd5a3368e861297182aac0d19bcfea1ca744a738bf5cb70",
+      "size": 160334
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackLow.uasset": {
+      "hash": "sha256:675767ad300bdfa23139f81eca79ed9c3abaf06f712fa40d01dd2626418d22ac",
+      "size": 153464
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_AttackQuick.uasset": {
+      "hash": "sha256:5ce5a46fe8cdf98dbdfa4b22ee5313ffa9575d102bd02d8bc40193153f17e4fc",
+      "size": 122825
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockEnd.uasset": {
+      "hash": "sha256:34931f860096873fb35b0266c633dda906546395472ffce13deb6d9567221b16",
+      "size": 127666
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockImpact1.uasset": {
+      "hash": "sha256:a7f02c0628d8967e0c1aa08cedfc010092b3336d17e1c2ec4e520867fc75b4a3",
+      "size": 138437
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockImpact2.uasset": {
+      "hash": "sha256:385bf34b7d85b7f98c593709958472030de97a887b6954fb5d4dc71c6cbc375a",
+      "size": 139191
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockImpact3.uasset": {
+      "hash": "sha256:2d91f90f84cca206e699514eb33887cac9f2a731978417d78dd802b3fbb66d1a",
+      "size": 139384
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockLoop.uasset": {
+      "hash": "sha256:3940cacdc51eef2e76f4e0db3f78e42932b058b5ede539244831e979e26b3e98",
+      "size": 248921
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockPush.uasset": {
+      "hash": "sha256:98f535f1832b234dc317437d64df023138aebca98c3f882a0ce00ec98ba649a9",
+      "size": 136788
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockStart.uasset": {
+      "hash": "sha256:07293a1b4a6cfb23114d88499fd013215388f74a3dee28676b557287b18ba132",
+      "size": 123158
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_BlockWalk.uasset": {
+      "hash": "sha256:09b0a9a688898d6e0c666de66c29b23bfbe673fe9fc7afb7ff00b2ca04d43d57",
+      "size": 299495
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Butt.uasset": {
+      "hash": "sha256:fce79a4d466537c96eff6b731f0db56d7399dbf027836e782939e3d75d6cf723",
+      "size": 142127
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_CrouchStart.uasset": {
+      "hash": "sha256:992c2fbd84b54d49c24f5a23437f2102fb863e2136ae4e00ae78b36c8cd8c318",
+      "size": 141668
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_CrouchStop.uasset": {
+      "hash": "sha256:ff7f7c41dbbc84ba85ddc05feae153f9632020e4e203daab16ce54b956bd547c",
+      "size": 142236
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Death1.uasset": {
+      "hash": "sha256:39497a7814186d0c8e62e85caf2e9691265de911037699681dab0e8d89816090",
+      "size": 254245
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Death2.uasset": {
+      "hash": "sha256:31979c32643ad8276ef090d3acd3a81cd5eab99861de7234708cf9ed9c79f756",
+      "size": 258199
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Dodge.uasset": {
+      "hash": "sha256:e762f542594c06e8534f013faca9c7e1d82a8867c56d6ce61e30f082fe04e87a",
+      "size": 176569
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Equip.uasset": {
+      "hash": "sha256:0f04c019fbd1f7a2db0ecae2ad592d4beac3c571934750f92f0066b0be9cad36",
+      "size": 205781
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Fall.uasset": {
+      "hash": "sha256:cbf1e5c1ee1bcec8d880efa471ecd9427645ba0e0fee72d1c17fe6c7486e3f6e",
+      "size": 195376
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Hit1.uasset": {
+      "hash": "sha256:e367c52e513c0263f51cdef4c77d199a482974496959932c69eacaf3850e85fb",
+      "size": 153245
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Hit2.uasset": {
+      "hash": "sha256:c2951f800a78afa9b383406afbe15550bb491a4da8a20e6ec99d95871f06b546",
+      "size": 140626
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Hit3.uasset": {
+      "hash": "sha256:25a0d5ee0a63caedf690bc253a252d2e4308c21d5747eb6559100d3b2a24de1a",
+      "size": 138941
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Idle.uasset": {
+      "hash": "sha256:864922904982915a08916c8068317399abb8de722e8658205c7fd9e57e2a0cd4",
+      "size": 316763
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Idle2.uasset": {
+      "hash": "sha256:290e1cd2f393e016622dffb9fa781d3efc7086f4220929b6becd5f37d74010c8",
+      "size": 203450
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_JumpLoop.uasset": {
+      "hash": "sha256:1fbb62118af8690e4226cad29ae6586dd1884d278ea65bcf95550eb0e4c6bd0e",
+      "size": 252414
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_JumpStart.uasset": {
+      "hash": "sha256:96867897064a7b77a19de6b7f10931b02cbfcedf64a06569dc7fac8adbf02423",
+      "size": 136719
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Kick.uasset": {
+      "hash": "sha256:49b15ddc9a9b6723e6d148432a9604bc453f6ced7cf65bb4e641a7e2e4f238da",
+      "size": 283627
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Knockdown.uasset": {
+      "hash": "sha256:54088ce8032a8a91e02f86d4c3f0508dc4329bdac48c52e755de73b46eaeed3c",
+      "size": 223561
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_KnockdownInPlace.uasset": {
+      "hash": "sha256:586b3797c7d60a2acb7550905b7eab85c3ecfeff146195b32d2ee5654dc23469",
+      "size": 223262
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_KnockdownInPlaceLegs.uasset": {
+      "hash": "sha256:4c4c3324c09e69aaa85de920e445b89904f45b5424d5e0db8e614332da5afc1d",
+      "size": 223001
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Land.uasset": {
+      "hash": "sha256:54ed5444f285285cd7fd984a79c5789260ffe6fa9bfdf5f53c5d1c843dadbedf",
+      "size": 138279
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_LandHard.uasset": {
+      "hash": "sha256:f2bec6b1a71ab4f683458fb0bc08634d084136a3c6c7d06e396e8afbb47cbf54",
+      "size": 183716
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_LandLight.uasset": {
+      "hash": "sha256:37489fb3276eb00766fba33da8d42be03d6e7358e1610d3dddd958495397506b",
+      "size": 132880
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Run.uasset": {
+      "hash": "sha256:97198d6b8aa4c69a39ffe7c0d75d74846efafce62c529c33543c66ecb4290567",
+      "size": 265397
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_RunStop.uasset": {
+      "hash": "sha256:30a923ba5801f96506d0b56f4e5ca0e5dff02d3e26c03850216dfa32693e717b",
+      "size": 144319
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Slide.uasset": {
+      "hash": "sha256:ee331e40bdb5f5dd288cb8ecd70df37927def65e5769a0e125c1c498fe9bdf77",
+      "size": 185768
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_SlideLegs.uasset": {
+      "hash": "sha256:150c5cd832300db1e93cc8641b244d17172101f0b6b70e3cb3cdc4680b7f0b2e",
+      "size": 152735
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Sprint.uasset": {
+      "hash": "sha256:34fe9afae9d39e489ee0bb8617cc09f5e7085f07389b2cb9186dd619cf0875ad",
+      "size": 208813
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_SprintStart.uasset": {
+      "hash": "sha256:a6b1b8844f09e1203bd6d140e5b89bfc72965effa8176fc5df4220c13d8a8721",
+      "size": 176551
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_SprintStop.uasset": {
+      "hash": "sha256:c0623daf21e0e13b9fbd464e74a72932290951cc0e16495dc2a36902512582f8",
+      "size": 164763
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Stun.uasset": {
+      "hash": "sha256:0f5fd46c7122734b5a047d59c8d2c6cff13a387cffcf716a5921f53beedd94d8",
+      "size": 215373
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Unequip.uasset": {
+      "hash": "sha256:8192c2acec86404b3fa7ebeb56d2c32de8d4066bd078823616c66efd2d92d194",
+      "size": 156773
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_UpEnd.uasset": {
+      "hash": "sha256:802b424f0f58fceaf5920c9efe5dec628e2adee1a7bf0bba8738b673544e4132",
+      "size": 140390
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_UpLoop.uasset": {
+      "hash": "sha256:c16f2905ee0b0f60273f7b4c35d252f9411416f053dce5a8eb0f541a41a26614",
+      "size": 245684
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_UpRun.uasset": {
+      "hash": "sha256:49a3cf6c6840a5fe442eb5f854c9cf44227e55b2d6346790e80f181838af73eb",
+      "size": 271954
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_UpStart.uasset": {
+      "hash": "sha256:e81d98a19a5c3937b449746a8d596fcff98920257ed1276441744be06cec59b8",
+      "size": 139319
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_UpWalk.uasset": {
+      "hash": "sha256:8afb42af449f8246805d32a3a7481f3643a70a78094f5a49738a23a7735f2194",
+      "size": 294506
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_Walk.uasset": {
+      "hash": "sha256:1b46485d7353d29215aac6f9767798e3ac8987f77d1eefe83eec0c1c224084f5",
+      "size": 297999
+    },
+    "Content/FPPMeleeAnimset/Animations/Spear/FPPSpear_WalkStop.uasset": {
+      "hash": "sha256:83cc5ff15ac98aaeda57abd6d4451ce122b4efe44367bf37cb694a0e3514f4e1",
+      "size": 158471
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyF.uasset": {
+      "hash": "sha256:0073146edd74ee92bbad2c983e58b853f558ba03801085a69ad3dcc55bd43776",
+      "size": 210641
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyF_End.uasset": {
+      "hash": "sha256:72c80b751e9637ba47738e295b53043ec27405a71fed03d338e55b64628532f3",
+      "size": 174893
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyF_Loop.uasset": {
+      "hash": "sha256:de3e8679d9ecc52778d22e23ca280e5bab9810c424dc84316a1fcd6c40b7229b",
+      "size": 241319
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyF_Start.uasset": {
+      "hash": "sha256:21750f7815a82c2fe0b5b84fc8c565361910a2f0a74dd8e67e05b9510337ce73",
+      "size": 146545
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyF_Walk.uasset": {
+      "hash": "sha256:23518bc98dcdc3eb5665f00b62dee61a436000dc09d62aefbde65fc11e1d8cba",
+      "size": 293733
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyL.uasset": {
+      "hash": "sha256:789ff5d78cd0405e4be3b0208443495fae5db56f5f6a2cf417033d6e0ade7f77",
+      "size": 214518
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyL_End.uasset": {
+      "hash": "sha256:99207de15545696cdba9aa194b44a987607327b60f8ec25ec1b30913893ebcab",
+      "size": 182873
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyL_Loop.uasset": {
+      "hash": "sha256:d78df2de64fb9e8e6d28c942d14f5934a86d4770ee66fa1053eb7cb663e7f187",
+      "size": 243481
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyL_Start.uasset": {
+      "hash": "sha256:089eba317b77a4caf0518b963ef8112e5df7aaf561d1286ebd7831b7992ac94e",
+      "size": 144813
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyL_Walk.uasset": {
+      "hash": "sha256:05eb182aa903a831d029b418af5f5bc29ce8c8f34dce5fa50dcdf741ea17a743",
+      "size": 292351
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyR.uasset": {
+      "hash": "sha256:391689e6eec09203eff108b5e02d316d67aac14967a49928243e7180cc52d36d",
+      "size": 239678
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyR_End.uasset": {
+      "hash": "sha256:fe0c559d85626395d9570bd9cf22a869ad757fab9fd4e02b23ea8eacc8c2e8de",
+      "size": 205050
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyR_Loop.uasset": {
+      "hash": "sha256:dfab88fc507b8837168013a249218e69498dcd2240ed0295ed50a012aa011aa8",
+      "size": 242394
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyR_Start.uasset": {
+      "hash": "sha256:d9ae3217c4f192825ceefe98615a40e27892a028ae5e9a2c55577040d7fce350",
+      "size": 144875
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyR_Walk.uasset": {
+      "hash": "sha256:950d7411d8e0230337f34fc01215ab6f85190ac9c5efadb30085df38bfb76f64",
+      "size": 295914
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyU.uasset": {
+      "hash": "sha256:2ba3b5086420a5999023eb41d084d5c5b8713e4ecda8097230efc74d55af0433",
+      "size": 235216
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyU_End.uasset": {
+      "hash": "sha256:b58381eafb52e7785702882b6af1e90c3b3f9fde159ad20d0c26c266ce4d2b43",
+      "size": 150670
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyU_Loop.uasset": {
+      "hash": "sha256:b0a5f5f28262497739c8ab9c339bd42a3cf5dc2eae0c897edd936606eeead51b",
+      "size": 245030
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyU_Start.uasset": {
+      "hash": "sha256:a79d2dbaccfaebccd51548c8d21f09f9cffd918bae77934d48bbb36230229361",
+      "size": 154799
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_AttackHeavyU_Walk.uasset": {
+      "hash": "sha256:5ddcf1c84c96ffc883715be5b6d5d560cf61d2526cc9e72d508b9a144fb719eb",
+      "size": 231323
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_F.uasset": {
+      "hash": "sha256:6d63ff3b1ce7d088d2f5fe81ed1d25e745417df832f5e587d9eecd52ca697b78",
+      "size": 156183
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_F_fast.uasset": {
+      "hash": "sha256:6862ea84571b806fe66b40b87a813b94e6b4e3973d96244f7400d1999eb9f42b",
+      "size": 154384
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_F_stop.uasset": {
+      "hash": "sha256:73e5d7fb546a2916829cb2a1db9775ff2651db6d6432495c3d64f09205718a46",
+      "size": 173167
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_LU.uasset": {
+      "hash": "sha256:b0d6868ac82269f081e6e90e1fc8a55db67b67a0a261b0f28b8843d838fad4f6",
+      "size": 167178
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_LU_fast.uasset": {
+      "hash": "sha256:ae22595bedba18109250bc3c24c9ad8a4a5e5426014252053a2c6a53d6bdfd6e",
+      "size": 163315
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_LU_stop.uasset": {
+      "hash": "sha256:ae1b3b1ca331385074c75b2a75a00ffb12058b6c0b55342c370d7e6362ebe2f2",
+      "size": 146218
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_RD.uasset": {
+      "hash": "sha256:a88c884172f2b4a1ced7ad542ff47c2b489458927e38e25011ab3a79db2450ab",
+      "size": 164562
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_RD_fast.uasset": {
+      "hash": "sha256:e3ab0be7621f9daab0ed0caa928e01a6e4129dcc7fccb7f0f79c622a7dacd773",
+      "size": 161989
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_RD_stop.uasset": {
+      "hash": "sha256:02812a9fd352eebcd48af8ebb037d8687803350066946886a7ac68e87c3ba1ec",
+      "size": 145219
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_RU.uasset": {
+      "hash": "sha256:89cb243449f3cb2d6d54665e79a1fc1507e8cee0fe56c69bf90da0b8b8482162",
+      "size": 196836
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_RU_fast.uasset": {
+      "hash": "sha256:ca8e96e45c67f54f1632e6c66e333b7a8398620d6deaa59a2a737071cda0c013",
+      "size": 142957
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Attack_RU_stop.uasset": {
+      "hash": "sha256:c4174967746b85a0f729fe76278799fca0df92e0c2495b1c35e786e1c6ebe9a7",
+      "size": 148598
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockImpact.uasset": {
+      "hash": "sha256:6bf85215347690e637a59e39c2192c5cc83762e3616d9e08d67bf4d9d36ff949",
+      "size": 169636
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockImpact2.uasset": {
+      "hash": "sha256:5468998d400d4921416b356b8cb814bab1a18facce6b80b643ea4e4d52cbb757",
+      "size": 184727
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockImpact3.uasset": {
+      "hash": "sha256:41b16b3c5b2541f6310b2ec942faa38f2978a8344282cbd4ef004c1cc9676fe0",
+      "size": 202712
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockShieldIdle.uasset": {
+      "hash": "sha256:f5bba15e944390473c04a78ae81b8ff283f42b5c0cde29b973dfd4d8cb46fc28",
+      "size": 384622
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockShieldStart.uasset": {
+      "hash": "sha256:f3ef051f0d225f3f70bfeb1555202e28f9c34f41ea5c3bb99a4917039476f344",
+      "size": 149152
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockShieldStop.uasset": {
+      "hash": "sha256:1e4e9d8a980d5e0f22f7c7b881210df788b1facc349badc5604ce3fee780ca1c",
+      "size": 150467
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockShieldWalk.uasset": {
+      "hash": "sha256:a3d0e7f3b8935c40009c5b1769747335a384f2e17e48c0d3e7e2baab8ac9edd9",
+      "size": 258938
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockShieldWalkStop.uasset": {
+      "hash": "sha256:4aafc751dc169a4be7bcc1031eae28ad58d338880831bac9cb6d5964b885155e",
+      "size": 175555
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockStunL.uasset": {
+      "hash": "sha256:67ad8b7f4880f187c670ad2c975d5630152466ef1d690d9226cbd21f87c5ad98",
+      "size": 234784
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_BlockStunR.uasset": {
+      "hash": "sha256:9cea4c525cfa22ff30b1cfc510c1dbbd81a9a93646be7a45771491450093adab",
+      "size": 208943
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_combo1_2.uasset": {
+      "hash": "sha256:4fee53396118fffea3f1776f2fc04991f087294b97d4fed0d78cbfd638cabdf3",
+      "size": 187604
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_combo1_2_fast.uasset": {
+      "hash": "sha256:1ec48eab2946e3b4d217f5bc6025b1b7392d8ea02c803593c3c7fb38ac84ca73",
+      "size": 189681
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_combo1_2_stop.uasset": {
+      "hash": "sha256:147fbab3e85d3258b90d872c48c0afa6566ccdc54c00927e9db6474c7b13d733",
+      "size": 176548
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_CrouchStart.uasset": {
+      "hash": "sha256:08424c053d5db5f6c2fa97097b88e949d319016573d2a52dfd7dbae920af93ad",
+      "size": 160412
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_CrouchStop.uasset": {
+      "hash": "sha256:1107b9df79a0d22495d13b9d53162126df7667b83acd3d31ae452ab2e834180f",
+      "size": 164056
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Death1.uasset": {
+      "hash": "sha256:435082030ce3f8340362a415fee0c17156fb2c3c79374fd031471af781b059ea",
+      "size": 259772
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Death2.uasset": {
+      "hash": "sha256:b7a3c95478a3b8b03f5a07281f69ccaad8c7bf56f5011e301b07e01b75b6c6ab",
+      "size": 199510
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Dodge.uasset": {
+      "hash": "sha256:9491c008018407ea92d198e3911e5eed99971c474e4a2ff13243085e1d0c79a6",
+      "size": 158157
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Equip.uasset": {
+      "hash": "sha256:4153cb6a229acee31d9df9fdd08f06e2c465610883737c1e4a10fb1d4d0e696a",
+      "size": 176404
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_EquipShield.uasset": {
+      "hash": "sha256:20b9f9c9d33587e925811d6b65e347f241f4a938c7fe887dd18e5729ab26c800",
+      "size": 156356
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_FallStart.uasset": {
+      "hash": "sha256:f35dc809726c1d2c8311978a77cfba40936912d9d018620ca919ae2e771c2ed4",
+      "size": 396357
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_HitC.uasset": {
+      "hash": "sha256:eee1686bf9c474111bc4cbbdc2f760033cf38fc2e134a7037097f1d861f46d66",
+      "size": 172616
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_HitL.uasset": {
+      "hash": "sha256:08e989f07f88581caa366a37f9ed9026f7e8c2ffb773f7e225c0844fe7e11dc2",
+      "size": 160304
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_HitR.uasset": {
+      "hash": "sha256:5ba2c9f1e38d1600d5c5dc33136fdee65955f76c6677c3252478cbf66bee9ce2",
+      "size": 163578
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Idle.uasset": {
+      "hash": "sha256:904613d0a304670c112a34311ee233bf3ab857f2eb757609e251cf8809c0248d",
+      "size": 243926
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Idle2.uasset": {
+      "hash": "sha256:8d05d6792e980ea06c252983a79d17dec0286c203156d759659610743b3d6560",
+      "size": 262379
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Idle3.uasset": {
+      "hash": "sha256:6ad113ba8f1f23fbffd8cd94b87b3a4f6e494dc897a8a695e056523b43eceb9e",
+      "size": 413334
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_JumpLoop.uasset": {
+      "hash": "sha256:87850023d1b425ff5d303a54d547ecd28738d1462ab521bbf73892832afa018b",
+      "size": 398221
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_JumpStart.uasset": {
+      "hash": "sha256:57a711ef77f5bfdbccb54e2013cc0b5f0a5336c69fa9cffa43e19741bacccf06",
+      "size": 200491
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Kick.uasset": {
+      "hash": "sha256:8fcc4b16c529f266fe3c1d7aa76b5bce32a58ece4764e22bafee7f9af5c677df",
+      "size": 217645
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Knockdown.uasset": {
+      "hash": "sha256:e421c1db3a4d988573cc7e031f91ce857a45de8fbd08be378e1c7e868deb96fe",
+      "size": 500897
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_KnockdownInPlace.uasset": {
+      "hash": "sha256:41f95b86ee81e484fe2b43cc27a1039262dfa501e0a0259876b546549a929479",
+      "size": 384194
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_KnockdownInPlaceLegs.uasset": {
+      "hash": "sha256:aeabe2fa1ba382ca16efe7a5bef0ab55f7a48847fbcc2f8f8f792ca41da218f4",
+      "size": 384218
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Land.uasset": {
+      "hash": "sha256:fa005e47de4fc55a08f465066b27f442bb67c67eada70653a6c0834ac9f770b5",
+      "size": 173612
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_LandHard.uasset": {
+      "hash": "sha256:067bbc08b92019db6372585dda2a56380fa8285a8748307b4bdec1f471777c49",
+      "size": 205504
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_LandLight.uasset": {
+      "hash": "sha256:1951e110a4eea82572b93e6d1e1b658d0c5cf4a863b8b67dc79aa1e39999ebd7",
+      "size": 179306
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Magic1.uasset": {
+      "hash": "sha256:f35d53291cbdca0bdd38154e260ab3fd9a5a9042a16fd0ec1013b4f10d76bc82",
+      "size": 186778
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Pommel.uasset": {
+      "hash": "sha256:6bea7e3c16b9a9e3aaa6aa8754fdb273f83d302aae8bee87f0317dc80b620f51",
+      "size": 186931
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Run.uasset": {
+      "hash": "sha256:16ecc864596e3200ad6e3b4e6612ca179950dff608ba00811efa50c2aad61d18",
+      "size": 304158
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_RunStop.uasset": {
+      "hash": "sha256:205b9fae382c1d0983788284890c8b537fc80adfc9cfe0c08a18bda98175d11c",
+      "size": 169705
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_ShieldBash.uasset": {
+      "hash": "sha256:2e73333f61a71e3ca7fd01ea5cd70303b088a1c4d5a7b12f9fddb5bc6f1c8fc9",
+      "size": 171248
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_ShieldBash2.uasset": {
+      "hash": "sha256:8cb278d2a3f8806e13546f0b81e0487666bfc034241078d6233dd05602c0386d",
+      "size": 225375
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Slide.uasset": {
+      "hash": "sha256:127dfc124552f9e34973631c8bf2e16bbf46cfd7f35c27c7eb61ee4c74229c4a",
+      "size": 194458
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SlideLegs.uasset": {
+      "hash": "sha256:04f0e027f40ba64d42cc1e648be5d68a0437aea35d49b33c130f344422a53101",
+      "size": 166374
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Sprint.uasset": {
+      "hash": "sha256:b97af28eeb6f86a73ed27356bc0a58440333bc118f4a15a0bb5677bf126f3e98",
+      "size": 201845
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SprintStart.uasset": {
+      "hash": "sha256:2f2333e5ce4f676cb5abf7ec2566d1eeffe92d427f265e4b3786c611ab91f659",
+      "size": 235728
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SprintStop.uasset": {
+      "hash": "sha256:84ad9eb6e7dd78cf2ddf8a9abd2f86228ae15928dc2bcd9bfaabd064a17f9698",
+      "size": 274133
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Stun.uasset": {
+      "hash": "sha256:b8df22e263f2f6e8d14fc10d9e6e53f5a13b162c815c10e756826e53e8c9c296",
+      "size": 238607
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SwordBlockImpactC.uasset": {
+      "hash": "sha256:fb9825c0078e060466396d7b5285c3239c5b282d222be06e913b7288facf2bf9",
+      "size": 141289
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SwordBlockImpactL.uasset": {
+      "hash": "sha256:c06a68e0b2d0a1990ac83b65d22a3c6f178b78b27801fab295ca4eeb8e644d96",
+      "size": 140992
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SwordBlockImpactR.uasset": {
+      "hash": "sha256:d740cb11e4282c861296858a1c8c5efe1204ca412cca54cab293e108f669ae76",
+      "size": 171213
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SwordBlockLoop.uasset": {
+      "hash": "sha256:86cd2d7daad4bac6512a673b42e67dd60c092ee3c56386083fa3161da971cecf",
+      "size": 244200
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SwordBlockStart.uasset": {
+      "hash": "sha256:fdcec8445cfcd590140af8d09cf52dfeab1b9d2031b3014467153ebf26f3b130",
+      "size": 137039
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SwordBlockStop.uasset": {
+      "hash": "sha256:5c00844cfed249704ec3bdac74390bd8a847e30497028b39711012660af3621c",
+      "size": 140335
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_SwordBlockWalk.uasset": {
+      "hash": "sha256:f0430b0e572848b866540a1549210e1d241150dd51da9924c3ff259020c4c4cb",
+      "size": 353787
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Taunt.uasset": {
+      "hash": "sha256:d052e3f3e77edfe5246fdc65bcdeaccba1065972b5cc31cf9481e86985b87558",
+      "size": 292606
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Taunt2.uasset": {
+      "hash": "sha256:eb573fdc719927ec94cfc09cd5dd145a2e3fdcc3c74615778b51f47d5b8e9f8e",
+      "size": 308252
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Taunt3.uasset": {
+      "hash": "sha256:dbe04e2b29bb2efbddfdeec02dd0edd24546929995897c4c14a8455702f1274f",
+      "size": 326635
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Unequip.uasset": {
+      "hash": "sha256:5e29c494ae97472f5cb873f88dfb278133124c992a71ee7ea82dbef32b49bba3",
+      "size": 226569
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_UnequipShield.uasset": {
+      "hash": "sha256:df213d1c0ac43c0ccb3d5e42a31c6aa6c5288e241886a191f1cbddaa76dae469",
+      "size": 141543
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Walk.uasset": {
+      "hash": "sha256:91f508146f6e111c97f23b70b16286fdc5b20fb0de22f7e1f9e801d916c4c613",
+      "size": 435580
+    },
+    "Content/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_WalkStop.uasset": {
+      "hash": "sha256:5ee878b76801d87d5f23f8c47a292c0c25c52635c923d67258171b17abd2f452",
+      "size": 175959
+    },
+    "Content/FPPMeleeAnimset/Maps/Overview.umap": {
+      "hash": "sha256:6107e40aef98c4d003103f9d252dd8fddd0581027ae6257435eca0ae05db58cf",
+      "size": 678139
+    },
+    "Content/FPPMeleeAnimset/Maps/Overview_BuiltData.uasset": {
+      "hash": "sha256:93125cb9c1ad3276afcf0d2d8052bf72b314b58c182e11cbe94f2046584d3fc2",
+      "size": 62712
+    },
+    "Content/FPPMeleeAnimset/Models/UE4_Mannequin_NoHead/SK_MannequinNoHead.uasset": {
+      "hash": "sha256:6967eb60e9b325bf2539b48723ce7b0c4f5e8f0823e4bb8b80ffbc5f5b7b19c5",
+      "size": 3722606
+    },
+    "Content/FPPMeleeAnimset/Models/WeaponPlaceholders/BerdyszViking.uasset": {
+      "hash": "sha256:9039a3f457f25aec3c8265631c71570b25e9cd6ec056db0a8d56d65f29091a7a",
+      "size": 217083
+    },
+    "Content/FPPMeleeAnimset/Models/WeaponPlaceholders/KnifeViking.uasset": {
+      "hash": "sha256:2efdf4726fefbc16b9914ac353899e32369e178ed0738e51e1a27b808f970b2c",
+      "size": 178239
+    },
+    "Content/FPPMeleeAnimset/Models/WeaponPlaceholders/Longsword.uasset": {
+      "hash": "sha256:f33e1c07fc395f3407702929acb0ccfe5cc78ed80ab14cd1983ca6786f350d7f",
+      "size": 292113
+    },
+    "Content/FPPMeleeAnimset/Models/WeaponPlaceholders/ShieldViking.uasset": {
+      "hash": "sha256:896371c447ee3290f628afe0508fb93cb0334790183320866db46429fe1a8daf",
+      "size": 257787
+    },
+    "Content/FPPMeleeAnimset/Models/WeaponPlaceholders/SpearViking.uasset": {
+      "hash": "sha256:5fb1db1f0ab55adbe0d60b5c5afb7f8c0cc7e007c5e226ff1de83a96d4864f33",
+      "size": 193825
+    },
+    "Content/FPPMeleeAnimset/Models/WeaponPlaceholders/SwordViking.uasset": {
+      "hash": "sha256:579a8934370de61f0aa15644fd4d07e28c55a8a30a81f4bd2b81459d69acef95",
+      "size": 232859
+    },
+    "Content/FPPMeleeAnimset/Models/WeaponPlaceholders/Materials/WeaponsPlaceholdMAT.uasset": {
+      "hash": "sha256:4f35a7d84dfd00eba23741b9b0809d303b6751527146c4e131ce41353ef7b7a5",
+      "size": 108808
+    },
+    "Content/FPPMeleeAnimset/SourceFiles/SourceFiles.zip": {
+      "hash": "sha256:585015136fbb58612b83d8349677fb141007aabc55080db4f41b10127a22a3e0",
+      "size": 431684370
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/M_UE4Man_Body.uasset": {
+      "hash": "sha256:a8003940826c8ba82813e9e525372afa1411aefcd0bdb0466d2a363986a77830",
+      "size": 150735
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/M_UE4Man_ChestLogo.uasset": {
+      "hash": "sha256:93c854c382264a6b884fed7959779f48f8649cb7b3ab27de9aa429581d6d6f3a",
+      "size": 94086
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset": {
+      "hash": "sha256:5a10e0c93424ab0b48b52e000c57ec6f2882b064e22ba660d0cbc4c9bf341e71",
+      "size": 104188
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset": {
+      "hash": "sha256:bfb1496812b493275bb4ad39dfcbbfffec34374981fbac932066716aa692b603",
+      "size": 99434
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset": {
+      "hash": "sha256:0413e7ee7bb6b54b3e423374c8c9cd98b633775a79a7ef01ff90784093097078",
+      "size": 100554
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/ML_SoftMetal_UE4.uasset": {
+      "hash": "sha256:790b6d77fd6fd6749eb71a65e16451070e4ad7e24e39fb7fb9f2a7a5b0c826ad",
+      "size": 104177
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01.uasset": {
+      "hash": "sha256:fde6e6bbcf6597534e31d771f4b3cba53bde9d8ceb88fe14944d6cef27e4c66a",
+      "size": 457792
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01_N.uasset": {
+      "hash": "sha256:54eba91d17d9cb14f83b2417dd25d8bcfa3f75ff9195a69aacebb8c7092ed058",
+      "size": 405877
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset": {
+      "hash": "sha256:c6209ac8f3fe308c94a80191a634d1858037486d6b02eb7f1780fa51363906e2",
+      "size": 504256
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset": {
+      "hash": "sha256:6e84025fc85770c76814f582a94a884a5e6e63fe13e9dec951279087cd0ff3b7",
+      "size": 362738
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Mesh/SK_Mannequin.uasset": {
+      "hash": "sha256:e8d436a1979a81a5d906290cb0f22b60b0323a2b134e04c59be241edf95850c1",
+      "size": 4050113
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Mesh/SK_Mannequin_PhysicsAsset.uasset": {
+      "hash": "sha256:f4a237a7f1a7e49a15adcad461e11d73c6d45a03439c88949e02dbfafad38964",
+      "size": 34943
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset": {
+      "hash": "sha256:d4a6feea0d33829867fbaa68e3f01f25872157d83229f6b407438b1b904d488c",
+      "size": 20443
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Textures/UE4Man_Logo_N.uasset": {
+      "hash": "sha256:0c88dd001808dac92723cac5eb8a66037e90c6a1e34e07567b02bca431c3a8b3",
+      "size": 167452
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Textures/UE4_LOGO_CARD.uasset": {
+      "hash": "sha256:86e476e00b76cc6546bfa7db33a31b656ed2a261abb0a481a5ce86d13c6ee61f",
+      "size": 87763
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Textures/UE4_Mannequin_MAT_MASKA.uasset": {
+      "hash": "sha256:f110e0fa3d69af576fbea86c0b55194dcac889055ba7f760297f339a2e5a4543",
+      "size": 230132
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Textures/UE4_Mannequin_occlusion_Mobile.uasset": {
+      "hash": "sha256:dba20651ccfc789a29b2e4cea01e72a30a27d5a362c8040ef7f08a5c89261c0b",
+      "size": 375025
+    },
+    "Content/FPPMeleeAnimset/UE4_Mannequin/Textures/UE4_Mannequin__normals.uasset": {
+      "hash": "sha256:95cc062d32e47c0009c9ef3b7f7c06f840db05a5c4cd251ff73415896c7de3e7",
+      "size": 5532710
     },
     "Content/FPWeapon/Audio/FirstPersonTemplateWeaponFire02.uasset": {
       "hash": "sha256:21efa20a921a4e9dcd20391781dbc5e2939bf5e8b6c0263ab22fbdc7926b227c",
@@ -40048,8 +41632,8 @@
       "size": 1879
     },
     "Content/InventorySystemPro/ExampleContent/Common/Items/Weapons/DA_ExplosiveGrenade.uasset": {
-      "hash": "sha256:be04ab1d8452d946a82dd0253d2d548449b5476a0fb9e93e8b10dc88b5fe0178",
-      "size": 5077
+      "hash": "sha256:ca2fe77baee845f86400dde29a43ae33e736f3ff17858717ef08952e802fa839",
+      "size": 5480
     },
     "Content/InventorySystemPro/ExampleContent/Common/Items/Weapons/DA_HeroBlade.uasset": {
       "hash": "sha256:70a8b820a0b3975d475445afd0c82f59ff014a1b09905cfdbde60cbb93851d22",
@@ -59492,8 +61076,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:631db75e210cc62a882746d4d1ace62f4aa88c7f5f2c46fc3f9d7b409cfbd1e7",
-      "size": 24888527
+      "hash": "sha256:63bda32c42e7b812607718b5dd97f0ee0098ca4477342f4392c042d206fbf028",
+      "size": 24927541
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",
@@ -66110,6 +67694,38 @@
     "Content/Sword_Animation/Demo/Characters/Mannequins/Textures/Shared/T_UE_Logo_M.uasset": {
       "hash": "sha256:9688a26606acd1cbdf3aad4fb82d434043d2f9e8537b2b8c20a690a50fbd5fc9",
       "size": 70324
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_AttackHeavy_F.uasset": {
+      "hash": "sha256:e6a411081b1c9a0935da7a8bad4f8984a411a5405888f7c94864a9073407ae33",
+      "size": 1019143
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_AttackHeavy_R.uasset": {
+      "hash": "sha256:52928834b6a8b5ff380a3a03759dd56e3acd39f8d6b2c43f7a4f0409efb9712b",
+      "size": 1957959
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_Attack_F.uasset": {
+      "hash": "sha256:a819d36b52a4337e721d6ebe61998d13e5d3ba5fe46578b7111abc59bd383333",
+      "size": 837947
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_Attack_L.uasset": {
+      "hash": "sha256:64e4eb622dc91516e96413fb578a940ecbbb2ebfa1a9ad6d52ffacd336cdc8a1",
+      "size": 634120
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_Attack_R.uasset": {
+      "hash": "sha256:a32b1bd465d8efc6e954af7eb706d79c49834ae6c69eb495967c8bd2aa9bfed4",
+      "size": 1008347
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_Equip.uasset": {
+      "hash": "sha256:4efaa77a70a83b76e9e2782655a63148fcb34bf70b64e5d4e4230238f55280f7",
+      "size": 1240269
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_Idle.uasset": {
+      "hash": "sha256:25086a9b1d7b040d0d0a00bc24543604a868d0ebed09c0972adeae11bc49cee5",
+      "size": 1126545
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_Unequip.uasset": {
+      "hash": "sha256:7e4d3a071348e4291cf532ae700dd133e2e548731e4e07e6403baf6782614584",
+      "size": 1447867
     },
     "Content/TheSignal/Audio/BP_AmbientMusicPlayer.uasset": {
       "hash": "sha256:977bada6b69f82c05367d7bf872ff766920ace2988d7e5d64591e7757588199f",

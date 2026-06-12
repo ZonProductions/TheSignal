@@ -114,7 +114,85 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	float MeleeCooldown = 0.6f;
 
+	// --- Melee View Model (TICKET-054) ---
+	// Kubold FPP Melee Animset plays on a dedicated camera-child mesh
+	// (AZP_GraceCharacter::MeleeViewMesh) — never on PlayerMesh, because the
+	// camera is socketed to PlayerMesh and any animation there moves the camera.
+
+	/** Kubold view-model mesh — auto-discovered by name "MeleeViewMesh" on owner. */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<USkeletalMeshComponent> MeleeViewMeshComponent;
+
+	/** Pipe mesh held by the view model. Created on first activation. */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<UStaticMeshComponent> MeleeWeaponMeshComp;
+
+	/** Play-rate for the swing animation (1.42s source → ~1.0s at 1.4). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	float MeleeSwingRate = 1.4f;
+
+	/** Play-rate for the equip (raise) animation (1.93s source → ~1.0s at 2.0). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	float MeleeEquipRate = 2.0f;
+
+	/** Play-rate for the unequip (lower) animation. Truncated by the swap window. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	float MeleeUnequipRate = 2.5f;
+
+	/** Seconds after swing start (post-rate) when the damage sweep fires — the impact frame. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	float MeleeDamageDelay = 0.35f;
+
+	// Grip: STATIC attach to hand_r — Kubold authors the anims with the weapon
+	// rigid in the right hand ("parent weapons directly to hands" per their
+	// docs). Proven in Reliquary (session4_weapons_final): zero offset + one
+	// axis-correcting rotation holds across ALL anims. Do NOT compute alignment
+	// from wrist positions — the wrist line wobbles; the hand bone axes don't.
+
+	/** Pipe offset in hand_r bone space. STRAIGHT-LINE channel fit (session 63):
+	 *  shaft dead along the line through both fists' grip channels, sampled
+	 *  offline from A_MeleePipe_Idle across the whole loop (the longsword idle
+	 *  holds the weapon straight up through both stacked fists). Channel center
+	 *  per fist = centroid of the curled finger-joint ring (NOT the wrist→
+	 *  knuckle line — the metacarpals run under the BACK of the hand and that
+	 *  model laid the shaft against the back of the fist). Computed by
+	 *  Scripts/Python/fit_pipe_grip_channel_offline.py — re-run it if the idle
+	 *  anim or pipe mesh changes; it also writes the BP_GraceCharacter CDO.
+	 *  Includes the dev-tuned POV trim (POV_TRIM_DEG in the script): shaft
+	 *  swung 7.5° to the camera's right, pivoting on the left fist. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Melee")
+	FVector MeleeGripOffset = FVector(-23.78f, -1.43f, 22.85f);
+
+	/** Straight-line channel-fit rotation (see MeleeGripOffset). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Melee")
+	FRotator MeleeGripRotation = FRotator(3.15f, 95.41f, 40.23f);
+
 	// --- Throwable Config ---
+
+	/** Held grenade offset in the KUBOLD VIEW MESH's hand_r bone space —
+	 *  "one half of the pipe animation" (dev design): the view model's right
+	 *  fist holds the grenade exactly where the pipe shaft passes through it.
+	 *  Computed offline by Scripts/Python/fit_grenade_kubold_offline.py
+	 *  (right-fist ring centroid on the pipe's channel line, incl. POV trim).
+	 *  Re-run if the idle anim, grenade mesh, or ThrowableGripScale changes. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Throwable")
+	FVector ThrowableGripOffset = FVector(-7.57f, 1.36f, -0.04f); // +3.5cm up the channel into the full grip (dev-tuned)
+
+	/** Held grenade grip rotation (see ThrowableGripOffset). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Throwable")
+	FRotator ThrowableGripRotation = FRotator(3.15f, 95.41f, 40.23f);
+
+	/** Held grenade scale (dev-tuned live in PIE: slimmer than the mesh ships,
+	 *  stretched taller — Z is the grenade's long axis). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Throwable")
+	FVector ThrowableGripScale = FVector(0.6f, 0.6f, 1.01f);
+
+	/** Grenade equip starts this far into the Kubold Equip anim — the first
+	 *  half mimes drawing a pipe (a remnant with no pipe in hand); only the
+	 *  second half, the simple rise from below, plays (dev call). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Throwable")
+	float ThrowableEquipStartFraction = 0.5f;
+
 
 	/** Blueprint class to spawn when throwing a grenade. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Throwable")
@@ -126,9 +204,24 @@ public:
 
 	// --- Animation Sequences (played as dynamic montages) ---
 
-	/** Melee swing animation — loaded by path in InitializeKinemation. */
+	/** Swing animations — cycled per swing (F → R → L variety, dev-approved).
+	 *  Kubold Longsword retargeted onto the Operator skeleton
+	 *  (Scripts/Python/retarget_melee_anims.py). Heavy/hold mechanic removed
+	 *  by design (session 62) — swing fires immediately on press. */
 	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
-	TObjectPtr<UAnimSequenceBase> MeleeSwingAnim;
+	TArray<TObjectPtr<UAnimSequenceBase>> MeleeLightAnims;
+
+	/** Melee view-model idle loop (Kubold FPP). */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
+	TObjectPtr<UAnimSequenceBase> MeleeIdleAnim;
+
+	/** Melee view-model equip/raise animation (Kubold FPP). */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
+	TObjectPtr<UAnimSequenceBase> MeleeEquipAnim;
+
+	/** Melee view-model unequip/lower animation (Kubold FPP). */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
+	TObjectPtr<UAnimSequenceBase> MeleeUnequipAnim;
 
 	/** Grenade throw animation — loaded by path in InitializeKinemation. */
 	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
@@ -247,6 +340,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Weapon")
 	void UnequipWeapon();
 
+	/** Rearm the equipped throwable (inventory still has supply after a throw). */
+	UFUNCTION(BlueprintCallable, Category = "Kinemation|Weapon")
+	void RestockThrowable();
+
 	/** Add ammo to reserve pool. Called by ammo pickup items. */
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Ammo")
 	void AddReserveAmmo(int32 Amount);
@@ -287,6 +384,42 @@ private:
 	void PerformMeleeSwing();
 	void ThrowProjectile();
 
+	// --- Melee view model (TICKET-054) ---
+
+	/** Show the Kubold view model: hide PlayerMesh arms, attach pipe, play Equip → Idle. */
+	void ActivateMeleeViewModel();
+
+	/** Show the view model's RIGHT arm only, grenade in its fist ("one half
+	 *  of the pipe animation" — dev design). Shares the melee lifecycle. */
+	void ActivateThrowableViewModel();
+
+	/** Hide the view model and restore PlayerMesh arms.
+	 *  bPlayUnequip: play the lower animation and hide after the swap drop window
+	 *  (0.5s) instead of hiding immediately. */
+	void DeactivateMeleeViewModel(bool bPlayUnequip);
+
+	/** True while the view model is in throwable mode (left arm hidden). */
+	bool bViewModelThrowable = false;
+
+	/** SingleNode playback on the view mesh. */
+	void PlayMeleeViewAnim(UAnimSequenceBase* Anim, bool bLoop, float Rate);
+
+	/** The sphere-sweep damage check — runs on the impact frame, not at click time. */
+	void DoMeleeDamageSweep();
+
+	/** True while the Kubold view model is the visible melee representation. */
+	bool bMeleeViewModelActive = false;
+
+	/** Timer: equip animation finished → start idle loop. */
+	FTimerHandle MeleeEquipIdleHandle;
+	/** Timer: delayed damage sweep at the swing's impact frame. */
+	FTimerHandle MeleeDamageHandle;
+	/** Timer: hide view mesh after unequip lower animation. */
+	FTimerHandle MeleeUnequipHideHandle;
+
+	/** Cycle index into MeleeLightAnims (F → R → L). */
+	int32 MeleeLightAnimIndex = 0;
+
 	/** True while reload animation is playing — blocks firing. */
 	bool bIsReloading = false;
 	FTimerHandle ReloadTimerHandle;
@@ -308,30 +441,25 @@ public:
 	bool bMeleeSwingActive = false;
 private:
 
-	/** Timer for weapon switch drop phase (arms going off screen). */
+	/** Releases the fire lock after the weapon Draw montage lands. */
 	FTimerHandle WeaponSwitchAnimHandle;
-	/** Timer for deferred weapon swap (spawn new weapon while arms off screen). */
-	FTimerHandle WeaponSwapDeferredHandle;
-	/** Timer for weapon switch rise phase (arms coming back on screen). */
-	FTimerHandle WeaponSwitchRiseHandle;
 	/** True while weapon switch animation is playing — blocks fire input. */
 	bool bWeaponSwitching = false;
-	/** Pending weapon class for deferred swap. */
-	TSubclassOf<AActor> PendingSwapWeaponClass;
 	/** Timer to re-enter ADS after melee weapon equip (ready stance). */
 	FTimerHandle MeleeReadyStanceHandle;
-	/** True while swap camera offset is applied — prevents accumulation on rapid swaps. */
-	bool bSwapCameraOffset = false;
-	/** Current weapon switch Z offset applied to PlayerMesh. Lerped during swap. */
-	float WeaponSwitchZOffset = 0.f;
-	/** Target Z offset: negative = dropping, 0 = raising back. */
-	float WeaponSwitchZTarget = 0.f;
 
 	/** Apply per-weapon stats (mag size, fire rate, damage) based on weapon class name. */
 	void ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClass);
+
+	/** Destroy old weapon, spawn + configure the new one, broadcast. Returns false if the spawn failed. */
+	bool PerformWeaponSwap(TSubclassOf<AActor> ActorClass);
 
 public:
 	/** Minimum time between shots in seconds. Set per-weapon by ApplyWeaponConfig. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
 	float FireCooldownTime = 0.25f;
+
+	/** Fire-input lock while the weapon Draw montage plays after a swap. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float WeaponDrawLockTime = 0.6f;
 };

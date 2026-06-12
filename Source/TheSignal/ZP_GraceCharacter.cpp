@@ -73,6 +73,24 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	FirstPersonCamera->SetRelativeLocation(FVector::ZeroVector);
 	FirstPersonCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	FirstPersonCamera->bUsePawnControlRotation = false;
+
+	// --- Melee view model (TICKET-054) ---
+	// Kubold FPP melee anims play here, never on PlayerMesh (camera is socketed
+	// to PlayerMesh — animating it swings the camera). Mesh/anims loaded by
+	// ZP_KinemationComponent at init. Offset: mannequin eye height below camera,
+	// yawed -90 so the mannequin faces camera forward (+X).
+	MeleeViewMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeleeViewMesh"));
+	MeleeViewMesh->SetupAttachment(FirstPersonCamera);
+	MeleeViewMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -155.0f));
+	MeleeViewMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	MeleeViewMesh->SetVisibility(false);
+	MeleeViewMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeViewMesh->SetOnlyOwnerSee(true);
+	MeleeViewMesh->bCastDynamicShadow = false;
+	MeleeViewMesh->CastShadow = false;
+	MeleeViewMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MeleeViewMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+
 	PlayerMesh->SetOnlyOwnerSee(true);
 	PlayerMesh->bCastDynamicShadow = true;
 	PlayerMesh->CastShadow = true;
@@ -1355,14 +1373,6 @@ void AZP_GraceCharacter::OnThrowableConsumedHandler()
 {
 	if (!MoonvilleInventoryComp) return;
 
-	// Block this weapon class from ever being re-equipped
-	if (KinemationComp && KinemationComp->WeaponClass)
-	{
-		ConsumedWeaponClasses.Add(KinemationComp->WeaponClass);
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Throwable consumed — weapon class %s blocked from re-equip"),
-			*KinemationComp->WeaponClass->GetName());
-	}
-
 	// Find the grenade's item DA by scanning ItemSlots for matching weapon class
 	UObject* FoundItemDA = nullptr;
 	TSubclassOf<AActor> ConsumedClass = KinemationComp ? KinemationComp->WeaponClass : nullptr;
@@ -1428,8 +1438,55 @@ void AZP_GraceCharacter::OnThrowableConsumedHandler()
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] Throwable consumed — could not find item DA in ItemSlots"));
 	}
 
+	// Stack-aware (session 63): if more grenades remain in inventory, rearm
+	// the held one so the player stays on grenades. ThrowProjectile only
+	// auto-switches back when CurrentAmmo stays at 0 (supply exhausted).
+	if (ConsumedClass && KinemationComp && CountWeaponClassInInventory(ConsumedClass) > 0)
+	{
+		KinemationComp->RestockThrowable();
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Throwable consumed — supply remains, rearmed"));
+	}
+
 	LastThrowableItemDA = nullptr;
 	LastThrowableSlotIndex = -1;
+}
+
+int32 AZP_GraceCharacter::CountWeaponClassInInventory(TSubclassOf<AActor> InWeaponClass)
+{
+	if (!MoonvilleInventoryComp || !InWeaponClass) return 0;
+
+	FProperty* SlotsProp = MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	FArrayProperty* ArrayProp = SlotsProp ? CastField<FArrayProperty>(SlotsProp) : nullptr;
+	if (!ArrayProp) return 0;
+
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp));
+	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
+	if (!StructInner) return 0;
+
+	// Locate the item DA and stack amount fields in Moonville's FItemSlot
+	FProperty* ItemProp = nullptr;
+	FProperty* AmountProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (!ItemProp && It->GetName().Contains(TEXT("Item_"))) ItemProp = *It;
+		if (!AmountProp && It->GetName().Contains(TEXT("Amount"))) AmountProp = *It;
+	}
+	FObjectProperty* ObjProp = ItemProp ? CastField<FObjectProperty>(ItemProp) : nullptr;
+	FIntProperty* IntProp = AmountProp ? CastField<FIntProperty>(AmountProp) : nullptr;
+	if (!ObjProp) return 0;
+
+	int32 Total = 0;
+	for (int32 i = 0; i < ArrayHelper.Num(); ++i)
+	{
+		void* ElementData = ArrayHelper.GetRawPtr(i);
+		UObject* ItemDA = ObjProp->GetObjectPropertyValue(ObjProp->ContainerPtrToValuePtr<void>(ElementData));
+		if (ItemDA && GetWeaponClassFromItem(ItemDA) == InWeaponClass)
+		{
+			// Sum stack amounts; if the Amount field wasn't found, count slots
+			Total += IntProp ? IntProp->GetPropertyValue(IntProp->ContainerPtrToValuePtr<void>(ElementData)) : 1;
+		}
+	}
+	return Total;
 }
 
 // ---------------------------------------------------------------------------
@@ -1644,10 +1701,13 @@ void AZP_GraceCharacter::Input_InventorySlot(int32 SlotIndex)
 	{
 		if (!KinemationComp) return;
 
-		// Block consumed throwables (grenade already used)
-		if (ConsumedWeaponClasses.Contains(SlotWeaponClass))
+		// Throwables: only equippable while supply remains (stack-aware —
+		// replaces the old permanent consumed-class blocklist that killed
+		// the hotkey after one throw from a stack)
+		if (SlotWeaponClass->GetName().Contains(TEXT("Grenade"))
+			&& CountWeaponClassInInventory(SlotWeaponClass) <= 0)
 		{
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Weapon class %s already consumed — ignoring"), *SlotWeaponClass->GetName());
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] No %s left in inventory — ignoring hotkey"), *SlotWeaponClass->GetName());
 			return;
 		}
 
