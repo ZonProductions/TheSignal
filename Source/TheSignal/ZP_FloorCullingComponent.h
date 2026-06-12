@@ -45,9 +45,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
 	int32 NumFloors = 5;
 
-	/** How many floors above and below current to keep visible. */
+	/** How many floors above and below current to keep visible.
+	 *  99 = culling neutralized: single-floor demo maps (Building1_3rdFloor)
+	 *  bucket the outdoor night env + Ultra_Dynamic_Sky into floor 0 and hid
+	 *  the entire world from floor 3 ("blackbox", session 65). Restore a low
+	 *  value only after CollectActors skips sky/env actors. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
-	int32 AdjacentFloorsToShow = 1;
+	int32 AdjacentFloorsToShow = 99;
 
 	/** How often to check player floor (seconds). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")

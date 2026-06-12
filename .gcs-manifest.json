@@ -1,8 +1,12 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-12T11:03:16",
+  "created": "2026-06-12T17:51:48",
   "files": {
+    "Content/Building1_3rdFloor.umap": {
+      "hash": "sha256:3b60cc39b51159d5c0467ec0eae86465444c223f894338e0ff7a2a5db54d9d1f",
+      "size": 2738265
+    },
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
       "size": 450658
@@ -21567,6 +21571,94 @@
       "hash": "sha256:1712a168bd4ae7d331d72aa7682b596d36c17ac2532701c65035a404d883a0fa",
       "size": 8850
     },
+    "Content/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.uasset": {
+      "hash": "sha256:7155050b547553fb4157caefe6b541de5824734fd243bc41b1e53504284ee874",
+      "size": 394193
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/BS_Idle_Walk_Run.uasset": {
+      "hash": "sha256:c892e8df00c4df574b3d1416823d0bce0505333bccd3d564cd990920e7e69630",
+      "size": 53656
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/MM_Idle.uasset": {
+      "hash": "sha256:e00eacca873bf76b6d5f25f26cd5bb37a64a7e69fe22dfba27ac670dca62efcd",
+      "size": 1436299
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Bwd.uasset": {
+      "hash": "sha256:72d4f6b2c6eff98e306532a3e1e425ed838b340ee2b727ee328cec81b451a78e",
+      "size": 483010
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Bwd_Left.uasset": {
+      "hash": "sha256:e9fc2873b9c0a859d84265fb4d54ca4e7f9c7d07b7b5faf150cf94fbe08f2477",
+      "size": 417285
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Bwd_Right.uasset": {
+      "hash": "sha256:0d93eb9b338ba2fc761b799993aad887bb9fa7bf1ac9ac39db4a3660909230c5",
+      "size": 417287
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Fwd.uasset": {
+      "hash": "sha256:5438dd4bada52515bda2e72167420cf629bfabebccd8352278d7b2b5f2e7d553",
+      "size": 531534
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Fwd_Left.uasset": {
+      "hash": "sha256:319863dbe741a2753c129cb78d8d9aebd5b453bf2969dc716d804f60cb409fec",
+      "size": 466752
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Fwd_Right.uasset": {
+      "hash": "sha256:5c597b01f49b191ef2a190e3f62749aab891b066a18c4d236b76aa01d3b3fe4a",
+      "size": 467067
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Left.uasset": {
+      "hash": "sha256:8861d616a78f5b6718b88cbea7d8684d18ef751cee34cd82ba1188a1a2246e68",
+      "size": 487609
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jog/MF_Unarmed_Jog_Right.uasset": {
+      "hash": "sha256:ab3d4b2e7f386afd2d54fb4cdfae6fd21a539dc024cd00b95cfe5de313c44031",
+      "size": 521652
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jump/MM_Fall_Loop.uasset": {
+      "hash": "sha256:83b02f643c0ff63a752fbd87a9d92c3ba0a65101d199d22112b62025c84eae29",
+      "size": 925096
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jump/MM_Jump.uasset": {
+      "hash": "sha256:ae79014cc2df83b502977e7e816e19c8a59e4e6e4858d1188a74fecc2895456d",
+      "size": 403475
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Jump/MM_Land.uasset": {
+      "hash": "sha256:fe299e8478335fb2f1fa2ce211e95304419a7080329f948b8455d73f2e37c8ed",
+      "size": 409762
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Bwd.uasset": {
+      "hash": "sha256:c0783d86daf82c329f0073f14526284f380881fc859b8a4dc1c55374054a7608",
+      "size": 606566
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Bwd_Left.uasset": {
+      "hash": "sha256:a66140350ebd078d0ee4f31b7794fc14fbdea44b0d73b0324082189d9cb57235",
+      "size": 537515
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Bwd_Right.uasset": {
+      "hash": "sha256:505f076ddfc8052f99e66632c9375ca48d6d189b2cd7e350866cb9e6bc1ff914",
+      "size": 537389
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Fwd.uasset": {
+      "hash": "sha256:755b929810fbab03cca399db173a34e63ff361f06effbd922b91058345ab0ef9",
+      "size": 475528
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Fwd_Left.uasset": {
+      "hash": "sha256:ec0b02946c516eb80f7064f91315dcf6c8bb2a3f9ff69297e21034e2eb8ee508",
+      "size": 411292
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Fwd_Right.uasset": {
+      "hash": "sha256:3523e7dcd9453d2501e49650a7fd94c720e73b669706af99e7adeff42f93fbcb",
+      "size": 411286
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Left.uasset": {
+      "hash": "sha256:cfd5c73c4d9d2cddafd68a381bfe7a68f5b3aea617a192945cf52986422dbd53",
+      "size": 486297
+    },
+    "Content/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Right.uasset": {
+      "hash": "sha256:78731b7be51fed7b0e7389c681471d008d35e5fb8ef6ce8739f4957deaf46b35",
+      "size": 491679
+    },
     "Content/Characters/Mannequins/Materials/M_Mannequin.uasset": {
       "hash": "sha256:a2317f2dad94639f53e851aa493692ed14f927b0cde88ce00a9a0f20c6028bcb",
       "size": 86774
@@ -21607,6 +21699,22 @@
       "hash": "sha256:611267b6f2be5802942c3328f1882c85effaebe9b910b1294566eb8fb0f70bf5",
       "size": 25136
     },
+    "Content/Characters/Mannequins/Materials/Manny/MI_Manny_01_New.uasset": {
+      "hash": "sha256:d8272b7e5cb7d26f092592d1a778dda5914a2e0d25dd7d51d59a83b3b12fb4af",
+      "size": 17959
+    },
+    "Content/Characters/Mannequins/Materials/Manny/MI_Manny_02_New.uasset": {
+      "hash": "sha256:f8844ddf3204558eea69e56b6210997303008cb5cf267a7f8d6de9e4f666f859",
+      "size": 18702
+    },
+    "Content/Characters/Mannequins/Materials/Quinn/MI_Quinn_01.uasset": {
+      "hash": "sha256:22aa36c3fe67952e75bd2cd745b453f37406e96c5f392a397e481db30ea13046",
+      "size": 11436
+    },
+    "Content/Characters/Mannequins/Materials/Quinn/MI_Quinn_02.uasset": {
+      "hash": "sha256:9b8e8e4b73dd643ff39c837e66bdf5b186c47182875961a01c306e1971b84aee",
+      "size": 10970
+    },
     "Content/Characters/Mannequins/Meshes/SKM_Manny.uasset": {
       "hash": "sha256:4a125910af2a5989854d3d45987d666b3beba07acf9ae2992db12c74b3adc9f3",
       "size": 28777396
@@ -21638,6 +21746,10 @@
     "Content/Characters/Mannequins/Rigs/CR_Mannequin_Body.uasset": {
       "hash": "sha256:d18634843c9e96519a70ab0a105da19088b5a9938be7888bba9e76cd3c688947",
       "size": 18081293
+    },
+    "Content/Characters/Mannequins/Rigs/CR_Mannequin_FootIK.uasset": {
+      "hash": "sha256:e3d57c8aa6ae80a2c85ad8f81d554b67eefbf867889d426c3c916fa17d029893",
+      "size": 499379
     },
     "Content/Characters/Mannequins/Rigs/CR_Mannequin_Procedural.uasset": {
       "hash": "sha256:0c8f2e7678cf7a147341e273c02570382a21f2b19528176ab1e89f9baa7492c7",
@@ -21891,6 +22003,10 @@
       "hash": "sha256:77b30f590100a06aaa639b8e623872d5cc1780d1051ae4b5384330a996d21027",
       "size": 5740631
     },
+    "Content/Characters/Mannequins/Textures/Manny/T_Manny_01_MRA.uasset": {
+      "hash": "sha256:6d1d9a8db9d92de2683d2edb8eedc16b580693fab96a7c0c8142506428143850",
+      "size": 712699
+    },
     "Content/Characters/Mannequins/Textures/Manny/T_Manny_01_MSR_MSK.uasset": {
       "hash": "sha256:348cccb1a88b006b266c81f7ef9d2749277dc385bc85485a69c4fc40602bdd01",
       "size": 11038497
@@ -21918,6 +22034,10 @@
     "Content/Characters/Mannequins/Textures/Manny/T_Manny_02_D.uasset": {
       "hash": "sha256:5f111c37fa27b68bbacfb3683e29f5f9a8a7da444f2d2c9534c4da8566a9e4c9",
       "size": 9033799
+    },
+    "Content/Characters/Mannequins/Textures/Manny/T_Manny_02_MRA.uasset": {
+      "hash": "sha256:71d429a3c979c183b595fb8ae36247e45ddd6209f8bf17da2ab9e9e3cc906aed",
+      "size": 1059664
     },
     "Content/Characters/Mannequins/Textures/Manny/T_Manny_02_MSR_MSK.uasset": {
       "hash": "sha256:834cbd5559f08b642a6b23c74f48e0b885d010122a8c9611adc4056e16ea1358",
@@ -21959,6 +22079,18 @@
       "hash": "sha256:44a9e97a6bb20119b64e7a701d5a6f588de7718f24b9fe30a62def7a0291ac40",
       "size": 12400232
     },
+    "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_01_D.uasset": {
+      "hash": "sha256:1334a6b349a4bea90d09080719ff1288c587d03c54dbf650f7b497b14ab2586f",
+      "size": 674873
+    },
+    "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_01_MRA.uasset": {
+      "hash": "sha256:1e0aaf7ef9ce5636b6f1ec3b0035a92e2ad92273cad121a8d42b76f797a10882",
+      "size": 791702
+    },
+    "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_01_N.uasset": {
+      "hash": "sha256:b7a32495b6a7c84830b3627922624fac30ac0fdad903cae1e57095f5233318ef",
+      "size": 1263846
+    },
     "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_02ID_BN.uasset": {
       "hash": "sha256:316d7d7fa9e5d1fbc481bf46f72bd68338e11e05229d5032f72893561d1962c4",
       "size": 19707193
@@ -21986,6 +22118,18 @@
     "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_02_CCRCCPlastic_MSK.uasset": {
       "hash": "sha256:1428fbe4570d8f8d630052505182d1a5c79cd5687c6ac5e339f7c74d847dfd40",
       "size": 13428164
+    },
+    "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_02_D.uasset": {
+      "hash": "sha256:93e9a75191df91643852f213f458b17a3b345a4eac40fc87ece9a69dd49bf8c6",
+      "size": 943436
+    },
+    "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_02_MRA.uasset": {
+      "hash": "sha256:80a40b73fe6b1f5a6c49bdcfa8779e4341b4c5e1e2356ca23ca15d030e603c90",
+      "size": 974204
+    },
+    "Content/Characters/Mannequins/Textures/Quinn/T_Quinn_02_N.uasset": {
+      "hash": "sha256:1f175afa29f8bb4d17358c7c2e3990d09cb4a7c0f2bde0be43ce80db3499c914",
+      "size": 1524740
     },
     "Content/Characters/Mannequins/Textures/Shared/T_UE_Logo_M.uasset": {
       "hash": "sha256:984b71cba5bb54cdeb604d5d446db1dc58ab4d1a5052e0909a85c96d33674731",
@@ -22387,6 +22531,10 @@
       "hash": "sha256:7efa57a6d55d36529e9bbc2a10fe5b519a92b47fe42cf5b7d84694aa72e41a19",
       "size": 8041
     },
+    "Content/Core/DA_UDS_Occlusion_Off.uasset": {
+      "hash": "sha256:9d9401d7bc8cbf39dadaf689e55b58316b6565a8cced59c9edba0f6d8f94ef7c",
+      "size": 2426
+    },
     "Content/Core/Actors/BP_CardReaderPanel.uasset": {
       "hash": "sha256:028e56f30da3754881a5a8358664a3a990d47a69024ae3ce1c8562f2a5eed6ac",
       "size": 26102
@@ -22598,6 +22746,10 @@
     "Content/Core/Materials/M_BulletHole.uasset": {
       "hash": "sha256:278b1f1a9295fd6b1afd94ddc038a56cc3b2536247f825d06f6387a52d0c368e",
       "size": 10032
+    },
+    "Content/Core/Materials/M_WindowGlass.uasset": {
+      "hash": "sha256:09693ff460e2ccc4a2196762c161186c6468c4d5c2b987b245e580033b2bf231",
+      "size": 7993
     },
     "Content/Core/Meshes/MI_Herrington_11-87_Police.uasset": {
       "hash": "sha256:98c25e1e7188283ab5b6cad7648eee4769a5720c054e478b2e2a12e382a23e7e",
@@ -24855,6 +25007,18 @@
       "hash": "sha256:1387d689817e803c8183dceebc1945d57621557b1fd5783297377211dc20f15e",
       "size": 20876
     },
+    "Content/FirstPerson/MI_FirstPersonColorway.uasset": {
+      "hash": "sha256:3d49b21312285f8663991124473046f9322f6adb66e72f461b303e8d7476046d",
+      "size": 9448
+    },
+    "Content/FirstPerson/Anims/ABP_FP_Copy.uasset": {
+      "hash": "sha256:73a3fbb958a7f46c39afefebd8abd14e6eaf602d41fb954b3263241723e77d90",
+      "size": 57858
+    },
+    "Content/FirstPerson/Anims/CtrlRig_FPWarp.uasset": {
+      "hash": "sha256:221454f0c9a9a435aed2d0596038031968ddc0e1717872dec600ea1672e37c89",
+      "size": 249483
+    },
     "Content/FirstPerson/Blueprints/ABP_FPChar_GASP.uasset": {
       "hash": "sha256:54e7288c903e7560d3528f0963c74776c7194cd3dbd67564c0337d5f81683054",
       "size": 111838
@@ -24862,6 +25026,10 @@
     "Content/FirstPerson/Blueprints/BPI_HasHealth.uasset": {
       "hash": "sha256:07569c24245f5e1b1fc5ab18aa5490e4bd40890edeadb90f1de7592dfcc9c0f9",
       "size": 9977
+    },
+    "Content/FirstPerson/Blueprints/BP_FirstPersonCameraManager.uasset": {
+      "hash": "sha256:6f976f2ef410fab4697c1be7b3ce563b9a0a55c67b5961c4c0859761e6c81598",
+      "size": 15577
     },
     "Content/FirstPerson/Blueprints/BP_FirstPersonCharacter.uasset": {
       "hash": "sha256:3ba82768e23339cf2370f58b40a4fb9b9bc471a20c9b204cf2fa5a60752453ab",
@@ -34371,9 +34539,45 @@
       "hash": "sha256:c5284f5d4d93e226888314af87b583443cd05f1dce016df7f116e8fdb6dc9f59",
       "size": 1652
     },
+    "Content/Input/IMC_Default.uasset": {
+      "hash": "sha256:33019000c7b775b423df7117b48e92cf8cd2cb795dc58a3f20ce7fad9ad516ec",
+      "size": 7795
+    },
     "Content/Input/IMC_GDCMotionMatching.uasset": {
       "hash": "sha256:2f3bc5d090026fabe0bf7d89f42d050730e023e71a7601b689c1d2a3a0eaa843",
       "size": 23065
+    },
+    "Content/Input/IMC_MouseLook.uasset": {
+      "hash": "sha256:85f9ca0ac9c6b2bba3b2de2f50a8c5facd8410b1079096b4d959ef7d1264c829",
+      "size": 2551
+    },
+    "Content/Input/Actions/IA_Jump.uasset": {
+      "hash": "sha256:8ad490f62efd49ec3e6739da4bdb407d029ab367b59f5db7ab75a5efa640eee4",
+      "size": 1608
+    },
+    "Content/Input/Actions/IA_Look.uasset": {
+      "hash": "sha256:f486ece3bc8635be84d13562a6daeb4cb1641cc770e02e035275cc0c2c1d903e",
+      "size": 1298
+    },
+    "Content/Input/Actions/IA_MouseLook.uasset": {
+      "hash": "sha256:3097246bebc5dfa9374101660bca11e13a8a3beb426d7056633e96e04dd83819",
+      "size": 1318
+    },
+    "Content/Input/Actions/IA_Move.uasset": {
+      "hash": "sha256:fc879e31b195679cc70e472afce9f857c40f6e262c7bb6110035dc9757b0a4bb",
+      "size": 1298
+    },
+    "Content/Input/Touch/BPI_TouchInterface.uasset": {
+      "hash": "sha256:4d4817c0411054773ff9a91adfc9aa31950745e0d1197450e742126097081fe4",
+      "size": 16239
+    },
+    "Content/Input/Touch/UI_Thumbstick.uasset": {
+      "hash": "sha256:d88d65136bebaa2b0c824e48a2f9ef45cf842ed03aaea22d93d0d3bd556d6058",
+      "size": 222858
+    },
+    "Content/Input/Touch/UI_TouchSimple.uasset": {
+      "hash": "sha256:c1cc71c9236724aa9dcae968b53e502c6fcd3d2651d352089de1444f2b293d81",
+      "size": 74085
     },
     "Content/InventorySystemPro/Blueprints/Actors/Campfire/BP_Campfire.uasset": {
       "hash": "sha256:97bd8afabd336c056bf7a3174b75e0dac0a9394cc41286ace704d1f321abd08c",
@@ -49003,6 +49207,62 @@
       "hash": "sha256:4a503ecb73fd3392882c3bc9f1db4bd4145dfeab15a1ce18129e7f6947f6907a",
       "size": 3002
     },
+    "Content/LevelPrototyping/Interactable/Door/BP_DoorFrame.uasset": {
+      "hash": "sha256:4291b056f46eaaa8c4353964d18c725ae0b5242961be5b2a60d8803445b42d88",
+      "size": 447690
+    },
+    "Content/LevelPrototyping/Interactable/Door/Meshes/SM_Door.uasset": {
+      "hash": "sha256:639193bfc37ca81cf4240b0a093a59ce4bbcbb9ea4b8feb648585bb75b193af9",
+      "size": 60028
+    },
+    "Content/LevelPrototyping/Interactable/Door/Meshes/SM_DoorFrame_Corner.uasset": {
+      "hash": "sha256:4c5c3c2c60d42443aaac48401b395228cc8530425f5742cb64a850f62936d868",
+      "size": 87646
+    },
+    "Content/LevelPrototyping/Interactable/Door/Meshes/SM_DoorFrame_Edge.uasset": {
+      "hash": "sha256:4ebc8f9e1cb140a28b238c353c7772fe5630885de0f28f11f0511805fb2e2cac",
+      "size": 69849
+    },
+    "Content/LevelPrototyping/Materials/MF_ProcGrid.uasset": {
+      "hash": "sha256:ab2a5a25d8869d88ee07121375a85181f5043e703148542af3d7d11b1779bd79",
+      "size": 49863
+    },
+    "Content/LevelPrototyping/Materials/MI_DefaultColorway.uasset": {
+      "hash": "sha256:0bce321a09f8d8ddde21e5d83956eb651b1fd099ecdb847e7e14593dcb1c40a3",
+      "size": 9289
+    },
+    "Content/LevelPrototyping/Materials/MI_PrototypeGrid_Gray.uasset": {
+      "hash": "sha256:c788c587a715f83cb4b2b4c8122d16a486fc8c8182da8446e391216120cbf9d4",
+      "size": 13153
+    },
+    "Content/LevelPrototyping/Materials/M_FlatCol.uasset": {
+      "hash": "sha256:81fd8e31980b0c2211708a2e2867ce905973a44a2ff3d69b715896e7be3fec7d",
+      "size": 11912
+    },
+    "Content/LevelPrototyping/Materials/M_PrototypeGrid.uasset": {
+      "hash": "sha256:7fb069e33fc5daca865d9b0fa94390764bb52fdac16cd51176d31f8c725a840f",
+      "size": 79217
+    },
+    "Content/LevelPrototyping/Meshes/SM_Cube.uasset": {
+      "hash": "sha256:cb4b2d17a90b9feefa2119ff3a750d1f92a1aae9502b576c5467a2d4cbbaf75e",
+      "size": 18169
+    },
+    "Content/LevelPrototyping/Meshes/SM_Cylinder.uasset": {
+      "hash": "sha256:2ad1cf004bd0238350fc7339001c2c5819ca5ff8f37c8d7c72dd328a5597c608",
+      "size": 195236
+    },
+    "Content/LevelPrototyping/Meshes/SM_QuarterCylinder.uasset": {
+      "hash": "sha256:287158183a2fbb0aa1fb254fd8cd2039d6a62f2a4c23755e37a0c36a8da8f60d",
+      "size": 136681
+    },
+    "Content/LevelPrototyping/Meshes/SM_Ramp.uasset": {
+      "hash": "sha256:da29fcf2a3719995c9550a5fc5937437b5c8c78debabae845081d141ac5242e7",
+      "size": 18581
+    },
+    "Content/LevelPrototyping/Textures/T_GridChecker_A.uasset": {
+      "hash": "sha256:7b53dd4942897779f8677bd9c11e7d105c00af222d657961d8f88034a8e0bce6",
+      "size": 7834
+    },
     "Content/LEVELS/ModSciInteriors/Blueprints/Door_A_BP.uasset": {
       "hash": "sha256:075291ed15db34095e475896091ef630adae1dfadf0e7222600da26cabc2c4b2",
       "size": 183684
@@ -61076,8 +61336,8 @@
       "size": 94913494
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany.umap": {
-      "hash": "sha256:f86b7aa80671b50e8ff1cba2a5678596b06cc17115a3d9a83cdeb8ef88f1fa80",
-      "size": 25539385
+      "hash": "sha256:e7325b91667b058e5aeb62215a6f8b5dc43a55fcc703fcf8185c655bcf23cba5",
+      "size": 25580979
     },
     "Content/office_BigCompanyArchViz/Maps/Maps_BigCompany_BuiltData.uasset": {
       "hash": "sha256:408558a8175960825f54c17fde4fa88136e874b5a5925e4efb727343b1715f3a",
@@ -61484,8 +61744,8 @@
       "size": 129585
     },
     "Content/office_BigCompanyArchViz/Materials/MI_Floor.uasset": {
-      "hash": "sha256:10e9720778b766a25e75fe2cd39e6a8787309dbddfe49a8124d96b1243af0f71",
-      "size": 118934
+      "hash": "sha256:5237754228093da3bde34d50f9c10866e470ca5cbf9a4f41d2ecd3b9a699703e",
+      "size": 13874
     },
     "Content/office_BigCompanyArchViz/Materials/MI_FlowerBoxs.uasset": {
       "hash": "sha256:3392c180a4a9d885ebfd261b6e1bbbc6b773db0d1f4491c62ffe60bb16c04759",
@@ -74015,6 +74275,70 @@
       "hash": "sha256:73730b491ec5573d83ebc81720e844b1dcd142a96ea1893aff963ba66bab25be",
       "size": 8072356
     },
+    "Content/Variant_Horror/Lvl_Horror.umap": {
+      "hash": "sha256:6da9d4e997eb3eb4b75e7a31e13a002c13001ab48baa62ed87ce9df75407f656",
+      "size": 11804
+    },
+    "Content/Variant_Horror/Blueprints/BP_HorrorCharacter.uasset": {
+      "hash": "sha256:4e0f163861de8ad8f8d0d792a0b165c231bd5b4665dc3fde56bbd6e2e19e7359",
+      "size": 247121
+    },
+    "Content/Variant_Horror/Blueprints/BP_HorrorGameMode.uasset": {
+      "hash": "sha256:ad08e84f6529245244c7d755d2ff2397dc8d5829ee7bcf51a8e93e617173cbf4",
+      "size": 21276
+    },
+    "Content/Variant_Horror/Blueprints/BP_HorrorPlayerController.uasset": {
+      "hash": "sha256:c5936fe700daf8159bf1e0119584b63cc60852ece46e30cdc998bef40e2874b6",
+      "size": 109098
+    },
+    "Content/Variant_Horror/Blueprints/BP_PC_Horror.uasset": {
+      "hash": "sha256:ce6e9ef81c526377a42614cb5013ebe2bc507b8d83173c2823ba8a01b4f366b1",
+      "size": 50093
+    },
+    "Content/Variant_Horror/Blueprints/Light/BP_HorrorLight.uasset": {
+      "hash": "sha256:42c9028b96010bba95d44658bdc0cec43a496b08bfe5676351f3253e2815cc1c",
+      "size": 101500
+    },
+    "Content/Variant_Horror/Blueprints/Light/Assets/NS_DustMote.uasset": {
+      "hash": "sha256:e64aa1ae6049d02261caa7ea4e56e173194798743e9b21e3f2fc401f2e31e17d",
+      "size": 139160
+    },
+    "Content/Variant_Horror/Blueprints/Light/Assets/Materials/LF_Flicker.uasset": {
+      "hash": "sha256:a58c0c7b99924faf830e2463f793154f990221dd242fa3827690ac6e00a987a6",
+      "size": 21815
+    },
+    "Content/Variant_Horror/Blueprints/Light/Assets/Materials/MF_LightFlicker.uasset": {
+      "hash": "sha256:7275dd9675710319fd8eb7c588a82faab6e3ba09e4d1d36e0eafde03aa12e688",
+      "size": 17050
+    },
+    "Content/Variant_Horror/Blueprints/Light/Assets/Materials/MI_FlickeringLight.uasset": {
+      "hash": "sha256:0316d00150b233b471e65a1c0f7f303f85165879f1e361bad2fb63f34bdbfe8a",
+      "size": 7869
+    },
+    "Content/Variant_Horror/Blueprints/Light/Assets/Materials/M_DustMote.uasset": {
+      "hash": "sha256:6e7f75fd5a394258dde73d00fde6ac712f76456a435231339e999ba82c29bc18",
+      "size": 17547
+    },
+    "Content/Variant_Horror/Blueprints/Light/Assets/Materials/M_Light.uasset": {
+      "hash": "sha256:d0d107fea298eb4518dfb45a66e0960dae774ceb43ed24f7997fd787f3016902",
+      "size": 15127
+    },
+    "Content/Variant_Horror/Input/IA_Sprint.uasset": {
+      "hash": "sha256:2c409bc4e325daa8dd7471f7fe7245ff807540ea2a7db65046d86c3f54321f53",
+      "size": 1124
+    },
+    "Content/Variant_Horror/Input/IMC_Horror.uasset": {
+      "hash": "sha256:07417dd6443730b4b04b45ffb9f56e7384dcb62a0c9a20217b3d9072a6d6d57d",
+      "size": 2952
+    },
+    "Content/Variant_Horror/UI/M_FillBackground.uasset": {
+      "hash": "sha256:3e03c162223f5744e67209e3307b79d85138c90e606a6901e3c3383069cf350d",
+      "size": 8277
+    },
+    "Content/Variant_Horror/UI/UI_Horror.uasset": {
+      "hash": "sha256:0f455aca93c56162fc9a0fa8d685e01b479ed2f3cb9d0206e61751eb7955dc37",
+      "size": 86278
+    },
     "Content/VFXSparkPack/Blueprint/BP_StunMine_Effect.uasset": {
       "hash": "sha256:cee550f4c7edae9cb9590b3099bbcfe89796e4da38250fa42d27fe9c89ffdd9c",
       "size": 303787
@@ -74203,6 +74527,10 @@
       "hash": "sha256:a6dec176ea4d5ef27a4c81b240f22eab4ed394ee4a2b23aae052bf54f51feec3",
       "size": 2581
     },
+    "Content/_DEPRECATED/DEP_M_WoodFloorAligned.uasset": {
+      "hash": "sha256:1d3b16f883afffaa9f114a7607e94f7b78417f5f3185fa40e67e22d1df722733",
+      "size": 30435
+    },
     "Content/__ExternalActors__/KINEMATION/TacticalShooterPack/Demo/Maps/TacticalShooterMap/1/9L/1TA5U2BLOSSYYPG1YFRCD7.uasset": {
       "hash": "sha256:9b3d27e95e6080c30d44cd9549a4903be58ef0eee6fef7be2e866ae029344b35",
       "size": 3470
@@ -74275,6 +74603,322 @@
       "hash": "sha256:995cdd512dce13ac9558af165778c54f71b12b16898400599f86fa6ca30444ed",
       "size": 849
     },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/0/9N/XNV375O8KPWILSKVGEFNR7.uasset": {
+      "hash": "sha256:56361f43a54342c835039cf7662c2d11e876b182f8ebe07191f8bab6a9bdcefa",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/0/H4/6XP4MN111ML9O0QCEYRKH2.uasset": {
+      "hash": "sha256:6f05711a0a7d7e38f0e408c5afc5cffab592858cbc014f72c13b91186bee83b8",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/0/UL/NBOXI91CXDV03LG1XB034Y.uasset": {
+      "hash": "sha256:f75d5a0ba6cdef821750815480db2cbe5474eaf54fb997e5db7e3cf5f6ca32ad",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/1/BG/SUO39IID039W2OIT4A9WHD.uasset": {
+      "hash": "sha256:f62016f1de7b3c4b17b5709e48d9ec48f5b4614961fb885fead41fec3e10d9bc",
+      "size": 3947
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/1/IF/NN5BW9XQMA6PPAIDJ7SMAQ.uasset": {
+      "hash": "sha256:06238022dd99c9ac335fdf24783510502f6350f8cdd5fd87f2d95808ba064978",
+      "size": 6987
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/1/XK/00H4DFA6S89FDUNS6VXWUB.uasset": {
+      "hash": "sha256:16fedca92f1a2da9f18745a306e98c75477a7bad243094767adaad2051d4d0fc",
+      "size": 4321
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/2/64/I7XEQFHVL5DIB1CJZBSBRU.uasset": {
+      "hash": "sha256:6896d96ecef7107e69d37c6d903c7eae68fa1727e9a57ce0bc6fc05afaf65dca",
+      "size": 4062
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/2/6N/K64CJI6KHKILLZWQSQ7IAN.uasset": {
+      "hash": "sha256:f4bf41f4f1974eaa510f3024bbe18cbe883edcd22fd2972e55c9f6a8267cdfc6",
+      "size": 4346
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/2/9C/1NTY6MECNAM0L7QUTBTWTC.uasset": {
+      "hash": "sha256:9d4cff41b32c278293800af688267f12be9fd68c1feb80d872fc4a9396365587",
+      "size": 4348
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/2/B7/QY8ULQWFS49XORXUUJYHBV.uasset": {
+      "hash": "sha256:ab6676abff9211a88a8b04853a939a786604ef8ff4097a9cbf7840a6c1fe5f92",
+      "size": 3927
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/2/JU/S4QLU8WK2BN4J46DP9RPNN.uasset": {
+      "hash": "sha256:0c3600ddf90da28bcfd4ea39f4365e732f1509634731ee5119839eb408b9d77f",
+      "size": 3973
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/2/LP/X22M42YXL5MXZCB4XVRYG9.uasset": {
+      "hash": "sha256:63b47a718f6a84ecae586d36b6000353898667d58ab610b1cdc62df1b1a9aef6",
+      "size": 3667
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/2/PD/B1KLFOWOLE3HXLMQBBLOPE.uasset": {
+      "hash": "sha256:8d225def60ccc6780206a0137fd4880f67d4a3ad0d8e854a7cfa7176bc2b9a62",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/6N/OFZ2R5U7SYT7F3CB3XEANE.uasset": {
+      "hash": "sha256:a90b806b76c4179fc915765ea5b10b0046f96c0c66c17e6379776be0ff9dc2b2",
+      "size": 7777
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/8G/ZPBH7EIP0LIE3IEE3X5I9P.uasset": {
+      "hash": "sha256:f603b53e4a0971d76eca8d4b84ae30af128041874ca83fab9ba349395d40be96",
+      "size": 7638
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/AD/4ANYKIAZ7LHW90QHRA8XXY.uasset": {
+      "hash": "sha256:9f93ee5e3ed774aef86f3ff1e4dc2e00fbbfd28721d6e180c67d7b36a01bf561",
+      "size": 3945
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/GK/3ZJBQHCJ1O8II9Z86X5JZ8.uasset": {
+      "hash": "sha256:b104f8adb57ef5a5041b2ee2843b511d891a2b1178d9143243eee0bbd94e5267",
+      "size": 2248
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/HE/OG8UP7YLDKLJGZ6KZI41ZV.uasset": {
+      "hash": "sha256:3a95241e3d3a4ff34daaacccedcc1ff420b75de21ea3ae2ac672b4152f4174b4",
+      "size": 11991
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/JM/JB5K424E7XL6HOHHKAGZ44.uasset": {
+      "hash": "sha256:728989ff22756b58751224ad3790108d90cf4ceb94189cb8a11553ffe6648de1",
+      "size": 3622
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/L5/T7HZAJOHJ8Z18VN4WJBHUF.uasset": {
+      "hash": "sha256:2aefee8a10bf74e128b72faf887c4ca76ac5391a46043f6488c165e1c9c12556",
+      "size": 11172
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/PZ/4LJ5CNYK9QNGK7I6CKWDDP.uasset": {
+      "hash": "sha256:2fd75f6feec70219482b66adf009a23c20f84ee0cfce3697af93f296c0a7dc42",
+      "size": 3948
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/QB/9KU2R8SEQ5NZF4EGCALVVD.uasset": {
+      "hash": "sha256:d6d8462aa1508b7f9963dbb6ea95f3eb19fc0147817e8b43a33e41575735b937",
+      "size": 3926
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/U3/8G5Q2ACBQL028FQW3TNA83.uasset": {
+      "hash": "sha256:581d09506ff7022e8fdf497ba266426eb84f8ebdceabdaa7a0759740063a3a14",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/XH/ZI2O8JLKELBZHG2VGWB2BY.uasset": {
+      "hash": "sha256:851ed58b39a25158892b906005b113d1667b8ca5a19adc4d7f7863d79794c1e2",
+      "size": 12023
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/4/1N/6ZCWCW0P2JN8XT3L45YXLS.uasset": {
+      "hash": "sha256:9b9587d3a7e1c83805bff2b3091f39dc103e40424b54d4c15dd262bca1e0782e",
+      "size": 12103
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/4/3O/7P5L1R6H2S9W36WVJFO7C2.uasset": {
+      "hash": "sha256:9d54e0e927d1f360f805887ac59c44f8f623184b283e76ce19d2c2191725b2f9",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/4/CU/3X5T5KEXZ9AFNDPZO353I4.uasset": {
+      "hash": "sha256:cb48d63c406b1e028fbbb8ca965561a5a5dbc99ca37fc16a999e257ab2f5a480",
+      "size": 3973
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/4/LW/63SRQSBPGN1O19F38FOJJI.uasset": {
+      "hash": "sha256:958a5a59c79a05963d688bff9693c108dd243131b18efc64171feb58d275bf0e",
+      "size": 4254
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/4/YO/H0MBGL3CLVB8BC3LTOTEJZ.uasset": {
+      "hash": "sha256:db0d9944e0dc53bf05bf1e708af5256296a1ec399d2ce7c238cd017b7c15a266",
+      "size": 4122
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/4/YQ/U25QS32O4D60A2JP4UZWAL.uasset": {
+      "hash": "sha256:44d3cba4e7691a526c5c12eccf4e93dbf5bb003ac4981b40d14af67788015f84",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/5/9G/8PH3B28FAWBUO5LZGIKBPY.uasset": {
+      "hash": "sha256:a76271657226cc724db1b079a4f7f67c9f48e30c9b670647efd05d7576831ec9",
+      "size": 3927
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/5/RE/41ING9B1UUSXVFVQAR67TW.uasset": {
+      "hash": "sha256:8e67f5e335c02707dce3e8e39c1c03a07052f8eb25edde344246382f4f02e297",
+      "size": 7874
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/5/TR/3KZ317G6QAISBA8KVHXNID.uasset": {
+      "hash": "sha256:265bca725f88315a3652a420b949179bd27a5d8f424da1aeeabec7aaa3ce1d3c",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/5/V8/ELVBBJP6FQBB46EOR16SNV.uasset": {
+      "hash": "sha256:ec940e29fa470aa7fd00ec7b58d57150a7caf46b33c3e24b31e9a8cb5f94944e",
+      "size": 4260
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/5/XB/P3903AEGCCLEKH4X762BHW.uasset": {
+      "hash": "sha256:1207b94308677d7d51aba3b3fd527d75d099278c97f86b422e476aa0726abbe4",
+      "size": 3926
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/6/2Q/U1Q6LWD0LO8TBYP8XAG1HZ.uasset": {
+      "hash": "sha256:6ab53653b6ec6b1e61737a611db0533720902148a40d5b0158768a8713440409",
+      "size": 6845
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/6/BR/8VZFJT0FO7JL9XP9AKBVU0.uasset": {
+      "hash": "sha256:26f2b07ed2dc99acd13eb2dcdd696256677651d47924c01f3f41201e120b6875",
+      "size": 4234
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/6/FN/P6DHQRHWG5A4ANBB6IVE9X.uasset": {
+      "hash": "sha256:56cb46d513bd8277b825da15cc9f3e03b916af43152389d456c1f82a40655e99",
+      "size": 3926
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/6/NR/EKR8BAGTREZL6130JK27PM.uasset": {
+      "hash": "sha256:076899ab5c0a166e93376de5b9ac89babe37011e0fb07f065ba7ccab2fe3ac8c",
+      "size": 3947
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/6/ST/OY6MMZK8D42GBJO5FHWZLC.uasset": {
+      "hash": "sha256:6a4b54ce197db9a0d7554ef43c9436e911345aecadb3c94c9b0b45f64812523a",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/7/H6/HH9TF15E2MP5ZWX3UGV7P3.uasset": {
+      "hash": "sha256:11ec5477e89eec2481220a70a647c41b45356284a2be5951744b6cf0ed45930b",
+      "size": 3967
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/8/4F/T21R05MMSCET8BZ2EG6SWS.uasset": {
+      "hash": "sha256:c8a0fe3953c311b4e47cd853c41e97fcb31331f63efe1d383fa1cda7ece205cd",
+      "size": 3974
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/8/9N/KESGN0131EL35XN79RTO8S.uasset": {
+      "hash": "sha256:c09e3992de261c37cfcfeb6211f37a26d68caf15af951511144f49dc26531342",
+      "size": 4062
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/8/GM/VJPIOZG5M5HV9SMJQGRMD7.uasset": {
+      "hash": "sha256:ccc5c26bc7437b274fcf9ac3205d3cf21ee0e87a5510738eb3bc88bcd0c8ed41",
+      "size": 4062
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/8/VA/9SHJ6ONF0NO9EQH3EUOZ67.uasset": {
+      "hash": "sha256:01aaa75fdc02f9072dad941763f2743e0f10f27875660abd60f25c56b3d57097",
+      "size": 4254
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/8K/OGFT07X88T4YB1XZANAEWK.uasset": {
+      "hash": "sha256:9134283413c49932748b7bc4be3331e35fa9c6b62ee7763a07b699f4c013074a",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/8P/HXB7QO5CUITP877I1SNGVT.uasset": {
+      "hash": "sha256:80b3b4f58780fd769a2b5bba43c74793e8b9e8ae3250873384f02102f81266bf",
+      "size": 6990
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/DJ/PDAUG5BCKDEAJ2FGTRYQW7.uasset": {
+      "hash": "sha256:db8fc4afc6c11a9e3b98f304ced884fbbae0ae3c1a60486a426094f4ef80a100",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/J6/KXD20TVKFIAWADS9P5K6T3.uasset": {
+      "hash": "sha256:706e278e0e965a48f619508f481bdd6567a2a103bd88e3f448a747bd789be62c",
+      "size": 4167
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/L1/8PH18ZESFPZR6AFQNZZJHY.uasset": {
+      "hash": "sha256:da69ff2a2bf815c38334cda23cd9bdcc3bca2fd3419b0348a2b5b5a8c851050b",
+      "size": 6952
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/NW/3TP5SO08C78O361MV635WZ.uasset": {
+      "hash": "sha256:b521d5b504a21b02ec29b8003a7b323f0f54f98c6eb995f4bde8c6fb37be5993",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/PO/Z5JQ3715U90GC78LF8YVZE.uasset": {
+      "hash": "sha256:49f6814e2e0d5d54c302bb2826bc9c0d6d03cd83a41b5c748c8816e2752f8878",
+      "size": 6990
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/PQ/FUO1PC0ZE1T7HGD5M7WH3M.uasset": {
+      "hash": "sha256:c5095b478f25de8ec9d0159f8410ee341a7b656569c1a0ed931b38fc35c32fda",
+      "size": 4062
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/9/SQ/MI31B44UZ0O83WZ92D8YYJ.uasset": {
+      "hash": "sha256:4918ccd2f8d9675896c2ea336f37d0a4e49ddea67667d45861841d32c04bbbf5",
+      "size": 7638
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/A/4E/Z2RVP4X49TRJ8PV1TG7F99.uasset": {
+      "hash": "sha256:c97addfbf2a8e2b2ebbee2c478455d780b47597290ce7eb28d903f14e8ae3902",
+      "size": 6921
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/A/A0/0ZNCGT5BJTSIS7GE8BBTBR.uasset": {
+      "hash": "sha256:82e026bd88a851bf15ec55d01cd5b876fe251b0d4c39d71a296a7c5599846264",
+      "size": 6845
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/A/RE/2051XEA4LGIN555FZ9R41D.uasset": {
+      "hash": "sha256:5725c76af43dd143dc3f66cb8f736f9a30e3ed0f694c3bb01de8e5dd2d7a7597",
+      "size": 4200
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/A/TT/PEKH451HOOMAWN4TUYPAXE.uasset": {
+      "hash": "sha256:6939f8bda38a033cddc97a78e4f3a7c75e321e418001f7aeeb5a8d133177643f",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/A/WM/PVV6DOCSPK8FAIAI96F846.uasset": {
+      "hash": "sha256:33fdc6e936c5b3b0453e12cb5dc7b2c9eef0478651ed0c87b691f05d049af0b0",
+      "size": 6843
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/2Z/V55SREFRW1QNPJ6CMEYPID.uasset": {
+      "hash": "sha256:29845387968799c274ad5d9ae4fbf7f13f34674ea92376d32370a263962c2a1e",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/CQ/T05AOFB8X3Y7RPQEZ703H3.uasset": {
+      "hash": "sha256:dbf355b668be3f5934bb660edafb27ef8250714aaad165b16fe19af430de5f12",
+      "size": 5143
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/DR/JY8SVZB41D6BLQJZT15DEL.uasset": {
+      "hash": "sha256:62f224f7c17f67ae286894c038482958e13fbdf30a07b42a5dc4c34c6c912bd3",
+      "size": 2226
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/E5/HXHMPRE5K9TQ8IMYNUFT0K.uasset": {
+      "hash": "sha256:d6122eafebeb33fa4cde7eecd6b04238eab8507b4dc0597c1ebc384692a33e44",
+      "size": 4009
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/FY/LE2HVZRIWYTD4D2LOE75Z7.uasset": {
+      "hash": "sha256:a4a9360bc789378e817dfe732be53b10663dbc9ee06b4ef4ca304486d606d27a",
+      "size": 3968
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/JT/XP386E2S52UV4Y1UWONFOG.uasset": {
+      "hash": "sha256:7d04be897f3e8822a2d3e42f7231daa475a2f90e43cb850ba121cd7024a2de64",
+      "size": 6848
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/LN/PZBDBOZ4P0GSOF0G4UQO24.uasset": {
+      "hash": "sha256:92d84bc0adbbaf35b08a8a024fc1e46112f8d5e46b2fb40a0a598e27428742bc",
+      "size": 4002
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/B/U8/WEFKJYFRD6NOQWK1CYE8MC.uasset": {
+      "hash": "sha256:5fb49bb477acbdfd4d320c931426a3ea939a6c89606468bfb54714aacdfabf55",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/C/6B/R2H3DQMJE0N712J72DUGZM.uasset": {
+      "hash": "sha256:3547d1a264204f6bda7fc64eb7b62da8d438130bba7a9a92cd14d4ac702452f8",
+      "size": 6845
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/C/F2/KD7ZDAX5WSTHYZHAIHIVOE.uasset": {
+      "hash": "sha256:e83454832b620a7424ce7239f17b8d847ff6a445d2976151d83b314d0a03df7d",
+      "size": 6987
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/C/VN/3X14DSC2WBO2DN31WFFFEC.uasset": {
+      "hash": "sha256:a626dcb8e3dbaf2b54ee6b1ae565368a48bf41b3c53d439920a21793c5090430",
+      "size": 3950
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/D/G7/X9LYXH5KHAQDRL4H74W1CV.uasset": {
+      "hash": "sha256:23eb6fdf843f3942280705f9d62e016fec7b7fc685a82fb72254f42a9d12489b",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/D/GK/ZY5JAZ69GEG4DXEH3ABYGY.uasset": {
+      "hash": "sha256:5e11ff2636bf5589272fb5b1e5e2fdb22d395e49fff943ea6f7de729a501b294",
+      "size": 12103
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/D/XI/NKDB0RUCK5SBQ97LIA6W5N.uasset": {
+      "hash": "sha256:94733579d31ff319156f26a841106bbecf9485b822cb98800ef9f562872837db",
+      "size": 6845
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/D/ZA/2D8B8Y2TMBHSQR4C5FUHOM.uasset": {
+      "hash": "sha256:276804e37d9fa07d62646f7779e78b4d1a3ee301b022202e0433de3f5bff0186",
+      "size": 4064
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/E/7J/9BJEHFBRWNQ4Y19IW2AX89.uasset": {
+      "hash": "sha256:f5191ccbece29162d7ef615828a2e41c1e7e82e7e3b8103970e2940ac5b4d8f2",
+      "size": 3973
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/E/ID/VDROBGOSK9AYG8F03X20KO.uasset": {
+      "hash": "sha256:fad9043cdc0086d38b0d2d11d5289617a318bd833939a184402dbd046a97f2c1",
+      "size": 6990
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/E/IM/098ZZWGR4KV9W9OSXMLS3F.uasset": {
+      "hash": "sha256:7979148a759ae600e69fb1edf91debfd57e4344aab10d65b32737e257ff640b6",
+      "size": 3948
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/E/OZ/EWBP9T0DZVQI1I0D108ARK.uasset": {
+      "hash": "sha256:ddc3279000170aec6b12975795577d7eaf6c1a8b7667399c858bf9507d187747",
+      "size": 3974
+    },
+    "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/F/30/Q30QC3KM9PIKZM4AGT7MT8.uasset": {
+      "hash": "sha256:a507eca46528df327fc0bd8edc8059ca5134c60fe5f8c32620da619bd0c0076b",
+      "size": 3948
+    },
     "Content/__ExternalObjects__/KINEMATION/TacticalShooterPack/Demo/Maps/TacticalShooterMap/2/C1/1UG5A9KCHU93E60BX5PS42.uasset": {
       "hash": "sha256:736ed099fae78bcd6f9b839b8d113956b8c7d6e298da3987be8167d3be84bf27",
       "size": 2262
@@ -74298,6 +74942,10 @@
     "Content/__ExternalObjects__/KINEMATION/TacticalShooterPack/Demo/Maps/TacticalShooterMap/9/OQ/SVW3N2H5KVZOC6E40LR6D8.uasset": {
       "hash": "sha256:baa6fecdf15981deec45b0dc3fbfb3547f019d637b6229015f9bc87423c58e2f",
       "size": 2256
+    },
+    "Content/__ExternalObjects__/Variant_Horror/Lvl_Horror/E/4S/MTC0EUCY5X4PPSGG0YEW81.uasset": {
+      "hash": "sha256:928e6e628483606d752277be30e4d33f4fd9ccb22b33d574a76acdace0d655f0",
+      "size": 1829
     }
   }
 }

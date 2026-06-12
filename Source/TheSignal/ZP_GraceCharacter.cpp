@@ -134,10 +134,15 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// NOT manual mode — manual with default physical camera settings crushes everything to black.
 	DeathVignetteComp->Settings.bOverride_AutoExposureBias = true;
 	DeathVignetteComp->Settings.AutoExposureBias = -0.5f; // darker bias without crushing
+	// Exposure window (session 64): 0.8 floor made the 2 AM exterior render
+	// near-black through every window/opening (night luminance ~0.1-0.3 sits
+	// far below an interior-tuned clamp). 0.2 lets eyes adapt enough to read
+	// moonlit night; sealed dark rooms (~0.01) still clamp 4x below the floor
+	// so they stay dark (the session-63 "warm lamps" bug needed 0.01 to return).
 	DeathVignetteComp->Settings.bOverride_AutoExposureMinBrightness = true;
-	DeathVignetteComp->Settings.AutoExposureMinBrightness = 0.01f; // allow very dark scenes
+	DeathVignetteComp->Settings.AutoExposureMinBrightness = 0.2f;
 	DeathVignetteComp->Settings.bOverride_AutoExposureMaxBrightness = true;
-	DeathVignetteComp->Settings.AutoExposureMaxBrightness = 1.5f; // cap brightening
+	DeathVignetteComp->Settings.AutoExposureMaxBrightness = 1.2f;
 	DeathVignetteComp->Settings.bOverride_BloomIntensity = true;
 	DeathVignetteComp->Settings.BloomIntensity = 0.2f; // kill bloom glow, keep darkness crisp
 

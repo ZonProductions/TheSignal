@@ -56,7 +56,9 @@
       "Read(//c/Program Files/Epic Games/UE_5.4/Engine/Binaries/Win64/**)",
       "Read(//c/Program Files/Epic Games/UE_5.5/Engine/Binaries/Win64/**)",
       "Read(//c/Users/Ommei/workspace/ZonPortalDev/**)",
-      "Read(//c/Users/Ommei/workspace/**)"
+      "Read(//c/Users/Ommei/workspace/**)",
+      "PowerShell(& 'C:\\\\Program Files\\\\Epic Games\\\\UE_5.4\\\\Engine\\\\Build\\\\BatchFiles\\\\Build.bat' TheSignalEditor Win64 Development 'C:\\\\Users\\\\Ommei\\\\workspace\\\\TheSignal\\\\TheSignal.uproject' -WaitMutex)",
+      "PowerShell(Start-Process 'C:\\\\Program Files\\\\Epic Games\\\\UE_5.4\\\\Engine\\\\Binaries\\\\Win64\\\\UnrealEditor.exe' -ArgumentList 'C:\\\\Users\\\\Ommei\\\\workspace\\\\TheSignal\\\\TheSignal.uproject')"
     ]
   },
   "enableAllProjectMcpServers": true,

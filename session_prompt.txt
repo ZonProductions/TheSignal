@@ -9,6 +9,35 @@
 - Session 62 — Melee view-model system (TICKET-054 fix): Kubold FPP Melee Animset on dedicated MeleeViewMesh (camera-child, SingleNode, UE4 skeleton native — no retarget). Replaces ADS-toggle swing hack AND ToggleReadyPose pipe swap hack. Equip/Unequip/Idle/Attack_F from Longsword set (two-handed, matches DA_Pipe). PlayerMesh clavicles hidden while melee held; Moonville pipe actor stays hidden for inventory bookkeeping; SM_Pipe attached to view-model hand_r. ALSO: bullet decals were silently broken (stale /Game/UniversalWallClutter paths in set_all_cdo.py) — fixed to /Game/UWC_Bullet_Holes Metal_Solid 1-5, set + saved on CDO. NEEDS: PIE validation + view-model offset tuning.
 - Date: 2026-06-11
 
+## QUAKECON DEMO — OFFICIAL START 2026-06-12
+- Demo map: **Building1_3rdFloor** (save-as copy of Maps_BigCompany).
+- Design pivot: one isolated floor per map, levels load one into the other.
+  The 2-wing/5-floor model is too much stress, not practical.
+- **Stairwell = the separate "transitioning spot"** where level loads happen.
+- ~~First task: strip Building1_3rdFloor to ONLY floor 3 + stairwell~~ DONE
+  2026-06-12: 6,498 actors kept (was 28,224) — floor-3 Z band 960-1480 +
+  all stairwell + night env (grass kept). Height-based cut, NOT label-based
+  (F5_-labeled actors are physically on floor 3, incl. its SillingTile
+  ceiling @Z1450). Scripts/_floor3_strip_delete.py. Saved.
+- Ultra Dynamic Sky added @ 2 AM (Time of Day=200; BP property name has
+  SPACES: set_editor_property('Time of Day')). Old NightSkyAtmosphere +
+  NightFog disabled (hidden), NOT deleted. Saved.
+- **Dev manual redo (2026-06-12, ~2h):** floor-3 1x1m FloorTile carving
+  grid DELETED — floors are now ONE WHOLE PIECE (pack slabs), stairwell
+  rebuilt as an extension of the building. ~1,800 actors total. The tile
+  grid is GONE from the demo map — do not reference FloorTile_* there.
+- **"Blackbox" SOLVED (2026-06-12, session 65):** ZP_FloorCullingComponent
+  bucketed UDS sky + night env (ground/backdrop, all Z<1000) into floor 0
+  and hid the whole world when player stood on floor 3 (bucket 2). Fix:
+  AdjacentFloorsToShow default 1->99 (culling neutralized; restore only
+  after CollectActors skips sky/env). ALSO: UDS occlusion (mode=BOTH)
+  suppressed night near building — now DA_UDS_Occlusion_Off (/Game/Core,
+  volume-test + fractions 0) assigned. Night skylight multiplier (3,3,3.5)
+  dev-approved "for now, work up from there" — dev wants darker midpoint
+  later. Exposure window 0.2-1.2 now BUILT. All saved + verified post-restart.
+- Next: perfect floor 3 for the demo; stairwell transition system; tune
+  night ambient down toward dev's "inbetween" target.
+
 ## CAMPAIGN BUILD
 - **Vertical slice complete.** Core systems proven (player, combat, creatures, inventory, save/load, UI, interaction, lock/key).
 - **Now building:** Actual campaign — level design, NPC design, narrative implementation, full game structure.
