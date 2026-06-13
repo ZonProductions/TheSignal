@@ -587,6 +587,35 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] KinemationComponent::ApplyWeaponConfig — unknown weapon '%s', using defaults."), *WeaponName);
 	}
 
+	// HUD weapon icon — finer than CurrentWeaponType (Rifle vs Shotgun are both
+	// Ranged). Derived from the weapon name; default Rifle covers AK105/TR15 and
+	// any unknown ranged weapon (bullets icon).
+	// Melee/throwable keyed off the resolved type (reliable); ranged keyed off
+	// the weapon name (Rifle vs Shotgun can't be told apart by type).
+	if (CurrentWeaponType == EZP_WeaponType::Throwable)
+	{
+		CurrentWeaponIcon = EZP_WeaponIcon::Grenade;
+	}
+	else if (CurrentWeaponType == EZP_WeaponType::Melee)
+	{
+		CurrentWeaponIcon = EZP_WeaponIcon::Pipe;
+	}
+	else if (WeaponName.Contains(TEXT("Viper")))
+	{
+		CurrentWeaponIcon = EZP_WeaponIcon::Pistol;
+	}
+	else if (WeaponName.Contains(TEXT("Herrington")) || WeaponName.Contains(TEXT("SRM")))
+	{
+		CurrentWeaponIcon = EZP_WeaponIcon::Shotgun;
+	}
+	else
+	{
+		CurrentWeaponIcon = EZP_WeaponIcon::Rifle;
+	}
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] WeaponIcon: '%s' -> icon %d (type %d)"),
+		*WeaponName, (int32)CurrentWeaponIcon, (int32)CurrentWeaponType);
+	OnWeaponIconChanged.Broadcast(CurrentWeaponIcon);
+
 	// View model lifecycle (TICKET-054): the Kubold mesh replaces PlayerMesh
 	// arms while a melee weapon (both arms + pipe) or a throwable (right arm
 	// + grenade in the same fist) is held.

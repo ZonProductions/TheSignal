@@ -1,11 +1,23 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-13T02:17:12",
+  "created": "2026-06-13T14:44:03",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:33b645f34e261a7f215dcc072d6af3f9b6671f05bb943b76da1f4a9a60c91227",
-      "size": 7625655
+      "hash": "sha256:066c9a10b8e5d389fe9c0c54cb089272b711e8db01f553cac56a56d186946e9f",
+      "size": 7715130
+    },
+    "Content/NS_VoidMote.uasset": {
+      "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
+      "size": 488069
+    },
+    "Content/NS_VoidMote2.uasset": {
+      "hash": "sha256:264eb04631076f8063ca5b17d7b42b620649a37587874d7bc73709de093e9bf5",
+      "size": 488306
+    },
+    "Content/SM_HangedWire.uasset": {
+      "hash": "sha256:ef9f1af146be7ab1b58c05a5b5914d4164a4f81a286075d78d1bae311fd773fb",
+      "size": 39266
     },
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -11896,8 +11908,8 @@
       "size": 19724
     },
     "Content/Blueprints/UI/WBP_HUD.uasset": {
-      "hash": "sha256:3a2006e1d5481bfa760864253dba9ad4ece20fd188405e7256bd7e1556c13379",
-      "size": 27106
+      "hash": "sha256:1a073554f731852ed6f25b8088ec3100503f1e9b8798f3e927dc635c14ae0a64",
+      "size": 36025
     },
     "Content/Blueprints/UI/WBP_InventoryTab.uasset": {
       "hash": "sha256:4857bdfba3ab29185bf3920723f57f473e8461173e2259585e715e731fff12f4",
@@ -34395,9 +34407,33 @@
       "hash": "sha256:adae223bdaa1e1a33744a3f4f6e8639329bf99c3fc7c9378015d74421237060a",
       "size": 71574
     },
+    "Content/HorrorLight/M_Void2.uasset": {
+      "hash": "sha256:2cad7ba37fa7e0610ddfc4e8d7bf0596b174cbedd5a38b22d047a72e84c8208a",
+      "size": 8898
+    },
+    "Content/HorrorLight/M_Void3.uasset": {
+      "hash": "sha256:5cd9f0c826482a61ebabf75986e3eb6702c857d78685e64dbffb46a7fe5c300e",
+      "size": 10757
+    },
+    "Content/HorrorLight/M_VoidCube.uasset": {
+      "hash": "sha256:5a11ab43c31710c5f5db81576263018cec48098573249c365a544284ad1c1953",
+      "size": 9335
+    },
     "Content/HorrorLight/NS_DustMote.uasset": {
       "hash": "sha256:9d655d8e6b604c0553268a6becad1bc0ec21bf67dd863a5b45fd2c8df9e7f2ff",
       "size": 619012
+    },
+    "Content/HorrorLight/NS_SporeMote.uasset": {
+      "hash": "sha256:152bb5c10f30aeb8a795ea1f6367568f386b44ed63577a5b5065fe7351fd20e3",
+      "size": 482116
+    },
+    "Content/HorrorLight/NS_VoidMote.uasset": {
+      "hash": "sha256:91a0346bbfd7ebfdd661c4a9c0f880fc3ee0e9aa630dc0c756bae35772a1a793",
+      "size": 1333
+    },
+    "Content/HorrorLight/SM_VoidCube.uasset": {
+      "hash": "sha256:beb406da9ac2df3fe10de0b5c8bf56e99fc2fe93211e85528bf9a582d60f6f4a",
+      "size": 16168
     },
     "Content/HorrorLight/Materials/LF_Flicker.uasset": {
       "hash": "sha256:a18c8fafd1ab6eeedf741ad11182a54ffbe475aff089302a17a483b6e6a4e7e5",
@@ -34419,61 +34455,29 @@
       "hash": "sha256:45d954c0f57810d46ac7162aa078ebca8a21ef5c5d385e7b8e052f71e93e23ee",
       "size": 13110
     },
-    "Content/icons/AR.uasset": {
-      "hash": "sha256:e15ccd0cacb435a6a0d04e4a029be98cc371a158f328115e331ad303e77a24d5",
-      "size": 30105
-    },
     "Content/icons/da_letter.uasset": {
       "hash": "sha256:f31b25f7b05a00a52664e628f3cbb036b06abc039488c0a1f406125d4cb13013",
       "size": 59213
     },
-    "Content/icons/health_merc.uasset": {
-      "hash": "sha256:793c8e0b73bd14b96627b80c3a4dcc4eedd17712886c745125e2bbb8d553e17b",
-      "size": 30867
+    "Content/icons/Icon_Grenade.uasset": {
+      "hash": "sha256:c03dfd00d2d95448a655d373c99aabee2afd8deef82d07113246cc695a2b2f7f",
+      "size": 45060
     },
-    "Content/icons/ProxyMine.uasset": {
-      "hash": "sha256:fb0a53faafe87ff6a6570e68ded67ecec543cfb7a765039322f33224f1f7818e",
-      "size": 37117
+    "Content/icons/Icon_Pipe.uasset": {
+      "hash": "sha256:485d598a456c72b933f7d1655e43529d54aee8b4200b68841048ad9d9612450c",
+      "size": 444939
     },
-    "Content/icons/Shotgun.uasset": {
-      "hash": "sha256:df4004cfc2e93743c9dfb453896a9ad5176a51aed060810a34c0f51261e8df45",
-      "size": 23493
+    "Content/icons/Icon_Pistol.uasset": {
+      "hash": "sha256:46bf4041de13961686eafa11186a240cdffb3f7016d469af849f2eaee9a83969",
+      "size": 27893
     },
-    "Content/icons/Sniper.uasset": {
-      "hash": "sha256:b630e01c2e0f1e2e74caf663883def6bccc3d69659835cb27d8632b45704c7f3",
-      "size": 17207
+    "Content/icons/Icon_Rifle.uasset": {
+      "hash": "sha256:b836e714f10d3bdd10eceadae0bbd4dbb9067ac284d48423e98ac0d4018ce295",
+      "size": 18507
     },
-    "Content/icons/Merc/AR.uasset": {
-      "hash": "sha256:7f53c0f8b6bc45c6ff553dbd30ab3d8f8e2adfb93cf140809f65e634fe1bed23",
-      "size": 30134
-    },
-    "Content/icons/Merc/health_merc.uasset": {
-      "hash": "sha256:4334cfa4873b00c525e5c092515cfc128f7fe9c07c820a0bb35779ae977c30c9",
-      "size": 30897
-    },
-    "Content/icons/Merc/health_spy.uasset": {
-      "hash": "sha256:f772c0935e26f2a9084179dae47cd222cc3934a648376cad41c95bdeda3f982c",
-      "size": 32662
-    },
-    "Content/icons/Merc/ProxyMine.uasset": {
-      "hash": "sha256:77d190d017fae54eb52a5f2db3d6c103f4ac0142285a336101c7ddd2e909af00",
-      "size": 37145
-    },
-    "Content/icons/Merc/Shotgun.uasset": {
-      "hash": "sha256:2e491fc0f32118a56eb3de39d8f22d97d02bf9b3abde0b6a7bd63fa82e9ac108",
-      "size": 23522
-    },
-    "Content/icons/Merc/Sniper.uasset": {
-      "hash": "sha256:fd0fba88947f8a93966e509830affd7471da31aee1e21fb88cbd48ced33d7464",
-      "size": 17237
-    },
-    "Content/icons/Spy/StunBullet.uasset": {
-      "hash": "sha256:e439f991e616473aef87512352048106c616dd0bfcc78b6893d1b83412465d65",
-      "size": 26950
-    },
-    "Content/icons/Spy/StunMine.uasset": {
-      "hash": "sha256:8bcc082858193d0f0ccbf87c562a45526758cfb777d81c871c069a949c64a731",
-      "size": 32863
+    "Content/icons/Icon_Shotgun.uasset": {
+      "hash": "sha256:5d1744535d7c6e15f0a41e224c08b5330b4ab80ee88c60445b5e604337f9c129",
+      "size": 17824
     },
     "Content/IndustrialArea/Materials/M_Wall_Exterior.uasset": {
       "hash": "sha256:cac358eadc504976077ed6d3337b7dea22153eecdbc4102e730cf9e73bece459",
@@ -62964,8 +62968,8 @@
       "size": 139338
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_HangedLamp.uasset": {
-      "hash": "sha256:a0a54dd2794f268e21376604e0fc0bf8928ea956fe06e8350e6e5dab0b504d10",
-      "size": 116196
+      "hash": "sha256:5cd8310922b66f1bfd86144b003ccbda6501265062ff6c87ca8c15d2840717b6",
+      "size": 39294
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_IndoorUnit.uasset": {
       "hash": "sha256:790ba1216e01efae64d002237e176d32c7d2a3822d89113dfa76b15b8504c148",

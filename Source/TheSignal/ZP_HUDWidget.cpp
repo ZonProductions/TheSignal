@@ -8,7 +8,9 @@
 #include "ZP_EventBroadcaster.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Engine/Texture2D.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include <initializer_list>
 
 void UZP_HUDWidget::NativeConstruct()
 {
@@ -54,6 +56,44 @@ void UZP_HUDWidget::NativeConstruct()
 	InitVignette(HealVignette, TEXT("/Game/Materials/UI/M_HealVignette"));
 	InitVignette(DamageReductionVignette, TEXT("/Game/Materials/UI/M_DamageReductionVignette"));
 	InitVignette(InvincibilityVignette, TEXT("/Game/Materials/UI/M_InvincibilityVignette"));
+
+	// Resolve the weapon-icon images. BindWidgetOptional catches exact-name
+	// matches; for any that didn't bind (designer named it differently, e.g.
+	// "Icon_AssualtRifle" after the icon file), fall back to GetWidgetFromName
+	// across known aliases. FName compare is case-insensitive.
+	auto Resolve = [this](TObjectPtr<UImage>& OutSlot, std::initializer_list<const TCHAR*> Names)
+	{
+		if (OutSlot) { return; }
+		for (const TCHAR* N : Names)
+		{
+			if (UImage* Img = Cast<UImage>(GetWidgetFromName(FName(N))))
+			{
+				OutSlot = Img;
+				break;
+			}
+		}
+	};
+	Resolve(Icon_Pistol,  {TEXT("Icon_Pistol")});
+	Resolve(Icon_Rifle,   {TEXT("Icon_Rifle"), TEXT("Icon_AssaultRifle"), TEXT("Icon_AssualtRifle"), TEXT("Icon_AR")});
+	Resolve(Icon_Shotgun, {TEXT("Icon_Shotgun"), TEXT("Icon_PolicShotgun"), TEXT("Icon_PoliceShotgun")});
+	Resolve(Icon_Pipe,    {TEXT("Icon_Pipe")});
+	Resolve(Icon_Grenade, {TEXT("Icon_Gernade"), TEXT("Icon_Grenade"), TEXT("Icon_Explosive"), TEXT("Icon_ExplosiveGrenade"), TEXT("Icon_ExplosiveGernade")});
+
+	// Assign each resolved icon's brush from its texture (set in WBP_HUD class
+	// defaults via set_all_cdo.py), so brushes never need hand-assignment.
+	// bMatchSize=true guarantees a non-zero brush size even if never set.
+	auto ApplyIcon = [](UImage* Img, UTexture2D* Tex)
+	{
+		if (Img && Tex)
+		{
+			Img->SetBrushFromTexture(Tex, true);
+		}
+	};
+	ApplyIcon(Icon_Pistol, PistolIconTexture);
+	ApplyIcon(Icon_Rifle, RifleIconTexture);
+	ApplyIcon(Icon_Shotgun, ShotgunIconTexture);
+	ApplyIcon(Icon_Pipe, PipeIconTexture);
+	ApplyIcon(Icon_Grenade, GrenadeIconTexture);
 
 	// Hide interaction prompt by default
 	HideInteractionPrompt();
@@ -137,6 +177,9 @@ void UZP_HUDWidget::SetStamina(float StaminaPercent)
 
 void UZP_HUDWidget::SetAmmo(int32 CurrentAmmo, int32 ReserveAmmo)
 {
+	LastCurrentAmmo = CurrentAmmo;
+	LastReserveAmmo = ReserveAmmo;
+
 	if (!AmmoText)
 	{
 		return;
@@ -169,6 +212,32 @@ void UZP_HUDWidget::SetAmmo(int32 CurrentAmmo, int32 ReserveAmmo)
 void UZP_HUDWidget::SetWeaponType(EZP_WeaponType WeaponType)
 {
 	CachedWeaponType = WeaponType;
+	// Re-render the ammo line for the new type — equips broadcast ammo BEFORE
+	// type, so the first SetAmmo used the previous weapon's format. Fixes:
+	// pipe->other hiding ammo, pipe showing ammo, grenade showing "1/0".
+	SetAmmo(LastCurrentAmmo, LastReserveAmmo);
+}
+
+void UZP_HUDWidget::SetWeaponIcon(EZP_WeaponIcon WeaponIcon)
+{
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] HUD SetWeaponIcon icon=%d | bound Pistol=%d Rifle=%d Shotgun=%d Pipe=%d Grenade=%d"),
+		(int32)WeaponIcon, Icon_Pistol != nullptr, Icon_Rifle != nullptr,
+		Icon_Shotgun != nullptr, Icon_Pipe != nullptr, Icon_Grenade != nullptr);
+
+	// Reveal the matching designer-placed icon, collapse the rest. Each is
+	// optional — a HUD variant may not have placed every icon.
+	auto SetVis = [](UImage* Img, bool bShow)
+	{
+		if (Img)
+		{
+			Img->SetVisibility(bShow ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+		}
+	};
+	SetVis(Icon_Pistol,  WeaponIcon == EZP_WeaponIcon::Pistol);
+	SetVis(Icon_Rifle,   WeaponIcon == EZP_WeaponIcon::Rifle);
+	SetVis(Icon_Shotgun, WeaponIcon == EZP_WeaponIcon::Shotgun);
+	SetVis(Icon_Pipe,    WeaponIcon == EZP_WeaponIcon::Pipe);
+	SetVis(Icon_Grenade, WeaponIcon == EZP_WeaponIcon::Grenade);
 }
 
 void UZP_HUDWidget::ShowInteractionPrompt(const FText& Text)
@@ -236,6 +305,8 @@ void UZP_HUDWidget::BindToCharacter(AZP_GraceCharacter* Character)
 		Character->KinemationComp->OnAmmoChanged.AddDynamic(this, &UZP_HUDWidget::OnAmmoChangedHandler);
 		Character->KinemationComp->OnWeaponTypeChanged.AddDynamic(this, &UZP_HUDWidget::OnWeaponTypeChangedHandler);
 		SetWeaponType(Character->KinemationComp->CurrentWeaponType);
+		Character->KinemationComp->OnWeaponIconChanged.AddDynamic(this, &UZP_HUDWidget::OnWeaponIconChangedHandler);
+		SetWeaponIcon(Character->KinemationComp->CurrentWeaponIcon);
 		SetAmmo(Character->KinemationComp->CurrentAmmo, Character->KinemationComp->ReserveAmmo);
 	}
 
@@ -330,4 +401,9 @@ void UZP_HUDWidget::OnStaminaChangedHandler(float NormalizedStamina)
 void UZP_HUDWidget::OnWeaponTypeChangedHandler(EZP_WeaponType NewWeaponType)
 {
 	SetWeaponType(NewWeaponType);
+}
+
+void UZP_HUDWidget::OnWeaponIconChangedHandler(EZP_WeaponIcon NewWeaponIcon)
+{
+	SetWeaponIcon(NewWeaponIcon);
 }

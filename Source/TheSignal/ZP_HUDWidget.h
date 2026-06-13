@@ -29,6 +29,7 @@
 
 class UImage;
 class UTextBlock;
+class UTexture2D;
 class UMaterialInstanceDynamic;
 class UMaterialInterface;
 class AZP_GraceCharacter;
@@ -53,7 +54,9 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> InteractionPrompt;
 
-	UPROPERTY(meta=(BindWidget))
+	// Optional: crosshair was removed (Grace is untrained). Keep the API +
+	// guarded SetCrosshairVisible for future use; WBP_HUD needn't have the widget.
+	UPROPERTY(meta=(BindWidgetOptional))
 	TObjectPtr<UImage> Crosshair;
 
 	UPROPERTY(meta=(BindWidgetOptional))
@@ -67,6 +70,43 @@ public:
 
 	UPROPERTY(meta=(BindWidgetOptional))
 	TObjectPtr<UImage> InvincibilityVignette;
+
+	// --- Weapon icons (designer-placed, one shown at a time) ---
+	// Names MUST match the Image widgets in WBP_HUD.
+
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> Icon_Pistol;
+
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> Icon_Rifle;
+
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> Icon_Shotgun;
+
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> Icon_Pipe;
+
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> Icon_Grenade;
+
+	// --- Weapon icon textures (assigned to the images by code at construct,
+	//     so brushes never need hand-assignment in the designer). Set these in
+	//     WBP_HUD class defaults (or via set_all_cdo.py). ---
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
+	TObjectPtr<UTexture2D> PistolIconTexture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
+	TObjectPtr<UTexture2D> RifleIconTexture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
+	TObjectPtr<UTexture2D> ShotgunIconTexture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
+	TObjectPtr<UTexture2D> PipeIconTexture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
+	TObjectPtr<UTexture2D> GrenadeIconTexture;
 
 	// --- Config ---
 
@@ -132,6 +172,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void SetWeaponType(EZP_WeaponType WeaponType);
 
+	/** Show the icon for the equipped weapon, collapse all the others. */
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+	void SetWeaponIcon(EZP_WeaponIcon WeaponIcon);
+
 	/** Show interaction prompt with given text. */
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void ShowInteractionPrompt(const FText& Text);
@@ -164,6 +208,13 @@ private:
 
 	EZP_WeaponType CachedWeaponType = EZP_WeaponType::Ranged;
 
+	// Last ammo values — lets SetWeaponType re-render the ammo line when the
+	// weapon type changes. Equips broadcast ammo BEFORE type, so without this
+	// the ammo is formatted with the *previous* weapon's type (melee hides it,
+	// throwable mis-formats it, etc.).
+	int32 LastCurrentAmmo = 0;
+	int32 LastReserveAmmo = 0;
+
 	float DamageVignetteOpacity = 0.f;
 
 	float HealVignetteOpacity = 0.f;
@@ -179,6 +230,9 @@ private:
 
 	UFUNCTION()
 	void OnWeaponTypeChangedHandler(EZP_WeaponType NewWeaponType);
+
+	UFUNCTION()
+	void OnWeaponIconChangedHandler(EZP_WeaponIcon NewWeaponIcon);
 
 	UFUNCTION()
 	void OnHealthChangedHandler(float NewHealth, float MaxHealth, float DamageAmount);

@@ -201,6 +201,31 @@ if bp_gm and bp_grace and bp_pc:
     cdo_gm.set_editor_property('PlayerControllerClass', bp_pc.generated_class())
     unreal.log('[set_all_cdo] GM_TheSignal CDO: DefaultPawn + Controller set')
 
+# ── 4. WBP_HUD CDO — weapon icon textures ─────────────────────────
+# HUD assigns these to its Icon_* images in NativeConstruct (C++), so the
+# designer never hand-assigns brushes. 5.7 note: UI textures must be
+# never_stream=True or they render white (see fix_icon_neverstream.py).
+wbp_hud = load('/Game/Blueprints/UI/WBP_HUD')
+if wbp_hud:
+    cdo_hud = get_cdo(wbp_hud)
+    hud_icon_map = {
+        'PistolIconTexture':  '/Game/icons/Icon_Pistol',
+        'RifleIconTexture':   '/Game/icons/Icon_Rifle',
+        'ShotgunIconTexture': '/Game/icons/Icon_Shotgun',
+        'PipeIconTexture':    '/Game/icons/Icon_Pipe',
+        'GrenadeIconTexture': '/Game/icons/Icon_Grenade',
+    }
+    for prop, path in hud_icon_map.items():
+        tex = load(path)
+        if tex:
+            try:
+                cdo_hud.set_editor_property(prop, tex)
+                unreal.log(f'  {prop} = {tex.get_name()}')
+            except Exception as e:
+                unreal.log_error(f'  {prop} FAILED: {e}')
+    eal.save_asset('/Game/Blueprints/UI/WBP_HUD')
+    unreal.log('[set_all_cdo] WBP_HUD icon textures set + saved')
+
 # ── Save ───────────────────────────────────────────────────────────
 eal.save_asset('/Game/Core/Player/BP_GraceCharacter')
 eal.save_asset('/Game/Core/Player/PC_Grace')

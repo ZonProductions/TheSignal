@@ -96,6 +96,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Weapon")
 	EZP_WeaponType CurrentWeaponType = EZP_WeaponType::None;
 
+	/** Specific equipped-weapon identity — drives HUD weapon-icon selection. */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Weapon")
+	EZP_WeaponIcon CurrentWeaponIcon = EZP_WeaponIcon::None;
+
 	// --- Melee Config ---
 
 	/** Damage per melee swing. */
@@ -254,6 +258,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponChanged, AActor*, NewWeapon);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChanged, int32, CurrentAmmo, int32, ReserveAmmo);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponTypeChanged, EZP_WeaponType, NewWeaponType);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponIconChanged, EZP_WeaponIcon, NewWeaponIcon);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThrowableConsumed);
 
 	/** Broadcast when weapon is equipped or unequipped. NewWeapon is null on unequip. */
@@ -281,6 +286,10 @@ public:
 	/** Broadcast when weapon type changes (ranged, melee, throwable). */
 	UPROPERTY(BlueprintAssignable, Category = "Kinemation|Weapon")
 	FOnWeaponTypeChanged OnWeaponTypeChanged;
+
+	/** Broadcast when the specific equipped weapon changes — drives HUD icon. */
+	UPROPERTY(BlueprintAssignable, Category = "Kinemation|Weapon")
+	FOnWeaponIconChanged OnWeaponIconChanged;
 
 	/** Broadcast when a throwable is consumed (thrown). Owner should remove 1 from inventory. */
 	UPROPERTY(BlueprintAssignable, Category = "Kinemation|Weapon")
