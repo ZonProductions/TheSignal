@@ -164,12 +164,14 @@ bool UZP_EditorWidgetUtils::AddTabsToInventoryMenu()
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(WBP);
 	WBP->GetPackage()->MarkPackageDirty();
 
-	// Save
+	// Save (UE 5.7: flags moved into FSavePackageArgs)
+	FSavePackageArgs SaveArgs;
+	SaveArgs.TopLevelFlags = RF_Standalone;
 	bool bSaved = UPackage::SavePackage(
 		WBP->GetPackage(),
 		WBP,
-		RF_Standalone,
-		*FPackageName::LongPackageNameToFilename(WBP->GetPackage()->GetName(), FPackageName::GetAssetPackageExtension()));
+		*FPackageName::LongPackageNameToFilename(WBP->GetPackage()->GetName(), FPackageName::GetAssetPackageExtension()),
+		SaveArgs);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] AddTabsToInventoryMenu: SUCCESS — tabs added to WBP_InventoryMenu_Horror (saved=%s)"),
 		bSaved ? TEXT("true") : TEXT("false"));

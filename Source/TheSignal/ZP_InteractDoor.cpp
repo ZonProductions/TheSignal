@@ -240,10 +240,12 @@ void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 			? DoorMesh->GetForwardVector()
 			: (DoorActor ? DoorActor->GetActorForwardVector() : GetActorForwardVector());
 		const float Side = FVector::DotProduct(DoorFwd, Interactor->GetActorLocation() - DoorLoc);
-		// Sign flipped after testing: these door assets swing INTO the player
-		// with the textbook convention (dev-caught).
+		// Sign flipped AGAIN (dev-caught): the door assets were being placed
+		// upside-down, which inverts the mesh forward vector. The previous sign was
+		// tuned to that wrong orientation and swung INTO the player. Flipped back to
+		// the textbook convention now that the doors are used right-side up.
 		OpenRotation = ClosedRotation;
-		OpenRotation.Yaw += (Side >= 0.f) ? -OpenAngle : OpenAngle;
+		OpenRotation.Yaw += (Side >= 0.f) ? OpenAngle : -OpenAngle;
 	}
 
 	bIsAnimating = true;

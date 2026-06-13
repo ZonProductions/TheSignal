@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-12T17:51:48",
+  "created": "2026-06-13T02:17:12",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:3b60cc39b51159d5c0467ec0eae86465444c223f894338e0ff7a2a5db54d9d1f",
-      "size": 2738265
+      "hash": "sha256:33b645f34e261a7f215dcc072d6af3f9b6671f05bb943b76da1f4a9a60c91227",
+      "size": 7625655
     },
     "Content/AIBehaviorSystem/Blueprint/BP_CharacterExample.uasset": {
       "hash": "sha256:648d8b5c43fd872f4805936c65f52684cdb1318994d6ed8c361921fe5a86c372",
@@ -22272,8 +22272,8 @@
       "size": 2473347
     },
     "Content/Container_Yard/Materials/Decals/DE_Container_Branding_01.uasset": {
-      "hash": "sha256:7b805c53a4b60cd303987835f4742ff3377fb7e6e537340953143848c854f6ef",
-      "size": 11524
+      "hash": "sha256:45d95b0faa964d5213d6a8f55533dfe2923e78a73883caba80fda2d8bdc4d7a3",
+      "size": 11353
     },
     "Content/Container_Yard/Materials/Decals/DE_Container_Indications.uasset": {
       "hash": "sha256:348900b2c4204cf273b5b912244e1aef30eb35b7305286ed87bf907c154ebba6",
@@ -22296,8 +22296,8 @@
       "size": 20394
     },
     "Content/Container_Yard/Materials/Instances/MI_Shipping_Container_20f_01.uasset": {
-      "hash": "sha256:8ee0be4f2b4db914934ed2e43c0b4358f75ea3ff1c6c8cbe8e4080613709dc6a",
-      "size": 22088
+      "hash": "sha256:92e80312faa9615f5b7e3030d2783c8792616e7b0bf47d3d4f3a53fc51db9347",
+      "size": 21917
     },
     "Content/Container_Yard/Materials/Instances/MI_Shipping_Container_20f_05.uasset": {
       "hash": "sha256:d112df92c78400fac5af5488dd8b6a5e5ac1bb38c9b063f6c7f160285b01753e",
@@ -22316,20 +22316,20 @@
       "size": 13867
     },
     "Content/Container_Yard/Materials/Instances/MI_Wood_Floor.uasset": {
-      "hash": "sha256:08af3a0706662bbde12c8bbd7f69b1772fad92562b311db88eb016e98299f9a9",
-      "size": 14514
+      "hash": "sha256:ff10a58e89aec42987877ea57ce706f6ea29ea9b9d354c2035a6a7a220bca47d",
+      "size": 14343
     },
     "Content/Container_Yard/Materials/Masters/MM_Basic.uasset": {
-      "hash": "sha256:0e3055948fd0e43ac307909bbad4d02480e1d5cda1665922d75487c9ec354158",
-      "size": 40036
+      "hash": "sha256:84957594aba191534e28a49bd7cd8ccbda733ca9b633bca6a603ccedbf7595c9",
+      "size": 41378
     },
     "Content/Container_Yard/Materials/Masters/MM_Containers.uasset": {
-      "hash": "sha256:56bde9c250dc72b6ce0d91afa5d04fc5db99565030606eca94f768c3e7672791",
-      "size": 78484
+      "hash": "sha256:bd7c45d749bb5beeea5668b2c446f1368d085502bf1031c59f01d11094eea5c0",
+      "size": 79741
     },
     "Content/Container_Yard/Materials/Masters/MM_Container_Branding.uasset": {
-      "hash": "sha256:757aedb8e628bb2fe33bd2a17f903c5cc1f79e2c3e2fdf3481c682bc3c265820",
-      "size": 21800
+      "hash": "sha256:c8e387490202bb323a594343cf433727d91ef2abd86e9e5c23e996b793462580",
+      "size": 22312
     },
     "Content/Container_Yard/Materials/Masters/MM_Ground.uasset": {
       "hash": "sha256:ecba4e789172a676f6f1719732598d9558601598d8116e4912e2a06f73df2508",
@@ -22748,8 +22748,8 @@
       "size": 10032
     },
     "Content/Core/Materials/M_WindowGlass.uasset": {
-      "hash": "sha256:09693ff460e2ccc4a2196762c161186c6468c4d5c2b987b245e580033b2bf231",
-      "size": 7993
+      "hash": "sha256:115e8c49a8e709e904da4ce836db9e7a93ca8199f65204d6b630cff6a41c8468",
+      "size": 8493
     },
     "Content/Core/Meshes/MI_Herrington_11-87_Police.uasset": {
       "hash": "sha256:98c25e1e7188283ab5b6cad7648eee4769a5720c054e478b2e2a12e382a23e7e",
@@ -34390,6 +34390,34 @@
     "Content/HackerAnimations/Demo/Mannequins/Textures/Shared/T_UE_Logo_M.uasset": {
       "hash": "sha256:39c940fedb1f24d9d9c73076dd5ad730dd805a9c266cc0a950e750992616d965",
       "size": 70304
+    },
+    "Content/HorrorLight/BP_HorrorLight.uasset": {
+      "hash": "sha256:adae223bdaa1e1a33744a3f4f6e8639329bf99c3fc7c9378015d74421237060a",
+      "size": 71574
+    },
+    "Content/HorrorLight/NS_DustMote.uasset": {
+      "hash": "sha256:9d655d8e6b604c0553268a6becad1bc0ec21bf67dd863a5b45fd2c8df9e7f2ff",
+      "size": 619012
+    },
+    "Content/HorrorLight/Materials/LF_Flicker.uasset": {
+      "hash": "sha256:a18c8fafd1ab6eeedf741ad11182a54ffbe475aff089302a17a483b6e6a4e7e5",
+      "size": 14274
+    },
+    "Content/HorrorLight/Materials/MF_LightFlicker.uasset": {
+      "hash": "sha256:fdd0918080103ab0c38fea139fc7a2d467ace31807153c220596420e9a58d6b8",
+      "size": 12976
+    },
+    "Content/HorrorLight/Materials/MI_FlickeringLight.uasset": {
+      "hash": "sha256:17cfb8b57790cca2b05dbd90feae68e9993ee1723d46b5fa51cf09893fea8bcd",
+      "size": 8051
+    },
+    "Content/HorrorLight/Materials/M_DustMote.uasset": {
+      "hash": "sha256:2303186c6a875277c7271c50a671c8b31587dfad2adf6cfcb4002f4cff8ddb37",
+      "size": 12463
+    },
+    "Content/HorrorLight/Materials/M_Light.uasset": {
+      "hash": "sha256:45d954c0f57810d46ac7162aa078ebca8a21ef5c5d385e7b8e052f71e93e23ee",
+      "size": 13110
     },
     "Content/icons/AR.uasset": {
       "hash": "sha256:e15ccd0cacb435a6a0d04e4a029be98cc371a158f328115e331ad303e77a24d5",
@@ -57552,8 +57580,8 @@
       "size": 37766
     },
     "Content/MilitaryAirport/Materials/Master/M_General.uasset": {
-      "hash": "sha256:b397e862898e4762e1d1609d92215519314551860a1e6a25783a0bafb98e06ad",
-      "size": 88286
+      "hash": "sha256:28d51dd7d46cd8a5a6ae88feafdd3d468fa8599bd300c8520db24a927a9e3640",
+      "size": 88798
     },
     "Content/MilitaryAirport/Materials/Master/M_General_Alpha.uasset": {
       "hash": "sha256:b761856141606c43ebb617952779e53cec40f921097c6e3f7f0fb4f577be8e3b",
@@ -57584,8 +57612,8 @@
       "size": 128624
     },
     "Content/MilitaryAirport/Materials/Props/MI_Container_1.uasset": {
-      "hash": "sha256:abf40ad8663fa36bbc0de38819ccdb8c17f439b8075cb66424ea4fbd89857587",
-      "size": 120509
+      "hash": "sha256:ce534f1f7aa71b7e74791aeb3ddb0a10ba098e43856a1b96441f4a1d9fc2365a",
+      "size": 120337
     },
     "Content/MilitaryAirport/Materials/Props/MI_Container_2.uasset": {
       "hash": "sha256:fcfec17d437ba9bf84386d119927e61751a15c0e8129241823e017abad322a15",
@@ -66332,8 +66360,8 @@
       "size": 26057
     },
     "Content/office_StarterContent/Props/Materials/M_Bush.uasset": {
-      "hash": "sha256:ffee47fbc0fa73458281513b3e06e3605eb8f79cdadc886372c50f18d96a192d",
-      "size": 17789
+      "hash": "sha256:f93c28e7219dd281fb4d169214856c7406ae46461dfa7a3087350ee1874ba95b",
+      "size": 18301
     },
     "Content/office_StarterContent/Props/Materials/M_Chair.uasset": {
       "hash": "sha256:f30db5eb5caad8cc2159bac3e5a27f24250afbf8010d506aebb5d1035b41acf2",
@@ -66352,8 +66380,8 @@
       "size": 23676
     },
     "Content/office_StarterContent/Props/Materials/M_Rock.uasset": {
-      "hash": "sha256:e9ff9764bfeed38742d0aced770129f1453b308762d1f67037dff4b6fd4435b5",
-      "size": 24169
+      "hash": "sha256:e2be627060528b8a27204eb92c150ece4d48fdb5f3b9be298dc07b5f4fdb2fd2",
+      "size": 24681
     },
     "Content/office_StarterContent/Props/Materials/M_Shelf.uasset": {
       "hash": "sha256:f3dbb5f7a5e8b7c42003131cd4e4558f7eb0214f1a0467b71455f5cdccd34bc0",
@@ -74276,11 +74304,11 @@
       "size": 8072356
     },
     "Content/Variant_Horror/Lvl_Horror.umap": {
-      "hash": "sha256:6da9d4e997eb3eb4b75e7a31e13a002c13001ab48baa62ed87ce9df75407f656",
+      "hash": "sha256:4f0790f3b402041c4334c5998602bc26eefbccb3f62e5a4362639aca4d159c08",
       "size": 11804
     },
     "Content/Variant_Horror/Blueprints/BP_HorrorCharacter.uasset": {
-      "hash": "sha256:4e0f163861de8ad8f8d0d792a0b165c231bd5b4665dc3fde56bbd6e2e19e7359",
+      "hash": "sha256:41ed980a42c4020badccb57a8b26bfd5e74bb050bcac1bd8f15482dc881376fc",
       "size": 247121
     },
     "Content/Variant_Horror/Blueprints/BP_HorrorGameMode.uasset": {
@@ -74300,7 +74328,7 @@
       "size": 101500
     },
     "Content/Variant_Horror/Blueprints/Light/Assets/NS_DustMote.uasset": {
-      "hash": "sha256:e64aa1ae6049d02261caa7ea4e56e173194798743e9b21e3f2fc401f2e31e17d",
+      "hash": "sha256:aee8f343c97d139916c3d187f32a3948d94140d5f4c1d044b08adb634ffa9b82",
       "size": 139160
     },
     "Content/Variant_Horror/Blueprints/Light/Assets/Materials/LF_Flicker.uasset": {
@@ -74672,7 +74700,7 @@
       "size": 2248
     },
     "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/HE/OG8UP7YLDKLJGZ6KZI41ZV.uasset": {
-      "hash": "sha256:3a95241e3d3a4ff34daaacccedcc1ff420b75de21ea3ae2ac672b4152f4174b4",
+      "hash": "sha256:ec5fd5c5a8604929601d7505b0cdb6055ef60ab93f960d55a210cb8b6d1cb7a3",
       "size": 11991
     },
     "Content/__ExternalActors__/Variant_Horror/Lvl_Horror/3/JM/JB5K424E7XL6HOHHKAGZ44.uasset": {

@@ -1,0 +1,102 @@
+Using bundled DotNet SDK version: 8.0.412 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" TheSignalEditor Win64 Development C:/Users/Ommei/workspace/TheSignal/TheSignal.uproject -WaitMutex -Rebuild
+Log file: C:\Users\Ommei\AppData\Local\UnrealBuildTool\Log.txt
+Cleaning TheSignalEditor binaries...
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\Ommei\workspace\TheSignal).
+Creating makefile for TheSignalEditor (no existing makefile)
+Warning: Plugin 'BlueprintMCP' does not list plugin 'IKRig' as a dependency, but module 'BlueprintMCP' depends on module 'IKRig'.
+Warning: Plugin 'BlueprintMCP' does not list plugin 'IKRig' as a dependency, but module 'BlueprintMCP' depends on module 'IKRigDeveloper'.
+UHT compiled-in object format Default
+Building TheSignalEditor...
+Using Visual Studio 2022 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from TheSignal unity file: ZP_EditorWidgetUtils.cpp
+Determining max actions to execute in parallel (10 physical cores, 20 logical cores)
+  Executing up to 10 processes, one per physical core
+Using Unreal Build Accelerator local executor to run 24 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 260612_224903 ----
+UbaServer - Listening on 0.0.0.0:1345
+[1/24] Resource Default.rc2
+[2/24] Resource Default.rc2
+[3/24] Resource Default.rc2
+[4/24] Resource Default.rc2
+[5/24] Compile [x64] SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.cpp
+[6/24] Compile [x64] Module.OVRLipSync.cpp
+[7/24] Compile [x64] Module.TheSignal.2.cpp
+[8/24] Link [x64] UnrealEditor-OVRLipSync.lib
+[9/24] Link [x64] UnrealEditor-OVRLipSync.dll
+[10/24] Compile [x64] Module.TheSignal.3.cpp
+[11/24] Compile [x64] Module.TheSignal.4.cpp
+[12/24] Compile [x64] Module.TheSignal.1.cpp
+[13/24] Compile [x64] Module.OVRLipSyncEditor.cpp
+[14/24] Link [x64] UnrealEditor-OVRLipSyncEditor.lib
+[15/24] Compile [x64] ZP_EditorWidgetUtils.cpp
+[16/24] Link [x64] UnrealEditor-OVRLipSyncEditor.dll
+[17/24] Compile [x64] Module.TheSignal.5.cpp
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_CrawlerBehaviorComponent.cpp(87,6): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	    ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_CrawlerBehaviorComponent.cpp(87,67): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	                                                                 ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_CrawlerBehaviorComponent.cpp(89,10): warning C4996: 'UPawnSensingComponent::OnSeePawn': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		Sensing->OnSeePawn.AddDynamic(this, &UZP_CrawlerBehaviorComponent::OnSeePawn);
+		       ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,35): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		return (T*)FindComponentByClass(T::StaticClass());
+		                                ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,35): note: the template instantiation context (the oldest one first) is
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_CrawlerBehaviorComponent.cpp(87,46): note: see reference to function template instantiation 'T *AActor::FindComponentByClass<UPawnSensingComponent>(void) const' being compiled
+        with
+        [
+            T=UPawnSensingComponent
+        ]
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	                                            ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,38): warning C4996: 'UPawnSensingComponent::StaticClass': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		return (T*)FindComponentByClass(T::StaticClass());
+		                                   ^
+[18/24] Compile [x64] Module.TheSignal.6.cpp
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(53,6): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	    ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(53,67): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	                                                                 ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(55,10): warning C4996: 'UPawnSensingComponent::OnSeePawn': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		Sensing->OnSeePawn.AddDynamic(this, &UZP_PatrolComponent::OnSeePawn);
+		       ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,35): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		return (T*)FindComponentByClass(T::StaticClass());
+		                                ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,35): note: the template instantiation context (the oldest one first) is
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(53,46): note: see reference to function template instantiation 'T *AActor::FindComponentByClass<UPawnSensingComponent>(void) const' being compiled
+        with
+        [
+            T=UPawnSensingComponent
+        ]
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	                                            ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,38): warning C4996: 'UPawnSensingComponent::StaticClass': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		return (T*)FindComponentByClass(T::StaticClass());
+		                                   ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MinX' used
+   while compiling AZP_MapPickup::BeginPlay
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MinY' used
+   while compiling AZP_MapPickup::BeginPlay
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MaxX' used
+   while compiling AZP_MapPickup::BeginPlay
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MaxY' used
+   while compiling AZP_MapPickup::BeginPlay
+[19/24] Link [x64] UnrealEditor-TheSignal.lib
+[20/24] Link [x64] UnrealEditor-TheSignal.dll
+[21/24] Compile [x64] Module.BlueprintMCP.cpp
+[22/24] Link [x64] UnrealEditor-BlueprintMCP.lib
+[23/24] Link [x64] UnrealEditor-BlueprintMCP.dll
+[24/24] WriteMetadata TheSignalEditor.target [NoUba]
+
+Trace written to file C:/Users/Ommei/AppData/Local/UnrealBuildTool/Log.uba with size 12.5kb
+Total time in Unreal Build Accelerator local executor: 65.74 seconds
+
+Result: Succeeded
+Total execution time: 90.83 seconds

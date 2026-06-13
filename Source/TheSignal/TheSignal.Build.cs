@@ -22,7 +22,15 @@ public class TheSignal : ModuleRules
 			"RenderCore", // ZP_LipSyncComponent morph target GPU buffer rebuild
 			"RHI", // ZP_LipSyncComponent GMaxRHIShaderPlatform
 			"AudioMixer", // ZP_LipSyncComponent submix buffer listener for OVRLipSync PCM capture
-			"GameplayTags" // Notes bridge — FGameplayTag::RequestGameplayTag for Item.Note tag
+			"GameplayTags", // Notes bridge — FGameplayTag::RequestGameplayTag for Item.Note tag
+			// FLAGGED FOR REVIEW (UE 5.7 upgrade): FReply is in our PUBLIC header
+			// (ZP_InventoryTabWidget::NativeOnKeyDown). 5.7 made FReply(bool) an
+			// out-of-line SLATECORE_API ctor and Engine pulls SlateCore privately,
+			// so the symbol no longer links transitively (link error LNK2019).
+			// This is the GAME module, NOT a plugin — the NightShadow "no Slate in
+			// Build.cs" rule targets PLUGIN Build.cs (packaged crash 777006) and
+			// does not apply here.
+			"SlateCore"
 		});
 
 		// OVRLipSync C API — ThirdParty lib, NOT a UE plugin module dependency.
@@ -36,7 +44,8 @@ public class TheSignal : ModuleRules
 			PublicDelayLoadDLLs.Add("OVRLipSync.dll");
 		}
 
-		// NOTE: Do NOT add SlateCore/Slate here (transitive deps of Engine).
+		// NOTE: SlateCore IS required here as of UE 5.7 (see FReply note above).
+		//       Do NOT add full "Slate" unless a link error demands it.
 		// NOTE: Do NOT add plugin modules here (loaded via .uproject).
 
 		// Editor-only deps for widget tree manipulation (ZP_EditorWidgetUtils)
