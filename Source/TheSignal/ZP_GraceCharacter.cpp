@@ -500,13 +500,19 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	{
 		if (bOnLadder)
 		{
+			// While the animated top-exit plays, it owns the climb tick.
+			if (bLadderTopExiting)
+			{
+				UpdateLadderTopExit(DeltaTime);
+			}
+
 			// --- Rung-to-rung discrete movement ---
 			// Player commits to each rung step. Can't stop or reverse mid-step.
 			AZP_Ladder* Ladder = ActiveLadderActor.IsValid() ? Cast<AZP_Ladder>(ActiveLadderActor.Get()) : nullptr;
 
 			// Position-driven climb animation: anim time mapped from height on ladder.
 			// One anim cycle (1.533s) = 2 rungs (47 UU). Each 23.5 UU = half cycle = hands alternate.
-			if (LadderClimbUpAnimation && Ladder)
+			if (!bLadderTopExiting && LadderClimbUpAnimation && Ladder)
 			{
 				if (SNI->GetCurrentAsset() != LadderClimbUpAnimation)
 				{
@@ -524,7 +530,7 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 				SNI->SetPosition(AnimFrac * AnimDuration, false);
 			}
 
-			if (Ladder)
+			if (!bLadderTopExiting && Ladder)
 			{
 				const float RungSpacing = 23.5f;
 				const float TopClimbZ = Ladder->GetTopZ() - 80.f;
@@ -573,7 +579,7 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 					}
 					else if (NewZ >= TopClimbZ)
 					{
-						ExitLadder(true);
+						BeginLadderTopExit(Ladder);
 					}
 					else
 					{
@@ -675,6 +681,40 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		FlashlightComp->SetWorldRotation(NewRot);
 	}
 
+	// --- Gun-muzzle wall standoff ---
+	// The body capsule (radius ~55) stops short of walls, but the weapon
+	// extends past the camera and clips through. Account for the gun's reach
+	// in the player's collision: hold the whole capsule a gun-length off any
+	// wall the player faces so the muzzle can't penetrate. We move the CAPSULE
+	// (camera rides it  normal); we never touch PlayerMesh/weapon (dead-end).
+	if (GunCollisionReach > 0.f && FirstPersonCamera && !bOnLadder)
+	{
+		const FVector CamLoc = FirstPersonCamera->GetComponentLocation();
+		const FVector ProbeEnd = CamLoc + FirstPersonCamera->GetForwardVector() * GunCollisionReach;
+
+		FHitResult GunHit;
+		FCollisionQueryParams GunParams;
+		GunParams.AddIgnoredActor(this);
+		FCollisionObjectQueryParams GunObj;
+		GunObj.AddObjectTypesToQuery(ECC_WorldStatic);
+		if (GetWorld()->SweepSingleByObjectType(GunHit, CamLoc, ProbeEnd, FQuat::Identity,
+			GunObj, FCollisionShape::MakeSphere(GunCollisionRadius), GunParams))
+		{
+			// Walls only  ignore floor/ceiling so looking down doesn't shove you.
+			// Skip start-penetrating (camera already buried) to avoid a yank.
+			if (!GunHit.bStartPenetrating && FMath::Abs(GunHit.ImpactNormal.Z) < 0.7f)
+			{
+				const float Overshoot = GunCollisionReach - GunHit.Distance;
+				if (Overshoot > 0.f)
+				{
+					FVector Push = GunHit.ImpactNormal * Overshoot;
+					Push.Z = 0.f; // horizontal only  never lift or drop the player
+					AddActorWorldOffset(Push, true); // swept  won't tunnel through geometry
+				}
+			}
+		}
+	}
+
 }
 
 // --- CalcCamera override ---
@@ -682,6 +722,19 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 // CalcCamera runs last — nothing can override it.
 void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult)
 {
+	if (bLadderTopExiting)
+	{
+		// Camera rises from the ladder eye to the standing-on-floor eye, tracking
+		// the body as its root motion carries it over the edge.
+		const float Frac = (LadderTopExitDuration > 0.f)
+			? FMath::Clamp(LadderTopExitElapsed / LadderTopExitDuration, 0.f, 1.f) : 1.f;
+		const float Smooth = FMath::SmoothStep(0.f, 1.f, Frac);
+		OutResult.Location = FMath::Lerp(LadderTopExitCamStart, LadderTopExitCamEnd, Smooth);
+		OutResult.Rotation = Controller ? Controller->GetControlRotation() : GetActorRotation();
+		OutResult.FOV = FirstPersonCamera ? FirstPersonCamera->FieldOfView : 90.f;
+		return;
+	}
+
 	if (bOnLadder)
 	{
 		// Position: actor origin + eye height. Head mesh is hidden during climbing
@@ -919,6 +972,9 @@ void AZP_GraceCharacter::Input_Jump(const FInputActionValue& Value)
 	if (bInventoryMenuOpen || bMapOpen) return;
 	if (bOnLadder)
 	{
+		// Don't interrupt the animated climb-over once it has started.
+		if (bLadderTopExiting) return;
+
 		// If in upper half of ladder, exit at top; otherwise drop from current position
 		AZP_Ladder* Ladder = Cast<AZP_Ladder>(ActiveLadderActor.Get());
 		bool bNearTop = Ladder && GetActorLocation().Z >= (Ladder->GetBottomZ() + Ladder->GetTopZ()) * 0.5f;
@@ -3029,7 +3085,7 @@ void AZP_GraceCharacter::ExitLadder(bool bExitTop)
 	// Teleport to exit point
 	if (Ladder)
 	{
-		if (bExitTop)
+		if (bExitTop && !bLadderTopExiting)
 		{
 			// Reached top: raise Z and push toward/past the ladder onto the upper floor.
 			FVector ExitLoc = GetActorLocation();
@@ -3054,6 +3110,29 @@ void AZP_GraceCharacter::ExitLadder(bool bExitTop)
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{
 		CMC->SetMovementMode(MOVE_Walking);
+	}
+
+	// Auto-crouch if we climbed out at the top into a space too short to stand
+	// (crawlspace / low ceiling). Test whether a full standing capsule fits at
+	// the landing spot; if WorldStatic blocks it, crouch.
+	if (bExitTop)
+	{
+		UCapsuleComponent* Cap = GetCapsuleComponent();
+		const float StandHalf = Cap->GetScaledCapsuleHalfHeight();
+		const float Radius = Cap->GetScaledCapsuleRadius();
+		const FVector FloorPt = GetActorLocation() - FVector(0.f, 0.f, StandHalf);
+		const FVector StandCenter = FloorPt + FVector(0.f, 0.f, StandHalf);
+		// Shrink slightly so the floor/walls aren't a false positive.
+		const FCollisionShape StandCap = FCollisionShape::MakeCapsule(Radius - 2.f, StandHalf - 2.f);
+		FCollisionQueryParams CrouchParams;
+		CrouchParams.AddIgnoredActor(this);
+		const bool bCannotStand = GetWorld()->OverlapBlockingTestByChannel(
+			StandCenter, FQuat::Identity, ECC_WorldStatic, StandCap, CrouchParams);
+		if (bCannotStand)
+		{
+			Crouch();
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Ladder top-exit: low ceiling -> auto-crouch"));
+		}
 	}
 	bUseControllerRotationYaw = true; // Restore FPS mouse-look → actor rotation
 
@@ -3083,6 +3162,76 @@ void AZP_GraceCharacter::ExitLadder(bool bExitTop)
 	LadderClimbInput = 0.f;
 	bLadderMovingToRung = false;
 	LadderTargetRungZ = 0.f;
+	bLadderTopExiting = false;
+	LadderTopExitElapsed = 0.f;
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ExitLadder: Dismounted (top=%d)"), bExitTop);
+}
+
+void AZP_GraceCharacter::BeginLadderTopExit(AZP_Ladder* Ladder)
+{
+	// No ladder or no animation configured -> fall back to the instant exit.
+	if (!Ladder || !LadderTopExitAnimation)
+	{
+		ExitLadder(true);
+		return;
+	}
+
+	bLadderTopExiting = true;
+	LadderTopExitElapsed = 0.f;
+	LadderTopExitDuration = LadderTopExitAnimation->GetPlayLength();
+	bLadderMovingToRung = false;
+
+	// Resting spot = the same place the legacy instant exit landed: floor height,
+	// pushed past the ladder onto the upper floor.
+	FVector EndLoc = GetActorLocation();
+	EndLoc.Z = Ladder->GetTopExitLocation().Z + GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	FVector ToLadder = Ladder->GetLadderCenter() - GetActorLocation();
+	ToLadder.Z = 0.f;
+	if (ToLadder.SizeSquared() > 1.f)
+	{
+		EndLoc += ToLadder.GetSafeNormal() * 120.f;
+	}
+	LadderTopExitEndLoc = EndLoc;
+
+	// Camera interpolates from the current ladder eye to the final standing eye.
+	LadderTopExitCamStart = GetActorLocation() + FVector(0.f, 0.f, BaseEyeHeight);
+	LadderTopExitCamEnd = EndLoc + FVector(0.f, 0.f, BaseEyeHeight);
+
+	// Play the climb-over animation on the hidden Mesh; PlayerMesh copies all
+	// bones (bCopyAllBones stays true until ExitLadder), so the mantle and its
+	// baked root motion show on the 1P body. Scrub position manually so the
+	// camera lerp stays in sync. The capsule stays put; the body's root motion
+	// does the travelling, then we snap the capsule to EndLoc at the end.
+	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
+	{
+		SNI->SetAnimationAsset(LadderTopExitAnimation, false, 1.0f);
+		SNI->SetPlaying(false);
+		SNI->SetPosition(0.f, false);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] BeginLadderTopExit: anim=%s dur=%.2f end=(%.0f,%.0f,%.0f)"),
+		*LadderTopExitAnimation->GetName(), LadderTopExitDuration, EndLoc.X, EndLoc.Y, EndLoc.Z);
+}
+
+void AZP_GraceCharacter::UpdateLadderTopExit(float DeltaTime)
+{
+	LadderTopExitElapsed += DeltaTime * LadderTopExitPlayRate;
+	const float Frac = (LadderTopExitDuration > 0.f)
+		? FMath::Clamp(LadderTopExitElapsed / LadderTopExitDuration, 0.f, 1.f) : 1.f;
+
+	// Scrub the climb-over animation in step with the camera lerp.
+	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
+	{
+		SNI->SetPosition(Frac * LadderTopExitDuration, false);
+	}
+
+	if (Frac >= 1.f)
+	{
+		// Body has reached the floor (visually, via root motion). Snap the capsule
+		// to the resting spot, then run the normal dismount cleanup. The teleport in
+		// ExitLadder is skipped while bLadderTopExiting is still true.
+		SetActorLocation(LadderTopExitEndLoc);
+		ExitLadder(true);
+	}
 }

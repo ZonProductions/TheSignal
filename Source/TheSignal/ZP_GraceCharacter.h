@@ -138,6 +138,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
 	TSubclassOf<AActor> WeaponClass;
 
+	/** How far the gun reaches ahead of the camera. The capsule is held this
+	 *  far off any wall the player faces so the muzzle never clips through
+	 *  geometry (the body capsule alone stops short of the gun's reach).
+	 *  Moves the whole capsule (camera rides it  normal); NEVER PlayerMesh.
+	 *  0 disables. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float GunCollisionReach = 75.0f;
+
+	/** Radius of the muzzle clearance probe. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
+	float GunCollisionRadius = 6.0f;
+
 	/** Decal materials for bullet impacts. Set in BP child via Python. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
 	TArray<TSoftObjectPtr<UMaterialInterface>> BulletDecalMaterials;
@@ -177,6 +189,15 @@ public:
 	/** Ladder idle animation (holding on, not moving). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
 	TObjectPtr<UAnimSequenceBase> LadderIdleAnimation;
+
+	/** Animated climb-over-the-top exit (root motion carries the body onto the
+	 *  upper floor). Default A_Climb_Up_out_Right_UE5, set via set_all_cdo.py. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
+	TObjectPtr<UAnimSequenceBase> LadderTopExitAnimation;
+
+	/** Playback speed of the climb-over-the-top exit (anim + camera). 2.0 = double. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
+	float LadderTopExitPlayRate = 2.0f;
 
 	// --- Input Actions (set in Blueprint child, e.g. BP_GraceCharacter) ---
 
@@ -471,6 +492,18 @@ private:
 	/** True while interpolating between rungs — blocks new input until arrival. */
 	bool bLadderMovingToRung = false;
 
+	/** True while the animated climb-over-the-top exit is playing. */
+	bool bLadderTopExiting = false;
+	/** Seconds elapsed into the top-exit animation. */
+	float LadderTopExitElapsed = 0.f;
+	/** Cached length of the top-exit animation. */
+	float LadderTopExitDuration = 0.f;
+	/** Camera eye lerp endpoints during the top-exit (ladder eye -> floor eye). */
+	FVector LadderTopExitCamStart = FVector::ZeroVector;
+	FVector LadderTopExitCamEnd = FVector::ZeroVector;
+	/** Capsule resting spot snapped to when the top-exit animation finishes. */
+	FVector LadderTopExitEndLoc = FVector::ZeroVector;
+
 	/** Saved weapon class before entering ladder — re-equipped on exit. */
 	TSubclassOf<UObject> PreLadderWeaponClass;
 
@@ -483,6 +516,14 @@ private:
 
 	/** Exit climbing state. bExitTop = true → teleport to top, false → teleport to bottom. */
 	void ExitLadder(bool bExitTop);
+
+	/** Begin the animated climb-over-the-top exit. Plays LadderTopExitAnimation;
+	 *  the body's baked root motion carries it onto the floor while the camera
+	 *  lerps up; capsule snaps to the resting spot when the anim completes. */
+	void BeginLadderTopExit(class AZP_Ladder* Ladder);
+
+	/** Advance the animated top-exit each tick; finalizes when the anim ends. */
+	void UpdateLadderTopExit(float DeltaTime);
 
 	friend class AZP_Ladder;
 

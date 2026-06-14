@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-13T14:44:03",
+  "created": "2026-06-13T21:25:52",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:066c9a10b8e5d389fe9c0c54cb089272b711e8db01f553cac56a56d186946e9f",
-      "size": 7715130
+      "hash": "sha256:b9cacf4c83346a75b5f36734c0345d5b57c32aa20ed0bf230bfe48c118abeae0",
+      "size": 8190624
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -11888,8 +11888,8 @@
       "size": 19378
     },
     "Content/Blueprints/Gameplay/BP_Briefcase.uasset": {
-      "hash": "sha256:2be47d5d6a154fa25aa8c23a06447b9caf016a39417e9a19a591616a64cbf0f5",
-      "size": 93402
+      "hash": "sha256:79255c830a68f3349ca2dd498e57ea7b124478eae0ba543b7fee7e8ef85b7532",
+      "size": 67415
     },
     "Content/Blueprints/Gameplay/BP_LootLocker.uasset": {
       "hash": "sha256:b5d5b89d74a43cee7d74438afe2ce11061dd24e9932d2d91f426e1287f0d784f",
@@ -22364,8 +22364,8 @@
       "size": 251266
     },
     "Content/Container_Yard/Meshes/Props/SM_Shipping_Container_20f.uasset": {
-      "hash": "sha256:2e9ddf96e680c68e06864fea77ab6a4a4b8edaabd37e29f3afa5d2bef03a9231",
-      "size": 436746
+      "hash": "sha256:8e169ec46da61ace528e5ebd5c668c05ffabaa02d0fc73e8aad6e8b2f06c4466",
+      "size": 437217
     },
     "Content/Container_Yard/Textures/Decals/DT_Container_Brands_Basecoloe.uasset": {
       "hash": "sha256:519e1ddc2e59cb1bdaaf8f7e1182a0f53ec3587092e202722177afb75bd791e1",
@@ -22788,8 +22788,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:f3337a92f5cfacf55208b207fd80bb6af5ee922c564d75be8ede5f69d0137632",
-      "size": 129350
+      "hash": "sha256:25f1ee5ce25c47213e7ea13bc7c1d985478d3ca221f04eb816d67a9aa453d938",
+      "size": 129709
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -49804,8 +49804,8 @@
       "size": 722105
     },
     "Content/LEVELS/ModSciInteriors/Meshes/SM_Ceiling_Main_E2.uasset": {
-      "hash": "sha256:21e716020dc12a9c9444f82055b725ba1e4d35ee75998af744042a458ae257bc",
-      "size": 456664
+      "hash": "sha256:42ae65aaedc01e14a245decf9ccd0824bbecba77827c0ff449be5a901a04ff0a",
+      "size": 191872
     },
     "Content/LEVELS/ModSciInteriors/Meshes/SM_Ceiling_Main_F.uasset": {
       "hash": "sha256:a68e5b1de8c35a57e26e25d128bf21c88d4acf357718118e163de447951b50e5",
@@ -57840,12 +57840,12 @@
       "size": 122610
     },
     "Content/MilitaryAirport/Meshes/Props/SM_Container.uasset": {
-      "hash": "sha256:5f708e606e3d2f94994dc0780770bbf9649ca980195797e7f3ea77063bf769da",
-      "size": 475741
+      "hash": "sha256:b8e9279f37b9dd69d0ade6540bda6172aaa66dd2df622917619d1566d9a2293d",
+      "size": 475540
     },
     "Content/MilitaryAirport/Meshes/Props/SM_Container_2.uasset": {
-      "hash": "sha256:5dadba1fdb72be98414e248626cbb9c33d78a910de31c7898728e2af2a88c6f7",
-      "size": 472937
+      "hash": "sha256:cda215da0f70f7cb80eca9a6bfbbe3f5d118cacb4e0990343934c2e30796bf83",
+      "size": 472736
     },
     "Content/MilitaryAirport/Meshes/Props/SM_Crate_1.uasset": {
       "hash": "sha256:11bb4a46755537c9a4db98da5a3938693c597dbf310e5806bfa06ab0e9893faa",
