@@ -5,6 +5,7 @@
 #include "ZP_KinemationComponent.h"
 #include "ZP_HealthComponent.h"
 #include "ZP_GraceGameplayComponent.h"
+#include "ZP_SignalSenseComponent.h"
 #include "ZP_EventBroadcaster.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -38,6 +39,13 @@ void UZP_HUDWidget::NativeConstruct()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ZP_HUDWidget: HealthArcMaterial or HealthArc widget missing."));
+	}
+
+	// SignalSense waveform DMI (the phone readout). Amplitude is driven each tick.
+	if (SignalWaveMaterial && SignalWave)
+	{
+		SignalWaveDMI = UMaterialInstanceDynamic::Create(SignalWaveMaterial, this);
+		SignalWave->SetBrushFromMaterial(SignalWaveDMI);
 	}
 
 	// Initialize vignettes — load materials by path, start hidden
@@ -111,6 +119,19 @@ void UZP_HUDWidget::NativeConstruct()
 void UZP_HUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// Drive the SignalSense waveform from the player's component: live amplitude plus the
+	// rolling history texture + write head, so the scope scrolls chronologically.
+	if (SignalWaveDMI && BoundCharacter && BoundCharacter->SignalSenseComp)
+	{
+		UZP_SignalSenseComponent* SS = BoundCharacter->SignalSenseComp;
+		SignalWaveDMI->SetScalarParameterValue(FName("Amplitude"), SS->GetWaveformAmplitude());
+		SignalWaveDMI->SetScalarParameterValue(FName("WritePhase"), SS->GetAmpWritePhase());
+		if (UTexture2D* Hist = SS->GetAmpHistoryTexture())
+		{
+			SignalWaveDMI->SetTextureParameterValue(FName("AmpHistory"), Hist);
+		}
+	}
 
 	// Helper lambda for fading vignettes
 	auto FadeVignette = [InDeltaTime](UImage* Widget, float& Opacity, float Target, float Speed)

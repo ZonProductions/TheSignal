@@ -86,7 +86,7 @@ AZP_Ladder::AZP_Ladder()
 	// Interaction trigger volume — auto-adjusted in BuildLadderAssembly
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(RootComponent);
-	InteractionVolume->SetBoxExtent(FVector(100.f, 100.f, 350.f));
+	InteractionVolume->SetBoxExtent(FVector(60.f, 50.f, 350.f)); // small front pocket (see OnConstruction)
 	InteractionVolume->SetRelativeLocation(FVector(-100.f, 0.f, 300.f));
 	InteractionVolume->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	InteractionVolume->SetGenerateOverlapEvents(true);
@@ -239,7 +239,11 @@ void AZP_Ladder::BuildLadderAssembly()
 	if (InteractionVolume)
 	{
 		const float HalfHeight = LadderHeight * 0.5f;
-		InteractionVolume->SetBoxExtent(FVector(100.f, 100.f, HalfHeight + 50.f));
+		// Small FRONT-facing trigger (container-fix pattern): can only mount from in front, not
+		// through a wall / from the side. Offset -100 with X-extent 60 keeps the box from -40..-160
+		// local — its +X edge never reaches the ladder face / mounting wall at local 0, and the
+		// narrow Y stops it poking sideways into an adjacent room.
+		InteractionVolume->SetBoxExtent(FVector(60.f, 50.f, HalfHeight + 50.f));
 		InteractionVolume->SetRelativeLocation(FVector(-100.f, 0.f, HalfHeight));
 	}
 }

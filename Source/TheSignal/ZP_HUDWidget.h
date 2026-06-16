@@ -48,6 +48,10 @@ public:
 	UPROPERTY(meta=(BindWidgetOptional))
 	TObjectPtr<UImage> StaminaArc;
 
+	/** SignalSense waveform (the phone readout). Name MUST match the Image in WBP_HUD. */
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> SignalWave;
+
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> AmmoText;
 
@@ -113,6 +117,10 @@ public:
 	/** Base material for the health arc. Set to M_HealthArc in WBP_HUD class defaults. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Health")
 	TObjectPtr<UMaterialInterface> HealthArcMaterial;
+
+	/** Base material for the SignalSense waveform. Set to M_SignalWaveform in WBP_HUD defaults. */
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Signal")
+	TObjectPtr<UMaterialInterface> SignalWaveMaterial;
 
 	/** Color at full health. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Health")
@@ -205,6 +213,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> StaminaArcDMI;
+
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> SignalWaveDMI;
 
 	EZP_WeaponType CachedWeaponType = EZP_WeaponType::Ranged;
 

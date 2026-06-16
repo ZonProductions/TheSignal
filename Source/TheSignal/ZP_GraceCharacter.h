@@ -46,6 +46,7 @@ class UZP_MapComponent;
 class UZP_FloorCullingComponent;
 class UZP_RuntimeISMBatcher;
 class UZP_NoteComponent;
+class UZP_SignalSenseComponent;
 class USpotLightComponent;
 class UPointLightComponent;
 class USoundBase;
@@ -90,6 +91,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Notes")
 	TObjectPtr<UZP_NoteComponent> NoteComp;
+
+	/** "The Phone" — proximity warning that drives layered audio + HUD waveform + rumble. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SignalSense")
+	TObjectPtr<UZP_SignalSenseComponent> SignalSenseComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Floor Culling")
 	TObjectPtr<UZP_FloorCullingComponent> FloorCullingComp;

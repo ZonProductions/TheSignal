@@ -13,6 +13,7 @@
 #include "ZP_InteractDoor.h"
 #include "ZP_MapComponent.h"
 #include "ZP_NoteComponent.h"
+#include "ZP_SignalSenseComponent.h"
 #include "ZP_InventoryTabTypes.h"
 #include "ZP_InventoryTabWidget.h"
 #include "GameplayTagContainer.h"
@@ -114,6 +115,9 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 
 	// Note component — tracks collected notes/documents
 	NoteComp = CreateDefaultSubobject<UZP_NoteComponent>(TEXT("NoteComp"));
+
+	// SignalSense — "the phone": proximity warning, layered audio + waveform + rumble
+	SignalSenseComp = CreateDefaultSubobject<UZP_SignalSenseComponent>(TEXT("SignalSenseComp"));
 
 	// Floor culling — hides actors on non-visible floors for performance
 	FloorCullingComp = CreateDefaultSubobject<UZP_FloorCullingComponent>(TEXT("FloorCullingComp"));
@@ -764,6 +768,7 @@ void AZP_GraceCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfH
 	// Smooth camera transition — compensate for the instant capsule drop
 	if (GameplayComp)
 	{
+		GameplayComp->StopSprint(); // can't sprint while crouched — cancel any active sprint
 		GameplayComp->OnCrouchHeightChanged(ScaledHalfHeightAdjust);
 	}
 }
@@ -823,8 +828,8 @@ void AZP_GraceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 	if (CrouchAction)
 	{
+		// Toggle crouch: press once to crouch, press again to stand. (No Completed/release bind.)
 		EIC->BindAction(CrouchAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_CrouchStarted);
-		EIC->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_CrouchCompleted);
 	}
 	if (PeekAction)
 	{
@@ -1332,7 +1337,15 @@ void AZP_GraceCharacter::ClearCurrentInteractable(AActor* Interactable)
 void AZP_GraceCharacter::Input_CrouchStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
-	Crouch();
+	// Toggle: stand if crouched, crouch if standing.
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Crouch();
+	}
 }
 
 void AZP_GraceCharacter::Input_CrouchCompleted(const FInputActionValue& Value)

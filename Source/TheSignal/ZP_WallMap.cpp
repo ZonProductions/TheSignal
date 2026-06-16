@@ -27,8 +27,9 @@ static constexpr float WallTopTraceStep = 50.f;
 // Max height to trace upward looking for wall top (UU)
 static constexpr float WallTopTraceMax = 3000.f;
 
-// Minimum wall height to be worth recording (UU)
-static constexpr float MinWallHeight = 80.f;
+// Minimum wall height to be worth recording (UU). 250 = 2.5m — taller than any furniture
+// (desks/partitions/armchairs), so the map targets only real room walls, not "desk != wall".
+static constexpr float MinWallHeight = 250.f;
 
 // --- Build ---
 

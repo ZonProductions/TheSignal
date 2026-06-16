@@ -148,6 +148,7 @@ void UZP_GraceGameplayComponent::OnCrouchHeightChanged(float HeightAdjust)
 void UZP_GraceGameplayComponent::StartSprint()
 {
 	if (CurrentStamina <= 0.0f) return;
+	if (CachedMovement && CachedMovement->IsCrouching()) return; // no sprint while crouched
 
 	bIsSprinting = true;
 
@@ -230,46 +231,48 @@ void UZP_GraceGameplayComponent::UpdateStamina(float DeltaTime)
 	const float DrainRate = MovementConfig->StaminaDrainRate;
 	const float RegenRate = MovementConfig->StaminaRegenRate;
 
-	if (bIsSprinting)
+	const bool bOnGround = CachedMovement && CachedMovement->IsMovingOnGround();
+	const FVector Velocity = CachedMovement ? CachedMovement->Velocity : FVector::ZeroVector;
+	const FVector Forward = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ForwardVector;
+	const float ForwardSpeed = FVector::DotProduct(Velocity, Forward);
+	const float PlanarSpeed = Velocity.Size2D();
+	const bool bWantsForward = CurrentForwardInput > 0.1f;
+	const bool bCrouched = CachedMovement && CachedMovement->IsCrouching();
+
+	// Actively sprint-moving (and therefore draining). Regen is gated on THIS, not on whether
+	// the sprint key is still held — holding sprint while standing still must still regen. Crouch
+	// never drains (you can't sprint crouched), so crouching always regens.
+	const bool bDraining = bIsSprinting && bOnGround && bWantsForward && ForwardSpeed > 50.0f && !bCrouched;
+
+	// Wall stall: pressing forward on ground but not actually moving → killed by wall.
+	if (bIsSprinting && bOnGround && bWantsForward && PlanarSpeed < 30.0f)
 	{
-		const bool bOnGround = CachedMovement && CachedMovement->IsMovingOnGround();
-		const FVector Velocity = CachedMovement ? CachedMovement->Velocity : FVector::ZeroVector;
-		const FVector Forward = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ForwardVector;
-		const float ForwardSpeed = FVector::DotProduct(Velocity, Forward);
-		const float PlanarSpeed = Velocity.Size2D();
-
-		const bool bWantsForward = CurrentForwardInput > 0.1f;
-		const bool bDrainConditions = bOnGround && bWantsForward && ForwardSpeed > 50.0f;
-
-		// Wall stall: pressing forward on ground but not actually moving → killed by wall.
-		if (bOnGround && bWantsForward && PlanarSpeed < 30.0f)
+		WallStuckTimer += DeltaTime;
+		if (WallStuckTimer > 0.25f)
 		{
-			WallStuckTimer += DeltaTime;
-			if (WallStuckTimer > 0.25f)
-			{
-				StopSprint();
-				WallStuckTimer = 0.0f;
-			}
-		}
-		else
-		{
+			StopSprint();
 			WallStuckTimer = 0.0f;
-		}
-
-		if (bDrainConditions)
-		{
-			CurrentStamina = FMath::Max(0.0f, CurrentStamina - DrainRate * DeltaTime);
-
-			if (CurrentStamina <= 0.0f)
-			{
-				StopSprint();
-			}
 		}
 	}
 	else
 	{
 		WallStuckTimer = 0.0f;
-		// Regen delay countdown
+	}
+
+	if (bDraining)
+	{
+		// Hold the regen delay full while draining, so the countdown begins the instant you stop.
+		StaminaRegenTimer = MovementConfig->StaminaRegenDelay;
+		CurrentStamina = FMath::Max(0.0f, CurrentStamina - DrainRate * DeltaTime);
+		if (CurrentStamina <= 0.0f)
+		{
+			StopSprint();
+		}
+	}
+	else
+	{
+		// Not draining (stopped, released, airborne, or sprint held while standing still):
+		// count down the delay, then auto-regen — regardless of the sprint key.
 		if (StaminaRegenTimer > 0.0f)
 		{
 			StaminaRegenTimer -= DeltaTime;

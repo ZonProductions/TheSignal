@@ -2,6 +2,21 @@
 # Read this FIRST at the start of every Claude session.
 # Update ticket statuses during work. Append new issues as they arise.
 
+## >>> WORKING DIRECTIVE (2026-06-14) — JUST EXECUTE <<<
+# When the dev reports an issue/request and does NOT say "tell me why"/"investigate"/"explain":
+# ASSUME a change is needed. Investigate silently, decide, make the change, build, report what
+# you did. NO questions, NO diagnoses-instead-of-fixes, NO design forks, NO "want me to X?".
+# Only stop and ask if an action would literally break the project-resync dev tool
+# (BlueprintMCP :9847 / .gcs sync). Default to ACTION. The dev reacts to results, not whys.
+
+## >>> RULE 0.1 (2026-06-15) — VERIFY BEFORE CLAIMING A LIMITATION <<<
+# If you're about to type "honestly" / "the truth is" / "the honest truth" / "I made that up" /
+# "that doesn't exist" / "I can't" / ANY hedge asserting something is impossible or absent —
+# STOP before writing those words and do a WEB DEEP-DIVE for DOCUMENTED PROOF first.
+# The dev asks you to TEACH, not to invent a limitation or "fix" a non-existent problem.
+# No impossibility/absence claim without a cited source. Unsure of a tool/UI? Research the real
+# steps and give them. Do NOT guess, do NOT fabricate a dead end.
+
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main

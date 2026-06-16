@@ -22,6 +22,12 @@ AZP_CrawlerBase::AZP_CrawlerBase(const FObjectInitializer& ObjectInitializer)
 	HealthComp->MaxHealth = 50.f;
 	BehaviorComp = CreateDefaultSubobject<UZP_CrawlerBehaviorComponent>(TEXT("BehaviorComp"));
 
+	// The movement component owns body orientation (it aligns the crawler to its wall). Make sure the
+	// controller never overrides that rotation.
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+
 	// Pawn profile ignores Visibility by default — hitscan uses Visibility channel.
 	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
 	{

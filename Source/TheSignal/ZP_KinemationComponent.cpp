@@ -818,9 +818,26 @@ void UZP_KinemationComponent::PerformHitscan()
 	Params.AddIgnoredActor(GetOwner());
 	Params.AddIgnoredActor(ActiveWeapon);
 
-	// Channel trace: hits anything that BLOCKS Visibility (walls, pawns, physics).
-	// Volumes set to Overlap pass through — no more MapVolume eating bullets.
-	if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+	// Channel trace, but SKIP QueryOnly trigger volumes (door interaction boxes, overlap zones). They
+	// BLOCK Visibility yet aren't solid — they were eating bullets near doorways, so the shot never
+	// reached the enemy behind them. Re-trace past each trigger until we hit real geometry / a pawn.
+	bool bGotSolidHit = false;
+	for (int32 TraceIter = 0; TraceIter < 8; ++TraceIter)
+	{
+		if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+		{
+			return; // nothing solid on the line
+		}
+		UPrimitiveComponent* HitComp = Hit.GetComponent();
+		if (HitComp && HitComp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
+		{
+			Params.AddIgnoredComponent(HitComp); // trigger — pass through it
+			continue;
+		}
+		bGotSolidHit = true;
+		break;
+	}
+	if (!bGotSolidHit)
 	{
 		return;
 	}

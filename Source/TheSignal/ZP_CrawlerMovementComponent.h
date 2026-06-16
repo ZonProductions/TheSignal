@@ -5,11 +5,18 @@
 /**
  * UZP_CrawlerMovementComponent
  *
- * Purpose: CMC for creatures — ground pursuit + slam attack.
- *          Simple, reliable, no dependencies on external plugins.
- *          Uses MOVE_Flying with manual gravity for consistent ground movement.
+ * Purpose: Minimal movement for the wall-ambush crawler. The crawler is PLACED on its wall and only
+ *          ever leaves it — there is NO wall-climbing, ceiling, or pathfinding here. Four exclusive
+ *          modes, all driven by PhysFlying (which owns ALL velocity AND rotation):
+ *
+ *            Cling   — frozen on a wall, body aligned so "up" = wall normal (the wall is its floor)
+ *            Launch  — ballistic pounce toward a target, ends on impact
+ *            Slam    — brief in-place strike, ends on a timer
+ *            Ground  — move toward the target on the floor under gravity, facing travel
  *
  * Owner Subsystem: EnemyAI
+ *
+ * Dependencies: none (deliberately self-contained).
  */
 
 #include "CoreMinimal.h"
@@ -24,49 +31,48 @@ class THESIGNAL_API UZP_CrawlerMovementComponent : public UCharacterMovementComp
 public:
 	UZP_CrawlerMovementComponent();
 
-	virtual void PhysFlying(float deltaTime, int32 Iterations) override;
+	virtual void PhysFlying(float DeltaTime, int32 Iterations) override;
 
-	/** Static move target. Set by behavior component. */
+	/** Ground destination — a static point or a tracked actor (the player). */
 	FVector MoveTarget = FVector::ZeroVector;
-
-	/** Dynamic move target — tracks an actor (player during Hunt). */
 	TWeakObjectPtr<AActor> MoveTargetActor;
-
-	/** Returns MoveTargetActor location if valid, otherwise MoveTarget. */
 	FVector GetEffectiveTarget() const;
 
-	/** Begin a slam attack — hold in place, then flag impact. */
-	void BeginSlam(float RiseHeight, float HoldDuration, float FallSpeed);
+	/** Freeze on a wall with body "up" aligned to WallNormal (the wall becomes the floor). */
+	void SetWallCling(const FVector& InWallNormal);
 
-	bool IsSlamming() const { return bSlamming; }
-	bool HasSlamImpacted() const { return bSlamImpacted; }
-	void ClearSlamImpact() { bSlamImpacted = false; }
+	/** Release the wall — ground/launch/gravity take over. */
+	void ReleaseWall();
 
-	/** True when creature is on a wall/ceiling surface. */
-	bool IsClimbing() const { return WallContactTimer > 0.f; }
+	/** Ballistic pounce toward a world location (releases the wall first). */
+	void BeginLaunch(const FVector& TargetLocation);
 
-	bool IsLaunching() const { return false; }
-	bool IsLaunchOnCooldown() const { return false; }
+	/** Brief in-place strike; flags an impact after HoldDuration seconds. */
+	void BeginSlam(float HoldDuration);
 
-	bool bFloorProbeActive = true;
+	bool IsClinging()  const { return bClinging; }
+	bool IsLaunching() const { return bLaunching; }
+	bool IsSlamming()  const { return bSlamming; }
+	bool IsOnGround()  const { return !bClinging && !bLaunching && !bSlamming; }
 
-	/** Set by behavior: true when creature should engage wall climbing (returning to perch). */
-	bool bClimbEnabled = false;
+	/** True once a launch/slam has connected — behavior reads this to deal damage, then clears it. */
+	bool HasImpacted() const { return bImpacted; }
+	void ClearImpact()       { bImpacted = false; }
 
-	/** Set when creature reaches ceiling or leaves a surface. Cleared by behavior. */
-	bool bJustCrested = false;
-
-	/** Set when creature reaches the ceiling. Cleared by behavior. */
-	bool bOnCeiling = false;
+	FVector GetWallNormal() const { return WallNormal; }
 
 private:
-	// --- Climb state ---
-	float WallContactTimer = 0.f;
-	FVector ContactWallNormal = FVector::ZeroVector;
+	void ApplyBodyRotation(float DeltaTime);
 
-	// --- Slam state ---
+	// Exclusive modes (at most one true).
+	bool bClinging = false;
+	bool bLaunching = false;
 	bool bSlamming = false;
-	bool bSlamImpacted = false;
+
+	bool bImpacted = false;
+
+	FVector WallNormal = FVector::ZeroVector;
 	float SlamTimer = 0.f;
-	float SlamHoldTime = 0.f;
+	float SlamHold = 0.f;
+	float LaunchTimer = 0.f;
 };

@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-14T01:08:08",
+  "created": "2026-06-16T15:05:21",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:45e78b1cd7585afabc8f540bd9a5b64df480d73e6ee06e102cbe447a69f11506",
-      "size": 8332238
+      "hash": "sha256:3d5976570987a1e374ccedcb5a554ace14094903d781a51fd486f63cffaeb670",
+      "size": 8608876
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -416,8 +416,8 @@
       "size": 435051
     },
     "Content/AIBehaviorSystem/Demo/Animation/Zombie/BS_Zombie_WalkRun.uasset": {
-      "hash": "sha256:c010f93a911d5d1f3bb139c407edd0f180446ffbbc8c2af324b57c7b11315bd9",
-      "size": 8716
+      "hash": "sha256:877096fb7cb21d3b0f0b66cbeac117a854ef3182e960bce8a59c7d38e8f97344",
+      "size": 9306
     },
     "Content/AIBehaviorSystem/Demo/Animation/Zombie/HitZombie_Back.uasset": {
       "hash": "sha256:3ad1d2291fe1a496b2e4db367e086d68a287d325679363de07f72af87ccb09dc",
@@ -1579,6 +1579,30 @@
       "hash": "sha256:4e2c42ef2f5cbadf1781e95154c5246d0ed40204c9c1205e4352e163a203389e",
       "size": 9220
     },
+    "Content/Audio/SA_EnemyVoice.uasset": {
+      "hash": "sha256:fd7bf95d3dbb2b00860488ef9a5b5ddc497d2e8faee094a4e0f0b67db72da150",
+      "size": 1741
+    },
+    "Content/Audio/Crawler/SFX_Crawler_Alert.uasset": {
+      "hash": "sha256:bc1ab0fadf7d3b3603b9890cfc4d5a80ba80782524d21638be97456a19a61560",
+      "size": 126179
+    },
+    "Content/Audio/Crawler/SFX_Crawler_Attack.uasset": {
+      "hash": "sha256:8f94c51bfeacf25159126a0b32123a8709989159b451a1bf832bd1c22bf5410b",
+      "size": 127894
+    },
+    "Content/Audio/Crawler/SFX_Crawler_Attack2.uasset": {
+      "hash": "sha256:78c1b270147d7c0a054cbf499d523a18f9d6aca68203b7112385d0bc2b4d6b94",
+      "size": 124747
+    },
+    "Content/Audio/Crawler/SFX_Crawler_Hit.uasset": {
+      "hash": "sha256:c38b1c09791cfd796fcc870ffbbeea06b8de6870ecab323b2415c219768adaa9",
+      "size": 32709
+    },
+    "Content/Audio/Crawler/SFX_Crawler_Lurking.uasset": {
+      "hash": "sha256:5e3ee3bb80dcd72d7d4f58229ac0070ab5e894c1780d5bcade1d747316ecbcf8",
+      "size": 155533
+    },
     "Content/Audio/Foley/DABP_FoleyAudioBank.uasset": {
       "hash": "sha256:8b7134576e1e1aece760f0fe583e4ffd99a5d419cb3d59a9db4230843a0fe33f",
       "size": 36148
@@ -2738,6 +2762,54 @@
     "Content/Audio/Mix/Effects/SMFX_Reverb_Default.uasset": {
       "hash": "sha256:c5cddde322c05d99befedc0f75db1d72a83ac099ce025e318b9a37be7efc48b1",
       "size": 2043
+    },
+    "Content/Audio/Player/SFX_DEAD.uasset": {
+      "hash": "sha256:cd9a74aa713a0ce716c6addfffeecc202654c3be40c4667ef50a2fa0cde13105",
+      "size": 131225
+    },
+    "Content/Audio/Player/SFX_HIT1.uasset": {
+      "hash": "sha256:6643dae393bf229545d5b3bb19bf667f0f2324f1b09b7d5547bf85842baa00e5",
+      "size": 90332
+    },
+    "Content/Audio/Player/SFX_HIT2.uasset": {
+      "hash": "sha256:3dc187ac6850f39fc26ac35a5fd9d98ae7455210191299c08499699520bb38b5",
+      "size": 115336
+    },
+    "Content/Audio/Shambler/SFX_ZOMBIE_ALERT.uasset": {
+      "hash": "sha256:3a01c8f7828f337124ea6a2dfef0a21cc99b9305ad6f5bc489af8edb7352badc",
+      "size": 396611
+    },
+    "Content/Audio/Shambler/SFX_ZOMBIE_ATTACK.uasset": {
+      "hash": "sha256:e0ddce53e0b12841e44234900518f9fa9542f9be8b1d16ba70af249d227d9f93",
+      "size": 212736
+    },
+    "Content/Audio/Shambler/SFX_ZOMBIE_ATTACK2.uasset": {
+      "hash": "sha256:617f58ccf7e055dc64c2e06a880db7a74d536cbc46da9e70fa8a91a7ec796646",
+      "size": 77288
+    },
+    "Content/Audio/Shambler/SFX_ZOMBIE_DEATH.uasset": {
+      "hash": "sha256:5da4294d36bed762d78648883aa3ff08b2ba467438f69893164aee2ecae38612",
+      "size": 396611
+    },
+    "Content/Audio/Shambler/SFX_ZOMBIE_LURK.uasset": {
+      "hash": "sha256:e4c8ef22976fed38eb55e05892399bb8593da67413a204bfe2d0a798e1b6adb7",
+      "size": 193091
+    },
+    "Content/Audio/Signal/MS_Signal_InterferenceBed.uasset": {
+      "hash": "sha256:6399245780c9578191356186a8c2b4dcf13601c647efcef2200c27f2d84a649c",
+      "size": 1203716
+    },
+    "Content/Audio/Signal/SFX_Phone_Ring.uasset": {
+      "hash": "sha256:1a8c8e91afa6de4280f4686c20b5ffedc18e12b30b82586e82fe36b8c17fa091",
+      "size": 1127779
+    },
+    "Content/Audio/Signal/SFX_Phone_Silence.uasset": {
+      "hash": "sha256:c01de245d79c487883c7e0466247cc72e1c9dc17d01a078262984057a9065f04",
+      "size": 136532
+    },
+    "Content/Audio/Signal/SFX_Signal_Alarm.uasset": {
+      "hash": "sha256:a9403768e4e7bea563e4361aec5c1599ce49569c42f22c92f05fcd61401b6f5e",
+      "size": 1105654
     },
     "Content/BackgroundBuildings/Blueprint/B_LowPolyBuilding.uasset": {
       "hash": "sha256:b83f928021966c52ed9ef2ea5fad2e4fd32f4e58182a53e21d1d8000ffd33a69",
@@ -11808,8 +11880,8 @@
       "size": 16657
     },
     "Content/Battery/REDFLICKER.uasset": {
-      "hash": "sha256:600bac1bcbd54a8da41a53482efb91f1c21bddc43652e059be07e9ca039c3398",
-      "size": 14295
+      "hash": "sha256:7eb595a678f5cccc1e7c41cf56d3e69793edce602c7c1a20db3c9c5420594e38",
+      "size": 15284
     },
     "Content/Blueprints/ABP_SandboxCharacter.uasset": {
       "hash": "sha256:f1148003532420711470efde1a6f839cda0111d27c1de1b4841ab311f9537d0a",
@@ -11908,8 +11980,8 @@
       "size": 19724
     },
     "Content/Blueprints/UI/WBP_HUD.uasset": {
-      "hash": "sha256:1a073554f731852ed6f25b8088ec3100503f1e9b8798f3e927dc635c14ae0a64",
-      "size": 36025
+      "hash": "sha256:128646ade87e81d7b3219a949c57cc248bcc249d3a2eba057f494fa894507bbf",
+      "size": 40154
     },
     "Content/Blueprints/UI/WBP_InventoryTab.uasset": {
       "hash": "sha256:4857bdfba3ab29185bf3920723f57f473e8461173e2259585e715e731fff12f4",
@@ -22552,8 +22624,8 @@
       "size": 26102
     },
     "Content/Core/Actors/BP_InteractDoor.uasset": {
-      "hash": "sha256:621d267f07da02f677a9f0cd554dd23d89291f4b99799682534d312a8cc57633",
-      "size": 31968
+      "hash": "sha256:f7b5ae0930839df3dd708fb718a2559a6b5ad8dff6a4b5ce06e3d45268d224bd",
+      "size": 33564
     },
     "Content/Core/Actors/BP_KeyPickup.uasset": {
       "hash": "sha256:7b6e0b114be779a6c78aabb819e3bdc5688235bfb0eb450a7600c34c15c0ffd4",
@@ -22580,8 +22652,8 @@
       "size": 2560
     },
     "Content/Core/Data/DA_GraceMovement_Default.uasset": {
-      "hash": "sha256:07396037e4053e63be52429d7db53718749179857b74ab37d7493e6d0f08a90e",
-      "size": 1520
+      "hash": "sha256:0a733f12f130d5292710278eee80247b93358f85f27c367dbf8b9b2717b85bef",
+      "size": 1510
     },
     "Content/Core/Framework/GM_TheSignal.uasset": {
       "hash": "sha256:b629aa2db09080be305f59605d8a0417b38d63c2ca36d80adbf3dc492a0954b5",
@@ -25019,6 +25091,146 @@
       "hash": "sha256:1387d689817e803c8183dceebc1945d57621557b1fd5783297377211dc20f15e",
       "size": 20876
     },
+    "Content/Enemies/Shambler/ABP_Crawler.uasset": {
+      "hash": "sha256:43205ab44d66cf391b1f0b2d2df4394e3781b3a7ad04a8245eb86b57b7a4a3c5",
+      "size": 63459
+    },
+    "Content/Enemies/Shambler/ABP_Shambler.uasset": {
+      "hash": "sha256:29fcd577d2fb3b017fe98bf3e51b3057e81158a89a34dda17fd746b3bb8a0dd4",
+      "size": 65010
+    },
+    "Content/Enemies/Shambler/BP_Shambler.uasset": {
+      "hash": "sha256:99d10b1ed3f0418e8bdbd3a538342eaf35c3a071b18fa589543e6bfd63f328ef",
+      "size": 59666
+    },
+    "Content/Enemies/Shambler/BS_Shambler.uasset": {
+      "hash": "sha256:7bba4d959cdeed9932e35b88c0f021f7f21dba0c5184a9404eef787f51a4e9ee",
+      "size": 9867
+    },
+    "Content/Enemies/Shambler/M_Shambler.uasset": {
+      "hash": "sha256:93a99561c392e0a1ca2831ca56a3f6e2fc14ea799b9e24448c1b333be8284cb5",
+      "size": 13186
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Attack_L.uasset": {
+      "hash": "sha256:44030963b05a487b2cd1abbe48dfec77f0dcce53d54d6314079d70e33d4af476",
+      "size": 239933
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Attack_R.uasset": {
+      "hash": "sha256:32649f91c1ebb3298a058037d4e4100bf21a87c319f8da68757b1b17dc3116a4",
+      "size": 240091
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Death_Back.uasset": {
+      "hash": "sha256:b545deb7691178f80601430782b8927ac6669ce8990edc7acdccaae79c3d5928",
+      "size": 1713684
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Death_Front.uasset": {
+      "hash": "sha256:4fd7a0176069ce55529075f6b345c1fad2093f92591cfcde693da5a06387427f",
+      "size": 991919
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Idle.uasset": {
+      "hash": "sha256:a9ee04e5c8aa1b987abe37a368284e455b61bac9b258d46e4b1570c56705ec50",
+      "size": 177004
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Scream.uasset": {
+      "hash": "sha256:adf57da7e99dda01a2df378f192152345c06020e220774cdfc562eaa586c5c7b",
+      "size": 196555
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Walk.uasset": {
+      "hash": "sha256:ab7d90933fa976f8d50e674023f05514447bb12e943474884c4aeec90c690649",
+      "size": 370306
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_WalkFast.uasset": {
+      "hash": "sha256:fff8ab7fa682c1a5b0ca155fdcb171a16fd611e3c9862a3978eb86946e7b4236",
+      "size": 167801
+    },
+    "Content/Enemies/Shambler/Anims/ZombieWalk.uasset": {
+      "hash": "sha256:d4fd3ee4101267f01b1a04e282295077f13968089ea180af0ce50954f5bb6ca0",
+      "size": 370254
+    },
+    "Content/Enemies/Shambler/Materials/Scene_-_Root.uasset": {
+      "hash": "sha256:41c94d32371bdfddbad907ed8d9f188ad0fe7cd485f984a2876b2179a5e32278",
+      "size": 73463
+    },
+    "Content/Enemies/Shambler/Rigs/IK_MannSrc.uasset": {
+      "hash": "sha256:9b051d5cecac5cbf1be139b57ac0bec9ee1b5fd34cf2b0ff89f8e49da66afde9",
+      "size": 128597
+    },
+    "Content/Enemies/Shambler/Rigs/IK_Shambler.uasset": {
+      "hash": "sha256:2b688205925fc54e51e02bd93f1677dbe57f1fce74afb6e20e01ebb197c3b3e5",
+      "size": 32661
+    },
+    "Content/Enemies/Shambler/Rigs/IK_UE4Death.uasset": {
+      "hash": "sha256:124905a67cea38372414d0f2e8ebf7d07aeee6313ddb2a99f0edceaacf1f414e",
+      "size": 59656
+    },
+    "Content/Enemies/Shambler/Rigs/RTG_Shambler.uasset": {
+      "hash": "sha256:0a31a2164325f235453c19311c92da6892631c4889fb3c96e852cad8fb7bf01b",
+      "size": 16600
+    },
+    "Content/Enemies/Shambler/Rigs/RTG_UE4_to_Shambler.uasset": {
+      "hash": "sha256:ef8998f377340813e555c225d517563d2163d29c00f75c2bada2a9e3471418e4",
+      "size": 16160
+    },
+    "Content/Enemies/Shambler/SkeletalMeshes/zombie_monster_slasher_necromorph.uasset": {
+      "hash": "sha256:eb3e23cb89fd99bc54d0bb6b51ec6507f8c61be3353b229cb4c2b80e56b34171",
+      "size": 984891
+    },
+    "Content/Enemies/Shambler/SkeletalMeshes/zombie_monster_slasher_necromorph_Anim.uasset": {
+      "hash": "sha256:80169d7946f2287f8c08c8d133d88831f9c038aa1b1656a1a3b43eec0198f5db",
+      "size": 541069
+    },
+    "Content/Enemies/Shambler/SkeletalMeshes/zombie_monster_slasher_necromorph_PhysicsAsset.uasset": {
+      "hash": "sha256:b5e4e6e89866300b243db73e95c9a6d863c921a3c3fb3ed17f9ccd8eafe5bc92",
+      "size": 55520
+    },
+    "Content/Enemies/Shambler/SkeletalMeshes/zombie_monster_slasher_necromorph_Skeleton.uasset": {
+      "hash": "sha256:027a5e720ceefcd60cf8d9d097bab655efb37c15ea317c82b7d3667b2fd0b5a4",
+      "size": 9685
+    },
+    "Content/Enemies/Shambler/Textures/zombie_monster_slasher_necromorph_texture_0.uasset": {
+      "hash": "sha256:7c9ada45119adde42f1e152a39c0048cd7d489858bafccb41c713919f0d8e441",
+      "size": 20272379
+    },
+    "Content/Enemies/Shambler/Textures/zombie_monster_slasher_necromorph_texture_1.uasset": {
+      "hash": "sha256:5dc6d32ffc03e7f74e76d90f8f910026b4d83394916c98d3cfe47d33d349f872",
+      "size": 16478837
+    },
+    "Content/Enemies/Shambler/Textures/zombie_monster_slasher_necromorph_texture_2.uasset": {
+      "hash": "sha256:12a963159a782b6a272d9dc15c5bde40930c024019d01d583d3dddad75437cd0",
+      "size": 31887806
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/Materials/Scene_-_Root.uasset": {
+      "hash": "sha256:789ddaa5e5bb00966e5bb5d28a1bbdb65f07abf5e74b37cfb4abc109a0044fe5",
+      "size": 78287
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/SkeletalMeshes/zombie_monster_slasher_necromorph.uasset": {
+      "hash": "sha256:e8b9e4603f3ecc6318cd9d258f9e8f23595ee793f924df3a6dfd1b9965928f25",
+      "size": 985009
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/SkeletalMeshes/zombie_monster_slasher_necromorph_Anim.uasset": {
+      "hash": "sha256:c6499cde8c3af56e7884fa57eb360dd690683617822341dd55445d69157ec72f",
+      "size": 541181
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/SkeletalMeshes/zombie_monster_slasher_necromorph_PhysicsAsset.uasset": {
+      "hash": "sha256:678d8de1624e26a5dac68772bfe879822afc401827921af08e2626b6f3320ec0",
+      "size": 55630
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/SkeletalMeshes/zombie_monster_slasher_necromorph_Skeleton.uasset": {
+      "hash": "sha256:c93424cfbcb2f4e71eb6ea8049f2e29e893231650952149190cfd8387517f463",
+      "size": 13744
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/Textures/zombie_monster_slasher_necromorph_texture_0.uasset": {
+      "hash": "sha256:2b1022a977ee245e6affcc8ca7bd250c9a0bd64f22e14e9f7e9accbce4e62875",
+      "size": 20283267
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/Textures/zombie_monster_slasher_necromorph_texture_1.uasset": {
+      "hash": "sha256:fdd999b712918bf00c062832120201abee4bdfd20b09195c075bcb0ddccce71e",
+      "size": 16489349
+    },
+    "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/Textures/zombie_monster_slasher_necromorph_texture_2.uasset": {
+      "hash": "sha256:c2aceeb7c79047272ade647460e5c3b57e221b0e0cea0be52a4851ba72eba5f6",
+      "size": 31896846
+    },
     "Content/FirstPerson/MI_FirstPersonColorway.uasset": {
       "hash": "sha256:3d49b21312285f8663991124473046f9322f6adb66e72f461b303e8d7476046d",
       "size": 9448
@@ -25108,8 +25320,8 @@
       "size": 4734
     },
     "Content/FirstPerson/Blueprints/Scope_Material.uasset": {
-      "hash": "sha256:205d98d7f5eb65aab689e0cd09bebd85e8211c04bd1d64dbcfb3b00b910ca16f",
-      "size": 10448
+      "hash": "sha256:2893bda14447b3c280028bd15aa60e7f407b075ee2ea41bbdd77c6c53fb5556a",
+      "size": 11379
     },
     "Content/FirstPerson/Blueprints/WB_Ammo.uasset": {
       "hash": "sha256:896f84c8bf02e99108e7b1fa0f56e54a1d574b72e154bb7c2991c919582f4d87",
@@ -34408,8 +34620,8 @@
       "size": 71574
     },
     "Content/HorrorLight/M_Void2.uasset": {
-      "hash": "sha256:2cad7ba37fa7e0610ddfc4e8d7bf0596b174cbedd5a38b22d047a72e84c8208a",
-      "size": 8898
+      "hash": "sha256:cb06ee8afc745c75e1fae3aa6abdfa9a29d7ab1d6411b6950e7383b78e3a74f9",
+      "size": 9871
     },
     "Content/HorrorLight/M_Void3.uasset": {
       "hash": "sha256:5cd9f0c826482a61ebabf75986e3eb6702c857d78685e64dbffb46a7fe5c300e",
@@ -60220,8 +60432,8 @@
       "size": 19808
     },
     "Content/Office/OfficeMats/MI_PaintedMetal.uasset": {
-      "hash": "sha256:c9be65cdb476e2d3099f8df713335021d105f9396c91a1f3822c0cf325f23811",
-      "size": 15862
+      "hash": "sha256:a8f0e37c664e0108aef25f255a0a68774c9d191fea16e976901ee2c8eb13518b",
+      "size": 17149
     },
     "Content/Office/OfficeMats/MI_Painting01.uasset": {
       "hash": "sha256:cf58a04dc25528b000fadef7f19a45e62cf7c93c4a0419f214102ef9c6af81d4",
@@ -60352,8 +60564,8 @@
       "size": 12399
     },
     "Content/Office/OfficeMats/Master/M_Mat.uasset": {
-      "hash": "sha256:b32d81c53f98810c2efe0b8f46463ba3d4c4675746f02f21eea24ff812945095",
-      "size": 46659
+      "hash": "sha256:2bc2252d4ef2986aec0c8e3a661efafafebbd058f8776e3e383ddf9d3333be9e",
+      "size": 46546
     },
     "Content/Office/OfficeMats/Master/M_Paralex.uasset": {
       "hash": "sha256:51f0d2d9ad235e2dad7d412b310ecfb44ccc9b3436c90afc2e451c353ec084ec",
@@ -66172,8 +66384,8 @@
       "size": 42872
     },
     "Content/office_StarterContent/Materials/M_Rock_Marble_Polished.uasset": {
-      "hash": "sha256:ec42fbacbdf8d50f6029b7a6151ed6d7520fdf91cb9103d20bfe61ef867d1bd4",
-      "size": 36371
+      "hash": "sha256:e83e352144120324c9df2d797154054080096a37d34dfd20b6247b0ea900505c",
+      "size": 36472
     },
     "Content/office_StarterContent/Materials/M_Rock_Sandstone.uasset": {
       "hash": "sha256:4c48b8ca4d679bdaf3ec6dd99ce874102e2d8fbcb243445e4fff058e634a65eb",
@@ -67888,8 +68100,8 @@
       "size": 9190
     },
     "Content/Sword_Animation/Demo/Characters/Mannequins/Materials/M_Mannequin.uasset": {
-      "hash": "sha256:82805dfdfe49083dd8c84a970f2b793102e515dfbecc93d530fcd4762c12ae09",
-      "size": 87446
+      "hash": "sha256:07af4c875000860bcf5b1b1f5981ffcf593e571f875f626afa26380dccd93c78",
+      "size": 84879
     },
     "Content/Sword_Animation/Demo/Characters/Mannequins/Materials/Functions/CA_Mannequin.uasset": {
       "hash": "sha256:71f375e978088036bba9cf9d6200df4c78a61cc5539a2272f62890c47bd5e142",
@@ -67912,8 +68124,8 @@
       "size": 14197
     },
     "Content/Sword_Animation/Demo/Characters/Mannequins/Materials/Instances/Manny/MI_Manny_01.uasset": {
-      "hash": "sha256:5bbf4c3a46cb9bdafc8524c5c2b1d95f387cc5083eb7a6a4ce0cef80cb734944",
-      "size": 21788
+      "hash": "sha256:18faa4a5756dbbff52f05101e86c7a7ca8be26e46c7921687aae9c376eef425e",
+      "size": 20209
     },
     "Content/Sword_Animation/Demo/Characters/Mannequins/Materials/Instances/Manny/MI_Manny_02.uasset": {
       "hash": "sha256:9b07b754ed3e27767aec90a35bd5a8b4af21a74dd360fe8af497675b386cbce4",
@@ -69855,6 +70067,10 @@
       "hash": "sha256:f4ed2663ae7fd7afaad0a52895e333689492428106814643ffaa790babc196bc",
       "size": 2669
     },
+    "Content/UI/Signal/M_SignalWaveform.uasset": {
+      "hash": "sha256:fdaa5c95648e872d2d93b7cc1f4ed68a6420141bc0f9f3072a591d6b4fabcacc",
+      "size": 16522
+    },
     "Content/UltraDynamicSky/Blueprints/Configuration_Manager.uasset": {
       "hash": "sha256:fe9f4dc87cd3275488ee240047099142c1af5c3186ed141f6d3d175a48890a0e",
       "size": 2128933
@@ -70932,8 +71148,8 @@
       "size": 24129
     },
     "Content/UltraDynamicSky/Materials/Space/Space_Planet_Mat.uasset": {
-      "hash": "sha256:ecfe91a609aa70491a678a75e94ea3a2be8c02ea84a975fd5dbd50865519013d",
-      "size": 82009
+      "hash": "sha256:1fbfc9c8921a484ef6bbae6b94ba753175519c211abb433b9db8752d33913965",
+      "size": 83057
     },
     "Content/UltraDynamicSky/Materials/Space/Space_Ring_Mat.uasset": {
       "hash": "sha256:fc8a8377e240cb1665e9b9438aad4c95c2d6f6053014fada8718d2ab79364783",

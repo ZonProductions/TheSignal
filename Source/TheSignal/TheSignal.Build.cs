@@ -17,6 +17,7 @@ public class TheSignal : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"AIModule", // ZP_PatrolComponent auto-binds UPawnSensingComponent
+			"NavigationSystem", // crawler path-following to walls (UNavigationSystemV1) — engine module, not a plugin
 			"UMG", // ZP_HUDWidget (UUserWidget, UImage, UTextBlock)
 			"Niagara", // ZP_GrenadeProjectile explosion VFX
 			"RenderCore", // ZP_LipSyncComponent morph target GPU buffer rebuild

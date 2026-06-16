@@ -51,11 +51,11 @@ public:
 
 	/** Base walk speed. Grace is not a soldier — keep this grounded. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Walk")
-	float WalkSpeed = 200.0f;
+	float WalkSpeed = 260.0f;
 
 	/** Sprint speed. Panicked, not trained. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Sprint")
-	float SprintSpeed = 300.0f;
+	float SprintSpeed = 390.0f;
 
 	/** Braking deceleration when walking. Higher = stops faster. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Walk")
@@ -83,9 +83,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Stamina")
 	float StaminaRegenRate = 15.0f;
 
-	/** Seconds after stopping sprint before regen begins. */
+	/** Seconds after you stop sprint-moving before stamina regen begins (global cooldown). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Stamina")
-	float StaminaRegenDelay = 1.5f;
+	float StaminaRegenDelay = 2.0f;
 
 	// --- Head Bob ---
 
@@ -127,7 +127,7 @@ public:
 
 	/** Walk speed while crouched (cm/s). Slow, deliberate. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Crouch")
-	float CrouchWalkSpeed = 100.0f;
+	float CrouchWalkSpeed = 150.0f;
 
 	/** Interpolation speed for camera height when entering/exiting crouch. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Crouch")

@@ -58,7 +58,8 @@
       "Read(//c/Users/Ommei/workspace/ZonPortalDev/**)",
       "Read(//c/Users/Ommei/workspace/**)",
       "PowerShell(& 'C:\\\\Program Files\\\\Epic Games\\\\UE_5.4\\\\Engine\\\\Build\\\\BatchFiles\\\\Build.bat' TheSignalEditor Win64 Development 'C:\\\\Users\\\\Ommei\\\\workspace\\\\TheSignal\\\\TheSignal.uproject' -WaitMutex)",
-      "PowerShell(Start-Process 'C:\\\\Program Files\\\\Epic Games\\\\UE_5.4\\\\Engine\\\\Binaries\\\\Win64\\\\UnrealEditor.exe' -ArgumentList 'C:\\\\Users\\\\Ommei\\\\workspace\\\\TheSignal\\\\TheSignal.uproject')"
+      "PowerShell(Start-Process 'C:\\\\Program Files\\\\Epic Games\\\\UE_5.4\\\\Engine\\\\Binaries\\\\Win64\\\\UnrealEditor.exe' -ArgumentList 'C:\\\\Users\\\\Ommei\\\\workspace\\\\TheSignal\\\\TheSignal.uproject')",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms,System.Drawing*)"
     ]
   },
   "enableAllProjectMcpServers": true,
