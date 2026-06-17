@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-16T15:05:21",
+  "created": "2026-06-17T00:26:54",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:3d5976570987a1e374ccedcb5a554ace14094903d781a51fd486f63cffaeb670",
-      "size": 8608876
+      "hash": "sha256:c0fc7aaefcff2f5be3726830a1f1342bc48f8e297f5083a91d4787ff1a61e5c3",
+      "size": 8608925
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -25091,9 +25091,33 @@
       "hash": "sha256:1387d689817e803c8183dceebc1945d57621557b1fd5783297377211dc20f15e",
       "size": 20876
     },
-    "Content/Enemies/Shambler/ABP_Crawler.uasset": {
-      "hash": "sha256:43205ab44d66cf391b1f0b2d2df4394e3781b3a7ad04a8245eb86b57b7a4a3c5",
-      "size": 63459
+    "Content/Enemies/Crawler/ABP_Crawler.uasset": {
+      "hash": "sha256:552439925315603ae5a9d303c4bb2180cb6c0e31a066de734a8d2195601fb700",
+      "size": 30836
+    },
+    "Content/Enemies/Crawler/A_CrawlerTentaclePose_5.uasset": {
+      "hash": "sha256:c10f1f1aeb4ac60c6901dfd7c4e90e2661caf28b54939bd4e605fb24303f132b",
+      "size": 12279
+    },
+    "Content/Enemies/Crawler/A_CrawlerTPose5_47973.uasset": {
+      "hash": "sha256:0d230078dc247c69f221e2eef8b5064423ed8009b1abf05e13d4043461692c2f",
+      "size": 20001
+    },
+    "Content/Enemies/Crawler/SM_Crawler_Ref.uasset": {
+      "hash": "sha256:e16efe6f2aa972eec1b0d8ff4257b57c03a82f0b80b0d522310add4818390419",
+      "size": 3278960
+    },
+    "Content/Enemies/Crawler/SM_SM_CrawlerRefV2.uasset": {
+      "hash": "sha256:1a279b8e51d85fbfa6d80af1ac601d5de5f8f7c75e1dc43cc0fa5d9990ef2811",
+      "size": 2316512
+    },
+    "Content/Enemies/Crawler/_TMP_anim.uasset": {
+      "hash": "sha256:30a79ee4802a17bb6f25bfef2e91fd8fc353c77e6f2f5cee8e75cc9f73e2a835",
+      "size": 12213
+    },
+    "Content/Enemies/Scytheer/BP_Scytheer.uasset": {
+      "hash": "sha256:740106b416fe2365eed05f37743d914eeb0f29f1f338addf28cf8be54b130143",
+      "size": 34521
     },
     "Content/Enemies/Shambler/ABP_Shambler.uasset": {
       "hash": "sha256:29fcd577d2fb3b017fe98bf3e51b3057e81158a89a34dda17fd746b3bb8a0dd4",
@@ -25198,6 +25222,42 @@
     "Content/Enemies/Shambler/Textures/zombie_monster_slasher_necromorph_texture_2.uasset": {
       "hash": "sha256:12a963159a782b6a272d9dc15c5bde40930c024019d01d583d3dddad75437cd0",
       "size": 31887806
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/Materials/Drake.uasset": {
+      "hash": "sha256:0f1f5cf7d05b21a5dd80bb820eb5719cfa825292f992c9bf83a08e37dea1a599",
+      "size": 71199
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/SkeletalMeshes/scytheer_alien_monster.uasset": {
+      "hash": "sha256:ce0341e8c7d26c755d092c7f8cc668da7ff328b17d11a6821e2b817d8ba79dae",
+      "size": 7185213
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/SkeletalMeshes/scytheer_alien_monster_Anim.uasset": {
+      "hash": "sha256:77e64edcbc05f9f355c2c12b76a7d3a274983210bc28faa616bfdefd7ae13891",
+      "size": 3214885
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/SkeletalMeshes/scytheer_alien_monster_PhysicsAsset.uasset": {
+      "hash": "sha256:ad7ab4d9e5596093eb368c7e1910c33a37d3caf80da86c45a3c442bb7c49dcad",
+      "size": 49617
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/SkeletalMeshes/scytheer_alien_monster_Skeleton.uasset": {
+      "hash": "sha256:5a5a12393843a9b7e30374ecdba0cd3712836c7c987120870e89d27695f24186",
+      "size": 13955
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/Textures/scytheer_alien_monster_texture_0.uasset": {
+      "hash": "sha256:0a251cdebe00bccfba9d4c6a4385664c4f5e344a10e6c8b40242fc70811e481c",
+      "size": 67180045
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/Textures/scytheer_alien_monster_texture_1.uasset": {
+      "hash": "sha256:37548e6fcaaa1adb80acb73169de5a0602343595c2d580ce643ee7278ffe40e6",
+      "size": 67172190
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/Textures/scytheer_alien_monster_texture_2.uasset": {
+      "hash": "sha256:3374537bd5b2bc7f324da7f5f2c9f97886b91fe72d801003cbc9daad67be42e9",
+      "size": 67173927
+    },
+    "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/Textures/scytheer_alien_monster_texture_3.uasset": {
+      "hash": "sha256:f827d511a2f293e51fba0ebb05259fe80ea3aedea4b1af3e7383a5eb54226762",
+      "size": 67167337
     },
     "Content/Fab/zombie_monster_slasher_necromorph/zombie_monster_slasher_necromorph/Materials/Scene_-_Root.uasset": {
       "hash": "sha256:789ddaa5e5bb00966e5bb5d28a1bbdb65f07abf5e74b37cfb4abc109a0044fe5",

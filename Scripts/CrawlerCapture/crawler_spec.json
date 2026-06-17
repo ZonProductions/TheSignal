@@ -1,0 +1,266 @@
+[
+ {
+  "actor": "BP_PatrolCreature_C_5",
+  "comp": "CharacterMesh0",
+  "kind": "skel",
+  "mesh": null,
+  "loc": [
+   220.8,
+   -1233.7,
+   1367.9
+  ],
+  "rot": [
+   0.0,
+   90.0,
+   -0.0
+  ],
+  "scale": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "bones": 0
+ },
+ {
+  "actor": "BP_TentacleLeg_C_5",
+  "comp": "SkeletalMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_Tentacle.SKM_Tentacle",
+  "loc": [
+   196.3,
+   -1231.4,
+   1371.4
+  ],
+  "rot": [
+   96.1,
+   56.1,
+   91.3
+  ],
+  "scale": [
+   0.133,
+   0.133,
+   0.133
+  ],
+  "bones": 9
+ },
+ {
+  "actor": "BP_TentacleLeg_C_4",
+  "comp": "SkeletalMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_Tentacle.SKM_Tentacle",
+  "loc": [
+   196.0,
+   -1235.5,
+   1371.6
+  ],
+  "rot": [
+   -97.6,
+   63.6,
+   -100.6
+  ],
+  "scale": [
+   0.118,
+   0.118,
+   0.118
+  ],
+  "bones": 9
+ },
+ {
+  "actor": "BP_TentacleLeg_C_3",
+  "comp": "SkeletalMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_Tentacle.SKM_Tentacle",
+  "loc": [
+   196.0,
+   -1237.8,
+   1368.2
+  ],
+  "rot": [
+   -93.4,
+   3.7,
+   -94.0
+  ],
+  "scale": [
+   0.112,
+   0.112,
+   0.112
+  ],
+  "bones": 9
+ },
+ {
+  "actor": "BP_TentacleLeg_C_2",
+  "comp": "SkeletalMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_Tentacle.SKM_Tentacle",
+  "loc": [
+   196.4,
+   -1236.0,
+   1364.5
+  ],
+  "rot": [
+   -96.1,
+   -56.1,
+   -88.7
+  ],
+  "scale": [
+   0.121,
+   0.121,
+   0.121
+  ],
+  "bones": 9
+ },
+ {
+  "actor": "BP_TentacleLeg_C_1",
+  "comp": "SkeletalMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_Tentacle.SKM_Tentacle",
+  "loc": [
+   196.7,
+   -1231.9,
+   1364.2
+  ],
+  "rot": [
+   97.6,
+   -63.6,
+   79.4
+  ],
+  "scale": [
+   0.117,
+   0.117,
+   0.117
+  ],
+  "bones": 9
+ },
+ {
+  "actor": "BP_TentacleLeg_C_0",
+  "comp": "SkeletalMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_Tentacle.SKM_Tentacle",
+  "loc": [
+   196.6,
+   -1229.6,
+   1367.7
+  ],
+  "rot": [
+   93.4,
+   -3.7,
+   86.0
+  ],
+  "scale": [
+   0.119,
+   0.119,
+   0.119
+  ],
+  "bones": 9
+ },
+ {
+  "actor": "BP_EyeActor_C_4",
+  "comp": "Sk_EyeMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_EyeBody.SKM_EyeBody",
+  "loc": [
+   189.2,
+   -1216.2,
+   1367.3
+  ],
+  "rot": [
+   -90.5,
+   2.8,
+   178.9
+  ],
+  "scale": [
+   0.081,
+   0.081,
+   0.081
+  ],
+  "bones": 1
+ },
+ {
+  "actor": "BP_EyeActor_C_3",
+  "comp": "Sk_EyeMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_EyeBody.SKM_EyeBody",
+  "loc": [
+   185.0,
+   -1218.4,
+   1360.2
+  ],
+  "rot": [
+   -115.2,
+   2.8,
+   -166.9
+  ],
+  "scale": [
+   0.101,
+   0.101,
+   0.101
+  ],
+  "bones": 1
+ },
+ {
+  "actor": "BP_EyeActor_C_2",
+  "comp": "Sk_EyeMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_EyeBody.SKM_EyeBody",
+  "loc": [
+   186.2,
+   -1222.4,
+   1380.4
+  ],
+  "rot": [
+   -40.6,
+   3.1,
+   -163.1
+  ],
+  "scale": [
+   0.065,
+   0.065,
+   0.065
+  ],
+  "bones": 1
+ },
+ {
+  "actor": "BP_EyeActor_C_1",
+  "comp": "Sk_EyeMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_EyeBody.SKM_EyeBody",
+  "loc": [
+   171.8,
+   -1230.8,
+   1365.3
+  ],
+  "rot": [
+   -97.3,
+   1.1,
+   -98.2
+  ],
+  "scale": [
+   0.072,
+   0.072,
+   0.072
+  ],
+  "bones": 1
+ },
+ {
+  "actor": "BP_EyeActor_C_0",
+  "comp": "Sk_EyeMesh",
+  "kind": "skel",
+  "mesh": "/Game/ProceduralMonster/ProceduralMonster/Meshes/Skeletal/SKM_EyeBody.SKM_EyeBody",
+  "loc": [
+   179.3,
+   -1243.6,
+   1377.1
+  ],
+  "rot": [
+   -55.8,
+   -1.3,
+   -43.6
+  ],
+  "scale": [
+   0.103,
+   0.103,
+   0.103
+  ],
+  "bones": 1
+ }
+]

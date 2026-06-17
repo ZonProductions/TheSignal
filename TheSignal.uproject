@@ -50,6 +50,18 @@
 		{
 			"Name": "OVRLipSync",
 			"Enabled": true
+		},
+		{
+			"Name": "WebBrowserWidget",
+			"Enabled": true
+		},
+		{
+			"Name": "PCG",
+			"Enabled": true
+		},
+		{
+			"Name": "NwiroIntegrationKit",
+			"Enabled": true
 		}
 	]
 }

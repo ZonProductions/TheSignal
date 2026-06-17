@@ -50,9 +50,16 @@ public class TheSignal : ModuleRules
 		// NOTE: Do NOT add plugin modules here (loaded via .uproject).
 
 		// Editor-only deps for widget tree manipulation (ZP_EditorWidgetUtils)
+		// and the skeletal->static mesh bake tool (ZP_MeshBakeUtils).
+		// FLAGGED FOR REVIEW: MeshMergeUtilities is an engine DEVELOPER module
+		// gated by bBuildEditor (never compiled into runtime/packaged builds),
+		// so the NightShadow "no extra modules" rule (which targets PLUGIN
+		// Build.cs / runtime deps) does not apply. It backs ZP_MeshBakeUtils,
+		// the C++ "Convert to Static Mesh" (MergeComponentsToStaticMesh) that
+		// UE5.7 Python does not expose.
 		if (Target.bBuildEditor)
 		{
-			PrivateDependencyModuleNames.AddRange(new string[] { "UMGEditor", "UnrealEd" });
+			PrivateDependencyModuleNames.AddRange(new string[] { "UMGEditor", "UnrealEd", "MeshMergeUtilities" });
 		}
 	}
 }
