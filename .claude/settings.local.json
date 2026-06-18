@@ -65,7 +65,18 @@
       "mcp__nwiro__read_asset",
       "mcp__nwiro__execute_python",
       "mcp__nwiro__get_level_info",
-      "mcp__nwiro__create_blueprint"
+      "mcp__nwiro__create_blueprint",
+      "mcp__nwiro__pie_list_actors",
+      "mcp__nwiro__build_navigation",
+      "mcp__nwiro__read_log",
+      "mcp__nwiro__stop_pie",
+      "mcp__nwiro__pie_get_property",
+      "mcp__nwiro__read_anim_blueprint",
+      "mcp__nwiro__read_blueprint",
+      "mcp__nwiro__delete_node",
+      "mcp__nwiro__get_level_actors",
+      "mcp__nwiro__take_screenshot",
+      "mcp__nwiro__save_level"
     ]
   },
   "enableAllProjectMcpServers": true,

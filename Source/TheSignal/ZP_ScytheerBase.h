@@ -38,18 +38,22 @@ class UZP_HealthComponent;
 class UDamageType;
 class UPrimitiveComponent;
 class USoundBase;
+class USoundAttenuation;
 class AController;
 class AAIController;
+class AZP_ScytheerClimbPath;
 
 UENUM(BlueprintType)
 enum class EScytheerState : uint8
 {
-	Wander,  // roaming the navmesh slowly
-	Alert,   // just noticed the player — holds idle pose + plays alert SFX
-	Chase,   // running toward the player
-	Attack,  // mid-swipe
-	Hit,     // shot — brief flinch
-	Die      // dead, holds final frame as corpse
+	Wander,         // roaming the navmesh slowly
+	Alert,          // just noticed the player — holds idle pose + plays alert SFX (GROUND aggro)
+	WallDescent,    // aggroed while clinging to a wall — runs DOWN the spline before chasing
+	Chase,          // running toward the player on the ground
+	Attack,         // mid-swipe
+	Hit,            // shot — brief flinch
+	Die,            // dead, holds final frame as corpse
+	ReturnToPatrol  // de-aggroed; walking back to the nearest patrol spline point before resuming Wander
 };
 
 UCLASS()
@@ -61,14 +65,23 @@ public:
 	AZP_ScytheerBase();
 
 	// ── Detection ──────────────────────────────────────────────────
+	/** Straight-line distance to consider the player for aggro. Final gate is the navmesh
+	 *  reachability check — only the same connected navmesh region (= same geometry) qualifies. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
-	float DetectionRange = 1500.f;
+	float DetectionRange = 1000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
 	float LoseSightTime = 4.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
-	float GiveUpRange = 3000.f;
+	float GiveUpRange = 2200.f;
+
+	/** Max navmesh PATH length (UU) that counts as "same geometry". A closed door blocks the
+	 *  navmesh, so even a 200-UU straight-line gap reads as unreachable -> no aggro. An open door
+	 *  with navmesh through it reads as reachable -> aggro. 1.6x DetectionRange covers a typical
+	 *  in-room S-shape but rejects "all the way around the building" paths. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
+	float MaxReachablePathLength = 1600.f;
 
 	// ── Damage / Death ─────────────────────────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Damage")
@@ -94,6 +107,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
 	float AttackDamage = 20.f;
 
+	/** Min seconds between hit-react flinches. Without a CD the Scytheer can be perma-stunlocked
+	 *  by sustained fire — every bullet triggers a fresh Hit state. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float HitReactCooldown = 1.0f;
+
+	/** Z above the patrol spline's ground point that counts as "on the wall" — controls whether
+	 *  aggro transitions through WallDescent or straight into Alert. 100 UU keeps the climb-and-
+	 *  back-down on the floor portion of the spline from falsely triggering descent every time. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
+	float OnWallZThreshold = 100.f;
+
 	// ── Movement (drive CharacterMovement) ─────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
 	float WanderSpeed = 60.f;
@@ -104,7 +128,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
 	float CombatTurnRate = 300.f;
 
-	// ── Wander ─────────────────────────────────────────────────────
+	// ── Patrol (optional designer-guided path) ─────────────────────
+	/** If set, Wander walks back and forth along this spline instead of picking random navmesh points.
+	 *  Drop a ZP_ScytheerClimbPath actor in the level, shape its spline, then assign here. The path's
+	 *  points must sit on the navmesh for the AI to walk between them. Chase still uses navmesh; on
+	 *  losing the player the Scytheer rejoins the nearest point on the path and resumes patrol. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
+	TObjectPtr<AZP_ScytheerClimbPath> PatrolPath;
+
+	/** Distance between consecutive patrol waypoints along the spline (UU). Smaller = the AI re-paths
+	 *  more often (smoother curves but more CPU); larger = it cuts corners on tight bends. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
+	float PatrolStep = 200.f;
+
+	/** Max rotational speed (deg/s) the body uses while patrolling. Without a cap, reversing
+	 *  direction at the spline endpoints flips the body 180° in a single frame (snap). 360 = the
+	 *  reversal takes 0.5s; lower = more deliberate-looking turns. Set very high (e.g. 9999) for
+	 *  the original instant-flip behaviour. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
+	float PatrolTurnRate = 360.f;
+
+	// ── Wander (random-roam fallback when PatrolPath is unset) ─────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Wander")
 	float WanderRadius = 600.f;
 
@@ -133,6 +177,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> LurkSound;
+
+	/** Spatial attenuation (distance falloff + occlusion). Defaults to SA_EnemyVoice so wall
+	 *  occlusion mutes Scytheer SFX from the next room. Without this, PlaySoundAtLocation plays
+	 *  unspatialized 2D audio audible everywhere. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	TObjectPtr<USoundAttenuation> AudioAttenuation;
 
 	// ── Animation source ───────────────────────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
@@ -185,9 +235,16 @@ private:
 	float PauseTimer = 0.f;
 	bool bWanderMoving = false;
 	FVector WanderDest = FVector::ZeroVector;
+	float PatrolDistance = 0.f;
+	int32 PatrolDir = 1;
+	/** Cached so we can restore CharacterMovement.MovementMode when leaving spline-direct patrol. */
+	uint8 PreSplineMovementMode = 1; // MOVE_Walking
 	double LastAttackTime = -1000.0;
 	double AttackStartTime = 0.0;
 	bool bAttackHitFired = false;
+	double LastHitReactTime = -1000.0;
+	float ChaseStuckTimer = 0.f;
+	FVector LastChaseStuckLoc = FVector::ZeroVector;
 	int32 PendingAttackVariant = 1;
 	double StateEnteredAt = 0.0;
 
@@ -205,9 +262,18 @@ private:
 	void StartSegment(int32 FrameStart, int32 FrameEnd, bool bLoop);
 	void OnSegmentComplete();
 	void TickAnim();
+	/** Fill any SFX slot the Blueprint hasn't overridden with the Crawler/Shambler placeholders.
+	 *  Called from BeginPlay, NOT the constructor — ConstructorHelpers asset loading during CDO
+	 *  construction crashes when the target asset is renamed/moved (Shambler hit that in this same
+	 *  session). LoadObject in BeginPlay is the safe pattern. */
+	void LoadSFXDefaults();
 	float Frame2Time(int32 Frame) const;
 	APawn* GetPlayer() const;
 	bool HasLOS(const AActor* Target) const;
+	/** Is the player reachable on the same connected navmesh region within MaxReachablePathLength?
+	 *  Closed doors block navmesh, so this returns false through any solid barrier. The
+	 *  "same geometry" gate the dev asked for. */
+	bool IsPlayerReachable(const AActor* Target) const;
 	void PickNewWanderPoint();
 	void SetMaxWalkSpeed(float Speed);
 	void FaceTargetSmooth(float DeltaTime);
@@ -218,4 +284,9 @@ private:
 	UFUNCTION()
 	void OnPointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy, FVector HitLocation,
 		UPrimitiveComponent* FHitComp, FName BoneName, FVector ShotDir, const UDamageType* DamageType, AActor* DamageCauser);
+
+	/** Compose a rotator whose +X axis points along Forward and whose +Z points along Up. Used to
+	 *  align the Scytheer's body to the spline tangent + the per-point wall normal so it can stand
+	 *  on walls / ceilings during patrol. Up is orthogonalized against Forward first. */
+	static FRotator MakeOrientation(const FVector& Forward, const FVector& Up);
 };

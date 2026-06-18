@@ -1,31 +1,69 @@
-=== BUILD STARTED Wed 06/17/2026  0:11:06.18 === 
+=== BUILD STARTED Wed 06/17/2026 21:23:16.09 === 
 Using bundled DotNet SDK version: 8.0.412 win-x64
 Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" TheSignalEditor Win64 Development "C:\Users\Ommei\workspace\TheSignal\TheSignal.uproject" -WaitMutex
 Log file: C:\Users\Ommei\AppData\Local\UnrealBuildTool\Log.txt
 Using 'git status' to determine working set for adaptive non-unity build (C:\Users\Ommei\workspace\TheSignal).
+Invalidating makefile for TheSignalEditor (source file added)
+Warning: Plugin 'BlueprintMCP' does not list plugin 'IKRig' as a dependency, but module 'BlueprintMCP' depends on module 'IKRig'.
+Warning: Plugin 'BlueprintMCP' does not list plugin 'IKRig' as a dependency, but module 'BlueprintMCP' depends on module 'IKRigDeveloper'.
+UHT compiled-in object format Default
 Parsing headers for TheSignalEditor
   Running Internal UnrealHeaderTool C:\Users\Ommei\workspace\TheSignal\TheSignal.uproject C:\Users\Ommei\workspace\TheSignal\Intermediate\Build\Win64\TheSignalEditor\Development\TheSignalEditor.uhtmanifest -WarningsAsErrors -installed
-UHT processed TheSignalEditor in 1.3527657 seconds (3 files written)
+UHT processed TheSignalEditor in 7.1307249 seconds (3 files written)
 Building TheSignalEditor...
 Using Visual Studio 2022 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
-[Adaptive Build] Excluded from TheSignal unity file: ZP_MeshBakeUtils.cpp, ZP_ScytheerBase.cpp, ZP_ScytheerClimbPath.cpp
+[Adaptive Build] Excluded from TheSignal unity file: ZP_ScytheerBase.cpp, ZP_ShamblerBehaviorComponent.cpp, ZP_VentDoor.cpp
 Determining max actions to execute in parallel (10 physical cores, 20 logical cores)
   Executing up to 10 processes, one per physical core
-Using Unreal Build Accelerator local executor to run 6 action(s)
+  Requested 1.5 GB memory per action, 14.05 GB available: limiting max parallel actions to 9
+Using Unreal Build Accelerator local executor to run 8 action(s)
   Storage capacity 40Gb
----- Starting trace: 260617_001108 ----
+---- Starting trace: 260617_212329 ----
 UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
-[1/6] Compile [x64] Module.TheSignal.5.cpp
-[2/6] Compile [x64] ZP_ScytheerBase.cpp
-[3/6] Compile [x64] Module.TheSignal.1.cpp
-[4/6] Link [x64] UnrealEditor-TheSignal.lib
-[5/6] Link [x64] UnrealEditor-TheSignal.dll
-[6/6] WriteMetadata TheSignalEditor.target [NoUba]
+[1/8] Compile [x64] ZP_VentDoor.cpp
+[2/8] Compile [x64] Module.TheSignal.5.cpp
+[3/8] Compile [x64] Module.TheSignal.1.cpp
+[4/8] Compile [x64] Module.TheSignal.7.cpp
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(53,6): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	    ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(53,67): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	                                                                 ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(55,10): warning C4996: 'UPawnSensingComponent::OnSeePawn': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		Sensing->OnSeePawn.AddDynamic(this, &UZP_PatrolComponent::OnSeePawn);
+		       ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,35): warning C4996: 'UPawnSensingComponent': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		return (T*)FindComponentByClass(T::StaticClass());
+		                                ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,35): note: the template instantiation context (the oldest one first) is
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_PatrolComponent.cpp(53,46): note: see reference to function template instantiation 'T *AActor::FindComponentByClass<UPawnSensingComponent>(void) const' being compiled
+        with
+        [
+            T=UPawnSensingComponent
+        ]
+	if (UPawnSensingComponent* Sensing = Owner->FindComponentByClass<UPawnSensingComponent>())
+	                                            ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(3829,38): warning C4996: 'UPawnSensingComponent::StaticClass': Pawn sensing is deprecated. AI Perception should be used instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		return (T*)FindComponentByClass(T::StaticClass());
+		                                   ^
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MinX' used
+   while compiling AZP_MapPickup::BeginPlay
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MinY' used
+   while compiling AZP_MapPickup::BeginPlay
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MaxX' used
+   while compiling AZP_MapPickup::BeginPlay
+C:\Users\Ommei\workspace\TheSignal\Source\TheSignal\ZP_MapPickup.cpp(117) : warning C4701: potentially uninitialized local variable 'MaxY' used
+   while compiling AZP_MapPickup::BeginPlay
+[5/8] Compile [x64] Module.TheSignal.6.cpp
+[6/8] Link [x64] UnrealEditor-TheSignal.lib
+[7/8] Link [x64] UnrealEditor-TheSignal.dll
+[8/8] WriteMetadata TheSignalEditor.target [NoUba]
 
-Trace written to file C:/Users/Ommei/AppData/Local/UnrealBuildTool/Log.uba with size 3.9kb
-Total time in Unreal Build Accelerator local executor: 3.97 seconds
+Trace written to file C:/Users/Ommei/AppData/Local/UnrealBuildTool/Log.uba with size 5.8kb
+Total time in Unreal Build Accelerator local executor: 22.61 seconds
 
 Result: Succeeded
-Total execution time: 6.40 seconds
-=== BUILD EXITED 0 AT Wed 06/17/2026  0:11:12.77 === 
+Total execution time: 35.75 seconds
+=== BUILD EXITED 0 AT Wed 06/17/2026 21:23:52.22 === 
 BUILD OK 

@@ -22,15 +22,28 @@ UZP_ShamblerBehaviorComponent::UZP_ShamblerBehaviorComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true; // per-frame combat facing (state logic stays on the eval timer)
 
-	// Default the anim slots to the retargeted Shambler clips (overridable per-instance).
-	struct FFind { static UAnimSequence* Get(const TCHAR* P) { ConstructorHelpers::FObjectFinder<UAnimSequence> F(P); return F.Succeeded() ? F.Object : nullptr; } };
-	WalkAnim    = FFind::Get(TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Walk.A_Shambler_Walk"));
-	IdleAnim    = FFind::Get(TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Idle.A_Shambler_Idle"));
-	AttackLAnim = FFind::Get(TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_L.A_Shambler_Attack_L"));
-	AttackRAnim = FFind::Get(TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_R.A_Shambler_Attack_R"));
-	ScreamAnim  = FFind::Get(TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Scream.A_Shambler_Scream"));
-	DeathFrontAnim = FFind::Get(TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Front.A_Shambler_Death_Front"));
-	DeathBackAnim  = FFind::Get(TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Back.A_Shambler_Death_Back"));
+	// NOTE: anim defaults are loaded lazily in BeginPlay (LoadAnimDefaults), NOT here.
+	// ConstructorHelpers::FObjectFinder loading /Game assets during CDO construction crashed
+	// on editor load (EXCEPTION_ACCESS_VIOLATION in FindOrLoadObject). Lazy LoadObject mirrors
+	// the sound-loading pattern below and preserves per-instance BP overrides.
+}
+
+void UZP_ShamblerBehaviorComponent::LoadAnimDefaults()
+{
+	// Only fill slots the Blueprint hasn't overridden (serialized overrides are present before BeginPlay).
+	auto Fill = [](TObjectPtr<UAnimSequence>& Slot, const TCHAR* P)
+	{
+		if (!Slot) { Slot = LoadObject<UAnimSequence>(nullptr, P); }
+	};
+	Fill(WalkAnim,       TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Walk.A_Shambler_Walk"));
+	Fill(IdleAnim,       TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Idle.A_Shambler_Idle"));
+	Fill(AttackLAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_L.A_Shambler_Attack_L"));
+	Fill(AttackRAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_R.A_Shambler_Attack_R"));
+	Fill(ScreamAnim,     TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Scream.A_Shambler_Scream"));
+	Fill(DeathFrontAnim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Front.A_Shambler_Death_Front"));
+	Fill(DeathBackAnim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Back.A_Shambler_Death_Back"));
+	Fill(HitFrontAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Front.A_Shambler_Hit_Front"));
+	Fill(HitBackAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Back.A_Shambler_Hit_Back"));
 }
 
 void UZP_ShamblerBehaviorComponent::BeginPlay()
@@ -40,7 +53,16 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 	Owner = Cast<ACharacter>(GetOwner());
 	if (!Owner) { return; }
 
+	LoadAnimDefaults(); // fill any anim slots the BP didn't override (was a crashing ctor load)
+
 	AICon = Cast<AAIController>(Owner->GetController());
+	if (AICon)
+	{
+		// Chain the next wander leg the INSTANT the current move completes (arrived/aborted/failed).
+		// Without this, the body sits idle in the gap between MoveTo completion and the next 0.25s
+		// Evaluate — which is exactly the visible "pause" the dev still saw after removing pause logic.
+		AICon->ReceiveMoveCompleted.AddDynamic(this, &UZP_ShamblerBehaviorComponent::OnMoveCompleted);
+	}
 
 	// Spatial voice (lurk/alert/attack) — reuse the enemy audio component, point it at the zombie SFX.
 	Audio = NewObject<UZP_EnemyAudioComponent>(Owner, TEXT("ShamblerAudio"));
@@ -85,6 +107,10 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 		MeshBaseRelZ = M0->GetRelativeLocation().Z;
 		M0->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore); // capsule takes the bullet instead
 	}
+
+	// Tether: every wander pick is anchored around the spawn point so the Shambler doesn't
+	// drift the length of the building over time. WanderRadius now reads as a true leash radius.
+	SpawnLocation = Owner->GetActorLocation();
 	// Shootable exactly like the Crawler: the CAPSULE blocks the hitscan's Visibility trace (the per-bone
 	// mesh trace doesn't register on this rig). The Pawn profile ignores Visibility, so force it here.
 	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
@@ -107,6 +133,7 @@ void UZP_ShamblerBehaviorComponent::EndPlay(const EEndPlayReason::Type EndPlayRe
 		W->GetTimerManager().ClearTimer(EvalTimer);
 		W->GetTimerManager().ClearTimer(AttackHitTimer);
 		W->GetTimerManager().ClearTimer(ProbeTimer);
+		W->GetTimerManager().ClearTimer(IdleLockTimer);
 	}
 	Super::EndPlay(EndPlayReason);
 }
@@ -138,6 +165,34 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	if (State == EShamblerState::Scream || State == EShamblerState::Attack)
 	{
 		FaceTargetSmooth(DeltaTime);
+	}
+
+	// Mid-leg stumble end: as soon as the stumble timer runs out, re-issue the move toward the same
+	// wander target. Done here (per-frame) rather than in Evaluate (0.25s eval) so the resume isn't
+	// gated on the next eval tick — keeps the stumble feeling like a hesitation, not a freeze.
+	if (bStumbling && State == EShamblerState::Wander && GetWorld()->GetTimeSeconds() >= StumbleEndTime)
+	{
+		bStumbling = false;
+		UE_LOG(LogTemp, Warning, TEXT("[Shambler] STUMBLE END (bWanderMoving=%d)"), bWanderMoving ? 1 : 0);
+		if (bWanderMoving && AICon)
+		{
+			AICon->MoveToLocation(WanderDest, 100.f);
+		}
+	}
+
+	// Per-frame velocity probe — fires twice per second while in Wander. If the body shows vel>0
+	// while bWanderMoving=0 and bStumbling=0 we've found the layered mover: something OUTSIDE this
+	// component is driving CMC during a pause. Pair with the state-change logs to nail down WHO.
+	if (State == EShamblerState::Wander)
+	{
+		static int32 sShTickLog = 0;
+		if ((++sShTickLog % 30) == 0)
+		{
+			const float V = Owner->GetVelocity().Size();
+			UE_LOG(LogTemp, Warning, TEXT("[Shambler] TICK walking=%d stumbling=%d vel=%.1f stateT=%.2f walkDur=%.2f idleDur=%.2f moveStatus=%d"),
+				bWanderMoving ? 1 : 0, bStumbling ? 1 : 0, V, StateTimer, WalkDuration, IdleDuration,
+				AICon ? (int32)AICon->GetMoveStatus() : -1);
+		}
 	}
 }
 
@@ -185,28 +240,87 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			}
 		}
 
-		// Walk one smooth leg -> stop and pause (sometimes a long idle beat) -> slow-turn into the
-		// next leg. No jerky re-pathing mid-walk.
+		// Two-phase wander: WALK for WalkDuration (3-6s) then IDLE for IdleDuration (6-9s).
+		// During WALK, legs chain seamlessly via OnMoveCompleted so velocity never drops to zero
+		// (no idle frame leaking through from the BlendSpace). During IDLE, movement is fully
+		// stopped and the zombie idle anim plays via the slot.
 		if (bWanderMoving)
 		{
-			const float DistToDest = FVector::Dist2D(Owner->GetActorLocation(), WanderDest);
-			if (DistToDest < 140.f || StateTimer > 7.f)
+			// Walk timer up -> drop into idle.
+			if (StateTimer >= WalkDuration)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("[Shambler] WALK→IDLE (walked %.2fs of %.2fs)"), StateTimer, WalkDuration);
 				bWanderMoving = false;
 				StateTimer = 0.f;
+				IdleDuration = FMath::FRandRange(IdleDurationMin, IdleDurationMax);
+				// Smooth deceleration: AICon->StopMovement aborts the path-following request, but we
+				// do NOT call StopMovementImmediately or set MOVE_None here — the CMC's braking
+				// deceleration ramps velocity from walk speed → 0 over a fraction of a second,
+				// which the BlendSpace shows as a natural walk→idle transition under the slot
+				// blend. After IdleLockDelay, LockIdleMovement() snaps MOVE_None to freeze anything
+				// residual (RVO, accel, etc.).
 				if (AICon) { AICon->StopMovement(); }
-				PauseTime = (FMath::FRand() < LongPauseChance)
-					? FMath::FRandRange(LongPauseMin, LongPauseMax)
-					: FMath::FRandRange(PauseMin, PauseMax);
+				if (IdleAnim)
+				{
+					PlaySlotLoop(IdleAnim);
+					if (USkeletalMeshComponent* SM = Owner->GetMesh())
+					{
+						FVector RL = SM->GetRelativeLocation();
+						RL.Z = MeshBaseRelZ + IdleMeshZOffset;
+						SM->SetRelativeLocation(RL);
+					}
+				}
+				GetWorld()->GetTimerManager().SetTimer(IdleLockTimer, this,
+					&UZP_ShamblerBehaviorComponent::LockIdleMovement, IdleLockDelay, false);
+			}
+			else if (!bStumbling)
+			{
+				// Mid-leg stumble (rare). Interrupts movement for a beat then resumes the same leg.
+				if (FMath::FRand() < StumbleChancePerSec * EvalInterval)
+				{
+					bStumbling = true;
+					StumbleEndTime = GetWorld()->GetTimeSeconds() + FMath::FRandRange(StumbleMin, StumbleMax);
+					UE_LOG(LogTemp, Warning, TEXT("[Shambler] STUMBLE START (will end at %.2fs)"), StumbleEndTime);
+					if (AICon) { AICon->StopMovement(); }
+					if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+					{
+						CM->StopMovementImmediately();
+					}
+				}
 			}
 		}
 		else
 		{
-			if (StateTimer >= PauseTime)
+			// Idle phase: wait IdleDuration, then resume walking.
+			if (StateTimer >= IdleDuration)
 			{
-				PickNewWanderPoint();
-				bWanderMoving = true;
-				StateTimer = 0.f;
+				UE_LOG(LogTemp, Warning, TEXT("[Shambler] IDLE→WALK (idled %.2fs of %.2fs)"), StateTimer, IdleDuration);
+				StopSlotLoop();
+				if (USkeletalMeshComponent* SM = Owner->GetMesh())
+				{
+					FVector RL = SM->GetRelativeLocation();
+					RL.Z = MeshBaseRelZ;
+					SM->SetRelativeLocation(RL);
+				}
+				// Cancel a pending idle lock (shouldn't be pending this late but defensive),
+				// and re-enable walking before issuing the next leg.
+				GetWorld()->GetTimerManager().ClearTimer(IdleLockTimer);
+				if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+				{
+					CM->SetMovementMode(MOVE_Walking);
+				}
+				if (PickNewWanderPoint())
+				{
+					StartWanderLeg();
+					bWanderMoving = true;
+					StateTimer = 0.f;
+					WalkDuration = FMath::FRandRange(WalkDurationMin, WalkDurationMax);
+				}
+				else
+				{
+					// Couldn't find a navmesh point — extend the idle by a short retry beat.
+					StateTimer = IdleDuration - FMath::FRandRange(0.2f, 0.5f);
+				}
 			}
 		}
 		break;
@@ -285,6 +399,12 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 		if (UCharacterMovementComponent* M = Owner->GetCharacterMovement())
 		{
 			M->bOrientRotationToMovement = (NewState == EShamblerState::Wander || NewState == EShamblerState::Chase);
+			// Idle phase parks CMC in MOVE_None; any state transition must restore Walking so the
+			// AI can move again (Chase/Wander-walk). Idle re-applies MOVE_None inside Evaluate.
+			if (M->MovementMode == MOVE_None)
+			{
+				M->SetMovementMode(MOVE_Walking);
+			}
 		}
 		// Ground the floaty scream pose (and only the scream) by nudging the mesh Z.
 		if (USkeletalMeshComponent* SM = Owner->GetMesh())
@@ -301,7 +421,9 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 		EnsureLocomotion();
 		SetSpeed(WanderSpeed);
 		bWanderMoving = false;
-		PauseTime = 0.f; // pick a leg on the next eval
+		bStumbling = false;
+		IdleDuration = 0.f; // pick a first leg on the very next eval — no startup pause
+		StopSlotLoop();
 		break;
 
 	case EShamblerState::Scream:
@@ -398,15 +520,51 @@ bool UZP_ShamblerBehaviorComponent::HasLOS(const AActor* InTarget) const
 	return bClear;
 }
 
-void UZP_ShamblerBehaviorComponent::PickNewWanderPoint()
+bool UZP_ShamblerBehaviorComponent::PickNewWanderPoint()
 {
-	if (!Owner || !AICon) { return; }
+	if (!Owner) { return false; }
 	UNavigationSystemV1* Nav = UNavigationSystemV1::GetCurrent(GetWorld());
-	if (!Nav) { return; }
-	FNavLocation Result;
-	if (Nav->GetRandomReachablePointInRadius(Owner->GetActorLocation(), WanderRadius, Result))
+	if (!Nav) { return false; }
+	// Target-dot + spawn-tether picker. Picks the candidate whose direction from the body is CLOSEST
+	// to WanderTargetDot relative to forward — default 0.5 (~60° off forward) gives curving paths
+	// instead of the highest-dot picker which produced straight forward lines / circles. Anchored
+	// around SpawnLocation so the body stays in its leash.
+	const FVector Origin = Owner->GetActorLocation();
+	const FVector Forward = Owner->GetActorForwardVector();
+	const FVector Anchor = SpawnLocation.IsNearlyZero() ? Origin : SpawnLocation;
+
+	FVector BestLoc = FVector::ZeroVector;
+	float BestErr = TNumericLimits<float>::Max();
+	const float MinLegSq = WanderMinLegDistance * WanderMinLegDistance;
+
+	for (int32 i = 0; i < 12; ++i)
 	{
-		WanderDest = Result.Location;
+		FNavLocation R;
+		if (!Nav->GetRandomReachablePointInRadius(Anchor, WanderRadius, R)) { continue; }
+		FVector ToCandidate = R.Location - Origin;
+		ToCandidate.Z = 0.f;
+		if (ToCandidate.SizeSquared() < MinLegSq) { continue; } // too close, would end instantly
+		const FVector Dir = ToCandidate.GetSafeNormal();
+		const float Dot = FVector::DotProduct(Forward, Dir);
+		const float Err = FMath::Abs(Dot - WanderTargetDot);
+		if (Err < BestErr)
+		{
+			BestErr = Err;
+			BestLoc = R.Location;
+		}
+	}
+	if (BestErr < TNumericLimits<float>::Max())
+	{
+		WanderDest = BestLoc;
+		return true;
+	}
+	return false;
+}
+
+void UZP_ShamblerBehaviorComponent::StartWanderLeg()
+{
+	if (AICon)
+	{
 		AICon->MoveToLocation(WanderDest, 100.f); // accept "close enough" so it doesn't orbit the exact point
 	}
 }
@@ -425,12 +583,56 @@ void UZP_ShamblerBehaviorComponent::SetSpeed(float Speed)
 void UZP_ShamblerBehaviorComponent::PlayOneShot(UAnimSequence* Anim)
 {
 	if (!Owner || !Anim) { return; }
+	USkeletalMeshComponent* M = Owner->GetMesh();
+	if (!M) { return; }
+	// Slot-based playback: ABP_Shambler's AnimGraph now wires BS_Shambler -> Slot 'DefaultSlot' ->
+	// Output Pose. PlaySlotAnimationAsDynamicMontage layers Anim on top of the locomotion via the
+	// slot, with a short blend-in/blend-out. No mesh mode swap, no pose snap — the visible "jiggle"
+	// between Wander/Chase and Scream/Attack/Hit is gone.
+	if (UAnimInstance* AI = M->GetAnimInstance())
+	{
+		AI->StopSlotAnimation(0.f, FName(TEXT("DefaultSlot"))); // hard-cut any prior one-shot first
+		AI->PlaySlotAnimationAsDynamicMontage(Anim, FName(TEXT("DefaultSlot")), /*BlendIn=*/0.1f, /*BlendOut=*/0.15f);
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::PlaySlotLoop(UAnimSequence* Anim)
+{
+	if (!Owner || !Anim) { return; }
+	USkeletalMeshComponent* M = Owner->GetMesh();
+	if (!M) { return; }
+	if (UAnimInstance* AI = M->GetAnimInstance())
+	{
+		AI->StopSlotAnimation(0.f, FName(TEXT("DefaultSlot")));
+		// IdleBlendInTime covers the CMC's natural braking ramp — long enough that velocity has
+		// dropped to ~0 by the time the slot is fully visible, so no walk pose leaks through.
+		AI->PlaySlotAnimationAsDynamicMontage(Anim, FName(TEXT("DefaultSlot")),
+			/*BlendInTime=*/IdleBlendInTime, /*BlendOutTime=*/IdleBlendOutTime, /*InPlayRate=*/1.f,
+			/*LoopCount=*/INT32_MAX, /*BlendOutTriggerTime=*/-1.f, /*InTimeToStartMontageAt=*/0.f);
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::StopSlotLoop()
+{
+	if (!Owner) { return; }
 	if (USkeletalMeshComponent* M = Owner->GetMesh())
 	{
-		// Forces single-clip mode, plays once, holds the last frame. The zombie is stationary during
-		// scream/attack, so there's no locomotion to blend with — EnsureLocomotion() restores the
-		// AnimBP when it next wanders/chases. No AnimGraph slot required.
-		M->PlayAnimation(Anim, false);
+		if (UAnimInstance* AI = M->GetAnimInstance())
+		{
+			AI->StopSlotAnimation(IdleBlendOutTime, FName(TEXT("DefaultSlot")));
+		}
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::LockIdleMovement()
+{
+	// Only lock if we actually arrived in the idle phase — a Scream/Chase could have interrupted
+	// the IdleLockDelay window, and we must not freeze the body during combat.
+	if (bDead || State != EShamblerState::Wander || bWanderMoving) { return; }
+	if (UCharacterMovementComponent* CM = Owner ? Owner->GetCharacterMovement() : nullptr)
+	{
+		CM->StopMovementImmediately();
+		CM->SetMovementMode(MOVE_None);
 	}
 }
 
@@ -443,6 +645,9 @@ void UZP_ShamblerBehaviorComponent::EnsureLocomotion()
 		{
 			M->SetAnimationMode(EAnimationMode::AnimationBlueprint); // re-activate ABP_Shambler locomotion
 		}
+		// Slot-based one-shots blend out on their own; nothing to clear here. The legacy mode-swap
+		// path used to leave the mesh stuck in SingleNode if a one-shot was still mid-play, which is
+		// why EnsureLocomotion existed.
 	}
 }
 
@@ -537,6 +742,35 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 	UE_LOG(LogTemp, Warning, TEXT("[Shambler] HIT z+%.0f -> %s, %.0f dmg (was %.0f HP)"),
 		HitZAboveCentre, bHead ? TEXT("HEADSHOT") : TEXT("body"), Dmg, Health->CurrentHealth);
 	Health->ApplyDamage(Dmg);
+
+	// Hit flinch: only if the shot didn't kill, and we're not in the middle of a swipe (mid-attack
+	// hits don't interrupt — same rule the Scytheer uses; otherwise the player can stunlock by
+	// shooting through every swing). Cooldown gates retriggering so the Shambler can still walk + fight.
+	if (!Health->bIsDead && State != EShamblerState::Attack)
+	{
+		const double Now = GetWorld()->GetTimeSeconds();
+		if ((Now - LastHitReactTime) >= HitReactCooldown)
+		{
+			LastHitReactTime = Now;
+			UAnimSequence* HitAnim = bLastHitFront ? HitFrontAnim : HitBackAnim;
+			if (HitAnim) { PlayOneShot(HitAnim); }
+		}
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
+{
+	// Chain the next leg only DURING the walk phase. In idle phase the body must stay stopped, so
+	// re-issuing MoveTo would kick velocity back up and the idle pose would never show.
+	// Stumble is an intentional break — let StumbleEnd in Tick re-issue the move.
+	if (bDead || State != EShamblerState::Wander || bStumbling) { return; }
+	if (!bWanderMoving) { return; } // in idle phase — do NOT chain
+	if (PickNewWanderPoint())
+	{
+		StartWanderLeg();
+	}
+	// Note: do NOT reset StateTimer — the walk-phase timer must keep ticking across legs so the
+	// transition to idle still fires at WalkDuration.
 }
 
 void UZP_ShamblerBehaviorComponent::OnOwnerDied()
