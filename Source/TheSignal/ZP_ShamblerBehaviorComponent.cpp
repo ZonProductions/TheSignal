@@ -214,6 +214,7 @@ void UZP_ShamblerBehaviorComponent::FaceTargetSmooth(float DeltaTime)
 void UZP_ShamblerBehaviorComponent::Evaluate()
 {
 	if (bDead || !Owner) { return; }
+	if (bStaggered) { return; }
 	StateTimer += EvalInterval;
 
 	APawn* Player = GetPlayer();
@@ -756,6 +757,36 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 			if (HitAnim) { PlayOneShot(HitAnim); }
 		}
 	}
+}
+
+void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration)
+{
+	if (bDead || !Owner) { return; }
+
+	// Bypass HitReact cooldown — block stagger must always read visibly.
+	LastHitReactTime = -1000.0;
+	if (UAnimSequence* Anim = HitFrontAnim ? HitFrontAnim : HitBackAnim)
+	{
+		PlayOneShot(Anim);
+	}
+
+	bStaggered = true;
+
+	// Cancel any in-flight AI move so the swipe truly pauses.
+	if (APawn* P = Cast<APawn>(Owner))
+	{
+		if (AAIController* AI = Cast<AAIController>(P->GetController()))
+		{
+			AI->StopMovement();
+		}
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(StaggerHandle);
+	GetWorld()->GetTimerManager().SetTimer(StaggerHandle, FTimerDelegate::CreateWeakLambda(this, [this]()
+	{
+		bStaggered = false;
+		if (!bDead) { EnsureLocomotion(); }
+	}), FMath::Max(0.1f, Duration), false);
 }
 
 void UZP_ShamblerBehaviorComponent::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)

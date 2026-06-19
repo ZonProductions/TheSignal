@@ -275,6 +275,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Shambler|State")
 	EShamblerState State = EShamblerState::Wander;
 
+	/** Play the hit reaction and pause AI movement for Duration. Called by the
+	 *  player when blocking a melee swing — bypasses HitReactCooldown so the
+	 *  block always reads visibly even right after a bullet flinch. */
+	UFUNCTION(BlueprintCallable, Category = "Shambler|Combat")
+	void ReceiveStaggerHit(float Duration);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -353,6 +359,8 @@ private:
 	FTimerHandle AttackHitTimer;
 	FTimerHandle ProbeTimer;
 	FTimerHandle IdleLockTimer; // delays MOVE_None until braking deceleration finishes (smooth WALK→IDLE)
+	FTimerHandle StaggerHandle;
+	bool bStaggered = false;
 
 	float LostSightTimer = 0.f;
 	bool bWanderMoving = false;

@@ -76,7 +76,11 @@
       "mcp__nwiro__delete_node",
       "mcp__nwiro__get_level_actors",
       "mcp__nwiro__take_screenshot",
-      "mcp__nwiro__save_level"
+      "mcp__nwiro__save_level",
+      "mcp__nwiro__find_textures",
+      "mcp__nwiro__get_asset_referencers",
+      "mcp__nwiro__get_map_check_errors",
+      "mcp__nwiro__find_blueprints"
     ]
   },
   "enableAllProjectMcpServers": true,

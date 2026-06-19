@@ -5,6 +5,7 @@
 #include "ZP_KinemationComponent.h"
 #include "ZP_WeaponTypes.h"
 #include "ZP_HealthComponent.h"
+#include "ZP_ShamblerBehaviorComponent.h"
 #include "ZP_GraceMovementConfig.h"
 #include "ZP_GracePlayerAnimInstance.h"
 #include "ZP_PlayerController.h"
@@ -72,10 +73,19 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// First-person camera — attached to PlayerMesh at FPCamera socket.
 	// This makes the camera MOVE with the skeleton (spine rotation, aim offset).
 	// AC_FirstPersonCamera drives ROTATION each tick (K2_SetWorldRotation).
-	// Without socket attachment, looking up/down causes parallax (gun leaves view).
+	// Without socket attachment, looking up/down causes parallax (gun leaves view),
+	// and the camera detaches from the SKM_Operator_Mono mesh's headless eye spot
+	// — looking down lets you see your own neck/feet. Capsule-anchored = dead end.
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera->SetupAttachment(PlayerMesh, FName(TEXT("FPCamera")));
-	FirstPersonCamera->SetRelativeLocation(FVector::ZeroVector);
+	// 20cm forward of the FPCamera socket. Kinemation's melee/dodge/block
+	// stances pitch the spine forward and tuck the head bone into the chest;
+	// with the camera AT the bone origin, the view ended up INSIDE the body
+	// (rendering the inside-facing chest armor — confirmed by dev screenshot).
+	// 20cm forward keeps the camera ahead of the body geometry through normal
+	// spine lean. BaseCameraX is captured in GameplayComp so peek/bob preserves
+	// the offset each tick.
+	FirstPersonCamera->SetRelativeLocation(FVector(20.0f, 0.0f, 0.0f));
 	FirstPersonCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	FirstPersonCamera->bUsePawnControlRotation = false;
 
@@ -215,6 +225,32 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	static ConstructorHelpers::FObjectFinder<UInputAction> JumpActionFinder(TEXT("/Game/Core/Input/Actions/IA_Jump"));
 	if (JumpActionFinder.Succeeded()) JumpAction = JumpActionFinder.Object;
 
+	// Dodge anim — Kubold FPP sword-and-shield dodge (soft ref; loaded lazily)
+	DodgeAnim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Dodge.FPP_sns_Dodge")));
+
+	// Block + idle anims — Kubold FPP Longsword set (soft refs)
+	BlockLoopAnim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockLoop.FPP_Longs_BlockLoop")));
+	BlockWalkAnim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockWalk.FPP_Longs_BlockWalk")));
+	BlockStartAnim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockStart.FPP_Longs_BlockStart")));
+	BlockStopAnim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockStop.FPP_Longs_BlockStop")));
+	BlockImpact1Anim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact1.FPP_Longs_BlockImpact1")));
+	BlockImpact2Anim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact2.FPP_Longs_BlockImpact2")));
+	BlockImpact3Anim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact3.FPP_Longs_BlockImpact3")));
+	// MUST match Kinemation's MeleeIdleAnim (A_MeleePipe_Idle). Pointing this
+	// at FPP_Longs_Idle (Kubold longsword) made block-release / non-forward
+	// dodge return to a chest-forward longsword pose that persisted forever —
+	// dev report 2026-06-19 "camera shifts behind body and never unshifts".
+	MeleeIdleHoldAnim = TSoftObjectPtr<UAnimSequenceBase>(
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Idle.A_MeleePipe_Idle")));
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractActionFinder(TEXT("/Game/Core/Input/Actions/IA_Interact"));
 	if (InteractActionFinder.Succeeded()) InteractAction = InteractActionFinder.Object;
 
@@ -350,6 +386,12 @@ void AZP_GraceCharacter::BeginPlay()
 	// reads fresh source bone data when copying lower body.
 	PlayerMesh->AddTickPrerequisiteComponent(GetMesh());
 
+	// Hide the head on PlayerMesh — the capsule-anchored camera sits in front
+	// of where the head is (not absorbed by the head bone like the old socketed
+	// camera was), so pitching the view down brings the player's own head/face
+	// into frame. Same trick MeleeViewMesh uses for its own head.
+	PlayerMesh->HideBoneByName(FName("head"), EPhysBodyOp::PBO_None);
+
 	// --- Hidden Mesh: SingleNode mode with direct anim sequences ---
 	// Speed-based switching in Tick. Start with idle.
 	{
@@ -414,6 +456,11 @@ void AZP_GraceCharacter::BeginPlay()
 
 		// Sync ActiveWeapon for BP interface compat (GetPrimaryWeapon, GetMainWeapon)
 		ActiveWeapon = KinemationComp->ActiveWeapon;
+
+		// NOTE: do NOT auto-equip a weapon here. Kinemation's BP camera/anim
+		// components corrupt the camera socket if the equip transition fires
+		// during their init pass (proven at +1tick AND +1.5s — DEAD END
+		// 2026-06-19). Player starts unarmed; equip via inventory key.
 	}
 
 	// Head bob stays enabled even with Kinemation — AC_FirstPersonCamera only drives
@@ -483,6 +530,34 @@ void AZP_GraceCharacter::BeginPlay()
 void AZP_GraceCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (DodgeCooldownRemaining > 0.f)
+	{
+		DodgeCooldownRemaining = FMath::Max(0.f, DodgeCooldownRemaining - DeltaTime);
+	}
+
+	// Camera diagnostic probe burst.
+	if (CameraProbeFramesLeft > 0)
+	{
+		LogCameraProbe(TEXT("TICK"));
+		LogBoneClipProbe();
+		--CameraProbeFramesLeft;
+	}
+
+	// Block animation state machine — counts down BlockImpact lock, then
+	// keeps BlockLoop/BlockWalk in sync with movement state on the view mesh.
+	if (bIsBlocking)
+	{
+		if (BlockImpactLockRemaining > 0.f)
+		{
+			BlockImpactLockRemaining = FMath::Max(0.f, BlockImpactLockRemaining - DeltaTime);
+		}
+		if (BlockStartLockRemaining > 0.f)
+		{
+			BlockStartLockRemaining = FMath::Max(0.f, BlockStartLockRemaining - DeltaTime);
+		}
+		UpdateBlockAnimation();
+	}
 
 	// --- Interaction state watchdog (session 63 diagnostics) ---
 	// Polls Moonville's interaction state 4x/sec and logs ONLY transitions,
@@ -898,6 +973,7 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 	if (bInventoryMenuOpen || bMapOpen) return;
 
 	const FVector2D MoveInput = Value.Get<FVector2D>();
+	CurrentMoveInput = MoveInput;
 
 	// On ladder: forward/back = climb up/down, no lateral movement
 	if (bOnLadder)
@@ -936,6 +1012,7 @@ void AZP_GraceCharacter::Input_MoveCompleted(const FInputActionValue& Value)
 		GameplayComp->SetForwardInput(0.0f);
 	}
 	LadderClimbInput = 0.f;
+	CurrentMoveInput = FVector2D::ZeroVector;
 }
 
 void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)
@@ -986,7 +1063,7 @@ void AZP_GraceCharacter::Input_Jump(const FInputActionValue& Value)
 		ExitLadder(bNearTop);
 		return;
 	}
-	Jump();
+	PerformDodge();
 }
 
 void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
@@ -1369,10 +1446,54 @@ void AZP_GraceCharacter::Input_PeekCompleted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
-	// Block ADS when no weapon equipped or during melee swing / melee / throwable
 	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
+
+	// Pipe equipped → RMB blocks instead of ADS-ing.
+	if (KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee)
+	{
+		if (!KinemationComp->bMeleeSwingActive)
+		{
+			bIsBlocking = true;
+			bBlockWalkActive = false;
+			BlockImpactLockRemaining = 0.f;
+			BlockStartLockRemaining = 0.f;
+
+			// Probe: dump camera state for 30 frames so we see when block shifts the view.
+			CameraProbeTag = TEXT("BLOCK");
+			CameraProbeFramesLeft = 180;
+			LogCameraProbe(TEXT("RMB-DOWN"));
+
+			// Play BlockStart (non-loop) first — the in-motion clip. UpdateBlockAnimation
+			// is gated by BlockStartLockRemaining so it can't yank Start out and snap
+			// to BlockLoop early. When the lock decays, UpdateBlockAnimation takes
+			// over and swaps to BlockLoop / BlockWalk based on motion.
+			UAnimSequenceBase* StartAnim = BlockStartAnim.LoadSynchronous();
+			if (MeleeViewMesh && StartAnim)
+			{
+				if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+				{
+					SNI->SetAnimationAsset(StartAnim, /*bLoop*/ false, 1.0f);
+					SNI->SetPlaying(true);
+					BlockStartLockRemaining = StartAnim->GetPlayLength();
+				}
+			}
+			else if (MeleeViewMesh)
+			{
+				// Fallback if Start asset is missing — go straight to loop.
+				if (UAnimSequenceBase* LoopAnim = BlockLoopAnim.LoadSynchronous())
+				{
+					if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+					{
+						SNI->SetAnimationAsset(LoopAnim, /*bLoop*/ true, 1.0f);
+						SNI->SetPlaying(true);
+					}
+				}
+			}
+		}
+		return;
+	}
+
 	if (KinemationComp->bMeleeSwingActive ||
-		KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee ||
 		KinemationComp->CurrentWeaponType == EZP_WeaponType::Throwable)
 	{
 		return;
@@ -1384,6 +1505,60 @@ void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+
+	if (bIsBlocking)
+	{
+		bIsBlocking = false;
+		bBlockWalkActive = false;
+		BlockImpactLockRemaining = 0.f;
+		BlockStartLockRemaining = 0.f;
+
+		// Play BlockStop (non-loop) first — the pose-out motion. Schedule a
+		// timer to settle into MeleeIdle when Stop finishes so the pose doesn't
+		// snap back to neutral. Same pattern as the dodge return at line ~2654.
+		UAnimSequenceBase* StopAnim = BlockStopAnim.LoadSynchronous();
+		if (MeleeViewMesh && StopAnim)
+		{
+			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+			{
+				SNI->SetAnimationAsset(StopAnim, /*bLoop*/ false, 1.0f);
+				SNI->SetPlaying(true);
+			}
+
+			const float StopLen = StopAnim->GetPlayLength();
+			FTimerHandle StopReturnHandle;
+			GetWorldTimerManager().SetTimer(StopReturnHandle, [this]()
+			{
+				if (bIsBlocking) return; // re-pressed before stop finished
+				if (!KinemationComp
+					|| KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee)
+				{
+					return;
+				}
+				UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous();
+				if (!IdleAnim || !MeleeViewMesh) return;
+				if (UAnimSingleNodeInstance* IdleSNI = MeleeViewMesh->GetSingleNodeInstance())
+				{
+					IdleSNI->SetAnimationAsset(IdleAnim, /*bLoop*/ true, 1.0f);
+					IdleSNI->SetPlaying(true);
+				}
+			}, StopLen, false);
+		}
+		else if (MeleeViewMesh && MeleeIdleHoldAnim.IsValid())
+		{
+			// Fallback if Stop asset is missing — go straight to idle.
+			if (UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous())
+			{
+				if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+				{
+					SNI->SetAnimationAsset(IdleAnim, /*bLoop*/ true, 1.0f);
+					SNI->SetPlaying(true);
+				}
+			}
+		}
+		return;
+	}
+
 	// Don't release ADS if melee swing is controlling it
 	if (KinemationComp && KinemationComp->bMeleeSwingActive)
 	{
@@ -2144,7 +2319,15 @@ void AZP_GraceCharacter::Input_InventorySlot(int32 SlotIndex)
 		// Capture the item DA BEFORE equip — Moonville may clear the slot during EquipWeaponClass
 		UObject* PreEquipItemDA = GetItemDAFromShortcutSlot(SlotIndex);
 
+		// Probe: capture camera state through the equip transition (dev reports
+		// equip "breaks camera" same as dodge/block).
+		CameraProbeTag = TEXT("EQUIP");
+		CameraProbeFramesLeft = 180;
+		LogCameraProbe(TEXT("PRE-EQUIP"));
+
 		bool bSuccess = KinemationComp->EquipWeaponClass(SlotWeaponClass);
+
+		LogCameraProbe(TEXT("POST-EQUIP"));
 
 		// Track slot index + item DA for throwable inventory removal
 		if (bSuccess && KinemationComp->CurrentWeaponType == EZP_WeaponType::Throwable)
@@ -2358,15 +2541,42 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		return 0.f;
 	}
 
-	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	float IncomingDamage = DamageAmount;
+	if (bIsBlocking && DamageAmount > 0.f)
+	{
+		IncomingDamage *= BlockDamageReductionMul;
+
+		// Probe: capture camera state through the impact reaction.
+		CameraProbeTag = TEXT("BLOCK-HIT");
+		CameraProbeFramesLeft = 180;
+		LogCameraProbe(TEXT("HIT-RECEIVED"));
+
+		// Random FPP_Longs_BlockImpact 1/2/3 plays on the view mesh.
+		PlayBlockImpactAnim();
+
+		if (EventInstigator)
+		{
+			if (APawn* AttackerPawn = EventInstigator->GetPawn())
+			{
+				if (auto* SC = AttackerPawn->FindComponentByClass<UZP_ShamblerBehaviorComponent>())
+				{
+					SC->ReceiveStaggerHit(BlockStaggerDuration);
+				}
+			}
+		}
+	}
+
+	const float ActualDamage = Super::TakeDamage(IncomingDamage, DamageEvent, EventInstigator, DamageCauser);
 
 	if (HealthComp)
 	{
 		HealthComp->ApplyDamage(ActualDamage);
 	}
 
-	// Camera flinch — immediate visceral feedback that something hit you
-	if (ActualDamage > 0.f)
+	// Camera flinch — immediate visceral feedback that something hit you.
+	// Skipped while blocking: the block already gives visceral feedback
+	// (BlockImpact anim + stagger), and a camera flinch on top reads as "broken".
+	if (ActualDamage > 0.f && !bIsBlocking)
 	{
 		if (APlayerController* PC = Cast<APlayerController>(GetController()))
 		{
@@ -2406,6 +2616,218 @@ void AZP_GraceCharacter::GrantStartingItems()
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] StartingWeaponItem not set — no starting item granted"));
 	}
 }
+
+// --- Diagnostics ---
+
+void AZP_GraceCharacter::LogCameraProbe(const TCHAR* Phase)
+{
+	const FVector CamWorld = FirstPersonCamera ? FirstPersonCamera->GetComponentLocation() : FVector::ZeroVector;
+	const FVector CamRel   = FirstPersonCamera ? FirstPersonCamera->GetRelativeLocation()   : FVector::ZeroVector;
+	const FRotator CamWorldRot = FirstPersonCamera ? FirstPersonCamera->GetComponentRotation() : FRotator::ZeroRotator;
+	const FRotator CamRelRot   = FirstPersonCamera ? FirstPersonCamera->GetRelativeRotation()  : FRotator::ZeroRotator;
+	const FVector SocketWorld = (PlayerMesh && PlayerMesh->DoesSocketExist(FName("FPCamera")))
+		? PlayerMesh->GetSocketLocation(FName("FPCamera")) : FVector::ZeroVector;
+	const FRotator SocketWorldRot = (PlayerMesh && PlayerMesh->DoesSocketExist(FName("FPCamera")))
+		? PlayerMesh->GetSocketRotation(FName("FPCamera")) : FRotator::ZeroRotator;
+	const FVector MeshWorld = PlayerMesh ? PlayerMesh->GetComponentLocation() : FVector::ZeroVector;
+	const FVector ActorLoc  = GetActorLocation();
+	const FVector Velocity  = GetVelocity();
+	const FRotator ControlRot = GetControlRotation();
+	const FRotator ActorRot   = GetActorRotation();
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[CAM-PROBE %s %s] cam_w=(%.1f,%.1f,%.1f) cam_rel=(%.1f,%.1f,%.1f) "
+			 "camRot_w=(P%.1f,Y%.1f,R%.1f) camRot_rel=(P%.1f,Y%.1f,R%.1f) "
+			 "sock_w=(%.1f,%.1f,%.1f) sockRot=(P%.1f,Y%.1f,R%.1f) "
+			 "mesh_w=(%.1f,%.1f,%.1f) actor=(%.1f,%.1f,%.1f) "
+			 "vel=(%.1f,%.1f,%.1f) ctrlRot=(P%.1f,Y%.1f,R%.1f) actorRot=(P%.1f,Y%.1f,R%.1f)"),
+		*CameraProbeTag, Phase,
+		CamWorld.X, CamWorld.Y, CamWorld.Z,
+		CamRel.X, CamRel.Y, CamRel.Z,
+		CamWorldRot.Pitch, CamWorldRot.Yaw, CamWorldRot.Roll,
+		CamRelRot.Pitch, CamRelRot.Yaw, CamRelRot.Roll,
+		SocketWorld.X, SocketWorld.Y, SocketWorld.Z,
+		SocketWorldRot.Pitch, SocketWorldRot.Yaw, SocketWorldRot.Roll,
+		MeshWorld.X, MeshWorld.Y, MeshWorld.Z,
+		ActorLoc.X, ActorLoc.Y, ActorLoc.Z,
+		Velocity.X, Velocity.Y, Velocity.Z,
+		ControlRot.Pitch, ControlRot.Yaw, ControlRot.Roll,
+		ActorRot.Pitch, ActorRot.Yaw, ActorRot.Roll);
+}
+
+void AZP_GraceCharacter::LogBoneClipProbe()
+{
+	if (!FirstPersonCamera) return;
+	const FVector CamPos = FirstPersonCamera->GetComponentLocation();
+	const FVector CamFwd = FirstPersonCamera->GetForwardVector();
+
+	// Static bone lists — names are the standard UE5 mannequin / Operator skeleton.
+	static const TArray<FName> PlayerBones = {
+		FName("head"), FName("neck_01"),
+		FName("spine_05"), FName("spine_04"), FName("spine_03"),
+		FName("clavicle_l"), FName("clavicle_r"),
+		FName("upperarm_l"), FName("upperarm_r")
+	};
+	static const TArray<FName> ViewBones = {
+		FName("neck_01"),
+		FName("spine_05"), FName("spine_04"), FName("spine_03"),
+		FName("clavicle_l"), FName("clavicle_r"),
+		FName("upperarm_l"), FName("upperarm_r"),
+		FName("lowerarm_l"), FName("lowerarm_r"),
+		FName("hand_l"), FName("hand_r")
+	};
+
+	auto DumpMesh = [&](USkeletalMeshComponent* Skel, const TCHAR* Tag, const TArray<FName>& Bones)
+	{
+		if (!Skel) return;
+		FString Hits;
+		for (const FName& BoneName : Bones)
+		{
+			const int32 Idx = Skel->GetBoneIndex(BoneName);
+			if (Idx == INDEX_NONE) continue;
+			const FVector BonePos = Skel->GetBoneLocation(BoneName, EBoneSpaces::WorldSpace);
+			const FVector Delta = BonePos - CamPos;
+			const float Dist = Delta.Size();
+			// Only log bones within 50cm of the camera — those are the ones
+			// that could be eating POV. Anything further is irrelevant.
+			if (Dist > 50.f) continue;
+			const float Fwd = FVector::DotProduct(Delta, CamFwd);
+			const float Lat = (Delta - CamFwd * Fwd).Size();
+			Hits += FString::Printf(TEXT(" %s(d%.1f f%.1f l%.1f)"),
+				*BoneName.ToString(), Dist, Fwd, Lat);
+		}
+		if (Hits.IsEmpty()) return; // nothing close — quieter logs
+		UE_LOG(LogTemp, Warning, TEXT("[CLIP-PROBE %s %s] cam=(%.1f,%.1f,%.1f)%s"),
+			*CameraProbeTag, Tag, CamPos.X, CamPos.Y, CamPos.Z, *Hits);
+	};
+
+	DumpMesh(PlayerMesh,     TEXT("PLR"),  PlayerBones);
+	DumpMesh(MeleeViewMesh,  TEXT("VIEW"), ViewBones);
+}
+
+// --- Dodge ---
+
+void AZP_GraceCharacter::PerformDodge()
+{
+	if (DodgeCooldownRemaining > 0.f) return;
+	if (GetCharacterMovement()->IsFalling()) return;
+	if (bIsBlocking) return; // can't dodge while blocking
+
+	FVector2D Dir2D = CurrentMoveInput;
+	if (Dir2D.IsNearlyZero())
+	{
+		Dir2D = FVector2D(0.f, -1.f); // stationary → backstep
+	}
+	Dir2D.Normalize();
+
+	const FRotator YawRot(0.f, GetControlRotation().Yaw, 0.f);
+	const FVector Fwd   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+	const FVector Right = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+	FVector LaunchDir = (Fwd * Dir2D.Y) + (Right * Dir2D.X);
+	LaunchDir.Normalize();
+
+	// Probe: capture the camera state for the next ~30 frames so we can see
+	// exactly where the shift happens. Tagged DODGE so grep is easy.
+	CameraProbeTag = TEXT("DODGE");
+	CameraProbeFramesLeft = 180;
+	LogCameraProbe(TEXT("PRE-LAUNCH"));
+
+	// LaunchCharacter sets PendingLaunchVelocity, which overrides the CMC input
+	// controller's per-tick velocity-write — actually dashes. AddImpulse was
+	// getting eaten by input damping (probe shows ~10 cm/s net velocity change
+	// at DodgeImpulse=400). bXYOverride=true is the original Launch behavior;
+	// the camera spike at the previous 700 came from velocity-spiking the
+	// locomotion blend, not from the override mechanic itself.
+	LaunchCharacter(LaunchDir * DodgeImpulse, /*bXYOverride*/ true, /*bZOverride*/ false);
+	DodgeCooldownRemaining = DodgeCooldown;
+	LogCameraProbe(TEXT("POST-LAUNCH"));
+
+	// FPP_sns_Dodge is a Kubold BACKSTEP pose — it only matches the motion for
+	// backward / side dodges. Skip it on forward dodge so the view mesh doesn't
+	// hold a mismatched stuck-looking pose (dev's "forward dodge breaks").
+	const bool bForwardDodge = Dir2D.Y > 0.f;
+	const bool bMeleeUp = KinemationComp
+		&& KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee;
+	if (!bForwardDodge && bMeleeUp && MeleeViewMesh && !DodgeAnim.IsNull())
+	{
+		if (UAnimSequenceBase* Anim = DodgeAnim.LoadSynchronous())
+		{
+			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+			{
+				SNI->SetAnimationAsset(Anim, false, 1.0f);
+				SNI->SetPlaying(true);
+
+				// Return to idle hold once the dodge clip finishes — otherwise
+				// the view mesh sticks on the dodge end-pose and looks broken.
+				const float Length = Anim->GetPlayLength();
+				FTimerHandle ReturnHandle;
+				GetWorldTimerManager().SetTimer(ReturnHandle, [this]()
+				{
+					if (bIsBlocking) return; // block took over
+					if (!KinemationComp
+						|| KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee)
+					{
+						return;
+					}
+					UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous();
+					if (!IdleAnim || !MeleeViewMesh) return;
+					if (UAnimSingleNodeInstance* IdleSNI = MeleeViewMesh->GetSingleNodeInstance())
+					{
+						IdleSNI->SetAnimationAsset(IdleAnim, true, 1.0f);
+						IdleSNI->SetPlaying(true);
+					}
+				}, Length, false);
+			}
+		}
+	}
+}
+
+// --- Block ---
+
+void AZP_GraceCharacter::UpdateBlockAnimation()
+{
+	if (!MeleeViewMesh) return;
+	if (BlockImpactLockRemaining > 0.f) return; // impact reaction owns playback
+	if (BlockStartLockRemaining > 0.f) return;  // start transition owns playback
+
+	const float Speed2D = GetVelocity().Size2D();
+	const bool bShouldWalk = Speed2D > 50.f;
+
+	UAnimSequenceBase* Target = bShouldWalk
+		? BlockWalkAnim.LoadSynchronous()
+		: BlockLoopAnim.LoadSynchronous();
+	if (!Target) return;
+
+	UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance();
+	if (!SNI) return;
+
+	if (SNI->GetCurrentAsset() != Target)
+	{
+		SNI->SetAnimationAsset(Target, /*bLoop*/ true, 1.0f);
+		SNI->SetPlaying(true);
+		bBlockWalkActive = bShouldWalk;
+	}
+}
+
+void AZP_GraceCharacter::PlayBlockImpactAnim()
+{
+	if (!MeleeViewMesh) return;
+
+	TSoftObjectPtr<UAnimSequenceBase>* Choices[3] = {
+		&BlockImpact1Anim, &BlockImpact2Anim, &BlockImpact3Anim
+	};
+	const int32 Idx = FMath::RandRange(0, 2);
+	UAnimSequenceBase* Anim = Choices[Idx]->LoadSynchronous();
+	if (!Anim) return;
+
+	if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+	{
+		SNI->SetAnimationAsset(Anim, /*bLoop*/ false, 1.0f);
+		SNI->SetPlaying(true);
+		BlockImpactLockRemaining = Anim->GetPlayLength();
+	}
+}
+
 
 // --- Container Close Detection ---
 

@@ -218,6 +218,67 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> JumpAction;
 
+	// --- Dodge (replaces Jump on space bar) ---
+
+	/** Horizontal launch impulse (cm/s) applied on dodge. Below sprint speed
+	 *  on purpose: a 700 spike feeds the locomotion blend a "running" signal
+	 *  in one frame, which yanks the spine and the FPCamera-socketed view. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
+	float DodgeImpulse = 400.f;
+
+	/** Cooldown between dodges (seconds). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
+	float DodgeCooldown = 0.8f;
+
+	/** FPP_sns_Dodge — played on MeleeViewMesh. Doesn't drive PlayerMesh so the
+	 *  firearm grip on hand_r is never disturbed; visible only when the melee
+	 *  view model is active (pipe up). Movement impulse fires either way. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
+	TSoftObjectPtr<UAnimSequenceBase> DodgeAnim;
+
+	// --- Block (RMB hold while pipe equipped) ---
+
+	/** True while RMB is held with the pipe active. */
+	UPROPERTY(BlueprintReadOnly, Category = "Combat|Block")
+	bool bIsBlocking = false;
+
+	/** Incoming damage is multiplied by this while blocking (0.25 = 75% off). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	float BlockDamageReductionMul = 0.25f;
+
+	/** Seconds the attacker is staggered after a blocked hit. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	float BlockStaggerDuration = 1.0f;
+
+	/** Kubold FPP_Longs_BlockLoop — held block pose, standing still. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> BlockLoopAnim;
+
+	/** Kubold FPP_Longs_BlockWalk — block pose while walking. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> BlockWalkAnim;
+
+	/** Kubold FPP_Longs_BlockStart — pose-in motion before the loop. Gives the
+	 *  eye visible motion so the held BlockLoop doesn't read as a freeze-frame. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> BlockStartAnim;
+
+	/** Kubold FPP_Longs_BlockStop — pose-out motion after release. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> BlockStopAnim;
+
+	/** Kubold FPP_Longs_BlockImpact 1/2/3 — random reaction on a blocked hit. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> BlockImpact1Anim;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> BlockImpact2Anim;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> BlockImpact3Anim;
+
+	/** FPP_Longs_Idle — return-to-hold pose after dodge/block-release. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	TSoftObjectPtr<UAnimSequenceBase> MeleeIdleHoldAnim;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> InteractAction;
 
@@ -386,6 +447,53 @@ private:
 
 	/** Adds StartingWeaponItem to inventory at BeginPlay. */
 	void GrantStartingItems();
+
+	/** Directional dash on space bar (replaces Jump). Uses CurrentMoveInput;
+	 *  defaults to backward when stationary. Plays FPP_sns_Dodge on
+	 *  MeleeViewMesh (separate from PlayerMesh — firearm grip untouched). */
+	void PerformDodge();
+
+	/** Live WASD input (X=right, Y=forward). Set in Input_Move, cleared in
+	 *  Input_MoveCompleted. Read by PerformDodge for dash direction. */
+	FVector2D CurrentMoveInput = FVector2D::ZeroVector;
+
+	/** Seconds remaining on dodge cooldown. Decremented in Tick. */
+	float DodgeCooldownRemaining = 0.f;
+
+	/** True when the block walk anim is currently loaded (vs BlockLoop). */
+	bool bBlockWalkActive = false;
+
+	/** Seconds remaining where a BlockImpact reaction owns the view mesh playback. */
+	float BlockImpactLockRemaining = 0.f;
+
+	/** Seconds remaining where the BlockStart transition owns the view mesh playback.
+	 *  UpdateBlockAnimation bails while this is > 0 so it can't yank the Start
+	 *  clip out and snap straight to BlockLoop. */
+	float BlockStartLockRemaining = 0.f;
+
+	/** Switch MeleeViewMesh between BlockLoop / BlockWalk based on motion. */
+	void UpdateBlockAnimation();
+
+	/** Play a random FPP_Longs_BlockImpact1/2/3 on MeleeViewMesh. */
+	void PlayBlockImpactAnim();
+
+	/** Camera diagnostic burst — frames remaining (decremented in Tick). Set on
+	 *  dodge/block. Each tick while > 0, dump camera world/relative position,
+	 *  FPCamera socket world pos, PlayerMesh world pos, velocity, control
+	 *  rotation. Lets us see exactly when the camera shifts. */
+	int32 CameraProbeFramesLeft = 0;
+	/** Tag for the current probe burst ("DODGE" / "BLOCK" / "BLOCK-HIT"). */
+	FString CameraProbeTag;
+	/** Dump a single-line camera diagnostic. */
+	void LogCameraProbe(const TCHAR* Phase);
+
+	/** Per-bone clip diagnostic. For PlayerMesh + MeleeViewMesh, lists any
+	 *  bone within 50cm of the camera with its distance, forward-axis position
+	 *  (positive = in front of camera), and lateral offset from the camera ray.
+	 *  A bone with fwd>0 and lat<10cm is literally inside the camera's
+	 *  near-frustum — that's POV-clipping. Runs on the same probe burst as
+	 *  LogCameraProbe so the dev can correlate body bones with RMB/dodge events. */
+	void LogBoneClipProbe();
 
 	/** Reads ObjectClass from a PDA_Item via reflection. Returns null if not a weapon. */
 	TSubclassOf<AActor> GetWeaponClassFromItem(UObject* ItemDA);

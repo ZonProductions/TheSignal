@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-18T12:26:30",
+  "created": "2026-06-19T12:21:04",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:eacb677a585f75187686ce01d245a91a00066f362386c05f854e2792e484661d",
-      "size": 7105356
+      "hash": "sha256:93840efa272b75323f4a13a2982ed2e28d82ddc15b470abf29c817f2db0b6b92",
+      "size": 7105762
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -22892,8 +22892,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:25f1ee5ce25c47213e7ea13bc7c1d985478d3ca221f04eb816d67a9aa453d938",
-      "size": 129709
+      "hash": "sha256:d80b5a07de3339e65572ff52193d6e31c22467ce1b1317b9d7943f0deb20f746",
+      "size": 130295
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -68008,24 +68008,24 @@
       "size": 2716903
     },
     "Content/ResearchMegaPack/DecalPack/Materials/Master_Material/M_Decal_1.uasset": {
-      "hash": "sha256:dda2215d0e7d5ec87e3aa24ba05ac4c2916a14222b5991d66c0b131e632aaabb",
-      "size": 121331
+      "hash": "sha256:7f45ddde344e49ae8bc7e92a14dc9c2233d40fa729f7e649e1a10f42226e50bf",
+      "size": 44753
     },
     "Content/ResearchMegaPack/DecalPack/Materials/Master_Material/M_Decal_2.uasset": {
-      "hash": "sha256:3025ec3d9828774ff260f6b80699c493c8019121bbe92a9cc60095f4ea21e592",
-      "size": 93032
+      "hash": "sha256:830bd6d4ef1734d340f60b43898f485b4a65e00906c4c1865e852948839ba00f",
+      "size": 11157
     },
     "Content/ResearchMegaPack/DecalPack/Materials/Master_Material/M_Decal_3.uasset": {
-      "hash": "sha256:c3663eb3349fb1efef84b7e503bc9762d884b61419b674d665f1c3ff2060cb97",
-      "size": 95634
+      "hash": "sha256:73630cff96cc5fd28e3be6f8cb2b5294548ef9f2329fc411636969883f00ff59",
+      "size": 13026
     },
     "Content/ResearchMegaPack/DecalPack/Materials/Master_Material/M_Wall_1.uasset": {
-      "hash": "sha256:a1af227bf2ea3c7f12abc3d4b86fec7a5f19f582aa6f9f574d2070a97a0b73f1",
-      "size": 105755
+      "hash": "sha256:ca77f1217ce29e5af6159e73a429cf0708b23ec9cf5476d40d47e6a711c7d765",
+      "size": 13026
     },
     "Content/ResearchMegaPack/DecalPack/Materials/Master_Material/M_Wall_2.uasset": {
-      "hash": "sha256:c18c0cff5c1020cd1ddb0b4216fb4a6bd3b9c9c830c45bea3c22f64d7d743963",
-      "size": 91883
+      "hash": "sha256:404f9f004bac02cfb56611713406273f94942b12c0aa4476d807d3bf738aaca6",
+      "size": 13779
     },
     "Content/ResearchMegaPack/DecalPack/Materials/Master_Material_Instance/MI_Decal_1.uasset": {
       "hash": "sha256:638da08357f7efd79e7e7fe8d8370cd0b0bef1ce68f1a867239b1ac0f0b9275e",
@@ -72124,8 +72124,8 @@
       "size": 4320929
     },
     "Content/ResearchMegaPack/KiteDemo/Environments/Foliage/Grass/FieldGrass/M_FieldGrass_01.uasset": {
-      "hash": "sha256:67b364dc2b70bea18e3b565d55bab4f888d4e53a268591060c3f0d9faa87241e",
-      "size": 205739
+      "hash": "sha256:9ebaa59fdef3987ceae44441f84af163add8198c3f8a808207272761af768314",
+      "size": 208783
     },
     "Content/ResearchMegaPack/KiteDemo/Environments/Foliage/Grass/FieldGrass/M_FieldGrass_Inst_01.uasset": {
       "hash": "sha256:c49f40e3deb877e9fd0c23e0fb8988fc282d37bdd7ced6962723b32afaf76802",
@@ -72216,12 +72216,12 @@
       "size": 11799449
     },
     "Content/ResearchMegaPack/ResearchCenter/Map/ResearchCenter.umap": {
-      "hash": "sha256:5e7a1edbce119a494b68f2054cb3d37d1e2bc9896e38d27e15a64cc72f249abd",
-      "size": 3568694
+      "hash": "sha256:5e24fb17ad032c00a4477a3f2cc9666411bb49a78f7b72feaeab71fb3adbab10",
+      "size": 4410422
     },
     "Content/ResearchMegaPack/ResearchCenter/Map/ResearchCenter_BuiltData.uasset": {
-      "hash": "sha256:46ee7d18f8548c25dea28ea1bce473d10024fc94a505acbd9e21c0ba3d721850",
-      "size": 21256826
+      "hash": "sha256:828ec160a8c1d8dc9fcace0feb304d33ca09801e456b11cc15ced7b7c6858a33",
+      "size": 21098600
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/MI_Water.uasset": {
       "hash": "sha256:6c376f46c51057187d21aa4e8443870ce9bf54e2ed7de6b8491da93a1589023b",
@@ -72232,428 +72232,428 @@
       "size": 83947
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Barrel_1.uasset": {
-      "hash": "sha256:3a0b9d98041d6868565bda1f1ee3d3e3c5b093dcabbd898bf19f6d855d1a6452",
-      "size": 127596
+      "hash": "sha256:2a914143d58cc0c1f0d852de47500af5ccfa698183abfa3e87b2f22375279aee",
+      "size": 12738
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Black_1.uasset": {
-      "hash": "sha256:64f90e3e2ed4b9e8de63d5deb94680d22d622124fb6a76677603be5ecfe79517",
-      "size": 102128
+      "hash": "sha256:b9f56e631e9a09baab39bac67c9c63da0fb0490c06ca634642d53197e4c4864e",
+      "size": 10352
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Box_1.uasset": {
-      "hash": "sha256:701d204313961580fcf80cd2f0a7226f8c8de6e862d9bfef076dfd794ea11b5a",
-      "size": 111826
+      "hash": "sha256:3b37b1b61b891700249f86e93f236056eefabe1044432a7451431f595d4726a7",
+      "size": 114206
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Box_2.uasset": {
-      "hash": "sha256:f055f54fadcefdd832e38ab851e4c96f701be69f0bdb14b2208155db40d97332",
-      "size": 121771
+      "hash": "sha256:2b04bd9c0fb97058d605ba801f973657ef7e111e13e71e144b0ea268593ceac0",
+      "size": 13545
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Box_3.uasset": {
-      "hash": "sha256:b5dc10b91144064f4950975b984b2d23861a71a02ab6f20fcdcf4575daa0d258",
-      "size": 90748
+      "hash": "sha256:03daf5e315c51202952df4292bae4bc0afd48678c8bcf3f7aaf836c2be416798",
+      "size": 12936
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Box_4.uasset": {
-      "hash": "sha256:8b867ae213973e820ff4a67a729e1a9f705d71b3c3cd90352da01dd00bade3a4",
-      "size": 98715
+      "hash": "sha256:f44ef8d07f74823c348946ff162e30a964449633a1138a8467a7c5179133ed57",
+      "size": 13177
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Box_5.uasset": {
-      "hash": "sha256:bf40b56a5bc4cad44d08bd7705183dd6a92cc1715f8094f82e309acbb1c1a9e3",
-      "size": 119398
+      "hash": "sha256:52c7f894a5786658231881d59d57b25d30d063809bd40dab765aeaa1b3782ba0",
+      "size": 13106
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Box_8.uasset": {
-      "hash": "sha256:387d61c4e29b073f0ec687d0d5485d8d35cb4066072d04cd311dd7ccf0defb2b",
-      "size": 140904
+      "hash": "sha256:81cb7515cae24d6bdf2326fbb354e4b61ce960dbc55fbecd0727d152c93e0035",
+      "size": 13307
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Box_9.uasset": {
-      "hash": "sha256:c046729326696766e8a444c65a8c676cf8236b760cfe5bffad3973ab91d80a55",
-      "size": 109902
+      "hash": "sha256:6b88e4c79817b45f299090f458813a12beb80de9785ea3ed64347a1d637101b4",
+      "size": 13396
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Cabin_1.uasset": {
-      "hash": "sha256:1985144edfcd056951e9275445f4e72871930b2f494d3fe0237baab4ee1c0e20",
-      "size": 120803
+      "hash": "sha256:47fb9f564a1e1bd716436c5f0bf2ad2addb08453543b718617dacf070894db52",
+      "size": 13126
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Camera_1.uasset": {
-      "hash": "sha256:be7a3323efd3dc09a802fb5add06a58e0e7cfc61465a851aa4d021603b231f3e",
-      "size": 112996
+      "hash": "sha256:78f72464e5f0478a5662ba9255b54504be3453bd30ecafe33a26a8610e2f2143",
+      "size": 115364
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Chasis_5.uasset": {
-      "hash": "sha256:7711597faeccd751d6b0dbef8902e046e8d7c83a3b5ce3e4e879e72b6fc6fec7",
-      "size": 108758
+      "hash": "sha256:aea611cf7c573581275b04e356e5baef5d7e433e3232a19ed9710e89654a0c91",
+      "size": 13217
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Chasis_6.uasset": {
-      "hash": "sha256:d3dd1415d4931501afc3df93485da111a6d21c8a862b744ba4ad8a1dcc2b10ee",
-      "size": 108255
+      "hash": "sha256:848cfe358111a7369ba671ab3a8c4c35273274be64007f5172ced9882f6660e2",
+      "size": 12725
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Chasis_7.uasset": {
-      "hash": "sha256:937c99ba8b15c06fe903955ea24419750cd1e2adbd6cdef4542a1fc2182c5270",
-      "size": 111148
+      "hash": "sha256:5545ae57b1bb2995766cc4ed7e293a057160eeb7437c9bcf9437f940e3fe4924",
+      "size": 12549
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Chassis_1.uasset": {
-      "hash": "sha256:13fd4498fb84d67fca13d26c03148ef6c2e495747c6fc8d5d2a95f80a054da7c",
-      "size": 107502
+      "hash": "sha256:744ff15274266ecadd8d0ba0a05c82d81f0c3dbb65d6e5bfffad47832a51acf6",
+      "size": 12434
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Chassis_2.uasset": {
-      "hash": "sha256:24d59575cbe8ecb0fc78234c1ef3dd7323683341d0a91369eacb934465857643",
-      "size": 112077
+      "hash": "sha256:e16b06604c5994827e5cbdee4bccbf9ba421e28d820566d25aa03af0b87987d1",
+      "size": 13648
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Chassis_3.uasset": {
-      "hash": "sha256:5339b87d6e65079e538c816de31d5a20d0a6e0199f1f31b81cfb9d4389a9a0c2",
-      "size": 104103
+      "hash": "sha256:d5fa0df0e255a3636a6550da26fe76b7333ae322ba063ff686b1d677c5391cbe",
+      "size": 12431
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Chassis_4.uasset": {
-      "hash": "sha256:ccef386fc97bb0e069c1c63a825b25e57225465c337331773bce62b92c08ade8",
-      "size": 103147
+      "hash": "sha256:d52031f2bf21816f9e43d14452a6701b997b8703669755302857ce36a1aef5fd",
+      "size": 12235
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Colomn_4.uasset": {
-      "hash": "sha256:456f79770f75af652807a6a1ba59077d16d642a2c34868b2391b2b8cfe0347ca",
-      "size": 128001
+      "hash": "sha256:0cef8f38b8e5042520ac29112cbbeabc517668949d7648735f3fd4beb3e6dd8b",
+      "size": 20342
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_1.uasset": {
-      "hash": "sha256:bb8c9d211efb0099d76308932a4fb7920c009607a25ea3019ed5074880c6bad2",
-      "size": 121761
+      "hash": "sha256:0111201bd8a339b5c5acb9686f4caf036abed2e37f19246eb38bd104a054676e",
+      "size": 17789
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_10.uasset": {
-      "hash": "sha256:42aa4b5f4228c3a17bc6da3a1860e971b597db5633ce93f979e9b7f754c1f875",
-      "size": 115531
+      "hash": "sha256:3ee210b44f47d66f5118ef22bef264387df8eb4f54a0bef4c6686130a9bd834e",
+      "size": 13822
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_11.uasset": {
-      "hash": "sha256:444cf57ca3da57a4766ac62926b326d0b2bf4d174cfdf1f813c601f41e967edd",
-      "size": 110815
+      "hash": "sha256:17c06eda537a65b730d06ca07ad0fdba4c6a65e3add0b79aeec440e9eb3878ea",
+      "size": 14059
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_12.uasset": {
-      "hash": "sha256:a88fd04dcd6e099db81baefc0896cf1e221f176ec7b29857b4a6cd84d93e1a8b",
-      "size": 100532
+      "hash": "sha256:bd7cf7e7af6a9873cf3e6a40f78fd0cf61bbbf12cb9d068129070929f2c1db6b",
+      "size": 15511
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_13.uasset": {
-      "hash": "sha256:5b89f6fd5d879f15f63a643484cc80df59f425ee408d8b258049d0b14f9c003f",
-      "size": 99500
+      "hash": "sha256:bf44dc5f021ab5c43f5da6794dbd21819bf15d6f55377d189306069e9320c2e1",
+      "size": 12154
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_15.uasset": {
-      "hash": "sha256:79cd1ca48f8ae7fc27fbacc225d5f68489639bcbc76f2fb674c39ef2c2acebd0",
-      "size": 96322
+      "hash": "sha256:aab5ecae61a9f81d0a668ee7390ef43abd4f7297390e5dd680b1144290d79e85",
+      "size": 11413
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_17.uasset": {
-      "hash": "sha256:d55245f93bd68d9e02e8f50b00629cba0446ff828c3cab477e961819fda1c3dd",
-      "size": 142638
+      "hash": "sha256:23716e3e5432640e887c34129bd096aa0b80c6ae87de5477888820b08b714af8",
+      "size": 19201
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_18.uasset": {
-      "hash": "sha256:63573c1f1646110ef9ffae6ad19f07a0e7fe3c8074bf8868e50444d139860a69",
-      "size": 128575
+      "hash": "sha256:4dc36500df27b68b48709fbc9f5880c253cb6c9bfd8fd0ba582a38c805ac22d5",
+      "size": 18741
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_19.uasset": {
-      "hash": "sha256:e087cd544356b4847c4eaef6710394bb9d76516328073a3ebeffb76077326238",
-      "size": 108428
+      "hash": "sha256:7f5dbd30cbf92df175c5cbe203838df4ecbd7a6e8f7d266267e3e3c9fad9c4af",
+      "size": 15707
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_2.uasset": {
-      "hash": "sha256:49e047e9184babae30aba94f27941d64100e5de4b10f8cd2e46ce91ee4aee6fb",
-      "size": 116645
+      "hash": "sha256:37db313b430422bcda057e4df4da727f25f5ca02c61d61f56e37fafa2c73f750",
+      "size": 15404
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_5.uasset": {
-      "hash": "sha256:de07aeef4b0f86ad3d65d16bd836ee03e97673d7f9b82eed269348032e3cf875",
-      "size": 141106
+      "hash": "sha256:352d2671396f04fb2c7cc3af1ae4c9da7aefedfc9a410691238442de6079dc13",
+      "size": 16163
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_6.uasset": {
-      "hash": "sha256:de58e04cd02b0e2bb334ee62421d0593e78ccad19de491fc751c9c13b6dafcbd",
-      "size": 131171
+      "hash": "sha256:6103549eb35444327ebc292eaa63fa3f02da093eae40cd383fcf13df4dbc090c",
+      "size": 18142
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_8.uasset": {
-      "hash": "sha256:e329249cee8f965fcb6fefe75b7c6833bb230d8bb5e5e8d3c4b10a3757c1c21c",
-      "size": 105621
+      "hash": "sha256:e193f1b2e32e22050f8cd8180e6885a7b68a983031bce01140e7003c91e4390e",
+      "size": 15860
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Concrete_9.uasset": {
-      "hash": "sha256:b6350b36d31241dcb4fd14f3a31af6ac69ca6d7ceb83a185e87d917af0b1776f",
-      "size": 108426
+      "hash": "sha256:f71db8b0c932768165531e66c10aa9f9234aa7679ae21fc585dab06fb4ade90c",
+      "size": 15703
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Container_1.uasset": {
-      "hash": "sha256:04ef8c27e20c082bd1380a3f1526d4b3b2b12fae879594b86af1198cab5cdb5f",
-      "size": 120366
+      "hash": "sha256:37739bd8dce66926f4e0792ed94d39411f520d0423658fc10d956f9f4cb6747d",
+      "size": 12772
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Container_2.uasset": {
-      "hash": "sha256:dee3ff6be069fdeb0f55da53cf649227b784ee39f283f53e37c25ed3d79e83c4",
-      "size": 109868
+      "hash": "sha256:6abd421a36f3f70e548cbc08f2042a823c0055c311c3030f9df5c5490753a949",
+      "size": 13069
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Container_3.uasset": {
-      "hash": "sha256:153f177c7ab58cc79df990c0b3043b81567805db03e10d112e7da0d1ef0559dd",
-      "size": 115559
+      "hash": "sha256:25414d0c2060958701654642295f21d9e05fbba22c0156bb837224df503a707a",
+      "size": 16580
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Container_Door_1.uasset": {
-      "hash": "sha256:fed7714bbf2b9c7822dfb16c41650154476d608cc8e702ef45cfc6e7137acbf3",
-      "size": 106713
+      "hash": "sha256:1376844fdfc9d62286d9c5fc27f8556dc6b2242758fea1636c153f98c217a3f2",
+      "size": 12440
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Corner_3.uasset": {
-      "hash": "sha256:6055f68b0efe5d45840f1d3bb4e5ff7574ff3992f5b81790f7b23081f277db81",
-      "size": 118552
+      "hash": "sha256:29933826b64b7f890db54f3d693723cd0baeb43a9486fb2de5377a15f4d6ce24",
+      "size": 13395
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Corner_6.uasset": {
-      "hash": "sha256:22d98acb243054d64b4f427a68a19806136826ab8aaa91dc96e116f7ba87d3b4",
-      "size": 115791
+      "hash": "sha256:6508c2c45ce832517b56758ed51232db063070ed9fc1ce7d126ce06e08976979",
+      "size": 13215
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Cover_1.uasset": {
-      "hash": "sha256:46d38c718de59d07c289a8c12e04e7eb9d976cd2a9cf064dd957f10520310007",
-      "size": 105331
+      "hash": "sha256:177903a7170ea20c58334199873e6f2618b2ef9a858cecc2498b14998a1e5422",
+      "size": 12120
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Decal_3.uasset": {
-      "hash": "sha256:96498bda36de7650d45de79ac30c44eb0b8af81907687732a6a34376c7626b10",
-      "size": 77816
+      "hash": "sha256:a9612fa90048640b1d00be7b15efb71bc5e965760268972da33a6db6d6be7f60",
+      "size": 12039
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Decal_4.uasset": {
-      "hash": "sha256:cfb8c588147678f372d970ec21471dd9c886a953e5f3e6d0da4436ec52a590e6",
-      "size": 86474
+      "hash": "sha256:ed40b7598a26c71d8c0d100c6b2e6a628b97e28b468a2f5a1e790abefbba8d07",
+      "size": 11708
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_1.uasset": {
-      "hash": "sha256:6ffa6198a0e4f3b06f0e228866d4c1a6a77fd1488115bd2923f1eb4a7562e1b0",
-      "size": 112089
+      "hash": "sha256:65048426ab8acca994dafdf54ae25a71940f156f7995a580723707abaf5092b3",
+      "size": 13128
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_2.uasset": {
-      "hash": "sha256:91244c6a8d05207fcfdfaf505d4c6bfbe86e4dca6da2e0a61e1a1871c4c4e412",
-      "size": 112826
+      "hash": "sha256:adada99f50647100d65917494983264b3972473a92c95f33fd4312f9487b7795",
+      "size": 12902
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_4.uasset": {
-      "hash": "sha256:d1aa1bfc586221a01ed1f76662a9c31e76f62927dd9f330d3e7e141629b69e1a",
-      "size": 103260
+      "hash": "sha256:de2925bc887de1e4175e2257414be461290c8d54686fd79b12ff72c685c2a880",
+      "size": 12584
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_4_2.uasset": {
-      "hash": "sha256:2d0ceeadf7c913d557ed67bd76656f2e73fdf0d633631dc02ea6a054d17b9b41",
-      "size": 109541
+      "hash": "sha256:1d9e5008c7282cd6ceb4289b933e4a6db1ef76f6d2b22ead65084569c503ccbc",
+      "size": 111909
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_5.uasset": {
-      "hash": "sha256:8d97555ad6931018daba8c745602e00d3e0054ff24c734022b3894c4f9b16d85",
-      "size": 107591
+      "hash": "sha256:dc35f4f7a3840f4ff733b8e4503a550af11e39407b5e61a2c003d37d2ad6465c",
+      "size": 13028
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_6.uasset": {
-      "hash": "sha256:d415aad0814fb77b09cdfe79c4aecb22526805baaa463af8e1004c2be63f8d6a",
-      "size": 99610
+      "hash": "sha256:8e01710efdb89b8bbb2db6c3e6ac4365d7cc27f45f04e7eaee44b49cb6216478",
+      "size": 13404
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_7.uasset": {
-      "hash": "sha256:021bb42aa3a7867a42280cfd806794c3155bd9ee35176f1d18b29682628c8ace",
-      "size": 105023
+      "hash": "sha256:f61826b4e9bed76d3295497fe9d5cfa2614ae1016c766e7c887fd5751ded1d98",
+      "size": 12094
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Door_Corner_2.uasset": {
-      "hash": "sha256:9fa5ec3edf7a7443ece14612e74260eb66c0b10838ac3d093635f847fe922d3f",
-      "size": 117303
+      "hash": "sha256:7de3a70e72966dd23aeeebf9b8da04f2d674d4429b2f9fd9b94bc175eab2de32",
+      "size": 13589
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Elevator_1.uasset": {
-      "hash": "sha256:5f0a1a2ccea8587a14c525a870b5ea7e13f7792c9e4dbc35822449235ef84af0",
-      "size": 108041
+      "hash": "sha256:3bd231f39a7d3160d7273bdcca84440a0f50513826c61ebf1cf90eec9681a724",
+      "size": 12668
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Elevator_Ceiling_1.uasset": {
-      "hash": "sha256:392cd4393b9d676d36d2de790596d5ec3de530988c8c7aab0e85fc11d149c57b",
-      "size": 100114
+      "hash": "sha256:009dcc83bde86266c78be682afaf85a245bde13536b002501a6de780642a3a1a",
+      "size": 13491
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Emessive_1.uasset": {
-      "hash": "sha256:5504cd312277f0bb3bce13ffb21599e3317af3ca5a9137ada4577834737430bd",
-      "size": 58286
+      "hash": "sha256:1b1cf97c6782a3821df98178407dcc38899162a6ec767766f2588a16bc545363",
+      "size": 10647
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Emessive_3.uasset": {
-      "hash": "sha256:9c7fd4aba0af4cec555700dc63fbd213f4a62bcaec9156b68d97942bfa7fdcd6",
-      "size": 31628
+      "hash": "sha256:3b8871143a2034b9fab3c85c7050be8e01fec64675cd3c50ed94d3194bedb589",
+      "size": 9385
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Emessive_5.uasset": {
-      "hash": "sha256:d18a175a5791954d420625b5da4c6e12ee6a6bffe25df4bf31c379ee0145674d",
-      "size": 81074
+      "hash": "sha256:bf69b896ec6fafb252f948ea4a6787d1cd9d27951e8ce6295a6e81aeda56a2b3",
+      "size": 10896
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Fence_1.uasset": {
-      "hash": "sha256:e973166b4f46543d1aca74d34060e8d538421c9223d510fa9d4f343b3d92a6a1",
-      "size": 143733
+      "hash": "sha256:a496bfe8028200990eda7fe10a4f62dcc4319d2a870089c6e205248c59e2a903",
+      "size": 23492
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Fence_2.uasset": {
-      "hash": "sha256:48374f70a683bf6e2e2f49f2e79b2794b5c2f76029cffd9b848e31d72b068e5c",
-      "size": 137955
+      "hash": "sha256:543f0f85c1ba7008933e3f4e9af9487fa0cd69502cd4a170a07ee07a40b3c43d",
+      "size": 22769
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Floor_8.uasset": {
-      "hash": "sha256:edeec8da62aa51ff4112cea57139f562a7bf6e663181d9d7d6c3cd5a9f4308f6",
-      "size": 103120
+      "hash": "sha256:f1f62826816c2d2ef165de169dc74708c72e7e53fbb9a6aa1fb26b2b854e3378",
+      "size": 12644
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Fog.uasset": {
-      "hash": "sha256:f2abbfe77a4de3fedddc3ec743f4e2ec264ff9f859a9b3d44fba83867228b49e",
-      "size": 91153
+      "hash": "sha256:146149a8364658c3a7e99c950f66e4e5dd17f97f1a46444318a2e134bc68907e",
+      "size": 25807
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Fuel_1.uasset": {
-      "hash": "sha256:1244ed020cd1b4ae98be6915034391efbc75fac88ce1a3f2b6c2b6a64e504adb",
-      "size": 106906
+      "hash": "sha256:428bdaf9996ada351504bec722ec645b76dece9941ba9f366dc445e5dedeee5a",
+      "size": 12354
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Glass_1.uasset": {
-      "hash": "sha256:4c78b4b57cb3298ee9cc090f5b39adef17968e9aec197c34b929f4d07e211b38",
-      "size": 80974
+      "hash": "sha256:38f01273eba84287cf19035ff557593afce5eb1e5e5345eacefcb8a9ad05f6a7",
+      "size": 83259
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Grate_1.uasset": {
-      "hash": "sha256:70167f442452b991560976d6a64d1fe2e34f124fba4746d4070434f03a3dfb35",
-      "size": 107942
+      "hash": "sha256:d86a763439fc4e6e3119d258efc86e2e44de14803d8204945802cf93d7c38e3f",
+      "size": 14858
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Leaking_3.uasset": {
-      "hash": "sha256:2108e037de52a67ca257cc86a0fb651c5b2d1e62712718bea36e8c249a941e6f",
-      "size": 128917
+      "hash": "sha256:1bdb8ff9fb283d4d7131ece56210d01f8326f2486728ada3cfc46d520e77c4de",
+      "size": 12853
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Light_6.uasset": {
-      "hash": "sha256:6b24188a1fb8dde30c6d69724dfe029667452193f94b53f8572dcaa6b8363a34",
-      "size": 120205
+      "hash": "sha256:fd86b9900400ee7246b26d565fa9599fe47732c50812aa18017b3b1ab4769f61",
+      "size": 13888
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_1.uasset": {
-      "hash": "sha256:572860349569a7b7c20703e4f7047317a34f8c26d2b37c6514ab9c7cbcb37fbd",
-      "size": 117111
+      "hash": "sha256:83d1d674dfa42dcff90c61857b6830c6aeb65a85720da4d696cb737df2839d9f",
+      "size": 14054
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_13.uasset": {
-      "hash": "sha256:2088e1cd636deca3bec2e58aa1854f63a317794dd55d20f89801662e46361d08",
-      "size": 128867
+      "hash": "sha256:b21acbcc2c2912decc9b5c761194bf78e97acef70d163bfff7e88e543d6b87b5",
+      "size": 26379
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_14.uasset": {
-      "hash": "sha256:b352c910d44164f89c741700a0be7909cfeb69e99f13cf2a46cf1b4ca796882e",
-      "size": 109937
+      "hash": "sha256:bb1c731cd46c803378cd44638355031d68887f2ee69d1335563c9bc6fda87b8b",
+      "size": 16232
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_2.uasset": {
-      "hash": "sha256:2941bb446f648590d552579e40fb0459014dcd22459ddcbaa3e6ed1700ea31b9",
-      "size": 147780
+      "hash": "sha256:0a9f58924102c4d00360ebaa9a9d0a1351fa8ca07ecf224216f740624dca0c60",
+      "size": 26106
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_3.uasset": {
-      "hash": "sha256:20be22d1364f166d9d770ec94eab09c6c192e8d5ba64eeb51d7d2b58cd2beccb",
-      "size": 140418
+      "hash": "sha256:26fe831017acad37bdc7a62beaa5d5bfcc2924f19dc09bb9f17789a1f490d2f0",
+      "size": 18162
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_4.uasset": {
-      "hash": "sha256:f456538f377aa1d0cb561a39c4354ce55664d8403038729016a5e9cfc790595d",
-      "size": 133316
+      "hash": "sha256:888f42e6f339a89c85f7c0c79659c09a62edc93a7e557b2a1b188a5a771b4d13",
+      "size": 17658
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_5.uasset": {
-      "hash": "sha256:8c7e47b207f5dfcf3e3290a7b863022fa5cc6824f20f726d918eae97caecfc99",
-      "size": 137196
+      "hash": "sha256:39fa8ad03b54ec318877376d5c7705a006dfee254eb3ce415bd1be01d1644e0e",
+      "size": 15904
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_6.uasset": {
-      "hash": "sha256:b349f62e0aa30c60b17b23a67d7c97b908d22788b5f9544f3b9da116bd8f659a",
-      "size": 112009
+      "hash": "sha256:fdc599202693f0c0946da7390a0cf1c859badda4aefb0e3b2d0f76fb7fa894e1",
+      "size": 12139
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_7.uasset": {
-      "hash": "sha256:dc838f75e68d69b448cb80e6faffa831581784a89f5b0bd73bdaece866c5af1e",
-      "size": 109895
+      "hash": "sha256:51666131c305cb30b684784e99969a3ee1c2b13569e82abdb8869055ad2911a1",
+      "size": 12870
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_8.uasset": {
-      "hash": "sha256:61cdd6ccb4e357413f355508f6d21fe1b8fde76fb4ba15c3402528444175c5e0",
-      "size": 126985
+      "hash": "sha256:062a3e53f4de32f965faab2b62b98ec25541a048c13d4e43f18aad2ac410861c",
+      "size": 12771
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_9.uasset": {
-      "hash": "sha256:1ae4b899107a584c2e2779f4f519fb385e75a167a1a51dacb58f92c1aa19ef8b",
-      "size": 128341
+      "hash": "sha256:6922c9fcacac5d12c55e54561fa20f715c77145852d453dafe3eb43b3879032b",
+      "size": 17130
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Cabinet_1.uasset": {
-      "hash": "sha256:e6690fd460f8c661acfb0950f526488162f988d3fc5af8efff6f46e598921770",
-      "size": 110533
+      "hash": "sha256:c33af81691c4ff93a6627c1f30542caec8e1e8b58cc7b3bc149f142d3f3b9b6c",
+      "size": 12963
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Cabinet_2.uasset": {
-      "hash": "sha256:6b643334c53c8c120438791d08790cdd706283c2eca496401478cf571cf62905",
-      "size": 105572
+      "hash": "sha256:cc12db6f2e3a897ba9d41e659c74d27b38d8453bf51d77c751cd6c20af9698f8",
+      "size": 12603
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Colomn_2.uasset": {
-      "hash": "sha256:a6552e57126fb35eb98e1f5f8bf630c2b56d5d39be5b090caa9df18fafc15875",
-      "size": 114255
+      "hash": "sha256:973fb54042a1686af68fd0ea8e319d774ed8e5d6d9fa3e089c0a5fadb825258d",
+      "size": 13129
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Detail_1.uasset": {
-      "hash": "sha256:3cbe0271d17e6fca64bf4b6ae8ed89bce92cba9efd515f2e823f58799071da88",
-      "size": 119962
+      "hash": "sha256:056cfa95e7f2a4914ca2425532ef30b4244ae3c0ef4317221a860bf22e94256b",
+      "size": 13869
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Detail_5.uasset": {
-      "hash": "sha256:27108b9e656689879c19dbd1f92b622012f695bc868cda71f1f259cf11de2214",
-      "size": 107105
+      "hash": "sha256:f76aa21ea29cd59bb30a4ecb85a2774b58b68d36e47de20b191f092e4079fc77",
+      "size": 13038
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Door_1.uasset": {
-      "hash": "sha256:dd0c65b04fa306a7ffe8b47c5a8c4dd28a662d09ad7a48d66c6856bcf2d36787",
-      "size": 111562
+      "hash": "sha256:4186ea25935ea8b5c70b8c5bbf52fbc4bb67ab35f34f714101dde821859e6c8b",
+      "size": 15916
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Door_2.uasset": {
-      "hash": "sha256:daed7a09ab11ab32ebcfdc081b17f64baf6d0f0067d7b31bffdb44a7edc5f183",
-      "size": 107275
+      "hash": "sha256:d8f0a9203776abb17fa05dd2a657d481d88ea8baa5e2a779f2ec2c19e94f41cf",
+      "size": 13462
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Metal_Floor_1.uasset": {
-      "hash": "sha256:ed7351e1328bff48f8db88c359376771ae17801cf6f95b5a98a601b277cb945e",
-      "size": 106846
+      "hash": "sha256:305d7a2ae1c50a4e3a7522b1b60ebd6506c1acbc3351d7aa41e32c0410996768",
+      "size": 12125
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Patch_1.uasset": {
-      "hash": "sha256:ce966272357e12a73221ae262a79f22be66144d960a22e9cc67b512523b47b82",
-      "size": 101219
+      "hash": "sha256:42be3c8e9fe517b383902f2a727d878c30b46ff07b693dbd5b709cf5ea4df91d",
+      "size": 12401
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Patch_2.uasset": {
-      "hash": "sha256:b959ee9852fb421a4c91daa0950c75562323d0e87f026671958e37ec29a44493",
-      "size": 99463
+      "hash": "sha256:22184a3bcd5b3c7f6d5a7e624dd636cacc9f31b1c4e8cbcbfd1a874d548fa207",
+      "size": 12434
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Patch_3.uasset": {
-      "hash": "sha256:a8cd86da9ae3022ce3b704f489858c0d690cea6b3540451db1e6d46096c1951b",
-      "size": 99429
+      "hash": "sha256:16db2f96b84d4067cac5d887fda4a7fd365f9ba959cd60469a79e868bd3a7807",
+      "size": 12384
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Pipe_12.uasset": {
-      "hash": "sha256:a18a6b2e13771d7fc695ff1fa3de44bbeecf5eaa14297d776318cf215621cae3",
-      "size": 116163
+      "hash": "sha256:5b21454087defd8d479d0d9fdb5b568663a0844f2b5894d63888a276a96a0784",
+      "size": 12970
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Roadline_1.uasset": {
-      "hash": "sha256:4b0b41e8d3c70285ef1768c85b2cd5e9dc3690c5bc99fd44dc221925741e4dda",
-      "size": 86875
+      "hash": "sha256:f11a5e3e8862352548c05a0d53fd1a3da5de13c5c63a3bfb50c2c24d8703c39f",
+      "size": 13504
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Road_1.uasset": {
-      "hash": "sha256:6c4f2b3944b4567db1deb587ffc26f177bdefb92adb78f7d52679981537b81c8",
-      "size": 108267
+      "hash": "sha256:d9cd1cc62fe37231912850c8106833c4cfe366f713714f0b4fef77049e80e5a0",
+      "size": 14614
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Road_2.uasset": {
-      "hash": "sha256:4f1d885ee664a5f056cb4e2562722b6d891b64c9da69a54b9ae718e6c3eba46d",
-      "size": 106831
+      "hash": "sha256:b2f156695158e2037615482c84f39f63a9e52c4ab69f64f540511fd5073e25ef",
+      "size": 17319
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Steel_3.uasset": {
-      "hash": "sha256:09cec787496343887269fddf70b04bfddbb06439e6086cd3d9359f5a3a19cf2f",
-      "size": 112753
+      "hash": "sha256:78a52d73c98756bb8dfc4ba380b54f9f90564fe809338e09e81fc33e84c660ec",
+      "size": 16329
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Steel_4.uasset": {
-      "hash": "sha256:e9d02cfe109b500509122c76fb230ef9bec380ae897fb7486b02b3f74aae73e0",
-      "size": 106798
+      "hash": "sha256:4604f0ab5a06f3cfce49d174cc75bf4a77b29d5c44618ddd0815cb3d2e347f16",
+      "size": 14534
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Tank_1.uasset": {
-      "hash": "sha256:79ade5d874c9db9b6a87c9e7730a927194fb2e85c6bc244a862d6b0b8843c11a",
-      "size": 121036
+      "hash": "sha256:0cb34d71bff6863625fbd68851e91fc1c55ac4d1a1268a51f84aece9d5dee795",
+      "size": 12568
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Text_1.uasset": {
-      "hash": "sha256:fe383e350f800e678a299f4c52fc1f5a90db17857dc02647b4359810c0d43586",
-      "size": 93504
+      "hash": "sha256:2f96d7180df74d7930b95bff09a56df9eddc4cb6aaf8305dc30fa994450cf16d",
+      "size": 11470
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Text_2.uasset": {
-      "hash": "sha256:32255fe476e81b8a5e21aab2f08598d3c07167b765e1203c27290e05b9624e80",
-      "size": 90443
+      "hash": "sha256:916c99d178a4ee4d5c66359c200fbaa243f05f8d9269b069379de065fbd33fc0",
+      "size": 11467
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Text_3_B.uasset": {
-      "hash": "sha256:d9d4cfd32a8baaf54cc5bc7d718ba0a501b7841b15283a6805d85341f6fccdce",
-      "size": 89466
+      "hash": "sha256:5fdd7cd4fc7c72757e9c9395bca0e42b0e93182109b275a8f138fd9127b35b45",
+      "size": 11486
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Thermometer_1.uasset": {
-      "hash": "sha256:737d8dd624b6f872145b39114bedc972e2df28b5772280a1f88d4b16a02fe7c1",
-      "size": 102101
+      "hash": "sha256:da8f4fb7185a87372a2ebf06cd2fa92ac31e758d813123843efd611ca23a727f",
+      "size": 13639
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Train_2.uasset": {
-      "hash": "sha256:f616af9a9f055a6b30ddcb361c81991c5d43aa4e36013e148730c005d7dde96a",
-      "size": 111639
+      "hash": "sha256:7e63f20062e05a760cb006a4d9ae2598b52278c392a6526538316d568c588f4c",
+      "size": 12953
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Train_Metal_1.uasset": {
-      "hash": "sha256:3c00509c22405801f8de292b81ce8212769e38328e19982edd87a0c6d898ce2e",
-      "size": 118536
+      "hash": "sha256:376d98d36204a3513054ddce5dc66ad8ace67f20a3d19674fb1225f1f52fc2cd",
+      "size": 13976
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Trash_Box_1.uasset": {
-      "hash": "sha256:e04cfe993768e43eeb0040728b9be995f8205f1de519e28f710fd7f0582d33f7",
-      "size": 114167
+      "hash": "sha256:5b9a9a3436ad0aad8e28e5db0c28fafd5144bddeb272a03e95ab89a085215568",
+      "size": 14294
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Water.uasset": {
-      "hash": "sha256:da46fedb82a7d3f4a9ee44a2a60ed92547f1fa5842af16bddf93fc053a4b9afd",
-      "size": 105771
+      "hash": "sha256:5f84131be7d32e8c96440da57025f7cdcc4b8cfda1d5552cd3d941641e8fe366",
+      "size": 22956
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Water_Puddle_1.uasset": {
-      "hash": "sha256:e57d51b48e35482090be6d919db27420297524f6dfd637e57c6b76d7fe453b48",
-      "size": 122863
+      "hash": "sha256:2066157cb837d7891880f0a261a7ee5e261adcfc80afc9e9ad86ff87a231021c",
+      "size": 125889
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Wheel_1.uasset": {
-      "hash": "sha256:54617ac65507060f0004adc1584e31f953e74d6ef302ca465605e66e76f25c04",
-      "size": 114835
+      "hash": "sha256:90f7f10794eb617da57174678a62276f70af247a9d801411e9baee8bb783e521",
+      "size": 13747
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Wheel_2.uasset": {
-      "hash": "sha256:739e021e68f9ecb770afdc727c74a31ada03c3d0294532f4418fc8160d05d92a",
-      "size": 111434
+      "hash": "sha256:b6e0a6ccaa7935ec60f4e2a929498e5e46faf76d47a3d7cc30895b8e6a12aa46",
+      "size": 12593
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Wheel_3.uasset": {
-      "hash": "sha256:b9ba5d07610f8af548a4aac393bbb7b53498d4aeb085b460ea8f76cb3d7db3ed",
-      "size": 112115
+      "hash": "sha256:08405ff5a84067610dba84407e56b32f8616e1da02b1b4217e9e2e05ea304f79",
+      "size": 13537
     },
     "Content/ResearchMegaPack/ResearchCenter/Materials/M_Wood_1.uasset": {
-      "hash": "sha256:9309f825c12c10547fdc97aa22b2f68c4e84cab42d36ecfbcf983b7500168286",
-      "size": 102962
+      "hash": "sha256:c5c9c3304c877ab7696210f9e211d54ad21cc1f242c215bb20efab7230672ab1",
+      "size": 15271
     },
     "Content/ResearchMegaPack/ResearchCenter/Meshes/SM_Box_2.uasset": {
       "hash": "sha256:836e2bd676606ab76f7808c78fa1a43e8e222d4301d1d18d69d8955d259e18b0",
@@ -74552,8 +74552,8 @@
       "size": 6632050
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility.umap": {
-      "hash": "sha256:3f2c3a69dd020021d1322498646aa9bf15901fa0fdd181a7ab12f4ba8fd23efa",
-      "size": 3080739
+      "hash": "sha256:7c0956673fb3a4b9fff5e61f14cc2cc200ad0237f9e3eb8b06b96fbf9d9ac440",
+      "size": 3191257
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility_BuiltData.uasset": {
       "hash": "sha256:a010e519920b8af287f16f492646c2c5e50d71b7667a00c9537b0e6e04c1eb4e",
@@ -74628,532 +74628,532 @@
       "size": 90902
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Barrel_1.uasset": {
-      "hash": "sha256:5347b41f9ec9f391176d4c6d295b17cab8beb726cec54832d8ff6172ae92b11e",
-      "size": 125745
+      "hash": "sha256:107573e28bd5ee81b1286d409b09d58d4a0d7853fbc4462b4f18075f853c39f4",
+      "size": 12368
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Barrel_3.uasset": {
-      "hash": "sha256:8eca0b47f6d245f4ae3b4e606fa8ac8ddadadfba0794b2d6c7237275d7048957",
-      "size": 113709
+      "hash": "sha256:00fa739753b3541cf69c5f2c9f712d812372dffd6d3a934448117e9e5912f34b",
+      "size": 13825
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Bed_1.uasset": {
-      "hash": "sha256:b2c185a745fecca0b974fa02c66f3724c1c0a0c0c943b505710c86f8cc95ee3b",
-      "size": 117406
+      "hash": "sha256:97aad474d4a7ff6c987839df0288e5b60c96c6672f79237a21cc17485e0315c5",
+      "size": 13513
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Bed_2.uasset": {
-      "hash": "sha256:90a52dd6cb8f93dced4351757e8064fbe12ab3ddb342c5110ce702e0cb09c305",
-      "size": 110093
+      "hash": "sha256:3a45c9228096b77d4ef72f96d2be2af8a2e9854e6fccf133b5a70ce692add030",
+      "size": 112469
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Bed_2_A.uasset": {
-      "hash": "sha256:90c1dc12bdef6ce1a2b2dbe6b72bf4fd4854858d42bbee7405759cc3e1f96e26",
-      "size": 118583
+      "hash": "sha256:b37e4909427db79d5c43bf59fbc6daad378206d6602590ba104d18ba1855e595",
+      "size": 120972
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Bed_Cabinet_1.uasset": {
-      "hash": "sha256:88f04ad4f319177172b1f82cce359d5e6a1d6b2d15130fa40a63bb81215619db",
-      "size": 97905
+      "hash": "sha256:17669a600f8aa1ed8b2818edd8f57c550a8cbefb09c3028bce5c2047c74d51c8",
+      "size": 13522
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Biomass_1.uasset": {
-      "hash": "sha256:70220d622a1b04b2fb379d3397ee356e38354bb2e11b5f82f7ecf1e1a6f1f524",
-      "size": 128926
+      "hash": "sha256:c56fa81dc1a6a027db171362dfceea273c911846dc459f848457f5269512c3f0",
+      "size": 17572
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Biomass_2.uasset": {
-      "hash": "sha256:05097d50858523c108012328f2cef95aff7ca84fb7c6cd7db29e532f6cf1d811",
-      "size": 119727
+      "hash": "sha256:b5b5058fb717ee67d0e51b281ac159ea15c0f0d6756c46363523e1917506b37a",
+      "size": 14888
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Biomass_3.uasset": {
-      "hash": "sha256:b726871d289039af13bdc9889a63165b79bd15e97ee48ffd9f97fc2065c72b56",
-      "size": 120791
+      "hash": "sha256:5de9dc6930ab9a6c19f018f66086a2d285f5ec47b0fce1f7c59485559673d8af",
+      "size": 15233
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Black_1.uasset": {
-      "hash": "sha256:78f16b24c572c5ea05c8a28ce5c22454e5f0a45b6fcd263dae4e730159ccb4aa",
-      "size": 94710
+      "hash": "sha256:3f4a0b813bb971dcfd8da3fb2b963227552c6a6c193a5f73d4e977b95266cb1a",
+      "size": 97268
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Blood_1.uasset": {
-      "hash": "sha256:2220e651d7cf5044d3a5e8088da97bef62346d6d6dd8aecc1bb14c54014cef78",
-      "size": 111051
+      "hash": "sha256:9e5a15c652be0bc0487b0c9a16201e7624e9e9a896801bb51df56b0f4c4063d4",
+      "size": 25791
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Board_1.uasset": {
-      "hash": "sha256:360d526ab2f59f39c110cccd78e05cfb2fd6b3c2d9f82b992191b6af3f1de413",
-      "size": 106119
+      "hash": "sha256:0a8c9e2a1d457bdd3d3a534389444fc1b457fc580f30b54505e51a07b041f5ef",
+      "size": 108487
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Button_1.uasset": {
-      "hash": "sha256:e4f66d8ddde9cb70c4996e8d4cb4c8c9ebe4398ed8196a35f6c7158a512835c8",
-      "size": 117433
+      "hash": "sha256:ce545a84c6616b85b3ee91842846f53bcf6b42f3659627f0565cd1d8da32114e",
+      "size": 119839
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Button_3.uasset": {
-      "hash": "sha256:b094f163e78b5df04440b93b4a708780951e2e784fb19627b66cd0805e9c2de9",
-      "size": 111920
+      "hash": "sha256:89cfbbc6fa3e5119d133efdce1c012b8eb2a6444709864075baa94250f428ec2",
+      "size": 114284
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cabinet_1.uasset": {
-      "hash": "sha256:3ac32e8f283057c7e9b60fdca325bd9282b5aa3ea5f90aa2e8644b0cbbf97398",
-      "size": 108035
+      "hash": "sha256:000805c96506867fb68b9ea410607834d6903bbffb3a9aa1c4b619fcd369f947",
+      "size": 110395
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cabinet_1_A.uasset": {
-      "hash": "sha256:6be6064dadb8626befaa28074c831b325433018f80c1266312dc6a1667190269",
-      "size": 89405
+      "hash": "sha256:ec8f969247677b70aa4f74c70183d50395aaee9d2da1cb658d365d5bf332c6ef",
+      "size": 91769
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cabinet_2.uasset": {
-      "hash": "sha256:041720d04a4fec7b8c86d41998b6e01629765b4dbac7fe8d28d1d465b45093f1",
-      "size": 93400
+      "hash": "sha256:720e38f769898513e58e9ae47bc54b6f88eec0c36176a09e121d59febc6c8441",
+      "size": 95760
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cabinet_3.uasset": {
-      "hash": "sha256:dcd2b77fadb32f0f8fec10798ae10f0b3f1d276840f77dbb92aac6d1289c56f3",
-      "size": 97813
+      "hash": "sha256:979af51b4bb82fb19b606a2411d6e3be32791d0605c735eaa40d9304185e35ae",
+      "size": 100173
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cabinet_5.uasset": {
-      "hash": "sha256:06b521a88ede094b4bea08291374bb154af88ffcb961fc5fcdcf2b4e4bb659a5",
-      "size": 94531
+      "hash": "sha256:aa587c6ef935619b8979528b9038d45eba51c968ab4edc12ada87c57c9358a55",
+      "size": 13471
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cable_1.uasset": {
-      "hash": "sha256:92878946018a2369c3e0d0e095cba6d31d0da82206cc78d7bf712eb571cf60d4",
-      "size": 101472
+      "hash": "sha256:92b8c96a058172542800710900148a7a635c22747a6eab56bc4ab1bcb0e620f6",
+      "size": 104010
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_1.uasset": {
-      "hash": "sha256:5fa9b31acd9289176cbe70bf462a161a5f48c10dd030434a2adbf46cd8e4f021",
-      "size": 111482
+      "hash": "sha256:f0c49182bb8eab27b15a3153cff95a2d949e9f7efc65ee8b3a4d45ccd7c255fc",
+      "size": 13192
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_1_A.uasset": {
-      "hash": "sha256:c01910180e21bcf5b9b2e446612eadb30aa96615db0a7185c0a3323fb3b5ab30",
-      "size": 111869
+      "hash": "sha256:faad0066c2f5e1aa12119f7ca237ba0ed7e5a44c18f7219bda951f582d7ad23b",
+      "size": 114201
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_Ceiling_1_A.uasset": {
-      "hash": "sha256:04f9e29a4ab1cfb5f447eebc4176c69cd40c0196edb6c1fff4b814e4116813a8",
-      "size": 109118
+      "hash": "sha256:319698dd26ca080eb86bbbb0dcc2e67cba37ecbf6ec33beed0ee793060f5297f",
+      "size": 111402
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_Ceilin_1.uasset": {
-      "hash": "sha256:6ba8d5645c3e0f190488b48ffa75c794e05139ea8b045aefab625611c11c1856",
-      "size": 111723
+      "hash": "sha256:46c5b74cfcc22c2d5c35d4b882b9ca5c78be3352338ca585687ad4dc5cec88e4",
+      "size": 114005
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_Pipe_1.uasset": {
-      "hash": "sha256:b71ebdfbb8e95005954edf323b2a5ae391450235aff8c5ff06a1f0afb84a90ba",
-      "size": 111916
+      "hash": "sha256:1ede1716f78c1059d8f9ad49b67853a78af346f86f267e223c73ac321ca02460",
+      "size": 114262
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Chair_1.uasset": {
-      "hash": "sha256:0a0ca29bacc790dd4c684baa0c056adcf2d2f7de8ed1439a52cdda7facecbaea",
-      "size": 113958
+      "hash": "sha256:b8b2a0cdff2a47863908d27485a45234adde6c02c29a3ba3e240b6469d31460c",
+      "size": 116326
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cloth_1.uasset": {
-      "hash": "sha256:e56da9aa31f01fb03116117ba136b8128b2e62a3d9d8e1bcf9ece2af3eaa7336",
-      "size": 108126
+      "hash": "sha256:f67d7c952e3b94e74d5635f12834282278e03ec62d2fed02e4293887a3d7d543",
+      "size": 110404
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Colomn_3.uasset": {
-      "hash": "sha256:b86781328c1e34d1c930ebb9677f835c2b08be27688b8320f4b08b981066499b",
-      "size": 111857
+      "hash": "sha256:7017a510f31c4d6a1d5817da8c584aea605408301d6026eb1a18e7e414a8d7da",
+      "size": 114221
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Computer_Cart_1.uasset": {
-      "hash": "sha256:f93e9f135d6ecde5748cc49f1175ef77908305dba84a1dd2bd3fd94e216fb1c6",
-      "size": 103719
+      "hash": "sha256:0c27d92a6f01fd0d9d8c15ec16cd35be98caa26c6b8c92b15bece6b5bb1766fc",
+      "size": 106055
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_1.uasset": {
-      "hash": "sha256:a41f827a0c36fd1008d98024d79217eaaf071df4de9e7b2e929b782527bcfafa",
-      "size": 93459
+      "hash": "sha256:d18f0bd46e1d5c5249069d0b4bae3b4b16383943fc6ab00745132828b034c3ea",
+      "size": 95845
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_2.uasset": {
-      "hash": "sha256:2cd6341189acf43947ce26e2a084833f09992b041b85e5d817f68f7a13fc2d2f",
-      "size": 122959
+      "hash": "sha256:60a98258282b478e2dc64ae0905288d110acb61964a258fa7bc6a8321bcda6d1",
+      "size": 125122
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_3.uasset": {
-      "hash": "sha256:b46795a30543ddab6d483ae55eb0ae8d39b90b7543a3d154c4891ad34089a8d0",
-      "size": 105322
+      "hash": "sha256:3175b8b5ca5ea7cb3b919f5b9377f42e81ce1d037ab4d1317c7719aec39098f7",
+      "size": 107750
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_4.uasset": {
-      "hash": "sha256:2c1186818f217800170213d5647fc989969d8bf59f54a5f84374d55467a28de0",
-      "size": 103567
+      "hash": "sha256:3df8e4345bc77dcfe1717fd9e07b9d251cc2e1da7d3518b0aba0837863581496",
+      "size": 105953
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_5.uasset": {
-      "hash": "sha256:3e81001054e5a87dfe598d01daee2c788916484326fda41a0b126cc728759e20",
-      "size": 100018
+      "hash": "sha256:82fae8b50269480fa262c6e3b70379de5046c80e5bfd09c7b88b4f4322e3ee78",
+      "size": 102446
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Control_Panel_1.uasset": {
-      "hash": "sha256:70b484a668ad00230ac152cf55d110b18fbf075c6d048f1d90ea060ee039171b",
-      "size": 111048
+      "hash": "sha256:dac9601cc917bef21799ca8ed1d5bd625d32b0f68000fcaf33c3e1b282517e7f",
+      "size": 113384
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Floor_1.uasset": {
-      "hash": "sha256:6a61067c2c14a4dd6b8d627226cb9f7399f23e0431d4eea75a42860f25cbdc72",
-      "size": 101339
+      "hash": "sha256:0d16796fa10a05727563f6cdb26467635933a220579fc70bce24b8bd94113109",
+      "size": 103671
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Wall_1.uasset": {
-      "hash": "sha256:ca50cf5357ab4e47990f7113350668550652da48b5794fd8304287380d3e826d",
-      "size": 110412
+      "hash": "sha256:5a638c473613f97dabf80975fc770ad6742a67fec31fa472b533e4611f652a5e",
+      "size": 112748
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Wall_3.uasset": {
-      "hash": "sha256:f8ef95e1c1bf999ee684335a8c20b86a50670a0640ec305be7ec728e7bb0f088",
-      "size": 106620
+      "hash": "sha256:53b51fcad46e6f6f60f2dff7545afb797bcd0573a23aff1545dbac4509269af6",
+      "size": 108940
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Wall_5.uasset": {
-      "hash": "sha256:bb198f9291cf2b74c0256ccffde20dfbeaccc185683c0b8c584341892e2d3cdf",
-      "size": 107347
+      "hash": "sha256:febe1dfddd1b33db8b3364125f3cfe30ac585b395dca7c47550eaec2d4be9f5b",
+      "size": 109683
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cover_1.uasset": {
-      "hash": "sha256:52613a31fb407f89397394f1286d6b7cf2390802402d28d34b34b3e8371cd661",
-      "size": 110319
+      "hash": "sha256:6c0268cb170b8449bfaa831136c1a9c8ea830596a5820ad5bdd5d7481e681bd2",
+      "size": 112612
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Creature_1.uasset": {
-      "hash": "sha256:fabf1f7eda95be3b1e42d4dd6f87392473d51e42be251676c5aa74bf1a0afb4f",
-      "size": 127088
+      "hash": "sha256:a1c26d38e033f8b6f74c48ba95338887b967b96967d932a505c077c1185061e3",
+      "size": 13528
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Decal_1.uasset": {
-      "hash": "sha256:841fd17aae3a9bdf761f708adfada16e9a55a319d12b09757d6dd357fc67d1f1",
-      "size": 100442
+      "hash": "sha256:d1e90aa01fa5e932cd646991181b571a8daf252b5e28771c56f6444a62fe7b81",
+      "size": 19845
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Decal_2.uasset": {
-      "hash": "sha256:600121e083c02fbe6fbd335d122cfa56ed1bfe4ed9b1990706c24338c85be874",
-      "size": 76545
+      "hash": "sha256:e29950ffb1130dcff5603bf359746f83cbb8c266f22771e897321fb265062fa7",
+      "size": 11603
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Decal_2_A.uasset": {
-      "hash": "sha256:d6d95e649fecbd446f4a2dedfbed9f6f07e8815ba1eb4daba0a5c30bfe203baa",
-      "size": 119091
+      "hash": "sha256:36382509a713d0c71ec366453e821e893bf1b4e7012c201f994c13bb3c853c1b",
+      "size": 19525
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Door_1.uasset": {
-      "hash": "sha256:b4d3a841f104ca0e52b5c69513513094dd97a696c3ddb683547a4b2849dcb9d3",
-      "size": 108452
+      "hash": "sha256:4af45740f4b39c6631f3e583928c9e862d056907b733993070ab05601dd7d840",
+      "size": 110824
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Door_2.uasset": {
-      "hash": "sha256:fc8b57a3f82bafcb0c559444dd17deec9bf9a07acb5f0bb4ef9df13f7cc3a026",
-      "size": 110941
+      "hash": "sha256:f06cde523161a91dc291fb92fafd1644454ddca6e8ad816c31feb543b4fb1843",
+      "size": 113313
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Door_Case_1.uasset": {
-      "hash": "sha256:d9946d6b8011e165de6957c71c7fcf716a0518c70019beb73fed7cd98436f88e",
-      "size": 111512
+      "hash": "sha256:45ea8cd9ab61fc346795d541a83dd064252943151ce240e630f69d1a13eb232c",
+      "size": 113864
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_EKG_Monitor_1.uasset": {
-      "hash": "sha256:523ed3c49fc49c26e28c79ee2c52f49ff12eae92c6e40b209dd6fcde89a691f8",
-      "size": 100205
+      "hash": "sha256:8733658f72e4d3c76603322d542a47aa1aa3a89d74a75d86980c6593e0fd73a0",
+      "size": 13519
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_1.uasset": {
-      "hash": "sha256:d9f65b942b0c7bc0fbb6c8f6190232683b936a40ce52e087aff112a731e53475",
-      "size": 106954
+      "hash": "sha256:159f3559d1b3e2ed9fedeedd17a3d8d851929e80fcf6bffeb5571fa5058a4120",
+      "size": 109310
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_1_A.uasset": {
-      "hash": "sha256:c17e197537a7cc3af293ef43cc63729f180bc67f08ae0b369b3108ba4a21052a",
-      "size": 109611
+      "hash": "sha256:43d4f122b86514a8d412bcc73e4baa30017d47f63b9a607a56638aaa33d7706c",
+      "size": 111959
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Ceiling_1.uasset": {
-      "hash": "sha256:4c3170704f7eb6ce24ade515f6fee87b62188314e697ecc54d98671d07105cbd",
-      "size": 109659
+      "hash": "sha256:af02590eec7d48bc187de628b99fa38aaae7424d5568b9ce3db69e5e9ddd586e",
+      "size": 111983
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Light_1.uasset": {
-      "hash": "sha256:36dce16bcc2c7d480c3313be5770c9f3b8400cf179a89ecf9eee1115688b1e5b",
-      "size": 71576
+      "hash": "sha256:d852348fc8834f175e05990013714a3e1dda063e4d2bf8ff630685e320f2ba47",
+      "size": 74144
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Light_1_.uasset": {
-      "hash": "sha256:617c0e8c47e5f869469852c4b236460592b9ef79402cba3a717182c305872d14",
-      "size": 108100
+      "hash": "sha256:eb30f9ba0b2cd6419db76517fa29ee6d80dd360033ae7d9010ae897c38b308d4",
+      "size": 110433
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Light_2.uasset": {
-      "hash": "sha256:52dc8e36b0e5cdd128622cb3b2c1687b84f3973fa93a91bf6c8ab18c002cc956",
-      "size": 70970
+      "hash": "sha256:4330a61e8660272a62c0e6926aab3a64a5dd80cdd9d83a21833dafde4079e2e8",
+      "size": 73559
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Light_3.uasset": {
-      "hash": "sha256:1028269f442a70455d7a7d1773adedcaf6e448ab1c3f4fea47e6ea61c5af5ef8",
-      "size": 40165
+      "hash": "sha256:b63db14f54e7b8dd0ccded0f2a0c9b31063f95f185952a8ed970396988e0d8aa",
+      "size": 42733
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Metal_5.uasset": {
-      "hash": "sha256:c71397f4c89d114210919894a5df2f027d7f663073ba8943968d7f2c03d168e6",
-      "size": 117068
+      "hash": "sha256:c9bf7354c1fec92eb1744bf37e287fd38c8917fe3bd0f1fca84629525e25aae1",
+      "size": 119396
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_1.uasset": {
-      "hash": "sha256:2b000676312f4eeb94e91622678693fa5c5a0a87c7079122216b9b850e5c37fe",
-      "size": 104056
+      "hash": "sha256:96a29f77db63f481f50dac542cc61c32b3bb8067c95283c0be5f030bb7187aa9",
+      "size": 12600
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_3.uasset": {
-      "hash": "sha256:9de8c24ee8d3bcfccf2a3922ec5cacdf3824de8def1f121656725b539ff73db3",
-      "size": 107270
+      "hash": "sha256:b1985a41eb96678ec9c30116f3af2b209f27957b06acd6f03c3ddcf1f9fe45d7",
+      "size": 109496
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_3_A.uasset": {
-      "hash": "sha256:9c35a9e703a315fabd4a91b7259e61efced1c20e42fcb2d112d50bb4ba3aa67a",
-      "size": 110803
+      "hash": "sha256:a0af96fce6ba7eec825ab9bbd1831d3753ad955b98091b0d22812e8e26d71689",
+      "size": 113021
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_4.uasset": {
-      "hash": "sha256:34287605195c794437da3d5ad30ab2980d326dc414f73ba1bf033722e3315af1",
-      "size": 114205
+      "hash": "sha256:7a4d4b5495839fde800e6807041b664e45abb4c0ab5c4d64ec6425d6ec09e604",
+      "size": 116697
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_5.uasset": {
-      "hash": "sha256:3b6d5e740641f82027163966999a690d56debf92806ea1941c4577724f806f53",
-      "size": 110400
+      "hash": "sha256:c6549d94841f260982488c492d1fc33282266f1feb085aa0459e4a37accd74bd",
+      "size": 112736
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Fabric_1.uasset": {
-      "hash": "sha256:3e4ad4c64e428b13597fbb90d1fed7e7edfa258a14ec172555fc48741f06b81e",
-      "size": 118418
+      "hash": "sha256:6d70c412bd7d85dbfb4cb5e8075ee8292fc59b7b8be004b37c412bc0be6420f9",
+      "size": 17673
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Fence_1.uasset": {
-      "hash": "sha256:5473b9ae59e9d186ff44b5d95c0b7cc4023d8b70c963999356d03ed973c10629",
-      "size": 130151
+      "hash": "sha256:518e979e8fcc8b52572731dc5313d672ec400369547f8948943a1f20e182bb73",
+      "size": 16502
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Flash_Light_1.uasset": {
-      "hash": "sha256:28b61d3cd52f79ce2a93da73a18e7f52dbf70f807d42ede778eb674ba320c955",
-      "size": 103701
+      "hash": "sha256:559f403e1dcc70f11291d4b56a905333526bf1240f18ef79368ce7654d5159c8",
+      "size": 106045
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Floor_1.uasset": {
-      "hash": "sha256:ff7b7ab547ad8ed9081ce601e0e12f8fc6e69ac9123990e49f791a724b467b03",
-      "size": 110113
+      "hash": "sha256:ae48d77d6f7eaf3bde0a6b3596a7b2c3b57c50562693c959671a7dfca9bbe3ed",
+      "size": 112403
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Floor_4.uasset": {
-      "hash": "sha256:c92329597a354b9ef764f6467db956416e4ca6e1f15a79a9e3af41a97c00ce9f",
-      "size": 107827
+      "hash": "sha256:4a63d9ca59a1eca3d27bc21aa711fd287b3b5a9b12721ee7c0204b3f64d88eb6",
+      "size": 110353
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Floor_White_1.uasset": {
-      "hash": "sha256:2ba3375612ad1fce5209a0ee776a6f3b892185afd22405194fa68e20ad3ae282",
-      "size": 103252
+      "hash": "sha256:0dec831fb4426b5a62c6e00d49ac6697b63ad2a26e2941893298bf52d256eb4b",
+      "size": 105782
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Glass_1.uasset": {
-      "hash": "sha256:cd1867dfa06b11a2deff98ca3ff2bb2a637a16e015b412e965483a5045fd6ef0",
-      "size": 83639
+      "hash": "sha256:10a574e5547bb54c6538a703a4c1b557f6e5c3fbb61b73b5abaa1e83af94474c",
+      "size": 85834
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Glass_1_A.uasset": {
-      "hash": "sha256:0e8dc464d0e6e64d77ada6ce8070f9e836257f961181aa506980a9445c4d64a0",
-      "size": 85162
+      "hash": "sha256:2337e897e7d0f2cdc218bc5e23ef50cc33ffef08dd2726afe85e8826d287d074",
+      "size": 87688
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Glass_2.uasset": {
-      "hash": "sha256:0a71617c282ed9be71ab046e266e272c60cbeeced6e8f66aaf3edfd75c052e5b",
-      "size": 80596
+      "hash": "sha256:b977d1b0b67f2cc078d6e847865339aa2c88525619b77da5c3df3b090bb2014c",
+      "size": 82818
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Gurney_Metal_1.uasset": {
-      "hash": "sha256:3961fa4702e249da2eedd53195df37e01ae3a00b6af97d7509e32e4ab3729d7d",
-      "size": 106662
+      "hash": "sha256:e0e8202891f3bf119bd516d0ca703a3a2e86d618c92192f14406b944b5c5463e",
+      "size": 109002
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Gurney_Metal_2.uasset": {
-      "hash": "sha256:8a5df3647a19531d72d34c801771f0184f12a4f72618773b813339e232a19b9f",
-      "size": 101152
+      "hash": "sha256:5b6da6973def6ac4586c061e782a3d5cba7657dd0ed62e193f8631d796e97ad1",
+      "size": 103492
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Infant_Scale_1.uasset": {
-      "hash": "sha256:2c986e87d00f79351610d461727d2b43f377d7c1d4e69a30c60d31052db7af69",
-      "size": 112727
+      "hash": "sha256:22e3b2a4159fe365414dbfafe3ca7e2f20f9b20e86563a7ed68c13f830b4a55c",
+      "size": 115067
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Infant_Warmer_1.uasset": {
-      "hash": "sha256:51a75f5317ba8a4142b581e12a4562500477c889038191a0b10e5f2b1171b06f",
-      "size": 98634
+      "hash": "sha256:2127c3f8783e5ce8356967cb07af299e598c353ab2932c5e2a920364d24e3bb7",
+      "size": 100970
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Iv_1.uasset": {
-      "hash": "sha256:0f0674ed38b265effe4f48b41927f7e389905d430235e92e0e3fe05418ce6c77",
-      "size": 110070
+      "hash": "sha256:847b2b68b5a7d61353f6caccf1b9167819ffcd24557f2684fcf06eccef20e45c",
+      "size": 112449
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Keyboard.uasset": {
-      "hash": "sha256:72498c6549bc1f5bb23794380672db157742a8ee7b7ed85de209576809914615",
-      "size": 132530
+      "hash": "sha256:61514dfa0ac101aa54774fbb30513dc08f11cbb5fc9197495cce66fc2d140bb6",
+      "size": 134882
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Light_2.uasset": {
-      "hash": "sha256:eb2854dd6e31a97d30454868bf5901ac08d103485eb9cc4b7d0896fe722e8e3e",
-      "size": 105830
+      "hash": "sha256:babf61f9deca07514e3f30449e9fd6a996128df255cfacf6417f200b28bae3bd",
+      "size": 108198
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Light_3.uasset": {
-      "hash": "sha256:22cdbde798192c818cf7e00ff76226366915efe5f5f1f8e3ee701b700d410929",
-      "size": 89398
+      "hash": "sha256:37865a62309fc1953379ccc55447dd2502b56f8a37883121c3cca7f43626ff76",
+      "size": 91766
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Mattress_1.uasset": {
-      "hash": "sha256:992dbd58d61e3a155dedede04cc38bb141857699a61e4cc67604fc754a204f83",
-      "size": 93882
+      "hash": "sha256:798aa275a9791d5c3f0091b2328ba423dadb572b6648e0e8e67e9817800a0db2",
+      "size": 96237
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Medical_Curtain_1.uasset": {
-      "hash": "sha256:2c12fb2f83ea7ff2f6f537b0ad538b7414cc71ea1fe85b0ad135776806b898c4",
-      "size": 132733
+      "hash": "sha256:6b896d0fd9f856fc563268e5ca49239afaa6390cb233c662e146d0d5dbe71a5c",
+      "size": 135061
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Medical_Curtain_Metal.uasset": {
-      "hash": "sha256:ce9cde8ab67d29fc076bccc2203199bd6c5a8cb1ef1ee96a5c672c0ca76a6bdd",
-      "size": 110304
+      "hash": "sha256:416c54055b427b40d837394095357e19fad8701773c040bf86b0857462a69653",
+      "size": 112526
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_1.uasset": {
-      "hash": "sha256:00f9ee7c479c1c180ed8c1a43cbaa10b0fa62daf905cf0a1583d5e52b4ddd6ce",
-      "size": 94644
+      "hash": "sha256:dd5c76bbbd941a683a71ecc79c17ba5cd366ee81c11fbb23ee446748e3fee6c8",
+      "size": 96707
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_2.uasset": {
-      "hash": "sha256:6e08b10b74172be25603de38acc1b33cf1663f323cc0beb4ac4473c9d0301e5b",
-      "size": 110372
+      "hash": "sha256:8ed0046c3b63cefb1aa8545c5ebc18093f5282c643f1078bb6ff24061767ca98",
+      "size": 112516
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_3.uasset": {
-      "hash": "sha256:186db8236c6c2c5b7e1e37900d9383490d1d0babfa16191bab8cbff6613079ff",
-      "size": 106633
+      "hash": "sha256:beed937eed3c2348de4cecbae3daeaf92727362340a53eb37a0b201c0581d2da",
+      "size": 13077
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_Fence_1.uasset": {
-      "hash": "sha256:482838e11aa07f38ef551a0bc25152d53a416ac0915345871096704bde5d336a",
-      "size": 122144
+      "hash": "sha256:b838a68240cff9ea24c5d98671499630027e87def02671d8cf01209e7354dbf0",
+      "size": 13517
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_Fence_2.uasset": {
-      "hash": "sha256:59c78a7df484c6d1dfb415ae2e60d28c6ab8258f80cf27e71a6ec535ad348b0e",
-      "size": 123811
+      "hash": "sha256:0f05030eab13b5d83bf86c7fbc7fc095ab94ecf167a115f7a50bfc08fbf08b67",
+      "size": 126398
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Missle_1.uasset": {
-      "hash": "sha256:c108f19b070a9aee02e3c6ca6e373c0a1876f642a03f127354af3f3d85cf0569",
-      "size": 101030
+      "hash": "sha256:2df8b1a48169b322ea83b1d447914c0b22ed9082904fdb295a866cef4d105b46",
+      "size": 103394
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Missle_1_A.uasset": {
-      "hash": "sha256:104397d52b9889a670af7bbf06d2b051b9318f806b535fcadcf088c4493ba2f9",
-      "size": 97828
+      "hash": "sha256:d92fda4481595c0fbb3fe238c2a16d554b965ea67134672e4a1730a045c069e6",
+      "size": 100184
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Missle_Box_1.uasset": {
-      "hash": "sha256:f732a770da7f96b71442f2277b7b13a194bbc68abefe458c33b824b181a2e86f",
-      "size": 108371
+      "hash": "sha256:91d4dcc98dc95847aefffe5190a01ce9e8d895d2097d6e7e8899be7e21bc65bf",
+      "size": 110719
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_1.uasset": {
-      "hash": "sha256:69527a5aa24644c4faa6a86123b17799de8ae7302e5f9bcfe78b6e94472fbb75",
-      "size": 107289
+      "hash": "sha256:fde1efe11351fa14e0a6863fc52464edb4d236297d41560f07b01046427879db",
+      "size": 109649
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_1_A.uasset": {
-      "hash": "sha256:cbc6caae1730611f71e2e83b7249577c765e8e32b9ef28fd61bb87e323dd7ac7",
-      "size": 115383
+      "hash": "sha256:2f13d23da592c57e8b72cd172facb41e24085a1a990386b258c462706a9f3bc2",
+      "size": 117747
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_2.uasset": {
-      "hash": "sha256:42dcb6d46892c1e3fd4eb305a7709aea38ceebcd78ad2d48c21017745db65896",
-      "size": 92209
+      "hash": "sha256:80024287be0a2635d9653bbbe0c38b09060715a651a03cce83356e0bf419ad26",
+      "size": 94640
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_2_A.uasset": {
-      "hash": "sha256:5a5449e48b2425ecc5adfa466ee313316e13ba5489ac48672ff8c15858c23120",
-      "size": 98966
+      "hash": "sha256:0ccfc7f7b0ae593da4966c3bb6b64fa91ea5257c0902ab02c605e484e5beff2b",
+      "size": 101330
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_3.uasset": {
-      "hash": "sha256:494312450a3bf49a83b23263342c0ca1a04a72adc8a3485102ac08e6c0bf352f",
-      "size": 93957
+      "hash": "sha256:30ec4a777382e0c096c643bdbf4362315e6151f9b3aac8bd432f5c0b7b3ae67a",
+      "size": 13471
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_Screen_1.uasset": {
-      "hash": "sha256:c97fae672f0cd6b9de384949264f6b2d0847c0c7579566725e7ed408df9760c4",
-      "size": 125483
+      "hash": "sha256:6cac6324d73d745eb7253cae29764d28ebb5b67944bdcdda6c7fd4be562f4d57",
+      "size": 128078
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Mouse_1.uasset": {
-      "hash": "sha256:2ab4f8dabf769b7d4daa96aba01f6fd49478827c44593e29c5f422f3e4a3656c",
-      "size": 109393
+      "hash": "sha256:a152e52f7fdeb77293b560b41b03944b1cba0c134ac3caa43283e886a0eea08c",
+      "size": 111761
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_MRI_1.uasset": {
-      "hash": "sha256:2b2aa5a8086dddb92a1a3b57b4a787528c0337493a108b37dc71a781077ea3cb",
-      "size": 88153
+      "hash": "sha256:e36959816ac3b8d5b2a9cf45793286348184615dc63fc072697a62916982f69e",
+      "size": 90529
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_MRI_Bed_1.uasset": {
-      "hash": "sha256:1f2e5b609d627acb41c5ef2996b022dee6ad13f985e062cce1288e7a9ea9e764",
-      "size": 96033
+      "hash": "sha256:e824de40994611f2997d4d82d801a50b5819872242f619cde346877d6d0a401e",
+      "size": 98393
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Othoscope_1.uasset": {
-      "hash": "sha256:14db2d82d607f602767fec37dfcbc51255ebe65d8ce2ad3380fda81c6106c464",
-      "size": 102032
+      "hash": "sha256:bb98c97d261613d2c96775bce8e251ba3642e37928daac35c772b9c7cb4b6259",
+      "size": 104384
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Overbed_Table.uasset": {
-      "hash": "sha256:fd6e6328be2d47f0726a15e9de3ca8fd1751304f8b3dec1b9798cdf895afd9a6",
-      "size": 109887
+      "hash": "sha256:2c5d063b66ba0ed177e674759e4afe7887a14d23b42f0da47df3223424dd32e2",
+      "size": 112120
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Pallet_2.uasset": {
-      "hash": "sha256:b8d23371356201203e18276f47de95d8fe0c8ef0959f258cc6408fa469e3eb9f",
-      "size": 108117
+      "hash": "sha256:84179b0d7832e068ae2ed2fd6a0825375cef66f50f449ac1b23029db7827898f",
+      "size": 110481
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_1.uasset": {
-      "hash": "sha256:56647912461e4d9ad3ef836eb38b32142b3201ebd3295257167a1ac4a0818c85",
-      "size": 99769
+      "hash": "sha256:057a8dec3bcc45f15e312b74087d1f3da8ca2c3666ccc0bef36a17241a5a8c2e",
+      "size": 102137
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_2.uasset": {
-      "hash": "sha256:d619f8c78d2eaa1c119fe853a24b04e3dfa9d9094fcb83e316746d1ef4d31ed2",
-      "size": 90794
+      "hash": "sha256:559665c7dbc8133002c788c1b12f4aabe1fdb377a6756223faceb49b6dbf4fae",
+      "size": 93162
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_3.uasset": {
-      "hash": "sha256:497df1bcfc9a53cba8f983294bf180571a5e64ebaa66908324fa3d8def6f27dc",
-      "size": 98761
+      "hash": "sha256:59ad2543d2598504f6e9b31265ba74a8d07c651f4458e606c2ce335bc9c8aa66",
+      "size": 101129
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_4.uasset": {
-      "hash": "sha256:f4a75f3d4e3db7c615a5a444c41a02438a901b97c26562e8eafaa65573549694",
-      "size": 104793
+      "hash": "sha256:25ba345f441401b84dc56730ef99660269638e21916f56d53f64094a415e8dad",
+      "size": 107161
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_5.uasset": {
-      "hash": "sha256:a4705cf68a97dabdbbc41e7b5f7c59cabb6eba640b3fc37ec6d37f1cbbcaf06c",
-      "size": 108912
+      "hash": "sha256:f0a9ff4d65f92e025ebd958d8560ceb571ac424bd6ca4b533b358c779977bbec",
+      "size": 111280
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_Box_1.uasset": {
-      "hash": "sha256:ef07d28ea13807666a09152ece1186b3b502263c2c7a19a6b85d8c98ce24fe89",
-      "size": 110892
+      "hash": "sha256:5c38d86caa0585b83319204beeb2eff30ecf9714f15ee6dac9b03a92a62d6b26",
+      "size": 113244
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Rust_1.uasset": {
-      "hash": "sha256:a80bba7c41fd044efc53731e0c1f4ddfb41d82c3e12ed99edf367d4059df1e73",
-      "size": 89464
+      "hash": "sha256:8cd1a3f0f0cc25fc36c0f24030cc6c3a1aab9da30f54b2948e2c18ce156f6ae1",
+      "size": 15184
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Steel_1.uasset": {
-      "hash": "sha256:4892ba35cb6888bfb8cceb0c2f1f0713e7b2202e742b0d3502ea7186ca3fd3b4",
-      "size": 108654
+      "hash": "sha256:6fd74a4011c2f1dab1c73c452e88d33ad551bc4dc08b16740dacad4f3d85c3e0",
+      "size": 111022
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Stool_1.uasset": {
-      "hash": "sha256:5b3bf9441119c2fbff35bbd02e7fd5efbf24bdfdf52afebfc4aeabd4963c481f",
-      "size": 130957
+      "hash": "sha256:a40634224875df0f95e1a38d3c48722a63a797d7ea7c2938abe870eb9e66d567",
+      "size": 133325
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Table_1.uasset": {
-      "hash": "sha256:8a7874485972cebaeb373c11f82eda2963adf4905aa179c463ea4e0d10b83118",
-      "size": 105082
+      "hash": "sha256:8694c09fd59ca89d7bdd4467043cf7ef49613737ecca61253cef0c71681a91fa",
+      "size": 107450
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Tape_1.uasset": {
-      "hash": "sha256:9bbab897c3fe0189524684114af782215646c605d77d797a74ed2a16f1239469",
-      "size": 99259
+      "hash": "sha256:3ce7fb5be82f597d20c3673b8422d61302981db7ae37a08f4cb49169cf976ecb",
+      "size": 13180
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Tape_2.uasset": {
-      "hash": "sha256:074b96aae30ee8d79ac4bf4172be32ccc25a16181e2a78bb42746751c80cebdf",
-      "size": 101631
+      "hash": "sha256:ccd8b484152cadd08b7ceb511b9cc7567564388f2d65071b71f17fdfa92d6d60",
+      "size": 11982
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Terminal_2.uasset": {
-      "hash": "sha256:55357c969d8bfaea995835660332fad6dbe907059ad286bede6a2c5662fe2b54",
-      "size": 107037
+      "hash": "sha256:75b6a407d515f44e89d647794f6e698b92e3b5d88dbcc625a982fa11f35aef26",
+      "size": 109363
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Vital_Monitor_1.uasset": {
-      "hash": "sha256:9c496cbdebcd5173a9ad7a92b866056c11b14617e0c98484d621b8300f49f3de",
-      "size": 100338
+      "hash": "sha256:8177ace8e16729b837de251f585134e03ca5c066e964faaaf82d5f4cca54ddf5",
+      "size": 102674
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Vital_Monitor_2.uasset": {
-      "hash": "sha256:117a7dc9355dbcc3c532cd88a95504dfebe98705ab83ff9c786961e4ae8e81e3",
-      "size": 95817
+      "hash": "sha256:7bd514910180dbb132dc5c25b135f26858a7eb40761d6ef202723bab28a39039",
+      "size": 98113
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_1.uasset": {
-      "hash": "sha256:d97b051dc22bdc6b08df11da092b806e11e5b40e95e987d972546edb4be2cbd8",
-      "size": 103269
+      "hash": "sha256:49c10b23b26829b674b10f0df6031c04c3eeae7399c01b84dc0dd34fdeb535dc",
+      "size": 105640
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_10.uasset": {
-      "hash": "sha256:fa8c44b73a97036fce869be833eadcd0c0c31597879b03e5f22dfa5fa716e5d3",
-      "size": 111374
+      "hash": "sha256:76dcbfc3560b2fa6307bf2978b5d1c0d7fa05d3a1d3e1b2798eb0541510fa070",
+      "size": 113742
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_10_Window_1.uasset": {
-      "hash": "sha256:b2e17c5c08d7ac120963b1f0627772b8b1c30346cf678032965d490e0c02aaef",
-      "size": 109063
+      "hash": "sha256:fd5c8a155d3ab7676329fed333844a851a69f32df614c209eeb47f88e008a611",
+      "size": 111395
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_11.uasset": {
-      "hash": "sha256:161a7ea4eb21e850d7886b24ffd5f47b126e2fc92eda831524d06bdfe832fb29",
-      "size": 112100
+      "hash": "sha256:1245cd35f7e6ec530fcc2a8d1737c71fe43374229383e5a7665502d53868e3f5",
+      "size": 114468
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_12.uasset": {
-      "hash": "sha256:4d9de8606e8581233be9aee9261c78eb6fb0092b5021b90c2df23fce290ae162",
-      "size": 110953
+      "hash": "sha256:4395904e134beafb2d14a1c9fd7a05c5e232aba4223c75ed1d81666f15e20f24",
+      "size": 113320
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_13.uasset": {
-      "hash": "sha256:d12cbf57edc04b38e8463886f472b74e79e6b05aea6f93911d069dc9634cf67a",
-      "size": 111193
+      "hash": "sha256:4a2ffdcc3008c970efa2cb2277c0009b8b980378ee5e2b121cbfe324dbbf5c48",
+      "size": 113561
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_14.uasset": {
-      "hash": "sha256:d223194a279588729887a9c0fc8b9aefdbd021aecc3cfe00913276a1703a3e1e",
-      "size": 113624
+      "hash": "sha256:4d3f85708ac3b63bbf477fe626e3dd990ded0afa83cae36facf1ce8ab9b9b8ed",
+      "size": 13448
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_2.uasset": {
-      "hash": "sha256:07add4c51f4ba4f170293757b9702975be9f51295f3cbac4a5183711a8b3690f",
-      "size": 99495
+      "hash": "sha256:1f782ba770bd2b108a4d5821a3f03c2084caa09405206a0e351059d29d27b5a4",
+      "size": 101866
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_3.uasset": {
-      "hash": "sha256:d13adaee97ba399f8986a06f28567971fe044a4da943322661371221884483e8",
-      "size": 102052
+      "hash": "sha256:94f8d62127167054edbb56a028d5192306dc1d68e46503cdc44f8d01b4154f68",
+      "size": 104423
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_4.uasset": {
-      "hash": "sha256:52f3223d49ee4ca44573c65e35c49c32823b9c309ab0dd5aaa85c4fb5953440c",
-      "size": 108147
+      "hash": "sha256:16c6ff740e9424983d8c7c55b53c5865865a1bfda0835ce3e2ef07208e376335",
+      "size": 110393
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_5.uasset": {
-      "hash": "sha256:29560c3a13e29b5cae5f500636e21c2538bde56c2c379d7247e018fd91142aaf",
-      "size": 102774
+      "hash": "sha256:88d3eaccf722aa2878d846960aa1f86b54911bf246d0029b0e9c72f943eab160",
+      "size": 105146
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_7.uasset": {
-      "hash": "sha256:72aa0833bec4780c61cde3fa2836b4cb7e9bb8051d1754ecaef5fad5610c8378",
-      "size": 114759
+      "hash": "sha256:bde18b6958065f991e087b517bb0eb26bb4b800f0eac1f6b4e48778892ac0fd3",
+      "size": 117131
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_8.uasset": {
-      "hash": "sha256:746b1929bb3050cd3add533bdcaca176b96ade9106dc06f15d17429a38cfd569",
-      "size": 109828
+      "hash": "sha256:b49103b4db9fefb41c41848217aecd471054d4370b94e0342beaa66c7743dc3c",
+      "size": 112200
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_9.uasset": {
-      "hash": "sha256:198e1bafdef97a8870ffb1ddacc1760196d628d05392ff0e9a1aeee5912acac0",
-      "size": 111792
+      "hash": "sha256:33a79cd281373d73c51fa9da369cf860b76e5ee372d6a6ddeb32d710e10c027c",
+      "size": 114164
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Water_Puddle_1.uasset": {
-      "hash": "sha256:e49436192fb67e90780f6b08118c57db2b3267933fc7d88928bdc5245cd23a61",
-      "size": 117123
+      "hash": "sha256:6d8aa93d69e80d4574fa3e81f629f87b59e77c8fccb422ef44d036078b335e99",
+      "size": 120154
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Window_1.uasset": {
-      "hash": "sha256:4a05311cfb56d5e0274e235b29421db8ae6eddf79a4c5bfee6a31ed7852314ab",
-      "size": 111050
+      "hash": "sha256:9faeebbcc370836f38545a1b5d7bc11a43261a4da36349c5b2a1fb9991449897",
+      "size": 113414
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Barrel_1.uasset": {
       "hash": "sha256:d506afcd8eb9d8000a39260b027e327b70bfcab31756d24784fa5f92ace71cbe",
@@ -77188,392 +77188,392 @@
       "size": 10955865
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Asphalt_1.uasset": {
-      "hash": "sha256:15342413db0121e47ce56a8820c08ee1b25071bb6669567674cdf599d8ba2f87",
-      "size": 108777
+      "hash": "sha256:664184b0163260cae358281bd551f569e0ba8f27dc9f04bd8b14bf844f23d782",
+      "size": 20508
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Barrel_3.uasset": {
-      "hash": "sha256:cd9cc66858ad6897b361fb03776ee1256465bcfd5c85d880e879d3a590ba6a63",
-      "size": 120592
+      "hash": "sha256:6ef1b88f39856aa91818eaac646f291124aa1260078b9ed6156422f2388c3162",
+      "size": 13480
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Box_2.uasset": {
-      "hash": "sha256:e27325aed32dcad06ba4535c5e3497c33a9764f4bbd43fae03300c8721e0c465",
-      "size": 108007
+      "hash": "sha256:a87cfc7b39a0bf1af39fcb2a8f0a7b505f619e14106101eb17fcd4dac915c166",
+      "size": 13468
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Box_3.uasset": {
-      "hash": "sha256:bfa12097afeab49e4e32222c3e3ab3a30d410f8997b332d6e5c90b29103bb878",
-      "size": 104797
+      "hash": "sha256:97955bab1c73824277331b33c86b731338ce09148268cba48460af9c65ba3d66",
+      "size": 13079
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Button_2.uasset": {
-      "hash": "sha256:6fea15f37e162fce334bbdb92b26f0f1e77e8f03609dc56d5e5bedb55f94c992",
-      "size": 122314
+      "hash": "sha256:4d9c544da6aea6732763a45c2afd141964cda7dbe3ae058faa7011011b9db99a",
+      "size": 124687
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Ceiling_1.uasset": {
-      "hash": "sha256:8f0d84bd607d6b6dcca3a0ac073503ae09e2780491d042c9dc520b688338c87a",
-      "size": 84095
+      "hash": "sha256:0314d59f616d1fdb6b4b8d047ca187480ef49a3a1baa3ec8c9faaebaab97d541",
+      "size": 15099
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Ceiling_Light_1.uasset": {
-      "hash": "sha256:da41e60e179856884982a6af296cd6770d3aaab423d837635c4c6fc1025835a3",
-      "size": 91419
+      "hash": "sha256:21432b24bb35d5a5f2d04c4baa88a6ddc6577d243a0e3abecacca3a8ba011a34",
+      "size": 17316
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Ceiling_Light_2.uasset": {
-      "hash": "sha256:b4b21d0631bfc7c3a0bf067fd82aa0d31de2c5feac47e0295b7aae2e326bf362",
-      "size": 39116
+      "hash": "sha256:38c0f88e623829f1a47a12ace37cdc9bcc1be1b7746844bad4fcbec8f91b06a5",
+      "size": 14896
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Ceiling_Metal_1.uasset": {
-      "hash": "sha256:089e48ac5d31b2e34fe6d44dd770892d279d6aa282d9685e30d7346493eff1e0",
-      "size": 101927
+      "hash": "sha256:f3aa098e50b2a43272e924d28d426ab5611d0824489f72982f2fb41c6682418e",
+      "size": 13588
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Chair_1.uasset": {
-      "hash": "sha256:f350db3300de8c22e4f592046fd9f6a53a5d4a620111f1fe9d3a67e0c11573c8",
-      "size": 98443
+      "hash": "sha256:a372be3755986452615f1f083aee2552797fc143d7695040cddfbde91d196f1a",
+      "size": 100820
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Chair_1_A.uasset": {
-      "hash": "sha256:c39a9aa54d4ba59ed6e12a470044be442cf12a21bbc294872eaa70d7ee40228f",
-      "size": 108741
+      "hash": "sha256:904e6a0f085167dcce508cf1305e16cd707d19a01426dec7bc866d84afd0e609",
+      "size": 111131
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_2.uasset": {
-      "hash": "sha256:1dda63f70cb05e932241592a4d22acb8cc43244d79f75d89cc5d3ec1bbc9f9d8",
-      "size": 142764
+      "hash": "sha256:df7eb919977265b01573cc57a26648183d503a8f8b0fbf28b66fa61df649ed43",
+      "size": 29577
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_3.uasset": {
-      "hash": "sha256:e00a1f06380e9261d2e98e7062b730afc570d3fec4b235df8d9029ee8286931f",
-      "size": 125787
+      "hash": "sha256:d4fca411c5700c453e1859cf62823a2a1d81364f1797285024a4d3236b9cf1e8",
+      "size": 31664
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_4.uasset": {
-      "hash": "sha256:6dc30187305f75e4858fd469144f9525619ba53281372cb5953caaca7e9b70e1",
-      "size": 135329
+      "hash": "sha256:5cbc9005356462d91a8eb3953f9e004dc4104c228b66607afea98d6698a00f79",
+      "size": 32652
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_Colomn_1.uasset": {
-      "hash": "sha256:a08b1f38d3710f7649740ee7246bca5b9a36e928e24619f8fc232d178021f531",
-      "size": 111369
+      "hash": "sha256:66832894ee007c3ba04e0d7bab863c87bc02a860f767f5aa0f88abb6d3256406",
+      "size": 13885
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_Door_1.uasset": {
-      "hash": "sha256:05e5826bd6c4c79235fdf1e6d376f8d2463423a25b7afb652a738c2253945ced",
-      "size": 113715
+      "hash": "sha256:8763cc9f4383e4c4d871516584079a3643b77b40a83e5373dbec20120cbcc3cb",
+      "size": 14262
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_Door_2.uasset": {
-      "hash": "sha256:b4fda770b5167cea5a1d3d3960e6d5f470b6fe3ea1e0a854504a824f01484553",
-      "size": 102406
+      "hash": "sha256:b0993fb62e8c4f504a73d8acf7d9e7e2d0faf60557660a59009a7aeb66479460",
+      "size": 16564
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_Floor_1.uasset": {
-      "hash": "sha256:c2beabc8223db07bec10a069b4a51e5dafbf3878c9723b25ee97671127fee6f7",
-      "size": 86384
+      "hash": "sha256:45218014c18d1722ea1994770477da6e9408dceb98832ba06ae36778c40bc3c8",
+      "size": 19996
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_Floor_2.uasset": {
-      "hash": "sha256:f478e5166e645d7eb59b6ed2f54ff3cf0889091b92c96d20a2871ea02e55bc0f",
-      "size": 108852
+      "hash": "sha256:d11dff88ea324adac7d9099a3d39d5c065554f37377c6519d2448706ec0f3819",
+      "size": 20496
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Cover_1.uasset": {
-      "hash": "sha256:0fdfd7d1ab60f63583f27d279a8fa68144069ee5b8020d42fb9b37bc6f55adf3",
-      "size": 90757
+      "hash": "sha256:73d614d5df097f5b9f881f18a1f8a51fd9a7871ebd177edbf695eb2d71a1e898",
+      "size": 12582
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Decal_1.uasset": {
-      "hash": "sha256:f3d90fc8bf6e2f9fdf6295eb9bc3b25cda137c34e448384025cef550da5ac594",
-      "size": 107816
+      "hash": "sha256:423fc36f928b748ee808a2be2bb685bb7349434ce39aa1d36304967f9ddecb32",
+      "size": 39693
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Door_Case_2.uasset": {
-      "hash": "sha256:eb5362d2cce9ecd7033918da6a8215be29446ded8176079adae902aa2e991657",
-      "size": 101561
+      "hash": "sha256:f6d79419eb7b6f0116eef20596a28ef270a99650d9719cd9666b96c5ab4708c4",
+      "size": 13579
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Door_Metal_Floor_1.uasset": {
-      "hash": "sha256:adf58e3e30d28ca95ee21945680cc7ffe81120d98ef3e6a32fa0910c11805b4e",
-      "size": 100952
+      "hash": "sha256:51a9fbafc7e11d44f14cad76f2cea94b53bd3cb775cca582c6ff6c2d2b10f67f",
+      "size": 13624
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Elevator_Floor_2.uasset": {
-      "hash": "sha256:eb6ad6236a361bfd5f71001a1111ebba284233a9e4ee24fa48973a3e21895d29",
-      "size": 109611
+      "hash": "sha256:3158ef09d8004dd5eec0cf827c4e0a0382f476b9821faa8f000db791bb9661a8",
+      "size": 111882
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Elevator_Floor_3.uasset": {
-      "hash": "sha256:c38a8677aed22a187d0ec1eac9befbb066c19231f0f0e299d51298b3406368be",
-      "size": 110476
+      "hash": "sha256:f2c6045dd0d6fbd86311ade8e7dc609076771a6b88ba43e49d55248776c52b33",
+      "size": 112748
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Elevator_Metal_3.uasset": {
-      "hash": "sha256:a1244951689e22ed828bc6c43e5c80d9929060f8c25734f8249ac08d80f4a80c",
-      "size": 111540
+      "hash": "sha256:e9eed7846afcc922e9a898ec27949df69465bf0dff44c11ebe4e81b3acc39e5c",
+      "size": 113884
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Facade_1.uasset": {
-      "hash": "sha256:d2c304fcc88731b2b94f78f2938af3a9594799a2ccbd795fde6117ef9a8e6181",
-      "size": 147963
+      "hash": "sha256:576598f6dfdb820932f7d5c5d828bcb7516c6c723cabc76e41f19ef0194486fa",
+      "size": 17354
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Facade_2.uasset": {
-      "hash": "sha256:6aa0980f4d91979000646bfaba5c512c52b916e42eea6c33c6ebd66319fc6c7b",
-      "size": 131740
+      "hash": "sha256:0b270e2a5514aa706761680f9465a046404403c29d274676f6e9e07aa783f8d5",
+      "size": 17793
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Facade_3.uasset": {
-      "hash": "sha256:09789d144fd574646809c899ecfae71279f890a3d5d62c1dbe0d1229a1b9d125",
-      "size": 116189
+      "hash": "sha256:f9253eb77b4714105cd94f04c0183920679c5f74bda32e5ae0349f55130ccf4d",
+      "size": 15852
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Fence_1.uasset": {
-      "hash": "sha256:cdd7dbecb0e11a050d4a920ca6a74216e04fe96dc988c5acab3d3c5bdd517a88",
-      "size": 124620
+      "hash": "sha256:7cec3979792a24901d7bc7a6dc6a41009c2123d4cd32e0b455ebd152ddb03fe3",
+      "size": 17686
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Floor_12_Corner_2.uasset": {
-      "hash": "sha256:28a3aaa251725d6ac99f45528fbb569a5e3b32749d7646f640a9cb5fdfc116c2",
-      "size": 118549
+      "hash": "sha256:3e8e4bdaf31a3e86bf879f2c9bae618674e0c58ce6989614c1378904bcc36d51",
+      "size": 13615
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Glass_1.uasset": {
-      "hash": "sha256:8c508814fbf856d1d4b0d0e558a7e0e89e5f53800dd36f18d48ec7558139e7f8",
-      "size": 98678
+      "hash": "sha256:da208a54e16722dab6ad969d163b4d6afd156858108199e6860eb61d42adf5ee",
+      "size": 9132
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Glass_2.uasset": {
-      "hash": "sha256:5c6aad22f43ee9dc7a7c5d062b65d49bd8df7fe7f3567523fbf24ee07c1d34a6",
-      "size": 78458
+      "hash": "sha256:5f5de1a758adcc2f82a03b0b934068fa493b78f431e7d4cbacaf7164e2dab60f",
+      "size": 15150
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Glass_Dirt_1.uasset": {
-      "hash": "sha256:f20db3bff1fa37bf3790941a52ff859ed7eb6bdbf5c8f307c18beef907e22c0d",
-      "size": 95965
+      "hash": "sha256:5fa62ef07bff819308fed90ecc7fd114b088ecace3b5a9223e187e44143277b9",
+      "size": 16303
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Gravel_1.uasset": {
-      "hash": "sha256:c8e8e48c4468cfb817c6f6e95431900ede000ac465bc1d05ad0fe1426acc8101",
-      "size": 144460
+      "hash": "sha256:6b33ddbf5e98a1557ccc7ca3c57e1a6ce9de5fe0faf1231d396ee07082514003",
+      "size": 35569
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Grille_1.uasset": {
-      "hash": "sha256:a79e9319ff0a7e3b6acc0ce1b6027547ff43b8ec416d484759d212b87e052d88",
-      "size": 104599
+      "hash": "sha256:db6c4d470ee875d42188254ea4f8d1f99e3aefbf9de247023702cf2ad4f5b612",
+      "size": 13504
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Keyboard_1.uasset": {
-      "hash": "sha256:53eef3d5a187b8295f8bef4dcba8f021b7d8241f528c98779842bac72b44c0d3",
-      "size": 109559
+      "hash": "sha256:a2c2be4d8c3571b59bce0358ec4a82e22a178072eb747f264724b95033bdbf29",
+      "size": 15338
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Master_Concrete_Floor.uasset": {
-      "hash": "sha256:7dea06c10f9ed540a2d5780d6b89133326dc2beddca6528574fbc1d585ed0f83",
-      "size": 141364
+      "hash": "sha256:a5ad23167fa1cd84370559348463a1a2a2b0e6e57bfa47db86bd5b8acaa26738",
+      "size": 68182
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Master_Height_Rock_1.uasset": {
-      "hash": "sha256:ae66ce3d5a5c503e254429a9f8fa07633ab3e30ea2aa495078dc7985160c7acd",
-      "size": 157031
+      "hash": "sha256:47e573d6a679091a664d8ff88dcfe5155a4e142663480bd57cfde9e1cb966592",
+      "size": 157610
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_1.uasset": {
-      "hash": "sha256:711301bff8931b2d66eb058873a93398d76b2c5c80801c5b12ef4f9c08519082",
-      "size": 115438
+      "hash": "sha256:7447e6768508c58673c29a5011a6235912c118fdf3165d40a346cfe8a55645da",
+      "size": 117844
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Door_1.uasset": {
-      "hash": "sha256:d3cbd1c07f51f4572b913ba4cf8b420456995f34a53b33eff5f7d1ed7309c069",
-      "size": 108756
+      "hash": "sha256:b02f8b7d56ab29aec9e5a35b6b5470454b9e7498c514fc383ef5f5815d6559ea",
+      "size": 14777
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Door_2.uasset": {
-      "hash": "sha256:438ef0e2c3159054e756b4c3268d876014c54a6c8004f4abf34de1c3d65d3095",
-      "size": 101876
+      "hash": "sha256:c0398067b9efa434503e42234f15e7f7165d69a7e71ee8eaa4b8c3128f170197",
+      "size": 14659
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Fence_2.uasset": {
-      "hash": "sha256:a7f76818942c5e116082867f3793a35b9538a999ff26ae11ec5c49f4164d9d52",
-      "size": 126363
+      "hash": "sha256:6b2055cc418c5d773ea2f97276c1db92fe54280f2518760d163b8cf1f768af6a",
+      "size": 21736
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Fence_3.uasset": {
-      "hash": "sha256:da92a72c998bebeb2faf57ee643fdb355694b45bc1a090fab3e6491cd9932013",
-      "size": 146181
+      "hash": "sha256:03fb6c8454dc9cde5e1b544b522e3d89095bad702b98a64ee82b004bde951364",
+      "size": 148463
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Fence_4.uasset": {
-      "hash": "sha256:8a8ab47ee728a409666324af869139ce9c954cfa37dfc1701db9784981d57b53",
-      "size": 129494
+      "hash": "sha256:a5a042ddc95efbc5aa75c9ede82f1df3590945a531b261a850b8f85feddb7bc5",
+      "size": 20069
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Stair_1.uasset": {
-      "hash": "sha256:82e0e18521820cdadc2fd81deb28efc6a38844249cbed7e6106cc2daaad1728e",
-      "size": 105272
+      "hash": "sha256:dc6e3b05413441fefefd35e810fb1f2042a5f4fffc4b31b720b0e80638f63fc2",
+      "size": 13567
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Walkway_1.uasset": {
-      "hash": "sha256:87a3cbb8a2fc8b73840be1a1ccc1e70ae8ca1c13ef01a2b164b7cf64ac647dff",
-      "size": 122604
+      "hash": "sha256:e137ee07690ea8faaf4629b6b76c70fa8ae043238d74fc5d9ef5f18741038ea1",
+      "size": 18890
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Walkway_2.uasset": {
-      "hash": "sha256:683c72e7e6d30dc66ea60311e81852188bce7e62ce985a78440a6ac1be11a14c",
-      "size": 147753
+      "hash": "sha256:6dbdf9d07b3f322931f6ed8d7c97013b391e6536312c7d566f8b55cbb74b86a3",
+      "size": 31139
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Walkway_3.uasset": {
-      "hash": "sha256:91804cfdb78f958f8b82602f1190cb6be19a4fa0a0d70e3fc19403e2a16f8398",
-      "size": 137083
+      "hash": "sha256:423d191ff77e47032b76b8a0b2352aa36fe6eface7b2a838947e3084bfc4a25e",
+      "size": 22574
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Walkway_4.uasset": {
       "hash": "sha256:8f15f8f694e14f0c5618d2ff3076e53f9b17e6d57cb617177fa6ffeb9a3c3025",
       "size": 100795
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Mouse_1.uasset": {
-      "hash": "sha256:6472480592bc6682ad403f2e8c8e743cae299b479bfe33350fbf6bacb2447d73",
-      "size": 103889
+      "hash": "sha256:9d0c3f0f5b180c6dc1ead4ec4dcb3647bb5650195e89c5ffb0c582c572392eb3",
+      "size": 13492
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Pillow_1.uasset": {
-      "hash": "sha256:b9e5b6036524d33791171e9e32f12b17727d93f37f9baef1fd84fc9c5d81fca7",
-      "size": 103538
+      "hash": "sha256:1ce8d02abe8b17110fa5c0b521aba971c2242db96c77157a03e85557ea2bc5e0",
+      "size": 15920
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Pipe_2.uasset": {
-      "hash": "sha256:b1b8f7b93c44918fa230ea2c541c7935ea00361a6d0c238eb95aea7d061fa1f3",
-      "size": 105424
+      "hash": "sha256:f6d45d983e8af98832330e208310c9e6f60e181c3f4fda5e089a424a08087d20",
+      "size": 11113
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Pipe_3.uasset": {
-      "hash": "sha256:54cf74aa69f88c0cbbe93e400a87c4f3e0a642cd5bf2233a279b84f21fab8847",
-      "size": 103885
+      "hash": "sha256:955630142901597ef28e712400795096cbf91423e8544094c8571a6e7dcbb399",
+      "size": 11868
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Plant_1.uasset": {
-      "hash": "sha256:5fc3637c9ff280e1fb84fb771159c2b185cccc6db55116995f14f22f3025a402",
-      "size": 97274
+      "hash": "sha256:ab470edd7d035fac8052fc580193dfbaf075af0a0ffb154a2e23564292754c8e",
+      "size": 11130
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Platform_1.uasset": {
-      "hash": "sha256:81707872810286cbf0ab5b7e6f0df3f523045c9050a7ffff2434bc33542adde0",
-      "size": 86675
+      "hash": "sha256:955e62c98046e7cf9f59cebe805663c14d53745c1b4bfd5e78ec627e3287b2db",
+      "size": 13042
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Platform_Colomn_1.uasset": {
-      "hash": "sha256:5636be61b67bd1099850082bdc0466b5640ccbe423e0abb68027d0a3072d7d93",
-      "size": 115168
+      "hash": "sha256:be30e2c9a886d8a7fb47c89613de03adaa4b66ad88aec1ff31432593b22abe39",
+      "size": 14574
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Red_Light_1.uasset": {
-      "hash": "sha256:5db4e7d7573002e259e6ac4970e944caa04a82c7bd8d3ee6c09a559360a9effe",
-      "size": 100603
+      "hash": "sha256:c7456a5ebaa5bf49ade76cdf3f2126047c25d3d3a77828a5b0447c84996fd98c",
+      "size": 11292
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Red_Light_2.uasset": {
-      "hash": "sha256:897d3ddb9e16eb099bbbec40efda764fe4619dd9f4daa443abf8ccfa7f9e59f0",
-      "size": 95337
+      "hash": "sha256:2c500bee15d08ecddd6899a4beb046f7b54f3f7d6bb5a4cefbb3ec4c25befc6c",
+      "size": 9489
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Research_Wall_1.uasset": {
-      "hash": "sha256:16a0407d6c66b1504c7281a663b2371ed17b6ae04b5e74aca84c969084fc7a6e",
-      "size": 85798
+      "hash": "sha256:78d80433f6166b3471f6c304122ef2eadb5ffb3cf74bea12f819ad33e79683a4",
+      "size": 18267
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Research_Wall_2.uasset": {
-      "hash": "sha256:fa3ef369fabd4fbfb43ee9d7d9ff7de1cab94b5a034795317eb52d66b577eca9",
-      "size": 106759
+      "hash": "sha256:f4aecc5fdb426809184e4c00e64d50f082469fa21c3fdcd2155414068142630e",
+      "size": 20408
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Research_Wall_3.uasset": {
-      "hash": "sha256:c577ad1f412879164f005b957ac6c417e0f462c36deaaa354fd48e0c6df8baa5",
-      "size": 117369
+      "hash": "sha256:0f1b392590ab7be66f71e80545e8172f3878adc56574fd20e73af9238889c76e",
+      "size": 26647
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Research_Wall_Glass_1.uasset": {
-      "hash": "sha256:2f42b78ef540f040c15363156c14fd937759cd49c132d28bb6942a80d3154ff3",
-      "size": 107609
+      "hash": "sha256:93d74696ac4c01668874a7b8e22046a3dbdcb03600facdf7fcc0a36c7dba2d83",
+      "size": 15294
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Rock_1.uasset": {
-      "hash": "sha256:6d0e7cbdf12987ff2315b1556b151f99dc4fa995fa906e80604b14f331b0a46c",
-      "size": 146826
+      "hash": "sha256:0ab5ed52cabdb8ce40b5b53e6de0407f814976d8c980d56942ee417d0b6c195f",
+      "size": 35113
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Rock_2.uasset": {
-      "hash": "sha256:69a17470690c7a72e775a739a37a1b81095fc8f7568dde122bf631eb3cef1ffd",
-      "size": 144917
+      "hash": "sha256:d088e80d164b7087f2ff7be2442fbc1108a225aafdc8d92a3d0feedaa119d7d4",
+      "size": 35022
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Rock_3.uasset": {
-      "hash": "sha256:5cf5d998ba31d25a3e19b431f0e60bb5448ad6815adf40572feb49a0041a981b",
-      "size": 142107
+      "hash": "sha256:5b87d4b5174f228273081e09895bedaf924daeea1f72cb07f636a29f5c8a1018",
+      "size": 35026
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Rock_Dirt_1.uasset": {
-      "hash": "sha256:59a469b1b81f96523535db77627b35d3f51d11d02ae66c1ec2fd6f292939a6e9",
-      "size": 96432
+      "hash": "sha256:2fff46edf9d08b275e7d1bf142e3ed78bdce760b949b834103dea2dbdaa0327c",
+      "size": 16801
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Rock_Plaster_1.uasset": {
-      "hash": "sha256:b11e552642725841b838c24bdd7c172f1a93f3ad9332ce1c01d942066b5d3569",
-      "size": 126109
+      "hash": "sha256:bfa164c9f124dd05732c307c857b7418477b4fd895c9d9a48139a2391d7db403",
+      "size": 37465
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Scaffolding_1.uasset": {
-      "hash": "sha256:a41f8a4d3b1c38c189000e53437ebb1b808c872012225b51bdcd0c3e69264d4e",
-      "size": 109497
+      "hash": "sha256:5b299e1f079f68b35ba1cbafac06c382b24fd31ca110591c70ea3b75e7214c40",
+      "size": 14637
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Screen_1.uasset": {
-      "hash": "sha256:913f34877fea67ae4c8a03a4e438981d79312a82f8eb57a209b3aa4bca006d35",
-      "size": 106092
+      "hash": "sha256:fe3f8c923c23ae4b7aae9815cbfd0513325088f39c57fd0fe55f999b0fee7cf2",
+      "size": 13504
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Shelf_1.uasset": {
-      "hash": "sha256:1b1e13f7badacffc210a4e6a087290f8040c7a5cde1b99af42b7625b03295b49",
-      "size": 95454
+      "hash": "sha256:2801e6465383efc45623a160fff6e4a89e1cdc5fa1b945e69f48d385cd6d8de3",
+      "size": 97837
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Sign_2.uasset": {
-      "hash": "sha256:db5fee5f8e2171ab39d09fcce5792beb7bdfefc8dcb95742bd2eed8d1a43732e",
-      "size": 116925
+      "hash": "sha256:415ee72949280853215fc3996ffe7310df4a3978687369ac7b37ee9b8d656e63",
+      "size": 16781
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Sign_3.uasset": {
-      "hash": "sha256:4f1e29a0e1bc9308d2e64cff736b010464787a39f35f7d69ae811028480ef003",
-      "size": 112385
+      "hash": "sha256:f92fa4db43caa858a79b10eaf04871604a64854df9817e901c5381d44338359a",
+      "size": 10822
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Sofa_1.uasset": {
-      "hash": "sha256:8d12031c5d0669a5bcf6deca8d1e68913cb4b65ebdfc5950234ea3dcd6d66719",
-      "size": 110255
+      "hash": "sha256:f280b73c4793d7da9c6bc75372ac3a963d8118215ff77ee9e8573fa2d465d906",
+      "size": 13734
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Sofa_2.uasset": {
-      "hash": "sha256:b2cf51592e936a66cbfb3b0c795792bbd6561acbf94f69013577087024b6c4bc",
-      "size": 108263
+      "hash": "sha256:43a7ad9aa3fcc638709ddbbedaa6498ca955a5b928546fe1a022880904410b12",
+      "size": 13732
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Sofa_3.uasset": {
-      "hash": "sha256:e08c577f91b05e13796a181f3d45118c7d960bded640119a49d403e784e87319",
-      "size": 112348
+      "hash": "sha256:78f99cf7760f37944f8b5d59308bdef8a9ea2b3a4cc605e2c0300638e0dbbea8",
+      "size": 13734
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Stair_2.uasset": {
-      "hash": "sha256:f62e1ee89682715c218f0822c37039518c4ea41da81b25fd6bcf574d38e81698",
-      "size": 106864
+      "hash": "sha256:43756e8238674816136f82f697da390c2891a5f31621b306fd2c46b610b3196f",
+      "size": 13543
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_1.uasset": {
-      "hash": "sha256:97438991186f6e6a13f1b4293900faff6f1787739da1cd3dc811fc7bcd5096d9",
-      "size": 107597
+      "hash": "sha256:689f8cac117dd7c010f4c34bbdb63653082af34a862e1da33c7aa663f35b74a3",
+      "size": 110003
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_2.uasset": {
-      "hash": "sha256:eae11aace1c064368d36926a9b650d3e055320b51201485bfec97bbff6f94b25",
-      "size": 105647
+      "hash": "sha256:519bfe2d4c62645c27df150253a3477e5cc5af0d305c9692a485f09d0c60db5d",
+      "size": 108038
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_3.uasset": {
-      "hash": "sha256:05a1c46447c7fcdc67c69e35d955bd70d1360c0a65fe1e48028adb89a10cfa42",
-      "size": 117737
+      "hash": "sha256:ceeeb3875af0ec2dd5c0f22ef24e7184f39a1d5cb9c8608c8991cbc41a079e67",
+      "size": 119736
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_4.uasset": {
-      "hash": "sha256:9f3f98432de777dd237adf0a5b63663aed8c8c446c67f398f293cfe50a5e4d32",
-      "size": 111733
+      "hash": "sha256:5a6afe73b7679364733646f5ba9124ddc474feb3899a83af901958342147e881",
+      "size": 14169
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_5.uasset": {
-      "hash": "sha256:c67deb3171128819eb804c20275c020d921357e00cd57e1ed7cf3596c7d0c101",
-      "size": 100939
+      "hash": "sha256:a0c1438746dd6c7771d63fca3b5665a16bf35afee54d6f0443877cbb6c109a9b",
+      "size": 13966
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Table_2.uasset": {
-      "hash": "sha256:2b4006e82828dd8d3285384876841f5f95f0f2a2da9cf2ca1d291e07755ea3e2",
-      "size": 109361
+      "hash": "sha256:b3175e7432d3b539179b445863ffd5e0ca725b7fcd48e2849fa3005d69a0c1c3",
+      "size": 111738
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Table_Wheel_1.uasset": {
-      "hash": "sha256:cc1d1eb034a470588df3b8b12cf022766a0f65b36a90691d62603c6100104796",
-      "size": 112454
+      "hash": "sha256:21686d3db695f7ec2322b6998bbe51bde5fa504a7d2695ffc10f30fec5dbf6d9",
+      "size": 114795
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_1.uasset": {
-      "hash": "sha256:209e7911fc8296010f07d0aeca8036f055f4a042c2b0a6dab16034594fd0fa87",
-      "size": 113155
+      "hash": "sha256:07a26ac8d66d1cb5bcf3e7dc4d4ac1852eb72788ea69b94e22dad14243b41db9",
+      "size": 13489
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Colomn_1.uasset": {
-      "hash": "sha256:a1a573ecd7ec9b0aeac7e2aa026d44e4d904cffc42a1829daee22058c8428842",
-      "size": 99259
+      "hash": "sha256:a2c013cc9cc36c8a7562e28d47b2a3e0c877ae6225cedfed2a991673c9b07a61",
+      "size": 13076
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Colomn_2.uasset": {
-      "hash": "sha256:c8140bbd30a797d4c4c16770dfe2bc3211a8f504f21b4a946acd8ab162cba0fc",
-      "size": 130660
+      "hash": "sha256:9865cb157bf35246e08f09278302a1d96bbcce59063f1c126a023cc641dc975e",
+      "size": 34804
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Colomn_3.uasset": {
-      "hash": "sha256:364213fe1c41ecfaa53ed18075673c2a5bafbe372018747354b22b72a97f8dfb",
-      "size": 109061
+      "hash": "sha256:180e24550487301c40eca0700cf732210e87fd5625735dedcd5ade53dd0e40e9",
+      "size": 15520
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Door_1.uasset": {
-      "hash": "sha256:aad499fbd9fc16f0925aa4fdc3521c7e356e6fe62e4a8bb03b677dac01bb4625",
-      "size": 109957
+      "hash": "sha256:8a2a44816bca7234d450eb1f50b3ed80558f6a44590ee581673e6f74fa1d4599",
+      "size": 14172
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Door_Case_1.uasset": {
-      "hash": "sha256:9a0aa4df8ad0dd3a9fe7276d2e9b502ed34f5a90fe81a6a67604f936ed554e0e",
-      "size": 109853
+      "hash": "sha256:03a95febf60bd465016dec7bcccf89da5dc5675384d371f2fdddb9d26356e0f8",
+      "size": 13627
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Fence_1.uasset": {
-      "hash": "sha256:cf10ccf68b86f515b4900510679f0f039d8eca2988704441717f9104de9828f9",
-      "size": 113767
+      "hash": "sha256:dea54f8b62ff663d6707091fd88d8bb1c746aa7f6119efaa9c4d110981449f5d",
+      "size": 13211
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Floor_2.uasset": {
-      "hash": "sha256:fb0cb80ae185ed1d047de5555e8a5e04807fa71feb49199d734f2c075834db47",
-      "size": 101406
+      "hash": "sha256:1e7ff5d8148d690ba9ff716f38112ee39adffcdfec6e3e365f57cf83cc699650",
+      "size": 13579
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Floor_3.uasset": {
-      "hash": "sha256:cb2dbdca8b725bd025345e8ff003ff8c6054a87550124228ac582957ce4b3de4",
-      "size": 105167
+      "hash": "sha256:80565f6c1680bccf3f1952bf35e5b39d1b890cb8d32667ebe0e519ec4c60ee1a",
+      "size": 13576
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Floor_4.uasset": {
-      "hash": "sha256:bfb3a2f66be725b57e3a26d686d894318d67eea992f2d2ff4e67ace8e4cd26d3",
-      "size": 101993
+      "hash": "sha256:b226f63ccebaa82f716bc8ed0bc1437e59940443e0e508ec5ec808c5e05931b9",
+      "size": 13986
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_Metal_Colomn_1.uasset": {
-      "hash": "sha256:c5bc5363f9d944309eed19369af4112e4fd55edfbc81b733a6b4171f5ca87f03",
-      "size": 116446
+      "hash": "sha256:5db3f6331447ab9efcb1eb83fbfdef7ff62f8598ed1926d5bd3c894eddd68ab5",
+      "size": 14232
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Yellow_Glass_1.uasset": {
-      "hash": "sha256:d274cd1beff3e6424ee93a8f036720ffa74e316cb97e05b456d7569b326ada3e",
-      "size": 107073
+      "hash": "sha256:655e2ecc5aaf8f2ca31bb2e67c43e6cd07964ce9c6d08fed4e20468b1ac0fb15",
+      "size": 12771
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Yellow_Glass_2.uasset": {
-      "hash": "sha256:d5ab9f4fe670f07580eb873aec12bfb479636b5486b8239f2be285b7ad07a7cb",
-      "size": 115535
+      "hash": "sha256:71f2fcbd830c96609597614b48e879f876ef7e99431fc1f41e2f6610d84c0e7a",
+      "size": 16362
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MaterialFunction/MF_NoiseGradient.uasset": {
       "hash": "sha256:cf802ba7c15026f42ac8b0a3789839311051944ee0a6d3e36bd32ec0dae09670",
@@ -78960,8 +78960,8 @@
       "size": 21182
     },
     "Content/ResearchMegaPack/ResearchUnderground/Textures/T_Decal_12_B.uasset": {
-      "hash": "sha256:8f9e932350d0283cf40288636a10f902910d5613fb11d962ca4ed4fd8381f558",
-      "size": 22958
+      "hash": "sha256:784741098ad25f4cc248783f330e27fe8ba15dd5fd2744fc11ce907f058b1f56",
+      "size": 16233
     },
     "Content/ResearchMegaPack/ResearchUnderground/Textures/T_Decal_13_B.uasset": {
       "hash": "sha256:601861ce9440959790c398adf6ae6318467f56247188e86cad068a5f6eb160f7",
@@ -80172,504 +80172,504 @@
       "size": 87511
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Asphalt_1.uasset": {
-      "hash": "sha256:2ee3426eb6433818943f3fbe68ae671ad8bc8a2d8c5a3d64c3bc03f1d0e00072",
-      "size": 117631
+      "hash": "sha256:d3674aa0efd5bc14f6cdbc0b459ccdaf33aba561ab4051abee20d31b08283576",
+      "size": 23163
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Asphalt_2.uasset": {
-      "hash": "sha256:7042d1b114c9e8bc8538c4907bdf56e5f427ff347bc1f2d9be9ef3f199888d22",
-      "size": 84344
+      "hash": "sha256:430e959de2b9976a1d9f50be3f55ca37c6e7d5b6d0a798f84e801f544bab830b",
+      "size": 16312
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Asphalt_3.uasset": {
-      "hash": "sha256:ac02d7fbe0382ef0e2d386e1c0428606a1d9a17c5b478eedc52eac6c638897bf",
-      "size": 124088
+      "hash": "sha256:8d584d13a88051d77b4fdc82a411e70ae1046de3164b9cbb1d16c086ea51ea92",
+      "size": 24028
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Barbed_1.uasset": {
-      "hash": "sha256:34cf1529b7d413f0894238f2e710b9055b09d3028e1019c5428ef9fad5e9a0cb",
-      "size": 107394
+      "hash": "sha256:65359efef8a6991535ca05b8efba1defb5ca876c7a5f8f76be70bb59a00e6ce7",
+      "size": 12955
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Barrel_2.uasset": {
-      "hash": "sha256:983c82c38c85cf73af2f1c68834b4a39707b5bd0ca3ce499d36587e488011801",
-      "size": 108541
+      "hash": "sha256:4f93e1d670ee6433aa2439ceb4a1556440fe6ef8936dcf60b28546aba814b5d9",
+      "size": 14447
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Block_14.uasset": {
-      "hash": "sha256:df91bf334079e8b1e8870bd3ac628e7bed379349695f27b7a5a89a1e5e8a80cd",
-      "size": 126009
+      "hash": "sha256:cd350fa40b76d061f00d50fb714ce7ecac9209e6f36c30154964536d28efee67",
+      "size": 13430
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Block_15.uasset": {
-      "hash": "sha256:2b73eada093190f0992e30bd85e2c0f603e977b37b20d3bf3c010078463ac60a",
-      "size": 120779
+      "hash": "sha256:1c553c927a45ba3f33cf67f34e9cf79d1b5cd61027170cc19a7574b555ae0d42",
+      "size": 13427
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Block_Wall_1.uasset": {
-      "hash": "sha256:15a9009ea22520a06316b963dddb4aecbaa4f2e7f6de89e8a9d3131481860044",
-      "size": 109985
+      "hash": "sha256:751bbae5de4041b75405bd774f56f3e957f96f06f506810d6194fbfcb1f1ddd6",
+      "size": 12734
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Boom_Barrier_1.uasset": {
-      "hash": "sha256:bb307d152d43dc5b4723dd201b801d251047f731d21705c6c1cb332c9d5f6fa3",
-      "size": 115221
+      "hash": "sha256:9de0deee50361464b8f07a37fb43d9f8d0ae3de12b0c8b6ef041a447da32f5b8",
+      "size": 13501
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Box_11.uasset": {
-      "hash": "sha256:01e3ddab8a8e16477e9a861386f02d79ef06ab11d29a13897c5b6f9b447d67ec",
-      "size": 107870
+      "hash": "sha256:563595f4370c877e3a42f181d74b3f89a064c16dfedf53be0e53b91c807ce492",
+      "size": 15831
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Box_12.uasset": {
-      "hash": "sha256:68464db2d5945bc39992de4d3756f0886bedee56fe284236f208d9a9812b7cb2",
-      "size": 108135
+      "hash": "sha256:583bcf3aaf332c0cd3a2d3b1d4e3f36a5bc70af08e167780ad6a39d301fa1fe9",
+      "size": 13420
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Box_13.uasset": {
-      "hash": "sha256:66a9441d902b36964a05eb4eeafe710b4ba2c423eb286ee8fece309962e9d561",
-      "size": 118477
+      "hash": "sha256:c14c43fe8a9b63ede111d763903ac4c2ed96f56a2cc9f9c813161653414d9e66",
+      "size": 13403
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Box_2.uasset": {
-      "hash": "sha256:00644fe6d60bd1253838d9574dea23ea548282f8a8d56f8b6c04a82d62e74c0f",
-      "size": 100849
+      "hash": "sha256:a85723e4df17091d41b341ddc7f7e2b9fda8aba24b7b7274293668e3409cfc2b",
+      "size": 12896
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Box_7.uasset": {
-      "hash": "sha256:3d01e5e2e0d87181f299902b85057ea7788bf296e2a7cc3df110f830d18578b3",
-      "size": 99695
+      "hash": "sha256:eaa32f24f2c1106ec2bc303501633960298c859ad58e2e440f8434daf7537ae9",
+      "size": 13234
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Brick_1.uasset": {
-      "hash": "sha256:976112bb4f993bc0b098ac6b9d5bee4cf0c1f0d6ae451bc8ef22c41310b39c17",
-      "size": 138082
+      "hash": "sha256:576e62c3a451a811ca9a37ecd4c7f2368bc67546f76b80f7c807a153a8268926",
+      "size": 15814
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Cabin_1.uasset": {
-      "hash": "sha256:608c6516cc9fecc56bcd6cff5f2f79600dea3fb20eb4b25e9c74c9e1350cef23",
-      "size": 122015
+      "hash": "sha256:e1ebbd541d3e05944e1de01a2d0b8aeb4380dc24451a9a3533c5c8ff842f144a",
+      "size": 13420
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Cable_1.uasset": {
-      "hash": "sha256:0db1fccc64d594c5126e3f282571d1de60632ca103f66d6df4355695dc211a9b",
-      "size": 100111
+      "hash": "sha256:d5ea68e62a21cdabf88fadba0493e22498295b17ffcb26f7813d41988f1c2e0f",
+      "size": 9719
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Case_1.uasset": {
-      "hash": "sha256:1b0da7b3f70f0dbac56fda93b0312402c0015a5c7c8de64ce6d211744a1675c9",
-      "size": 136405
+      "hash": "sha256:cdf2f83f08fdf1690b455f484e77011e8f30578db546b9c7d5b5395924f95fb8",
+      "size": 13408
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Case_2.uasset": {
-      "hash": "sha256:f37f17450e5c03c9aa079d39447fd3bed04a1d1f828d21341af6f7529e4efbef",
-      "size": 118013
+      "hash": "sha256:a222fc86251dbe54d9bf69b387d1a49ec5175fa38f2f72adc98d1f8fd86e633d",
+      "size": 13405
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Chasis_1.uasset": {
-      "hash": "sha256:c729def29bcaa4b421d7e494d51a3c989fcfafe0dcf8a52104052768129a5fcd",
-      "size": 122207
+      "hash": "sha256:4e4bb1173721a460b1c53ae415972e0e6418e2aad55f68ed9ef43e3f828da578",
+      "size": 13432
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Chasis_2.uasset": {
-      "hash": "sha256:40975e58132e99a70e6567b1602efddfd2c1df6edc220089007811ecaabd9b99",
-      "size": 120894
+      "hash": "sha256:34ba99ffc63a03d79b7b4e044472d1808ae687c06e20f279fe22a43457fa98f0",
+      "size": 13429
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Chipboard_1.uasset": {
-      "hash": "sha256:41cd9fb27e4885de8b5a3125492f88c7b464ba4832cb581d935548a0807c0d39",
-      "size": 104092
+      "hash": "sha256:df6bb9a6593014829cdb79d542c571a8eb37e85f528a8377f855c9094eefb37f",
+      "size": 13917
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Cloth_1.uasset": {
-      "hash": "sha256:bc7ef66ace6ba838ce5f21efc7ad7a926fd97c1595034828a8a8015c587902e4",
-      "size": 119487
+      "hash": "sha256:3e40467ece531786bbf054793700829600805f6a23d065c12323a3e0e893b0be",
+      "size": 13420
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Colomn_2.uasset": {
-      "hash": "sha256:2443b54f1319e03d0a814576f9a7ff6dc0d640c9e005dd0227122f0ebfd9500e",
-      "size": 114545
+      "hash": "sha256:6c1848d7826b888a2ac8dc19a8af3ada3bbd24026b3608cd24c17e6444b0660c",
+      "size": 13429
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_1.uasset": {
-      "hash": "sha256:262d8cd3b334fb1ba3e126dbb6466c1cd372ec26eee8a9ee49c2f378c5da6bcd",
-      "size": 98613
+      "hash": "sha256:690d2da557700c0d40c002745a86d2eb601f249c2eaaa423807fe27f86482ef5",
+      "size": 12050
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_2.uasset": {
-      "hash": "sha256:1bc06e7e1e7d8d8dfe71336b6230ed87727ecfea4ee8a0c5a3ab058eabf6adda",
-      "size": 96914
+      "hash": "sha256:0d6d29a0e22db393e65ac005add0c2128797e65760c6fe4233f00f816b385ee3",
+      "size": 12718
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_21.uasset": {
-      "hash": "sha256:a67612ac21f9e8fe87479df3998ad6d0bef67843e2b2489caeab64d6967dabbb",
-      "size": 114894
+      "hash": "sha256:65d1b2a9740dd6db59cbc03053cf1f94ec85f38718fb2c24b65917caf9903bac",
+      "size": 15357
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_4.uasset": {
-      "hash": "sha256:638ae9353cfe3d19f7317b32ce2e28cdb0afe4070d009a41abd6fadb4c173712",
-      "size": 109320
+      "hash": "sha256:a0f84e7e87f95c08c643aec0aac10be98612ff4f6a596cdae3bcaeb7ef7a9690",
+      "size": 15676
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_5.uasset": {
-      "hash": "sha256:300030879dcb39405a410e0edbb367d8b2fe95191fac4a1d9240ecaabe3ac9ea",
-      "size": 95693
+      "hash": "sha256:f60ceb3f838a6d9816f2d3263e6f8143b8a275568feb4756f46639ad9d42ea95",
+      "size": 12881
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_6.uasset": {
-      "hash": "sha256:da97412e233f2b8696e47513196b2bd141731913133d5a547292976193e0c148",
-      "size": 102597
+      "hash": "sha256:c35c1e15b6f5cd8da3d4ce983815cb60e9841dfae12d929cd0bf07acbf6f3cc9",
+      "size": 13237
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_7.uasset": {
-      "hash": "sha256:ebafb2e5edfb9e242282060d41ae6abb93e6d1e7ca5b85c01432721e2cbaa6d3",
-      "size": 93473
+      "hash": "sha256:95a6c05edaf9d0b68e111a7a9be7deb1bc42f3be00d77e0b5653c1d749ebbff7",
+      "size": 12156
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Concrete_8.uasset": {
-      "hash": "sha256:4aaee810a89e7c732d9755de339882f88db58ba317113cddaff97e085a3eda54",
-      "size": 124025
+      "hash": "sha256:66253e72186c1f5c77bc1c27468c1d030450c1d01ef8204a8e8c3a692a0f45d6",
+      "size": 13408
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Corner_4.uasset": {
-      "hash": "sha256:6263d8aaf4c1a78684f8ff7d2db03032e99e66bf0f2faefea2a98984f15f7f6e",
-      "size": 144040
+      "hash": "sha256:7a780df50494c67919f50ed24d436f6c2c5250a5365b6b70b343fccf01ec0524",
+      "size": 12682
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Cover_1.uasset": {
-      "hash": "sha256:16ec9cb0e4f10c7d22d53f18845b2845b5ced70af1c094ebb7e3a227e8525dc4",
-      "size": 135649
+      "hash": "sha256:469321bae9e4101a8330ee7aa01e6e7038923ce7990b4abefe04cd70e56c6672",
+      "size": 13372
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Cover_2.uasset": {
-      "hash": "sha256:7b30375e2e3ea668ebd67393849be228c85c43b3889d36928084abc206dd3f30",
-      "size": 139940
+      "hash": "sha256:57955ceb70257e0a1f4b843bf4a0e38780b7f14fc5e80ae7e6c391efe0145f91",
+      "size": 13372
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Decal_1.uasset": {
-      "hash": "sha256:4bfd0b1f77c68b4f6bfcd3077710863152d6309ab5cbafb43cbc6f7c92e5df4a",
-      "size": 103433
+      "hash": "sha256:e0984146273d53316656a6cf307fc56b72575f80dbb73cfaf923a5e782d77129",
+      "size": 17401
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Decal_2.uasset": {
-      "hash": "sha256:c60f6491105a6ff76b39e0c9aa87685451505e129fabfc584ffb11fb9c292491",
-      "size": 119464
+      "hash": "sha256:70d34531f1565b248b421be9ff8703cb17f0ba2c1c452a8a421ca21ce919875e",
+      "size": 16296
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Decal_3.uasset": {
-      "hash": "sha256:85c1350e4dcb6b33d72dd3ae71e9d63d8c8cb34d340928c4892507fb7ba41e4c",
-      "size": 99728
+      "hash": "sha256:fe628148947ee78f644cbc1d14fe6ae050deee33129c86278eff850613bf0731",
+      "size": 17796
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Decal_4.uasset": {
-      "hash": "sha256:3bfbf1547869a15dfc70ce2a45b448adee7536a00497a4bc68e578036451b756",
-      "size": 87580
+      "hash": "sha256:bae46a42a665be66b7556ac72cb21e07e3838eebdc78cce79fb86152cfd639ad",
+      "size": 19489
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Decal_Line_1.uasset": {
-      "hash": "sha256:567a2aa52798dc4891833ff3068c6b5b56df36ccf1be14ef0e95d375652ea638",
-      "size": 85043
+      "hash": "sha256:ea8b21a5c18276b9e392a23a28ffdfa06cc9a1337fbfab1f6df5369385b1fe9c",
+      "size": 13925
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Decal_Line_2.uasset": {
-      "hash": "sha256:fd6adb0109410db2fa58b3a8a10561d59dd7fdf9e084c9eda2423e66d6ae8b18",
-      "size": 84472
+      "hash": "sha256:c0c1b1b9789b7c0b14e2fe2d0ac21ea9d2776da872c9d4948274972868cd47b6",
+      "size": 13431
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Detail_1.uasset": {
-      "hash": "sha256:7e6882848b04422784e28f8463c0bf6a98fa065d56104bc19edfd3f6d16b7e67",
-      "size": 106618
+      "hash": "sha256:02ccd82938b6be03292e789b9465868b3a3777092e5412ec6478e8705658671b",
+      "size": 13746
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Door_1.uasset": {
-      "hash": "sha256:a97535431fac27d5ddab6ba28a6a1dced67acbc3b381e229f05db79ff062a786",
-      "size": 108675
+      "hash": "sha256:b0536ba2d04eb7180951ec6c449a1212f1e486dd2f4400355c24c90b03cf8ae3",
+      "size": 14662
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Door_4.uasset": {
-      "hash": "sha256:788f40c231803f4b1537f0133c478a6fcd5605ed2a7b471d46e8318d02af18d2",
-      "size": 129319
+      "hash": "sha256:13b7a56adc923bc6b80b39bf25493a6f630c60befe433beb6965eb9652052068",
+      "size": 13902
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Door_5.uasset": {
-      "hash": "sha256:096c6804e741bb944a7acb08d6b817bb3102877717d81eaec723b0a3dfe40536",
-      "size": 125802
+      "hash": "sha256:946bfcc7b993fe761faefc927955ddea7ab9af7b53a3080d21c64811d6047257",
+      "size": 13405
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Electric_Panel_1.uasset": {
-      "hash": "sha256:2756f248ccf81c4bb38fc664c64d43f9534f9cddbed30ffe73e8bd3cc0c99bfc",
-      "size": 102517
+      "hash": "sha256:b601c23458f96f859713eaa68ffb8c9e530377c637b27c9d01f335546e7a1318",
+      "size": 13582
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Electric_Panel_2.uasset": {
-      "hash": "sha256:a1445870a69a523faec2125c32c62e7e00fa2fe1bef691de23332b03ac462876",
-      "size": 107449
+      "hash": "sha256:7c6c7f6553d0cd62d78a66b923c23434faeda44397e52dc3fb7d098fbc42a0b8",
+      "size": 13528
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Elevator_1.uasset": {
-      "hash": "sha256:6ca1307a3bdb21030ffa2cedcdeebd427106ca17fdf6fc2b09320ecbf21bfe97",
-      "size": 112698
+      "hash": "sha256:51d0ec38ed316b76487f128ee64f6ffc004f7ecc3c823df35288d646ef5a5f9a",
+      "size": 12963
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Emessive_2.uasset": {
-      "hash": "sha256:56975ede79eb4622bbc853c99e3b586ac42e3e486ab361293109e74bb07aa342",
-      "size": 70256
+      "hash": "sha256:62a14af27ebeee58df110a66986dbbc1b419fec1d4e891e11607c5b555f9ea75",
+      "size": 72815
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Emessive_4.uasset": {
-      "hash": "sha256:51a36487c6263917477c7a9b9ff36f8b16367b5160534b43dce4b0ec33d05db9",
-      "size": 110266
+      "hash": "sha256:5b84316902a05c844969ae17bea51813a46cb427f5fccccd863a0d5856d64763",
+      "size": 13435
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Emessive_5.uasset": {
-      "hash": "sha256:0307841491fb21d681db6a6126f00bb69e78f8695c697fe3c551502b30a8bd2b",
-      "size": 94377
+      "hash": "sha256:79e1bc3216d620572270a6245bfb475cc01e82d1ab22d073831f471994570369",
+      "size": 11318
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Emessive_6.uasset": {
-      "hash": "sha256:a8955b3eb81ec3cd3895d9f7d6df45c2eed396a3d6b9d1dd80f66390ae16b46e",
-      "size": 108623
+      "hash": "sha256:13ae65de1c7a49be338a34b8091994aa965a85a0fe07d04353eb85bc9516986f",
+      "size": 14274
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Fence_1.uasset": {
-      "hash": "sha256:ae7c98ba28d29c7aeeb2f6e788f57dfaea2fb7fa5bb777879ebc79f4f8914086",
-      "size": 144749
+      "hash": "sha256:da12cb2a012881ab660fd5daacf7297e3e8df33e3866ef3cd7843562e41542db",
+      "size": 23879
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Fence_2.uasset": {
-      "hash": "sha256:205d599aa6a220e196db5bd1b90c8cc1a003110054d9db88932646153ed945b1",
-      "size": 137084
+      "hash": "sha256:0314bb572daa6f3d489031f93d7e20dda37b4bae3d7bf16f5dd2022bbb446506",
+      "size": 22101
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Fuel_1.uasset": {
-      "hash": "sha256:b5ba6bc56bf581e6bdd761983b23fe4abb1eff224f2bade375a0db40c7ae5517",
-      "size": 123516
+      "hash": "sha256:b8e30cd38a30164dbb792e343e479eac0fe3c5ecd121c9c89d7bc1deb88d9bdf",
+      "size": 13406
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Gas_Cabin_1.uasset": {
-      "hash": "sha256:7acbefd711f4ea4e5ce7833199944f5c3b206feb757de068fb5352b2ca80e692",
-      "size": 119658
+      "hash": "sha256:d706024fa71ec448c108f37ff8eee32cf5dddbcbdc3ee5d4030359570d780694",
+      "size": 13355
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Gas_Tube_1.uasset": {
-      "hash": "sha256:53dbe03abcf1c72da99be1428f7238b6db6800b50db4cf8e4a8d980825e32c86",
-      "size": 108712
+      "hash": "sha256:6caef311de6589138a41b9b093ae6859361654a1362aba873b86ef5df4264847",
+      "size": 12756
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Glass_1.uasset": {
-      "hash": "sha256:c9d4398cc0436a9224b2559ab270f4f25aed2bbafb90852cc6e6084b2d5633b3",
-      "size": 84523
+      "hash": "sha256:a65396c8890b17b93b3f9dcadc6e5397dedd8ba098a34ed6a4bb9cd16b42cfd3",
+      "size": 16648
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Glass_2.uasset": {
-      "hash": "sha256:caf1d315d2dd348418746f426a7ac1e914e9f2dbebf0ead73b191b9d652225cd",
-      "size": 80970
+      "hash": "sha256:c1f23386ddceec4de8216d4ba14b7bc50acff3551c7a9b6b340a293b1f059477",
+      "size": 13072
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Grate_2.uasset": {
-      "hash": "sha256:f9dd38d4d069bd6e3051f4f9f11d86bc17ada32b51136a3a5cd567d779687604",
-      "size": 125812
+      "hash": "sha256:bfba28dc92da5c09b40ea52adf9819fc59433e85275c3f209b49d822f316e1a0",
+      "size": 15110
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Hand_Pallet_1.uasset": {
-      "hash": "sha256:a5186aa8b1a683385faa0768bfbc69425c7aa4414ec3d9c0e1f616bdc472f110",
-      "size": 114325
+      "hash": "sha256:df73100ccaa56aa66563e755cbbfb2af6e07318294397f89faed1aacc0b2cf1c",
+      "size": 116672
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Hand_Pallet_2.uasset": {
-      "hash": "sha256:3714cf7ee510d62ccdca8f3bf7ac69f78335188c51e0851821d1883f94293355",
-      "size": 107948
+      "hash": "sha256:2d344970e8fd379383134162cb28ccf4b75e8c47be889767c538c4534f9b3e69",
+      "size": 110298
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Landscape_1.uasset": {
-      "hash": "sha256:949a7e74f995fbf7e3d7fc99e613afeecf4235eb8b97455d3ddd298b38e667c7",
-      "size": 116934
+      "hash": "sha256:64e68d0fdc6c233afee5758030b619e1a0d1fb04460c33edc52dc667971ea77c",
+      "size": 36899
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Leaking_1.uasset": {
-      "hash": "sha256:9d4678d69f4507444cec4565a8992d4ca6521af5c62618ea337c359bcc01e948",
-      "size": 90633
+      "hash": "sha256:617563d92f36c89ae4684a582e8f0ec316ee211ee4db1b9fbdfdd1e201ebccc7",
+      "size": 12311
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Leaking_2.uasset": {
-      "hash": "sha256:cc9583306e27b376d90d1cb645d6b46993d0a6b89a2148f64ca7a1872f4b62ba",
-      "size": 84215
+      "hash": "sha256:a58c6d1d22aacebb4a28b5083f03ddeb42bac5499e33dc72a11dc224f0b83b84",
+      "size": 11692
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Leaking_4.uasset": {
-      "hash": "sha256:e4760fb4ecad59dfed8d2720c2e05b572aa26449e50070f4bd58b12e8276d00a",
-      "size": 88896
+      "hash": "sha256:1c6c7e71cf34d23639e7cbdfdf93b1cdad649b0b11bdbceffc3600771b3c5fd2",
+      "size": 16254
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Leaking_5.uasset": {
-      "hash": "sha256:ea7f12c39231455856c0d815edc75af2f90b0d5ec578b9c0888afc9d1b4c9cea",
-      "size": 89976
+      "hash": "sha256:6e6ce5a397998adfc7eb0446c03e12e56da17d625c8e10e4b7e70625dd469e16",
+      "size": 15854
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Light_7.uasset": {
-      "hash": "sha256:6c5177c87edae9aa0f32fd3b0967e277b4e37d3854b2db5a869deac558d0cdb1",
-      "size": 130226
+      "hash": "sha256:a01d0d6d746c40f7063c49f8d6268f375e38a561201b669b9104a3df5ee8e172",
+      "size": 13420
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_10.uasset": {
-      "hash": "sha256:39e1817e16e41cf53824dd502b2ace7f0cda5351d0ec3cc02ed3cb377222e526",
-      "size": 130378
+      "hash": "sha256:7a8b2cc60e3384125b1d2dc190403f25c6af58c7bf4fc74471f0c5818e13681a",
+      "size": 25558
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_13.uasset": {
-      "hash": "sha256:0ccc40d8599e747dea455cd79ed88bf27c314a72c4b4b504636afee49d2e25e8",
-      "size": 126851
+      "hash": "sha256:99515d0b44b32132efc9bbe3d2e38c70e749649add674cf2dc8e0f31aa76e9aa",
+      "size": 25842
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_14.uasset": {
-      "hash": "sha256:2f8193a2726f6682270b22ff322b3a01c6869d50ebd917544f14f58176d8376e",
-      "size": 107966
+      "hash": "sha256:6e30b813fedd04b45359097549344af8dc2bad94385252d2f19343022f216e76",
+      "size": 16653
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_9.uasset": {
-      "hash": "sha256:0dfc27264a7b322804a879648c468f60c43769088915c2f84f6d6988ff6a9db3",
-      "size": 152339
+      "hash": "sha256:00f7cf0b46da6d79aac53bcd237bfbe5d1ea5698ec179615dab800fbe78b334f",
+      "size": 14863
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Barrier_1.uasset": {
-      "hash": "sha256:4c23a9247b53c2f62df435b42060fe52e6b624ed5a8bc8a2092ad8a0bf340210",
-      "size": 126934
+      "hash": "sha256:a02a3a65ff6df4dbb044f26c1ffed6ed5eaaa1c9eb62c6cc036e4c1cf9c56dfe",
+      "size": 14111
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Door_2.uasset": {
-      "hash": "sha256:902fedcafceba48bf7f058a6e8519c1a6a7787a343f159c96471f393cd137547",
-      "size": 158087
+      "hash": "sha256:1459d40d3fa666bae7b93acb76f1c420432a16dc29b880444567bc9a245cad40",
+      "size": 14333
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Door_3.uasset": {
-      "hash": "sha256:90d3c0cc1e0cf63f4e2742c913f17d0edbcdedfda525e7b7d72af5260abe25ae",
-      "size": 148321
+      "hash": "sha256:d19815f9dcc4c60be9b720c49cd10c9f25897b70c301799657a5c0ed623f93c7",
+      "size": 14335
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Green_1.uasset": {
-      "hash": "sha256:315189552e64863033a08c4320b1f0e3ffb0627f4c95f6b770e2e150c15d7c33",
-      "size": 105545
+      "hash": "sha256:41561a8dc7cb10fd5a8e8da09441ba9f1a4158028c580ffc2459746851189d9b",
+      "size": 14038
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Plate_1.uasset": {
-      "hash": "sha256:978a4463b56e1ba5d92b84babe5c8624b6a8ada175cde42d9f9e0c40ef5ac2e6",
-      "size": 111654
+      "hash": "sha256:f25a76594e5e41671548c12829e59ebd685bce15bcbc0f6efd01123bc5e80acf",
+      "size": 18425
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Plate_2.uasset": {
-      "hash": "sha256:af1ab24cdf6f58c4d9485dae3cd329f0f1ed2083b65f928f492fe0ce8e6a59c6",
-      "size": 106078
+      "hash": "sha256:631a5497b6d43a1c44ad366497bbf1d7061e6488b11fd8c18760ff4cfffd859b",
+      "size": 18984
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Plate_3.uasset": {
-      "hash": "sha256:2bac0d73231d38a3b1f0e362f00751e0190f1ccdb3deb3af8faac00b5881fd30",
-      "size": 112009
+      "hash": "sha256:715e248869772ba446b31d849f5d7c80a70719f36e4857be0b9f44d592642df3",
+      "size": 20313
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Metal_Roof_5.uasset": {
-      "hash": "sha256:68fa2c8dbe66087aca7ac8e3352251854c67c59652c5ca89cf88329fbbd6cfc1",
-      "size": 119365
+      "hash": "sha256:d7d3e110c3f216c211c09274a1814d4208b76ef51a85187257ce9c686b43ffb3",
+      "size": 14824
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Missle_1.uasset": {
-      "hash": "sha256:fe7908db62aa4c74180af9e645a46d14f019c9c5948f56d56e7a98b510b57831",
-      "size": 108134
+      "hash": "sha256:d3875b83c4649e64ea27c61345d081bf26aa8bf7cccf41e465b462e7f7dfd56f",
+      "size": 13519
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Number_1.uasset": {
-      "hash": "sha256:02ce28b201c4c6902d35e272a019f4aa690980c90805decbc171882dce1f7be1",
-      "size": 85159
+      "hash": "sha256:549adbc4e04d3df78a8e9b4d35ad6543bd65685b366dca0681c230760a66fd0f",
+      "size": 13015
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Number_2.uasset": {
-      "hash": "sha256:086cb53d29fc3ac988ee59dceabe71f9d1e6e7a2ae581250c6e6f7b9dde989c0",
-      "size": 86354
+      "hash": "sha256:89dc726732f808886edb67023cc176ff80d3c815d57bf8369bfeed79a6cad487",
+      "size": 13009
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Pallet_1.uasset": {
-      "hash": "sha256:8e1352b11089ccb7019af38fad05702d4059a3fc597b065972e5c56db5762084",
-      "size": 97256
+      "hash": "sha256:d9946bfec411a079a45b3b7cb96baf635b83dfe5b71c957e6a0843bc6aad7a64",
+      "size": 99628
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Patch_1.uasset": {
-      "hash": "sha256:cb4d460d58be14d07ba6d56f108ebbc814bccce953ece40cbdceccb571307642",
-      "size": 123333
+      "hash": "sha256:084a1da4ebefdad434762714edb0fee1c8b43be54a3ebdce73f5354c45b71761",
+      "size": 12877
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Patch_2.uasset": {
-      "hash": "sha256:7967fee9cc6e517a27a579667d77d632500ef14af4de74dfafdee03d782bc5b6",
-      "size": 117785
+      "hash": "sha256:7e9612158fc8fa70f4a37228e86f23f84a8f14f6369c1e1049dd37919a2c9ec0",
+      "size": 14166
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Pattern_1.uasset": {
-      "hash": "sha256:39786a6115697c086018db22f9ebf448f85f42b9137b496460989c3059965853",
-      "size": 145200
+      "hash": "sha256:b61d04080b75d9a5c87890647cb434c63d39e0d51e498b7271475caba480d54e",
+      "size": 15032
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Pipe_8.uasset": {
-      "hash": "sha256:322b0d68cc4913255e72ed708d73d00c033e07c1e6d872b46c3fba2262b43053",
-      "size": 110166
+      "hash": "sha256:7a545363d256ab8db62307bc22f19b14cc33df9256bbc99df82ecf27675d0a61",
+      "size": 13306
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Plant_1.uasset": {
-      "hash": "sha256:93b9ca8e24cbbc621b3407ad398438865e4995c3143ac2daba1f87eb9f5527b2",
-      "size": 107276
+      "hash": "sha256:6dfd050e94e6a257fcaa576a63a6e8950a310d322d995e22ffc2d238ac64e400",
+      "size": 109646
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Plant_2.uasset": {
-      "hash": "sha256:548421f4ee268668fb78b2b709495f38b5d033dbaf51b451e7d631e954148716",
-      "size": 135427
+      "hash": "sha256:47862f04142d1d22d609bb55f9edd49c8a748a7b8db82036cdd44f2c33ed8d07",
+      "size": 137746
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Plant_3.uasset": {
-      "hash": "sha256:0e1c53e5fd4e9693e8d05179d4d53ee429a69a7add2b83a1e457aa34bee400a1",
-      "size": 148948
+      "hash": "sha256:2314313dce0ac5b4c207e240b2f76775bc20d312aafe565a8d85b5879f4d4443",
+      "size": 151332
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Radar_4.uasset": {
-      "hash": "sha256:952009bc86ac2447991458c965070b20fa98aa6ff10ff095753566772a2fe86d",
-      "size": 107291
+      "hash": "sha256:264e7a86674619b0cb56822f38b05a6fdf0b24a88a0b2621310f34ced75f1797",
+      "size": 12516
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_RoadLines_2.uasset": {
-      "hash": "sha256:eec0aea04f294c5c7b4a344060917c7beb412daf9bcad82735af646170250813",
-      "size": 88271
+      "hash": "sha256:bdfdb297e70bb0b2d0c2c2a4550208d7ab949b5e167de2fbc57eda41ada4dc70",
+      "size": 14215
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_RoadLines_3.uasset": {
-      "hash": "sha256:2127e7d2a6581d47a2d89db7a7aad139a1cf1d8ff46e4adc8b9cc8ca83bcf644",
-      "size": 88710
+      "hash": "sha256:d8bb581ac315cbcd9932d0f32bc4ae1a4c9500743218835ba1b1203709d1f58a",
+      "size": 14524
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_RoadLines_4.uasset": {
-      "hash": "sha256:3aef87c0016c06eb18faad7c2215d9cbc67cce4ccd8476eaed66bc753c91e9b5",
-      "size": 87546
+      "hash": "sha256:c39d61403a033bd745f1ff32071883438392b9c7e1836c52f63929ec7b0662d5",
+      "size": 14251
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_RoadLine_1.uasset": {
-      "hash": "sha256:9338491fbc43855c0034330a86866c588b51d987c7a500e07d3e3a3cfddbe9b7",
-      "size": 102288
+      "hash": "sha256:44a08b8ffa90ed9449736c4560d3be0ec43ce60bd90a8e583039ff99e08ee755",
+      "size": 12368
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Road_1.uasset": {
-      "hash": "sha256:c0edc4bf2c9fec316ec05148e97cc4ac8f021fa4e576582d4b5ac7d8356e69bc",
-      "size": 138125
+      "hash": "sha256:2e62233bac969900686244d2be342f001358611a9210e57cc4446df4d5c4c21c",
+      "size": 15337
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Road_Marking_1.uasset": {
-      "hash": "sha256:597489a52a415c5f1de5f5f951af37ae64385168bf75819fcc73f0827ae6f7af",
-      "size": 92099
+      "hash": "sha256:3f6303fdba99d0c0945019e8fe5f47eb89a509b3ec87dd696ce1804b8fa6ee24",
+      "size": 12967
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Rock_1.uasset": {
-      "hash": "sha256:af09a88eb454a7f6dbccc68ec525c02132cbfc0b4cc875864906187a646b3812",
-      "size": 112006
+      "hash": "sha256:3e84bb67cc587185b0495a0686a7a082b6e964c598f8680c37615739a4f6d11e",
+      "size": 14192
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Roof_1.uasset": {
-      "hash": "sha256:1d6c1fcc6b714ee4aab1313293ed1870643f60f3b0d653f4178b46d22e124545",
-      "size": 135018
+      "hash": "sha256:7910e91d1bfe28b84eb92285d90b3e2e000802211bf2a98ebf6bc6d1db9f4b8b",
+      "size": 14787
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Roof_4.uasset": {
-      "hash": "sha256:8192b2f22bb5e245dff74df885c7cf61bc1e1c9af4daedf370394a4a71de13a4",
-      "size": 128828
+      "hash": "sha256:6df8f05099069fcf15977548420f55a59a70911d0428b5249cbc4799805ea9f9",
+      "size": 14297
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Roof_5.uasset": {
-      "hash": "sha256:0bee767532eafb4e53262c5d707363b26361838b8fe523c74de0f21a0875e4bb",
-      "size": 126431
+      "hash": "sha256:e72d83b1ce72b8460ac6c90ec1b582bb4d0aa230d2e0d8b54564e730454dd1cb",
+      "size": 14727
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Sandbags_1.uasset": {
-      "hash": "sha256:654c2694b37d52bdbfcb1915e9deb9c68c0380fe4a2c7df0001d1e5620c3a087",
-      "size": 126193
+      "hash": "sha256:456616c7d89ee6eb0238187edd222085a50d3c6c047da7a049c05d5d7d6d79e8",
+      "size": 16036
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Screen_1.uasset": {
-      "hash": "sha256:41feede597bfbd5066f77ad1f6b99359eb3bc05364b36edb4c7691a08fbd86d2",
-      "size": 102339
+      "hash": "sha256:f6238a46e61bcff040644794209402d07dbe013c9c1089f8014948c97c2d5148",
+      "size": 13895
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Sign_1.uasset": {
-      "hash": "sha256:a7bbdc2d6fbd1c2c9f7dab46af900a0309e0972888507e58dcd9241684f09017",
-      "size": 111937
+      "hash": "sha256:27ea2866e7bb06bb17217492e531bb73e0ce038751f24c4516b169495f02572c",
+      "size": 15784
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Sing_1.uasset": {
-      "hash": "sha256:a00ad16e8c30b5bb5cbc443c3d7215fd149d1b5c578c8b0f66c0f48094ee4964",
-      "size": 125342
+      "hash": "sha256:8d8943bfb50cce7214568814202b33e68302f9b1165142956165160809580400",
+      "size": 13135
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Speed_Sign_1.uasset": {
-      "hash": "sha256:708b771b79084896619185533a8503a6739994f98e8d893684f86ad4613313b7",
-      "size": 107803
+      "hash": "sha256:d9bfd0ba2817f0d011f8a99624746ebc5c1f96099b5870eda93a11f712e568f6",
+      "size": 10813
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Steel_2.uasset": {
-      "hash": "sha256:0b24d7369a2559a8c7c140fdd8b35baf413b7929544448cfa1c73dc8802de06d",
-      "size": 104535
+      "hash": "sha256:5387b6c1efebcdf504c594cfe861321fe0a96eabbe4dcdb60e45889b738f56d6",
+      "size": 13987
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Steel_3.uasset": {
-      "hash": "sha256:89d5b34c9639074112ad0974dcfc95ca7a93f7f4c28a177faa3677214c8068a0",
-      "size": 103477
+      "hash": "sha256:d76a81972ed70182a1baea4f2280d08ff6ae0673f6f03a88abb8e8de4738f635",
+      "size": 14535
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Steel_4.uasset": {
-      "hash": "sha256:66604b774f1a1cccde781e447251e48444d4a5f84c05aa2362ec2e2d3867a6a6",
-      "size": 105757
+      "hash": "sha256:b58a18e5a543a0fa9ab88adad39cc930a4f246e71b32957c6d37559c97046ea3",
+      "size": 14922
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Stop_Sign_1.uasset": {
-      "hash": "sha256:73c6be39ce8d65613c95cbbad39f2d35373b87af22dd006c75c7dea053978489",
-      "size": 103201
+      "hash": "sha256:c4bdbbe954f4f1db88b676b746a55ea5c1cd5d7c470ec6ffb16a5a3194a3eddf",
+      "size": 10805
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Strip_1.uasset": {
-      "hash": "sha256:6ff1a6821deb9399461373e9b6dd17ab510c1e769618deae6689173631c9c3c2",
-      "size": 96324
+      "hash": "sha256:ad2467c36bea20ddeb9b5e6594d53dd63db81b819d675e5c889cf9898fa10298",
+      "size": 13939
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Strip_2.uasset": {
-      "hash": "sha256:9f0cd980d90e027b6fcc48386ac7487e529b1089822463ff13984091f16fa15a",
-      "size": 92420
+      "hash": "sha256:54b66fbaa36f85b0db962256bd29186eff8c69b6d6b1c7c910fe196ba34c16fe",
+      "size": 11463
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Tank_2.uasset": {
-      "hash": "sha256:4e1a94884452ce02cc2defaeb61ae7c608be8a8e057f252005a016a8ee3efc1a",
-      "size": 101126
+      "hash": "sha256:70182ec0fd7619093356c6ed4840a9d7cad1665aa87a8566f5fde37b948f71c3",
+      "size": 13162
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Tank_Cover_1.uasset": {
-      "hash": "sha256:0cfb17b4693146594d89b528d71ee86d3bfb17995a0024f1f01d6914a8f37525",
-      "size": 112344
+      "hash": "sha256:e37b524c44b15ece491eaeb13d06ed52c015e51258d1af438d996e2c47e5f517",
+      "size": 13069
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Tente_1.uasset": {
-      "hash": "sha256:a46b756eb6848fd6971d0217e4076933f34e01164c1e0e3ef9d0a741844ac7c6",
-      "size": 135791
+      "hash": "sha256:d8cac69ebd61adea2b8a43e5022f126e7d44f11eaa8c394528dc80c23f162d95",
+      "size": 13420
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Terminal_1.uasset": {
-      "hash": "sha256:1c1dd7aa18ee018333b1f3dc23b76f9e05b4dd3afb02c0f9ddd136bb326d386a",
-      "size": 108057
+      "hash": "sha256:ab9e6e347859c5091e3c593c196ee9e524e8cdf61961e737a9b6ee48b247dc0e",
+      "size": 110401
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Trailer_1.uasset": {
-      "hash": "sha256:f7b3ac470cd45aeacdde8cadd1129d0fef2b18722532a77d6e981eb80949a6c4",
-      "size": 108774
+      "hash": "sha256:970b8963261faa847d4e40e027c84b9c4d947369fdf5011283e22c7b77f860fa",
+      "size": 13441
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Trailer_2.uasset": {
-      "hash": "sha256:f3f4e858f1935cbf63c65c6478863c60aee2ba1041a355abb4a77fd6cea12fe1",
-      "size": 107680
+      "hash": "sha256:547bdc9e56ca46eac9894cec72e38e771f09aa74132fdc72cbfde82bde872c09",
+      "size": 13444
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Transformer_1.uasset": {
-      "hash": "sha256:b4d8b5713bbce0b83fdea95edc75ad3b340e50214b35db094db12969fb14c320",
-      "size": 108493
+      "hash": "sha256:d7beeb4a55465d8c6c627fecf5ef91c8cf99b4b8097cb38aa0c5783dc9d0e8a0",
+      "size": 13118
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Vending_Machine_1.uasset": {
-      "hash": "sha256:ed0a39fb17ffc3176f6f46c74574e85faf46a455af163f9ec7b327ab1e21a45f",
-      "size": 121263
+      "hash": "sha256:2bc2bbb2950205c130336bebc5df4f021a1cf8ce5586093caf262a4dce0019b4",
+      "size": 13427
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Wheel_1.uasset": {
-      "hash": "sha256:88f6b1cae083f92f86f58ac321fa51593a31b5c16a2f2a193016e2bb3504e029",
-      "size": 109043
+      "hash": "sha256:278f5e1cb7f99213598eb3b4a6348ac9a05385f5ca5a1420d402479abfa9b8b0",
+      "size": 13420
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Wheel_3.uasset": {
-      "hash": "sha256:bd029f7da30a0696b641b663ac28233742f20cefa7230fc7a146b81d6085d418",
-      "size": 119886
+      "hash": "sha256:fcda7fe47c7b5acd1270076d687199460879146dd1e4230c63fe860c382d045f",
+      "size": 13417
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_White_1.uasset": {
-      "hash": "sha256:abe286f26039d9187206837c85276e1673c35034e93ffcf7bca23ca5ad6c0696",
-      "size": 82830
+      "hash": "sha256:bc05043a9fe39b237194829a1126c903182f0814e02d0a6efb139772e0ae8c41",
+      "size": 12710
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Wood_1.uasset": {
-      "hash": "sha256:96466ae202d81a903121a9fd56ab4f9ea743c16532e043a6483a5470ce098b79",
-      "size": 127951
+      "hash": "sha256:e2f7c0cbb9305c45b356658f34e5be8f9bd77be7dc55cc7b51dfe50249cc0bf3",
+      "size": 12936
     },
     "Content/ResearchMegaPack/SecretBase/Materials/Environment/MF_Landscape_2.uasset": {
       "hash": "sha256:a2c817ae990d22a9fa3209ef4d4af944ad0a3edbc00bd58da2482dde4b2e190d",
@@ -80684,16 +80684,16 @@
       "size": 159264
     },
     "Content/ResearchMegaPack/SecretBase/Materials/Environment/M_Landscape_2.uasset": {
-      "hash": "sha256:a7127e548b61e3a7c3d6daeebb933965c067e4c81b92e789079879e85cc3e6a2",
-      "size": 169981
+      "hash": "sha256:693d5084f74034f181707535f8d510176b98171db42a204663679d3bec91a564",
+      "size": 70348
     },
     "Content/ResearchMegaPack/SecretBase/Materials/PostProcess/MI_PostProcess_1.uasset": {
       "hash": "sha256:572d6d7d13805235d39a6ea497bc92ed1d25b52a62aa938d2fe748572e8a29a7",
       "size": 85193
     },
     "Content/ResearchMegaPack/SecretBase/Materials/PostProcess/M_PostProcess_1.uasset": {
-      "hash": "sha256:5724c1669095aaeaf5cb30e708f3ff6a5ff546139cc2f41e6d8ee8460fe107fd",
-      "size": 99791
+      "hash": "sha256:14a118c2f12b2ac8fec779dd9a480d9740b157f6553abf7fdb4c802d35787b56",
+      "size": 24298
     },
     "Content/ResearchMegaPack/SecretBase/Meshes/SM_Barbed_1.uasset": {
       "hash": "sha256:72f62d1eedb0f9a13a23e67dc7c9f462ac8d5283079be82f0627ed4b214c3922",

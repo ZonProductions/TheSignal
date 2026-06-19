@@ -142,6 +142,10 @@ private:
 	// --- Head Bob (positional — vertical + horizontal sway) ---
 	float HeadBobTimer = 0.0f;
 	float BaseCameraZ = 0.0f;
+	/** Camera relative X offset (forward of FPCamera bone socket). Captured at
+	 *  BeginPlay so peek/bob math preserves the constructor's forward push
+	 *  that keeps the camera ahead of the body during spine lean. */
+	float BaseCameraX = 0.0f;
 	float HeadBobOffsetY = 0.0f;
 	float HeadBobOffsetZ = 0.0f;
 	void UpdateHeadBob(float DeltaTime);

@@ -61,9 +61,20 @@ void UZP_GraceGameplayComponent::BeginPlay()
 	// Apply movement config
 	ApplyMovementConfig();
 
-	// Camera is attached to FPCamera socket — its position is driven by the skeleton.
-	// BaseCameraZ = 0 so head bob operates as offset from the socket origin.
-	BaseCameraZ = 0.0f;
+	// Camera is attached to FPCamera socket but offset 20cm forward (set in
+	// the character constructor) to keep it ahead of the body geometry through
+	// spine lean. Capture both X and Z from the camera's initial relative pos
+	// so peek/bob math preserves the offset.
+	if (CameraComponent)
+	{
+		const FVector InitRel = CameraComponent->GetRelativeLocation();
+		BaseCameraX = InitRel.X;
+		BaseCameraZ = InitRel.Z;
+	}
+	else
+	{
+		BaseCameraX = BaseCameraZ = 0.0f;
+	}
 
 	// Cache the PlayerMesh (camera's attach parent) for mesh-level peek.
 	// Peek offsets go to the mesh so the gun follows the lean.
@@ -514,8 +525,9 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 		MeshLoc.Z += CrouchMeshOffsetZ;
 		CachedMeshComponent->SetRelativeLocation(MeshLoc);
 
-		// Camera gets head bob only (socket-space transformed)
-		FVector BobCapsule(0.0f, HeadBobOffsetY, BaseCameraZ + HeadBobOffsetZ);
+		// Camera gets head bob only (socket-space transformed); BaseCameraX
+		// preserves the forward offset from the constructor.
+		FVector BobCapsule(BaseCameraX, HeadBobOffsetY, BaseCameraZ + HeadBobOffsetZ);
 		CameraComponent->SetRelativeLocation(ToSocketSpace(BobCapsule));
 	}
 	else
@@ -528,7 +540,7 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 			CachedMeshComponent->SetRelativeLocation(MeshLoc);
 		}
 
-		FVector CapsuleOffset(PeekX, HeadBobOffsetY + PeekY, BaseCameraZ + HeadBobOffsetZ);
+		FVector CapsuleOffset(BaseCameraX + PeekX, HeadBobOffsetY + PeekY, BaseCameraZ + HeadBobOffsetZ);
 		CameraComponent->SetRelativeLocation(ToSocketSpace(CapsuleOffset));
 	}
 
