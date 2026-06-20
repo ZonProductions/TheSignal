@@ -157,6 +157,13 @@ void UZP_KinemationComponent::InitializeKinemation()
 			MeleeViewMeshComponent->HideBoneByName(FName("thigh_r"), PBO_None);
 			MeleeViewMeshComponent->HideBoneByName(FName("head"), PBO_None);
 
+			// NOTE: do NOT assign UZP_MeleeHandsAnimInstance via SetOverridePostProcessAnimBP
+			// here — a bare C++ AnimInstance class has no AnimGraph, so as a post-process it
+			// outputs the REFERENCE pose and FREEZES/clobbers the SingleNode melee clip
+			// (probe-confirmed 2026-06-20: hand_r bit-identical across idle AND block). That
+			// froze hand_r and made the pipe vanish. A post-process needs a real AnimBP with
+			// an Input-Pose -> Output passthrough graph on SKM_Manny_Skeleton.
+
 			// Paint the bare-skin slots (forearm MI_Skin + the hand MI_Gloves) with the
 			// MeleeHandMaterial (defaults to flat MI_HandSkin; settable in BP_GraceCharacter
 			// → KinemationComp Details → Kinemation|Melee). Flat = solid color = UV-independent
@@ -1115,6 +1122,41 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 
 // --- Melee view model (TICKET-054) ---
 
+void UZP_KinemationComponent::SetMeleeWeaponBlockGrip(bool bBlocking)
+{
+	if (!MeleeWeaponMeshComp || !MeleeViewMeshComponent) return;
+
+	// Parent the pipe to hand_r and seat it at the idle grip. It STAYS parented to hand_r
+	// for its whole life — UpdateMeleeGrip only nudges the hand_r-RELATIVE offset toward
+	// the block delta. (The pipe used to re-blend onto the ik_hand_gun joint during block;
+	// because hand_r and ik_hand_gun separate during the block clip, that world-space
+	// blend swept the pipe OUT of the hand on un/block. Hand-local is the fix.)
+	MeleeWeaponMeshComp->AttachToComponent(MeleeViewMeshComponent,
+		FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r"));
+	MeleeWeaponMeshComp->SetRelativeLocation(MeleeGripOffset);
+	MeleeWeaponMeshComp->SetRelativeRotation(MeleeGripRotation);
+	MeleeGripBlend = bBlocking ? 1.f : 0.f;
+}
+
+void UZP_KinemationComponent::UpdateMeleeGrip(float DeltaSeconds, bool bBlocking)
+{
+	if (!MeleeWeaponMeshComp) return;
+
+	MeleeGripBlend = FMath::FInterpTo(MeleeGripBlend, bBlocking ? 1.f : 0.f, DeltaSeconds, BlockGripBlendSpeed);
+
+	// Ease the hand_r-RELATIVE grip between idle and block. Block is an additive delta on
+	// the fitted idle grip, so both endpoints live in the same (hand-local) frame. We set
+	// the pipe's RELATIVE transform on a hand_r-parented mesh, so the engine composes it
+	// with the freshly evaluated hand pose every frame: the pipe tracks the hand 1:1 and
+	// the un/block transition can only shift the grip WITHIN the hand — never out of it.
+	const FVector  Loc   = MeleeGripOffset + BlockGripDeltaLocation * MeleeGripBlend;
+	const FQuat    IdleQ = MeleeGripRotation.Quaternion();
+	const FQuat    Rot   = FQuat::Slerp(IdleQ, IdleQ * BlockGripDeltaRotation.Quaternion(), MeleeGripBlend);
+
+	MeleeWeaponMeshComp->SetRelativeLocation(Loc);
+	MeleeWeaponMeshComp->SetRelativeRotation(Rot);
+}
+
 void UZP_KinemationComponent::ActivateMeleeViewModel()
 {
 	if (bMeleeViewModelActive)
@@ -1165,13 +1207,29 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ActivateMeleeViewModel — SM_Pipe not found, view model swings empty-handed."));
 		}
 	}
-	MeleeWeaponMeshComp->AttachToComponent(MeleeViewMeshComponent,
-		FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r"));
-	MeleeWeaponMeshComp->SetRelativeLocation(MeleeGripOffset);
-	MeleeWeaponMeshComp->SetRelativeRotation(MeleeGripRotation);
+	// Idle/swing grip: hand_r + MeleeGripOffset (fitted to the idle finger channel).
+	// Block re-attaches to ik_hand_gun at runtime via SetMeleeWeaponBlockGrip() — only
+	// block needed the weapon joint; idle must stay on hand_r or its fitted grip breaks.
+	SetMeleeWeaponBlockGrip(false);
 	MeleeWeaponMeshComp->SetVisibility(true);
 
 	MeleeViewMeshComponent->SetVisibility(true);
+
+	// --- PROBE: report the pipe's actual state right after we show it, so we can see
+	// whether it's hidden, off-screen, or fine when the hand grip layer is active. ---
+	{
+		const int32 HRBone = MeleeViewMeshComponent->GetBoneIndex(FName("hand_r"));
+		const FVector SocketWorld = MeleeViewMeshComponent->DoesSocketExist(FName("hand_r"))
+			? MeleeViewMeshComponent->GetSocketLocation(FName("hand_r")) : FVector::ZeroVector;
+		const UAnimInstance* PP = MeleeViewMeshComponent->GetPostProcessInstance();
+		UE_LOG(LogTemp, Warning,
+			TEXT("[PIPEPROBE] pipe_visible=%d pipe_world=%s mesh_visible=%d hand_r_bone=%d hand_r_world=%s postproc=%s"),
+			MeleeWeaponMeshComp->IsVisible() ? 1 : 0,
+			*MeleeWeaponMeshComp->GetComponentLocation().ToString(),
+			MeleeViewMeshComponent->IsVisible() ? 1 : 0,
+			HRBone, *SocketWorld.ToString(),
+			PP ? *PP->GetClass()->GetName() : TEXT("NONE"));
+	}
 
 	// Raise: Kubold Equip → Idle loop. Swing is blocked until the raise lands.
 	if (MeleeEquipAnim)

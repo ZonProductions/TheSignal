@@ -172,6 +172,37 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
 	FRotator MeleeGripRotation = FRotator(3.15f, 95.41f, 40.23f);
 
+	/** Block grip as an ADDITIVE delta on top of the idle grip (MeleeGripOffset/Rotation),
+	 *  in hand_r-LOCAL space. Default zero => block grip == idle grip (pipe stays exactly
+	 *  where idle holds it, just carried into the guard pose by hand_r). Dial these if the
+	 *  block guard wants the pipe held differently — they ONLY affect block, never idle, so
+	 *  the two grips stop fighting. Because the blend is hand-local, no value can ever
+	 *  swing the pipe out of the hand (worst case shifts the grip slightly within it). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	FVector BlockGripDeltaLocation = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	FRotator BlockGripDeltaRotation = FRotator::ZeroRotator;
+
+	/** Initial melee weapon attach to hand_r at the idle grip. UpdateMeleeGrip then eases
+	 *  the hand_r-RELATIVE grip toward the block delta while blocking. */
+	void SetMeleeWeaponBlockGrip(bool bBlocking);
+
+	/** Ease the pipe's hand_r-relative grip between idle (MeleeGripOffset) and block
+	 *  (MeleeGripOffset + BlockGripDelta*) by MeleeGripBlend, setting its RELATIVE
+	 *  transform. Hand-local blend on a hand_r-parented pipe => it tracks the hand every
+	 *  frame and can never swing out on un/block. Reads offsets live so Details edits tune
+	 *  in PIE. */
+	void UpdateMeleeGrip(float DeltaSeconds, bool bBlocking);
+
+	/** Current idle<->block grip blend (0 = idle grip, 1 = block grip), both relative to
+	 *  hand_r. Eased toward the block state at BlockGripBlendSpeed. */
+	float MeleeGripBlend = 0.f;
+
+	/** How fast the grip eases between idle and block (FInterpTo speed). Higher = snappier.
+	 *  Tune in KinemationComp Details if the transition feels too slow/fast. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	float BlockGripBlendSpeed = 8.0f;
+
 	/** Material painted on the melee view-model's bare-skin slots (forearm + hand) so the
 	 *  FP melee arms read as Marcus skin. Defaults to MI_HandSkin (flat, tunable tone).
 	 *  Swap or re-point this in BP_GraceCharacter → KinemationComp Details → Kinemation|Melee;

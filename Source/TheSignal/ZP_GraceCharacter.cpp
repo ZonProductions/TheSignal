@@ -311,19 +311,19 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Dodge.FPP_sns_Dodge")));
 
 	BlockLoopAnim = TSoftObjectPtr<UAnimSequenceBase>(
-		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockLoop.FPP_Longs_BlockLoop")));
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockLoop.A_MeleePipe_BlockLoop")));
 	BlockWalkAnim = TSoftObjectPtr<UAnimSequenceBase>(
-		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockWalk.FPP_Longs_BlockWalk")));
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockWalk.A_MeleePipe_BlockWalk")));
 	BlockStartAnim = TSoftObjectPtr<UAnimSequenceBase>(
-		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockStart.FPP_Longs_BlockStart")));
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockStart.A_MeleePipe_BlockStart")));
 	BlockStopAnim = TSoftObjectPtr<UAnimSequenceBase>(
-		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockStop.FPP_Longs_BlockStop")));
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockStop.A_MeleePipe_BlockStop")));
 	BlockImpact1Anim = TSoftObjectPtr<UAnimSequenceBase>(
-		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact1.FPP_Longs_BlockImpact1")));
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact1.A_MeleePipe_BlockImpact1")));
 	BlockImpact2Anim = TSoftObjectPtr<UAnimSequenceBase>(
-		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact2.FPP_Longs_BlockImpact2")));
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact2.A_MeleePipe_BlockImpact2")));
 	BlockImpact3Anim = TSoftObjectPtr<UAnimSequenceBase>(
-		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockImpact3.FPP_Longs_BlockImpact3")));
+		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact3.A_MeleePipe_BlockImpact3")));
 	// MUST match Kinemation's MeleeIdleAnim (A_MeleePipe_Idle). Pointing this
 	// at FPP_Longs_Idle (Kubold longsword) made block-release / non-forward
 	// dodge return to a chest-forward longsword pose that persisted forever —
@@ -777,6 +777,16 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			BlockStartLockRemaining = FMath::Max(0.f, BlockStartLockRemaining - DeltaTime);
 		}
 		UpdateBlockAnimation();
+	}
+
+	// Ease the pipe's hand_r-relative grip between idle and block while the melee view
+	// model is up. The pipe is parented to hand_r, so this only sets a RELATIVE offset —
+	// it can never swing out of the hand on un/block. Hold the block grip through
+	// bBlockResolving (until BlockStop finishes) so the grip doesn't ease back to idle
+	// while the hands are still in the block pose-out.
+	if (KinemationComp && KinemationComp->IsMeleeViewModelActive())
+	{
+		KinemationComp->UpdateMeleeGrip(DeltaTime, bIsBlocking || bBlockResolving);
 	}
 
 	// --- Interaction state watchdog (session 63 diagnostics) ---
@@ -1719,6 +1729,7 @@ void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 		if (!KinemationComp->bMeleeSwingActive)
 		{
 			bIsBlocking = true;
+			bBlockResolving = false;
 			bBlockWalkActive = false;
 			BlockImpactLockRemaining = 0.f;
 			BlockStartLockRemaining = 0.f;
@@ -1775,6 +1786,7 @@ void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 	if (bIsBlocking)
 	{
 		bIsBlocking = false;
+		bBlockResolving = true; // keep block offsets alive until BlockStop finishes
 		bBlockWalkActive = false;
 		BlockImpactLockRemaining = 0.f;
 		BlockStartLockRemaining = 0.f;
@@ -1799,6 +1811,7 @@ void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 			FTimerHandle StopReturnHandle;
 			GetWorldTimerManager().SetTimer(StopReturnHandle, [this]()
 			{
+				bBlockResolving = false; // BlockStop finished — offsets may ease out now
 				if (bIsBlocking) return; // re-pressed before stop finished
 				if (!KinemationComp
 					|| KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee)
@@ -1816,6 +1829,7 @@ void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 		}
 		else if (MeleeViewMesh && MeleeIdleHoldAnim.IsValid())
 		{
+			bBlockResolving = false; // no stop clip — nothing to cover
 			// Fallback if Stop asset is missing — go straight to idle.
 			if (UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous())
 			{

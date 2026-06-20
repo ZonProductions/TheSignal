@@ -223,6 +223,10 @@ public:
 	 *  hand anim layer. bRight selects hand_r, else hand_l. */
 	FVector GetActiveMeleeHandOffset(bool bRight) const;
 
+	/** True while the player is holding a melee block. Read by the post-process hand
+	 *  anim layer so it can replay the non-block grip pose during block. */
+	bool IsBlockingNow() const { return bIsBlocking; }
+
 	/** Tracks whether Marcus's body arms are currently hidden (weapon view-model up). */
 	bool bMarcusArmsHidden = false;
 
@@ -412,6 +416,11 @@ public:
 	/** True while RMB is held with the pipe active. */
 	UPROPERTY(BlueprintReadOnly, Category = "Combat|Block")
 	bool bIsBlocking = false;
+
+	/** True from RMB-release until the BlockStop clip finishes. Keeps the block
+	 *  camera/arm offsets alive through the pose-out so the body doesn't swing into
+	 *  the lens during the resolve. */
+	bool bBlockResolving = false;
 
 	/** Incoming damage is multiplied by this while blocking (0.25 = 75% off). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")

@@ -35,4 +35,14 @@ private:
 	/** Shift a bone + all its descendants by DeltaCS (component space) so the hand
 	 *  moves rigidly (fingers keep their shape). */
 	void ShiftBoneTreeCS(TArray<FTransform>& CS, const struct FReferenceSkeleton& RefSkel, int32 RootBone, const FVector& DeltaCS);
+
+	/** hand_l/hand_r + finger descendants, ascending index (parent-first). Built once. */
+	TArray<int32> HandSubtree;
+
+	/** Live snapshot of the non-block grip as parent-relative (local) transforms,
+	 *  captured every non-block frame and replayed during a block. */
+	TArray<FTransform> CachedLocal;
+
+	/** True once CachedLocal holds a valid non-block grip snapshot. */
+	bool bHasGripCache = false;
 };

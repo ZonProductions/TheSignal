@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-20T03:42:47",
+  "created": "2026-06-20T13:50:21",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:d0f516c3ef56fbac9d2bf4bd76cd47e8552f41dc9e0a3a6ecbc89424dda9e7ee",
@@ -22916,8 +22916,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:8ab58d4af3c5de0a9fef57219f5834c1795458b29200f6284ce4b3b18348817c",
-      "size": 135004
+      "hash": "sha256:b6ca62e83bcb1722290747398a370135672f7f678e338d730355830bbf8215f4",
+      "size": 135120
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -74652,8 +74652,8 @@
       "size": 6632050
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility.umap": {
-      "hash": "sha256:a390d264a815ba9866d8195508a8bffd943d4b97f2d5e753ea2f66050b9757c1",
-      "size": 3257423
+      "hash": "sha256:6a7e5805dbec60482fa07398a0a5dbb291483439a0e6fedfa8515061455a927f",
+      "size": 3246206
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility_BuiltData.uasset": {
       "hash": "sha256:00d06ddec993b93daa3423812e8971f692587b76987938abd361e3a868b657c9",
@@ -83454,6 +83454,34 @@
     "Content/TheSignal/Animations/Melee/A_MeleePipe_Attack_R.uasset": {
       "hash": "sha256:a32b1bd465d8efc6e954af7eb706d79c49834ae6c69eb495967c8bd2aa9bfed4",
       "size": 1008347
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact1.uasset": {
+      "hash": "sha256:05b6b931bc3daa47ce218917a656220940dd6153e08baed7e44fcf09090d07d6",
+      "size": 541457
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact2.uasset": {
+      "hash": "sha256:a13d03ac225c86bd84f7f66f6fe55d8fc94c6e21e955ad6f5c4bd130225af0f4",
+      "size": 486727
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact3.uasset": {
+      "hash": "sha256:fbdd3ee226c9a5544e2351ac92180cbd300c28cb7920bbcaf1653b24d32c7635",
+      "size": 506110
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_BlockLoop.uasset": {
+      "hash": "sha256:57398fedce647c7ecc6020acdab382b90d9604813377dbf2c86435cd5a7a6efe",
+      "size": 1356771
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_BlockStart.uasset": {
+      "hash": "sha256:2a798408ec2da8594fc227693965d262b1c4666ebc3e615968622fab76832fc5",
+      "size": 529420
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_BlockStop.uasset": {
+      "hash": "sha256:964fa3bf94551d8cea99343cebc62f3751c21a8a69b0bd3103cf93208181b1f0",
+      "size": 594129
+    },
+    "Content/TheSignal/Animations/Melee/A_MeleePipe_BlockWalk.uasset": {
+      "hash": "sha256:e6c2d1db77068530650f5f604707898b609e3df0af1e875b5a5ca9fb5212c90e",
+      "size": 1445602
     },
     "Content/TheSignal/Animations/Melee/A_MeleePipe_Equip.uasset": {
       "hash": "sha256:4efaa77a70a83b76e9e2782655a63148fcb34bf70b64e5d4e4230238f55280f7",
