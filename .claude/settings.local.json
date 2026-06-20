@@ -80,7 +80,12 @@
       "mcp__nwiro__find_textures",
       "mcp__nwiro__get_asset_referencers",
       "mcp__nwiro__get_map_check_errors",
-      "mcp__nwiro__find_blueprints"
+      "mcp__nwiro__find_blueprints",
+      "mcp__nwiro__read_ik_retargeter",
+      "mcp__nwiro__read_ik_rig",
+      "mcp__nwiro__pie_get_game_state",
+      "mcp__nwiro__play_in_editor",
+      "mcp__nwiro__read_data_table"
     ]
   },
   "enableAllProjectMcpServers": true,

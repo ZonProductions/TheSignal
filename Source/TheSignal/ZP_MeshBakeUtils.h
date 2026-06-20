@@ -2,8 +2,6 @@
 
 #pragma once
 
-#if WITH_EDITOR
-
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ZP_MeshBakeUtils.generated.h"
@@ -30,6 +28,7 @@ class UZP_MeshBakeUtils : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
+#if WITH_EDITOR
 	/**
 	 * Bakes every valid skeletal/static mesh component on the given actors into
 	 * one UStaticMesh at PackagePath (e.g. "/Game/Enemies/Crawler/SM_Crawler_Ref").
@@ -45,6 +44,5 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "TheSignal|Editor")
 	static UStaticMesh* BakeActorsToStaticMesh(const TArray<AActor*>& Actors, const FString& PackagePath, bool bSaveAsset = false);
+#endif // WITH_EDITOR
 };
-
-#endif

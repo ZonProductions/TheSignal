@@ -111,6 +111,34 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	PlayerMesh->CastShadow = true;
 	PlayerMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
+	// --- Marcus appearance (CCMH body shell) ---
+	// Meshes/AnimBP/leader-pose/source wired in SetupMarcusAppearance() at BeginPlay.
+	MarcusBody = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusBody"));
+	MarcusBody->SetupAttachment(GetCapsuleComponent());
+	MarcusBody->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+	MarcusBody->SetOnlyOwnerSee(true);
+	MarcusBody->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MarcusBody->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MarcusBody->SetVisibility(false); // shown in SetupMarcusAppearance once meshes load
+
+	MarcusOveralls = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusOveralls"));
+	MarcusOveralls->SetupAttachment(MarcusBody);
+	MarcusOveralls->SetOnlyOwnerSee(true);
+	MarcusOveralls->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MarcusOveralls->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	MarcusPants = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusPants"));
+	MarcusPants->SetupAttachment(MarcusBody);
+	MarcusPants->SetOnlyOwnerSee(true);
+	MarcusPants->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MarcusPants->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	MarcusSneakers = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusSneakers"));
+	MarcusSneakers->SetupAttachment(MarcusBody);
+	MarcusSneakers->SetOnlyOwnerSee(true);
+	MarcusSneakers->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MarcusSneakers->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
 	// Gameplay component — stamina, peek, head bob, interaction trace
 	GameplayComp = CreateDefaultSubobject<UZP_GraceGameplayComponent>(TEXT("GameplayComp"));
 
@@ -409,6 +437,9 @@ void AZP_GraceCharacter::BeginPlay()
 		}
 	}
 
+	// Marcus CCMH body as the visible shell (retargeted from PlayerMesh)
+	SetupMarcusAppearance();
+
 	// Auto-discover Moonville components (added via SCS in editor)
 	for (UActorComponent* Comp : GetComponents())
 	{
@@ -531,9 +562,39 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Live-tunable Marcus body facing (base -90 yaw + dev-dialed offset).
+	if (MarcusBody)
+	{
+		MarcusBody->SetRelativeRotation(FRotator(MarcusBodyPitch, -90.0f + MarcusBodyYaw, 0.0f));
+	}
+
+	// Force a fresh, deterministic retarget evaluation of Marcus AFTER PlayerMesh's
+	// pose is finalized this frame. The pack's RetargetPoseFromMesh auto-eval flips
+	// to ref pose every other frame against our custom dual-mesh source (confirmed:
+	// source stable, Marcus alternates). Re-evaluating here — guaranteed after
+	// PlayerMesh via the tick prerequisite — reads the final source pose every frame.
 	if (DodgeCooldownRemaining > 0.f)
 	{
 		DodgeCooldownRemaining = FMath::Max(0.f, DodgeCooldownRemaining - DeltaTime);
+	}
+
+	if (DodgeClearanceRemaining > 0.f)
+	{
+		DodgeClearanceRemaining = FMath::Max(0.f, DodgeClearanceRemaining - DeltaTime);
+	}
+
+	if (BlockClearanceRemaining > 0.f)
+	{
+		BlockClearanceRemaining = FMath::Max(0.f, BlockClearanceRemaining - DeltaTime);
+	}
+
+	// Transient forward nudge that covers the block/dodge stance lean-in, then
+	// eases out (see UZP_GraceGameplayComponent). Driven by short windows — NOT
+	// pinned to bIsBlocking — so a sustained block hold settles to neutral.
+	if (GameplayComp)
+	{
+		GameplayComp->SetForwardClearanceActive(
+			BlockClearanceRemaining > 0.f || DodgeClearanceRemaining > 0.f);
 	}
 
 	// Camera diagnostic probe burst.
@@ -719,6 +780,32 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			{
 				SNI->SetAnimationAsset(DesiredAnim, true, 1.0f);
 				SNI->SetPlaying(true);
+			}
+
+			// Mirror the same speed/crouch state onto Marcus's VISIBLE body using its
+			// native CCMH clips via SingleNode. Native playback = no live retarget node
+			// = no shuffle. (Weapon/aim arm poses come from MeleeViewMesh, not the body.)
+			if (MarcusBody && MarcusBody->GetSkeletalMeshAsset())
+			{
+				UAnimSequenceBase* MDesired = MarcusIdle;
+				if (bIsCrouched)
+				{
+					MDesired = MarcusCrouchIdle ? MarcusCrouchIdle : MarcusIdle;
+					if (Speed > 10.0f && MarcusCrouchWalk) MDesired = MarcusCrouchWalk;
+				}
+				else
+				{
+					if (Speed > 150.0f && MarcusRun) MDesired = MarcusRun;
+					else if (Speed > 10.0f && MarcusWalk) MDesired = MarcusWalk;
+				}
+				if (UAnimSingleNodeInstance* MSNI = MarcusBody->GetSingleNodeInstance())
+				{
+					if (MDesired && MSNI->GetCurrentAsset() != MDesired)
+					{
+						MSNI->SetAnimationAsset(MDesired, true, 1.0f);
+						MSNI->SetPlaying(true);
+					}
+				}
 			}
 		}
 	}
@@ -1457,6 +1544,7 @@ void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 			bBlockWalkActive = false;
 			BlockImpactLockRemaining = 0.f;
 			BlockStartLockRemaining = 0.f;
+			BlockClearanceRemaining = BlockClearanceWindow; // transient camera nudge over the lean-in
 
 			// Probe: dump camera state for 30 frames so we see when block shifts the view.
 			CameraProbeTag = TEXT("BLOCK");
@@ -2705,6 +2793,104 @@ void AZP_GraceCharacter::LogBoneClipProbe()
 	DumpMesh(MeleeViewMesh,  TEXT("VIEW"), ViewBones);
 }
 
+// --- Marcus appearance (CCMH body shell) ---
+
+void AZP_GraceCharacter::SetupMarcusAppearance()
+{
+	if (!MarcusBody || !PlayerMesh) return;
+
+	// Body + apparel per "Marcus" entry in CC_SaveGame.sav (CCMH_Preset_Male_01):
+	// Apparel: ["Overalls_01", "", "Sneaker_02" (color variant 1), "Cap_01"].
+	USkeletalMesh* Body = LoadObject<USkeletalMesh>(nullptr,
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Meshes/CCMH_Body_Male.CCMH_Body_Male"));
+	if (!Body)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] SetupMarcusAppearance — CCMH body failed to load; keeping Operator body."));
+		return;
+	}
+
+	MarcusBody->SetSkeletalMesh(Body);
+	MarcusBody->SetVisibility(true);
+
+	// Marcus plays NATIVE CCMH locomotion clips (retargeted OFFLINE from the player's
+	// Manny loco clips via MH_Retargeter; assets in /Game/Marcus/Anims) directly via
+	// SingleNode — the SAME approach the Character Customizer demo uses, with NO live
+	// RetargetPoseFromMesh node. That node flickered to ref pose every other frame
+	// against our custom dual-mesh source ("shuffle"); native SingleNode playback is
+	// deterministic = no shuffle. Speed-driven in the locomotion update (UpdateLocoAnim).
+	MarcusBody->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	MarcusIdle       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Stand_Idle_Loop.Marcus_M_Neutral_Stand_Idle_Loop"));
+	MarcusWalk       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Walk_Loop_F.Marcus_M_Neutral_Walk_Loop_F"));
+	MarcusRun        = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Run_Loop_F.Marcus_M_Neutral_Run_Loop_F"));
+	MarcusCrouchIdle = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Crouch_Idle_Loop.Marcus_M_Neutral_Crouch_Idle_Loop"));
+	MarcusCrouchWalk = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Crouch_Loop_F.Marcus_M_Neutral_Crouch_Loop_F"));
+	if (MarcusIdle)
+	{
+		if (UAnimSingleNodeInstance* SNI = MarcusBody->GetSingleNodeInstance())
+		{
+			SNI->SetAnimationAsset(MarcusIdle, true, 1.0f);
+			SNI->SetPlaying(true);
+		}
+	}
+
+	// Hide the head — the FP camera is socketed at the head bone, so the head
+	// mesh sits IN the camera. Without this we see backfaces / nothing from the
+	// inside of the head, occluding the torso below. Same trick PlayerMesh uses.
+	MarcusBody->HideBoneByName(FName("head"), EPhysBodyOp::PBO_None);
+
+	// Attach Marcus to the CAPSULE (clean, always-upright frame — identical to the
+	// hidden locomotion CharacterMesh0). The pack AnimBP's RetargetPoseFromMesh
+	// sources from its public 'Attach' var (set below to PlayerMesh) — NOT from the
+	// parent component (verified in the AnimGraph: SourceMeshComponent <- Get Attach).
+	// So Marcus does NOT need to be a child of PlayerMesh. Nwiro parented it there,
+	// which put it in a non-upright, aim-tracking frame → the body tilted (side-plank)
+	// or faced 45deg off depending on look direction. CCMH visual forward is local +Y,
+	// so a -90 yaw points the body at pawn-forward. Verified live: matches the
+	// known-good CharacterMesh0 frame exactly (forward + up.z=1).
+	MarcusBody->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	MarcusBody->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+	MarcusBody->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	// Marcus (CCMH) is taller than the Operator the FP camera was tuned for, so his
+	// eyes sat ~19cm above the camera → the camera was buried in his chest and looking
+	// down showed only floor + feet. Scaling around the foot-level component origin
+	// drops his eyes to the camera while keeping feet on the floor. Measured live:
+	// camera 124cm above floor, eyes 143cm → 124/143 = 0.869.
+	MarcusBody->SetRelativeScale3D(FVector(0.869f));
+
+	// Apparel: same CCMH skeleton -> leader-pose to MarcusBody. Per Marcus save:
+	//   Overalls_01 (Male upper+lower body), Sneaker_02 (Male, color variant 1), Cap_01.
+	// MarcusPants stays unassigned — Overalls_01 is a full-body suit, no lower-only slot.
+	if (USkeletalMesh* Overalls = LoadObject<USkeletalMesh>(nullptr,
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Apparel/ApparelPack_01/Male/UpperLowerBody/Overalls_01/Overalls_01.Overalls_01")))
+	{
+		MarcusOveralls->SetSkeletalMesh(Overalls);
+		MarcusOveralls->SetLeaderPoseComponent(MarcusBody);
+	}
+	// Cap_01 (headwear) intentionally NOT shown on the self/FP body — it rides the
+	// head bone, which sits at the FP camera, so it would fill the lens (the head is
+	// hidden above for the same reason). Add it back only for a 3P / shadow body.
+	if (USkeletalMesh* Sneakers = LoadObject<USkeletalMesh>(nullptr,
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Apparel/Male/Footwear/Sneaker_02/Sneaker_02.Sneaker_02")))
+	{
+		MarcusSneakers->SetSkeletalMesh(Sneakers);
+		MarcusSneakers->SetLeaderPoseComponent(MarcusBody);
+	}
+
+	// Hide the Operator visible body from the OWNER only (FP body hide). NOT
+	// SetVisibility(false): that stops Kinemation's AC_FirstPersonCamera driving the
+	// camera rotation, leaving the raw ~90deg-rolled FPCamera socket orientation.
+	// SetOwnerNoSee keeps the mesh visible/ticking (camera drive + retarget source
+	// intact, shadow preserved) while hiding it from this player's own view.
+	PlayerMesh->SetOwnerNoSee(true);
+
+	// FULL first-person body — chest, arms, legs, feet all visible. ONLY the head is
+	// hidden (above), since it sits at the FP camera. The dev wants to see the whole
+	// body looking down, and the arms must show for weapon/melee poses. (Reverts
+	// Nwiro's spine_03 hide, which deleted the entire upper body + arms.)
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] SetupMarcusAppearance — Marcus CCMH body active (full body), retargeting from PlayerMesh."));
+}
+
 // --- Dodge ---
 
 void AZP_GraceCharacter::PerformDodge()
@@ -2740,6 +2926,7 @@ void AZP_GraceCharacter::PerformDodge()
 	// locomotion blend, not from the override mechanic itself.
 	LaunchCharacter(LaunchDir * DodgeImpulse, /*bXYOverride*/ true, /*bZOverride*/ false);
 	DodgeCooldownRemaining = DodgeCooldown;
+	DodgeClearanceRemaining = DodgeClearanceWindow;
 	LogCameraProbe(TEXT("POST-LAUNCH"));
 
 	// FPP_sns_Dodge is a Kubold BACKSTEP pose — it only matches the motion for

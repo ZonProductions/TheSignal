@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.7",
+	"EngineAssociation": "{949FB328-44CE-13E1-2DAF-9AAECC7D276A}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -61,6 +61,10 @@
 		},
 		{
 			"Name": "NwiroIntegrationKit",
+			"Enabled": true
+		},
+		{
+			"Name": "ModelContextProtocol",
 			"Enabled": true
 		}
 	]

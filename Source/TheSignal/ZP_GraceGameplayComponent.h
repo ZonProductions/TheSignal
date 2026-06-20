@@ -77,6 +77,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|HeadBob")
 	bool bUseBuiltInHeadBob = true;
 
+	/** Extra forward (capsule +X) camera clearance, cm, used as a TRANSIENT nudge
+	 *  to cover the block/dodge stance lean-IN (when the spine pitches forward and
+	 *  the body would otherwise swing toward the lens). Snaps in instantly, then
+	 *  eases back to 0 — it is NOT held for the duration of a block, or a sustained
+	 *  hold would leave the camera floating forward. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
+	float BlockDodgeForwardClearance = 14.0f;
+
+	/** Interp speed for easing the block/dodge forward clearance back out to 0. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
+	float ForwardClearanceInterpSpeed = 8.0f;
+
+	/** Forward (capsule +X) camera offset. The Operator's FPCamera socket sits ~62cm
+	 *  FORWARD of the body (fine when the body was hidden) — this pulls the camera back
+	 *  onto Marcus's head so looking down shows chest->feet. Measured/verified live. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
+	float CameraExtraForward = -70.0f;
+
+	/** World-up camera offset — sets the camera to Marcus's eye line. Verified live:
+	 *  head ~10cm above camera = eye level, body extends below into the down-view. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
+	float CameraExtraHeight = 12.0f;
+
 	// --- Peek State ---
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement|Peek")
@@ -122,6 +145,11 @@ public:
 	float GetHeadBobOffsetY() const { return HeadBobOffsetY; }
 	float GetHeadBobOffsetZ() const { return HeadBobOffsetZ; }
 
+	/** Called by the character each frame: true during the short block/dodge
+	 *  lean-in window. While true the camera snaps to BlockDodgeForwardClearance of
+	 *  forward push; when it goes false the push eases back to 0. */
+	void SetForwardClearanceActive(bool bActive) { bForwardClearanceActive = bActive; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -149,6 +177,12 @@ private:
 	float HeadBobOffsetY = 0.0f;
 	float HeadBobOffsetZ = 0.0f;
 	void UpdateHeadBob(float DeltaTime);
+
+	// --- Block/dodge forward camera clearance ---
+	/** Set by the character via SetForwardClearanceActive each tick. */
+	bool bForwardClearanceActive = false;
+	/** Eased current clearance (cm) added to the camera's capsule-space forward offset. */
+	float CurrentForwardClearance = 0.0f;
 
 	// --- Mesh Peek (gun follows camera) ---
 	/** Cached PlayerMesh (camera's attach parent) for applying peek at mesh level. */

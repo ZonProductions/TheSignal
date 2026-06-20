@@ -427,6 +427,21 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 {
 	if (!CameraComponent || !CachedMovement) return;
 
+	// Block/dodge forward camera clearance — a transient nudge that covers the
+	// stance lean-IN, then settles. Snap to full INSTANTLY when active so there's
+	// no ease-in frame where the body can flash into the lens ("cannot break at
+	// all"); ease smoothly back to neutral when inactive so a sustained block hold
+	// settles to the normal eye position instead of floating forward forever.
+	if (bForwardClearanceActive)
+	{
+		CurrentForwardClearance = BlockDodgeForwardClearance;
+	}
+	else
+	{
+		CurrentForwardClearance = FMath::FInterpTo(
+			CurrentForwardClearance, 0.0f, DeltaTime, ForwardClearanceInterpSpeed);
+	}
+
 	const float InterpSpeed = MovementConfig->PeekInterpSpeed;
 	const float ReturnSpeed = MovementConfig->PeekReturnInterpSpeed;
 	const float LateralOffset = MovementConfig->PeekLateralOffset;
@@ -527,7 +542,7 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 
 		// Camera gets head bob only (socket-space transformed); BaseCameraX
 		// preserves the forward offset from the constructor.
-		FVector BobCapsule(BaseCameraX, HeadBobOffsetY, BaseCameraZ + HeadBobOffsetZ);
+		FVector BobCapsule(BaseCameraX + CurrentForwardClearance + CameraExtraForward, HeadBobOffsetY, BaseCameraZ + HeadBobOffsetZ + CameraExtraHeight);
 		CameraComponent->SetRelativeLocation(ToSocketSpace(BobCapsule));
 	}
 	else
@@ -540,7 +555,7 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 			CachedMeshComponent->SetRelativeLocation(MeshLoc);
 		}
 
-		FVector CapsuleOffset(BaseCameraX + PeekX, HeadBobOffsetY + PeekY, BaseCameraZ + HeadBobOffsetZ);
+		FVector CapsuleOffset(BaseCameraX + PeekX + CurrentForwardClearance + CameraExtraForward, HeadBobOffsetY + PeekY, BaseCameraZ + HeadBobOffsetZ + CameraExtraHeight);
 		CameraComponent->SetRelativeLocation(ToSocketSpace(CapsuleOffset));
 	}
 

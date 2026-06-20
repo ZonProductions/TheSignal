@@ -283,6 +283,17 @@ void UZP_KinemationComponent::InitKinemationAnimation()
 		}
 	}
 
+	// The player starts UNARMED, so no weapon view-settings are applied and
+	// AC_TacticalShooterAnimation.ActiveSettings stays null. Its ComputeAimSway/
+	// MoveSway run every frame and dereference that null → ~3 "Accessed None" BP
+	// runtime errors PER FRAME → a 50MB+ log → PIE that's fine at first and
+	// progressively laggier. Disable the component's tick while unarmed; it's
+	// re-enabled the moment a weapon's settings are applied (SpawnAndEquipWeapon).
+	if (TacticalAnimComp)
+	{
+		TacticalAnimComp->SetComponentTickEnabled(false);
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: TacticalAnim=%s, Recoil=%s, IK=%s"),
 		TacticalAnimComp ? TEXT("OK") : TEXT("NONE"),
 		RecoilAnimComp ? TEXT("OK") : TEXT("NONE"),
@@ -335,6 +346,9 @@ void UZP_KinemationComponent::SpawnAndEquipWeapon()
 		if (Settings)
 		{
 			FKinemationBridge::AnimSetActiveSettings(TacticalAnimComp, Settings);
+			// Settings are now valid — re-enable the tactical anim tick (disabled
+			// while unarmed to avoid per-frame null-ActiveSettings BP errors).
+			TacticalAnimComp->SetComponentTickEnabled(true);
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: Set ActiveSettings to %s"), *Settings->GetName());
 		}
 		else

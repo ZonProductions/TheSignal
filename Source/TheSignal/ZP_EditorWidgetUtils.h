@@ -2,8 +2,6 @@
 
 #pragma once
 
-#if WITH_EDITOR
-
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ZP_EditorWidgetUtils.generated.h"
@@ -18,6 +16,7 @@ class UZP_EditorWidgetUtils : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
+#if WITH_EDITOR
 	/**
 	 * Adds Map/Inventory/Notes tabs to WBP_InventoryMenu_Horror.
 	 * Wraps existing root in a WidgetSwitcher (index 1 = inventory),
@@ -109,6 +108,5 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "TheSignal|Editor")
 	static bool SetPickupDescriptionFontSize(int32 FontSize = 16);
+#endif // WITH_EDITOR
 };
-
-#endif

@@ -28,6 +28,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "ZP_GraceCharacter.generated.h"
 
 class UCameraComponent;
@@ -76,6 +77,41 @@ public:
 	 *  locomotion mesh. ZP_KinemationComponent owns its lifecycle. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<USkeletalMeshComponent> MeleeViewMesh;
+
+	// --- Marcus appearance (Character Customizer CCMH body as the visible shell) ---
+	/** Visible body. CCMH_Body_Male driven by CC_Retarget_AnimBP retargeting from
+	 *  PlayerMesh (Manny pose) via the pack's MH_Retargeter. Replaces the Operator
+	 *  body as the visible FP shell; PlayerMesh stays (hidden) to drive camera + pose. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MarcusBody;
+
+	/** Upper-body apparel (Lab_Coat per Ommei preset) — leader-posed to MarcusBody. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MarcusOveralls;
+
+	/** Lower-body apparel (Tracksuit/Nurse_Pants per Ommei preset) — leader-posed to MarcusBody. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MarcusPants;
+
+	/** Footwear — leader-posed to MarcusBody. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MarcusSneakers;
+
+	/** Native CCMH locomotion clips (retargeted offline from the player's Manny clips),
+	 *  played on MarcusBody via SingleNode — no live retarget node, no shuffle. */
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusIdle;
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusWalk;
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusRun;
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusCrouchIdle;
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusCrouchWalk;
+
+	/** Live-tunable facing offset for Marcus's visible body (on top of the -90 base
+	 *  yaw). Dial in BP_GraceCharacter → Details → Appearance to correct the angle the
+	 *  body faces / tilt. Applied every frame so edits show live in PIE. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	float MarcusBodyYaw = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	float MarcusBodyPitch = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	TObjectPtr<UZP_GraceGameplayComponent> GameplayComp;
@@ -460,6 +496,26 @@ private:
 	/** Seconds remaining on dodge cooldown. Decremented in Tick. */
 	float DodgeCooldownRemaining = 0.f;
 
+	/** Seconds remaining where the dodge holds extra forward camera clearance
+	 *  (covers the launch lean). Set in PerformDodge, decremented in Tick. */
+	float DodgeClearanceRemaining = 0.f;
+
+	/** Duration of the dodge forward-clearance window (seconds). */
+	UPROPERTY(EditDefaultsOnly, Category = "Dodge")
+	float DodgeClearanceWindow = 0.5f;
+
+	/** Seconds remaining where the block forward-clearance nudge is active. Set on
+	 *  block start, decremented in Tick. A transient window — NOT the whole hold —
+	 *  so the camera settles to neutral during a sustained block instead of floating
+	 *  forward. Drives GameplayComp->SetForwardClearanceActive with DodgeClearanceRemaining. */
+	float BlockClearanceRemaining = 0.f;
+
+	/** Duration of the block forward-clearance nudge (seconds) — long enough to
+	 *  cover the stance lean-in, then it eases out even while block is held. */
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
+	float BlockClearanceWindow = 0.4f;
+
+
 	/** True when the block walk anim is currently loaded (vs BlockLoop). */
 	bool bBlockWalkActive = false;
 
@@ -473,6 +529,11 @@ private:
 
 	/** Switch MeleeViewMesh between BlockLoop / BlockWalk based on motion. */
 	void UpdateBlockAnimation();
+
+	/** Assemble the Marcus CCMH body as the visible shell: load meshes, set the
+	 *  retarget AnimBP (source = PlayerMesh) on MarcusBody, leader-pose apparel,
+	 *  hide the Operator visible body. Called once in BeginPlay. */
+	void SetupMarcusAppearance();
 
 	/** Play a random FPP_Longs_BlockImpact1/2/3 on MeleeViewMesh. */
 	void PlayBlockImpactAnim();

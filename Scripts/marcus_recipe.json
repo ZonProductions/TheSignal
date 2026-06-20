@@ -1,0 +1,164 @@
+{
+  "skeletalMeshes": [
+    {
+      "comp": "CharacterMesh0",
+      "mesh": "/Game/CharacterCustomizer/CharacterCustomizer_Core/Pawns/CC_Dummy/CC_Dummy_AnimMesh.CC_Dummy_AnimMesh",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MI_Simple_Masked"
+        }
+      ]
+    },
+    {
+      "comp": "Body",
+      "mesh": "/Game/CharacterCustomizer/Characters/CCMH/Meshes/CCMH_Body_Male.CCMH_Body_Male",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MID_MI_Skin_Body_CCMH_0",
+          "parent": "/Game/CharacterCustomizer/Characters/CCMH/Materials/Skin/M_Skin_CCMH.M_Skin_CCMH"
+        }
+      ]
+    },
+    {
+      "comp": "Head",
+      "mesh": "/Game/CharacterCustomizer/Characters/CCMH/Meshes/CCMH_Head_Male.CCMH_Head_Male",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MID_MI_Skin_Face_CCMH_0",
+          "parent": "/Game/CharacterCustomizer/Characters/CCMH/Materials/Skin/M_Skin_CCMH.M_Skin_CCMH"
+        },
+        {
+          "index": 1,
+          "name": "MID_MI_Eye_Instance_0",
+          "parent": "/Game/CharacterCustomizer/Characters/Base_Materials/Eyes/M_EyeRefractive.M_EyeRefractive"
+        },
+        {
+          "index": 2,
+          "name": "MID_MI_MH_Eye_AO_0",
+          "parent": "/Game/CharacterCustomizer/Characters/CCMH/Materials/Eye_AO/M_Crowd_EyeOcclusion.M_Crowd_EyeOcclusion"
+        },
+        {
+          "index": 3,
+          "name": "MID_MI_Eye_Water_0",
+          "parent": "/Game/CharacterCustomizer/Characters/Base_Materials/Eye_Water/M_Lacrimal_Fluid.M_Lacrimal_Fluid"
+        },
+        {
+          "index": 4,
+          "name": "MID_MI_Eyelashes_LP_0",
+          "parent": "/Game/CharacterCustomizer/Base_Materials/M_Simple_Translucent.M_Simple_Translucent"
+        },
+        {
+          "index": 5,
+          "name": "MID_MI_CCMH_Teeth_0",
+          "parent": "/Game/CharacterCustomizer/Characters/CCMH/Materials/Teeth/M_CCMH_Teeth.M_CCMH_Teeth"
+        }
+      ]
+    },
+    {
+      "comp": "CC_SkelMesh_C_0",
+      "mesh": "/Game/CharacterCustomizer/Characters/CCMH/Hair/Hairstyles/Side_Part_02/Side_Part_02_M.Side_Part_02_M",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MID_MI_Hair_Glossy_0",
+          "parent": "/Game/CharacterCustomizer/Characters/CCMH/Hair/Materials/M_Hair_CCMH.M_Hair_CCMH"
+        }
+      ]
+    },
+    {
+      "comp": "CC_SkelMesh_C_1",
+      "mesh": "/Game/CharacterCustomizer/Characters/CCMH/Hair/Eyebrows/Eyebrows_01_Male.Eyebrows_01_Male",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MID_MI_Eyebrows_Masked_0",
+          "parent": "/Game/CharacterCustomizer/Characters/CCMH/Hair/Materials/M_Hair_CCMH.M_Hair_CCMH"
+        }
+      ]
+    },
+    {
+      "comp": "CC_SkelMesh_C_2",
+      "mesh": null,
+      "leader": null,
+      "mats": []
+    },
+    {
+      "comp": "CC_SkelMesh_C_3",
+      "mesh": "/Game/CharacterCustomizer/Characters/CCMH/Apparel/ApparelPack_01/Male/UpperLowerBody/Overalls_01/Overalls_01.Overalls_01",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MID_MI_Overalls_01_0",
+          "parent": "/Game/CharacterCustomizer/Base_Materials/M_Base_Material_Apparel.M_Base_Material_Apparel"
+        },
+        {
+          "index": 1,
+          "name": "MID_MI_TShirt_Male_0",
+          "parent": "/Game/CharacterCustomizer/Base_Materials/M_Base_Material_Apparel.M_Base_Material_Apparel"
+        }
+      ]
+    },
+    {
+      "comp": "CC_SkelMesh_C_4",
+      "mesh": null,
+      "leader": null,
+      "mats": []
+    },
+    {
+      "comp": "CC_SkelMesh_C_5",
+      "mesh": "/Game/CharacterCustomizer/Characters/CCMH/Apparel/Male/Footwear/Sneaker_02/Sneaker_02.Sneaker_02",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MID_MI_Sneaker_02_0",
+          "parent": "/Game/CharacterCustomizer/Base_Materials/M_Base_Material_Apparel.M_Base_Material_Apparel"
+        }
+      ]
+    },
+    {
+      "comp": "CC_SkelMesh_C_6",
+      "mesh": "/Game/CharacterCustomizer/Characters/CCMH/Apparel/ApparelPack_01/Male/Head/Cap_01/Cap_01.Cap_01",
+      "leader": null,
+      "mats": [
+        {
+          "index": 0,
+          "name": "MID_MI_Cap_01_0",
+          "parent": "/Game/CharacterCustomizer/Base_Materials/M_Base_Material_Apparel.M_Base_Material_Apparel"
+        }
+      ]
+    }
+  ],
+  "grooms": [
+    {
+      "comp": "GroomComponent_0",
+      "groom": null
+    },
+    {
+      "comp": "GroomComponent_1",
+      "groom": null
+    },
+    {
+      "comp": "GroomComponent_2",
+      "groom": null
+    }
+  ],
+  "materialParams": {
+    "BodySkinMID": {
+      "Skin Color": "<Struct 'LinearColor' (0x00000209F5EE0960) {r: 0.300000, g: 0.187500, b: 0.150000, a: 0.000000}>",
+      "Skin Tint": "<Struct 'LinearColor' (0x00000209F5EE0960) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>",
+      "Tint": "<Struct 'LinearColor' (0x00000209F5EE0960) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>",
+      "Color": "<Struct 'LinearColor' (0x00000209F5EE0960) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>",
+      "Roughness Scale": "<Struct 'LinearColor' (0x00000209F5EE0960) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>"
+    }
+  }
+}

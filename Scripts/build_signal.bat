@@ -10,8 +10,8 @@ REM ============================================================
 setlocal EnableDelayedExpansion
 
 set "PROJECT=C:\Users\Ommei\workspace\TheSignal\TheSignal.uproject"
-set "ENGINE_BUILD=C:\Program Files\Epic Games\UE_5.7\Engine\Build\BatchFiles\Build.bat"
-set "ENGINE_EDITOR=C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor.exe"
+set "ENGINE_BUILD=C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat"
+set "ENGINE_EDITOR=C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe"
 set "LOG=C:\Users\Ommei\workspace\TheSignal\Scripts\last_build.log"
 set "FLAG=C:\Users\Ommei\workspace\TheSignal\Scripts\last_build.status"
 

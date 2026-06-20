@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-19T12:21:04",
+  "created": "2026-06-19T22:17:54",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:93840efa272b75323f4a13a2982ed2e28d82ddc15b470abf29c817f2db0b6b92",
-      "size": 7105762
+      "hash": "sha256:dee64c8cedfcf236c83bf05b91787d2cb96a809330485a3041b259c54393f1a2",
+      "size": 7090050
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -13044,8 +13044,8 @@
       "size": 149308
     },
     "Content/CharacterCustomizer/Characters/CCMH/Animation/CC_Retarget_AnimBP.uasset": {
-      "hash": "sha256:7fef80c713098166ad11131f42e3dcb1e5bd40178d328a0f36847c839ab1bda6",
-      "size": 215406
+      "hash": "sha256:523e519c4854a9b03e419a7d8c5dc96c076ca8cc181961ce5e98d03639fd8f67",
+      "size": 221793
     },
     "Content/CharacterCustomizer/Characters/CCMH/Animation/IK_Retarget_Fix.uasset": {
       "hash": "sha256:a603c2eedf3e153b8ff5b5bc204a98912a234cad90fda82be0aecf45feab2a5f",
@@ -19175,6 +19175,18 @@
       "hash": "sha256:d86a10b9b3f8b4de74a331cb2c292d7793366e9ab06dc1a81f3008f19bf58cd1",
       "size": 1180803
     },
+    "Content/CharacterCustomizer/checkpoints/cc_outershell_swap_plan_20260619.md": {
+      "hash": "sha256:95d2951a0b6a027e8ec2e058a816069380dea01f9da08fb237ce1c32b4e75e41",
+      "size": 6162
+    },
+    "Content/CharacterCustomizer/checkpoints/marcus_recipe_captured_20260619.md": {
+      "hash": "sha256:fd06fa65d32f92d559e82a01977eff55ce1a139f9133a7593027918a2c7d6ed5",
+      "size": 4944
+    },
+    "Content/CharacterCustomizer/checkpoints/marcus_wiring_plan_locked_20260619.md": {
+      "hash": "sha256:53fa394aa428a0d7da10fe2faa075b872afda8be61f5dfa9140c614901bdfd43",
+      "size": 3895
+    },
     "Content/CharacterCustomizer/Components/NPCs/Action.uasset": {
       "hash": "sha256:02d5cdbc3a757a482c6e129b217cbd76a0b99ff28d023a4eab3e7fded023719b",
       "size": 3783
@@ -22892,8 +22904,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:d80b5a07de3339e65572ff52193d6e31c22467ce1b1317b9d7943f0deb20f746",
-      "size": 130295
+      "hash": "sha256:1622aec01288db99394fa1de5e25c72b2dca3ba148f4302dcf966882f645f8b3",
+      "size": 132275
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -57336,12 +57348,32 @@
       "size": 21113
     },
     "Content/Maps/MAP_CharacterDesigner.umap": {
-      "hash": "sha256:3bb07550ffe2fe2ec95a81928d61d0232ad9fe531815e45f21a87a508a2e8d04",
-      "size": 15004
+      "hash": "sha256:8e572deac4000c951fcb466afcbc63072300214bc68d02456d48cc24674fc27b",
+      "size": 28151
     },
     "Content/Maps/MAP_MainMenu.umap": {
       "hash": "sha256:4176e233d0cfe9c696410360bc2b8746e2694cc41ffb69d12cba730b5ea07b00",
       "size": 12776
+    },
+    "Content/Marcus/Anims/Marcus_M_Neutral_Crouch_Idle_Loop.uasset": {
+      "hash": "sha256:3c5c0fdc1753b1658c8f2b0d6a24d74b1c150b0ab75f8c9ee54b050ad1ae8bbd",
+      "size": 2161072
+    },
+    "Content/Marcus/Anims/Marcus_M_Neutral_Crouch_Loop_F.uasset": {
+      "hash": "sha256:3e57b83da92f091a88623f46e17b501d8925920ad481bb74357a1fa6d1016e7b",
+      "size": 911150
+    },
+    "Content/Marcus/Anims/Marcus_M_Neutral_Run_Loop_F.uasset": {
+      "hash": "sha256:d991d090390ea22b70fa5cb3c39180d1b3e8d79ae715a0142ae1c0d893af82d9",
+      "size": 686297
+    },
+    "Content/Marcus/Anims/Marcus_M_Neutral_Stand_Idle_Loop.uasset": {
+      "hash": "sha256:669dddbc7a3e0902290e7b46483245ecf2054a88b94acee61c8a9719c6673780",
+      "size": 2163514
+    },
+    "Content/Marcus/Anims/Marcus_M_Neutral_Walk_Loop_F.uasset": {
+      "hash": "sha256:f03eafc4d68e85a7651ff06d01b47fc18df707db33b516ed07d8c30ee58947ea",
+      "size": 987503
     },
     "Content/Materials/UI/M_DamageReductionVignette.uasset": {
       "hash": "sha256:2064023756a9cc2854e5c76cc5e73a065e684acf76c23919ac6d9604968a2c1b",

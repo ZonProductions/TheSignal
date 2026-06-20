@@ -1,0 +1,10 @@
+import unreal, math
+world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_game_world()
+pawn = unreal.GameplayStatics.get_player_controller(world,0).get_controlled_pawn()
+def yaw(v): return round(math.degrees(math.atan2(v.y, v.x)),1)
+mb = next(c for c in pawn.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name()=="MarcusBody")
+gm = next(c for c in pawn.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name()=="CharacterMesh0")
+mb.set_relative_rotation(unreal.Rotator(roll=0.0, pitch=0.0, yaw=0.0), False, False)
+print("actor fwd:", yaw(pawn.get_actor_forward_vector()))
+print("CharacterMesh0 fwd:", yaw(gm.get_forward_vector()), "up.z", round(gm.get_up_vector().z,2))
+print("MarcusBody   fwd:", yaw(mb.get_forward_vector()), "up.z", round(mb.get_up_vector().z,2))
