@@ -97,6 +97,41 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
 	TObjectPtr<USkeletalMeshComponent> MarcusSneakers;
 
+	/** Overalls sleeves for the weapon-arm view-model — leader-posed to MeleeViewMesh
+	 *  so the FP arms wear Marcus's clothing (not bare skin). Shown with the view-model. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MeleeViewOveralls;
+
+	/** Bare Marcus-skin hands for the melee view-model — SK_Hand_01a (Operator skeleton)
+	 *  leader-posed to MeleeViewMesh, reskinned to CCMH skin. The Operator mesh's own
+	 *  gloved hands are bone-hidden so these show through. Same bare-hand mesh the ranged
+	 *  arms use, so hands read identically on every weapon. Shown only while melee is up. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MeleeHands;
+
+	/** RANGED view-model: arms-only meshes (SK_Arm/SK_Hand, Operator skeleton) leader-
+	 *  posed to PlayerMesh so they follow the LIVE Kinemation aim pose. Shown only while
+	 *  a ranged weapon is up — just arms + gun, no body (no clothing mismatch). */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> RangedArms;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> RangedHands;
+
+	/** FP shirt sleeve (Operator skeleton) leader-posed over the ranged arms so they're
+	 *  clothed, not bare. Reskinned toward Marcus's shirt. Shown only while ranged. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> RangedSleeve;
+
+	/** Live-tunable offset for the RANGED arm view-model (RangedArms + RangedHands +
+	 *  RangedSleeve, moved together) on top of the leader-posed Kinemation aim. Dial in
+	 *  Details → Appearance; applied every frame so PIE edits show live. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	FVector RangedArmsOffset = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	FRotator RangedArmsRotation = FRotator::ZeroRotator;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	float RangedArmsScale = 1.0f;
+
 	/** Native CCMH locomotion clips (retargeted offline from the player's Manny clips),
 	 *  played on MarcusBody via SingleNode — no live retarget node, no shuffle. */
 	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusIdle;
@@ -112,6 +147,106 @@ public:
 	float MarcusBodyYaw = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
 	float MarcusBodyPitch = 0.0f;
+
+	/** Camera look-down angle (degrees) below which MarcusBody's spine starts
+	 *  bending forward so the camera never sees inside the chest cavity during
+	 *  Kinemation reload/switch dives. No bend above this threshold. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
+	float SpineBendThresholdDeg = 45.f;
+
+	/** Maximum total spine bend (degrees) when looking straight down (-90 pitch).
+	 *  Distributed across spine_01..spine_05 with weights .10/.15/.20/.25/.30,
+	 *  more toward the head. 0 disables. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
+	float SpineBendMaxDeg = 55.f;
+
+	/** Easing speed (higher = snappier) for SpineBend toward target each frame. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
+	float SpineBendInterpSpeed = 12.f;
+
+	/** Bone-LOCAL hinge axis for forward bend. Default (0,1,0) = bone-local +Y
+	 *  (right vector) which bends forward on UE5/MetaHuman/CCMH spine convention.
+	 *  Flip sign or swap component if the body leans the wrong way. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
+	FVector SpineBendBoneLocalAxis = FVector(0.f, 1.f, 0.f);
+
+	/** Per-action CAMERA offset applied during that move so the leaning body doesn't clip
+	 *  the lens — the camera is moved instead of the body. Capsule space: +X = forward
+	 *  (lens away from the body), +Z = up. Lerped in/out at WeaponActionOffsetSpeed. One
+	 *  each for reload / switch / swing / block — dial independently in Details → Camera. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	FVector ReloadCamOffset = FVector(3.0f, 0.0f, 0.0f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	FVector SwitchCamOffset = FVector(3.0f, 0.0f, 0.0f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	FVector SwingCamOffset = FVector(4.0f, 0.0f, 0.0f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (DisplayName = "Block Camera Offset (moves VIEW)"))
+	FVector BlockCamOffset = FVector(4.0f, 0.0f, 0.0f);
+
+	/** Maximum degrees the camera may pitch DOWN from horizon (positive value).
+	 *  Clamps both controller look input AND animation-driven camera dives
+	 *  (Kinemation reload/equip socket pose), so the camera never passes through
+	 *  the visible body when looking down. Default 55 = comfortable, eyes can
+	 *  still see the floor a couple of meters ahead but never the chest cavity. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Pitch")
+	float CameraPitchDownLimitDeg = 55.f;
+
+	/** Maximum degrees the camera may pitch UP from horizon (positive value).
+	 *  Standard FPS max-look-up cap. Default 80. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Pitch")
+	float CameraPitchUpLimitDeg = 80.f;
+
+	/** How fast the camera slides to/from the active offset (higher = snappier). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float WeaponActionOffsetSpeed = 10.0f;
+
+
+	/** Current interpolated weapon-action camera offset (runtime; fed to GameplayComp). */
+	FVector CurrentWeaponActionOffset = FVector::ZeroVector;
+
+	/** Per-hand grip offsets (component space) for the melee view-model arms. The
+	 *  post-process hand layer (UZP_MeleeHandsAnimInstance) applies them live; dial
+	 *  in Details → Appearance. MeleeHand?Offset is the base grip for ALL melee states
+	 *  (idle/swing AND block) — block inherits this exact connection. BlockHand?Offset
+	 *  is an OPTIONAL extra added ON TOP only while blocking; leave it zero and block
+	 *  grips identically to non-block pipe wielding. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	FVector MeleeHandLOffset = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	FVector MeleeHandROffset = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Block Hand L Offset (extra, on top)"))
+	FVector BlockHandLOffset = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Block Hand R Offset (extra, on top)"))
+	FVector BlockHandROffset = FVector::ZeroVector;
+
+	/** Active melee hand grip offset, chosen by block state — read by the post-process
+	 *  hand anim layer. bRight selects hand_r, else hand_l. */
+	FVector GetActiveMeleeHandOffset(bool bRight) const;
+
+	/** Tracks whether Marcus's body arms are currently hidden (weapon view-model up). */
+	bool bMarcusArmsHidden = false;
+
+	/** Tracks ranged-weapon state: when armed ranged, the Operator PlayerMesh is shown
+	 *  (its Kinemation arms hold the gun) and Marcus is hidden. */
+	bool bRangedArmedState = false;
+
+	/** Live-tunable framing for the Marcus weapon-arm view-model (CCMH proportions
+	 *  differ from the Operator the -155/-90 was tuned for). Dial in Details →
+	 *  Appearance, applied every frame so PIE edits show live. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	FVector MeleeViewOffset = FVector(0.0f, 0.0f, -155.0f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	FRotator MeleeViewRotation = FRotator(0.0f, -90.0f, 0.0f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	float MeleeViewScale = 1.0f;
+
+	/** Extra placement applied to the melee weapon-arm view-model (the ARM RIG —
+	 *  MeleeViewMesh + sleeves + hands) ONLY while blocking — added on top of
+	 *  MeleeViewOffset. Moves the ARMS, NOT the camera. X = forward/back,
+	 *  Y = left/right, Z = up/down. Dial in Details → Appearance; applied every frame
+	 *  so PIE edits show live — tune it WHILE holding a block. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Block Arms Offset (moves arms)"))
+	FVector BlockViewOffset = FVector::ZeroVector;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	TObjectPtr<UZP_GraceGameplayComponent> GameplayComp;

@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-19T22:17:54",
+  "created": "2026-06-20T03:42:47",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:dee64c8cedfcf236c83bf05b91787d2cb96a809330485a3041b259c54393f1a2",
-      "size": 7090050
+      "hash": "sha256:d0f516c3ef56fbac9d2bf4bd76cd47e8552f41dc9e0a3a6ecbc89424dda9e7ee",
+      "size": 7104384
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -22871,9 +22871,21 @@
       "hash": "sha256:5bb2b6371a3341b39cf0069cd154582d218ee5c434d0d09ac30d7280ad7520c9",
       "size": 69920
     },
+    "Content/Core/Materials/MI_HandSkin.uasset": {
+      "hash": "sha256:66c3776b731bd341de9fccac1dd3cf247876175eedfc66187804aa5dbd688815",
+      "size": 6787
+    },
     "Content/Core/Materials/M_BulletHole.uasset": {
       "hash": "sha256:278b1f1a9295fd6b1afd94ddc038a56cc3b2536247f825d06f6387a52d0c368e",
       "size": 10032
+    },
+    "Content/Core/Materials/M_HandSkin.uasset": {
+      "hash": "sha256:cab1449d8bc7bf059562e4697c65edf8df27ccb1d07528acfbbbf5ede3564bdc",
+      "size": 10114
+    },
+    "Content/Core/Materials/M_Invisible.uasset": {
+      "hash": "sha256:8177344b596508e3c122bc2be40a7938a91c885a8fdda026d3950eaa331a0ecd",
+      "size": 6951
     },
     "Content/Core/Materials/M_WindowGlass.uasset": {
       "hash": "sha256:115e8c49a8e709e904da4ce836db9e7a93ca8199f65204d6b630cff6a41c8468",
@@ -22904,8 +22916,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:1622aec01288db99394fa1de5e25c72b2dca3ba148f4302dcf966882f645f8b3",
-      "size": 132275
+      "hash": "sha256:8ab58d4af3c5de0a9fef57219f5834c1795458b29200f6284ce4b3b18348817c",
+      "size": 135004
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -57355,6 +57367,10 @@
       "hash": "sha256:4176e233d0cfe9c696410360bc2b8746e2694cc41ffb69d12cba730b5ea07b00",
       "size": 12776
     },
+    "Content/Marcus/ABP_MarcusMeleeHands.uasset": {
+      "hash": "sha256:7612b9f62abf8356085672d05cb5a9e15bd4fb1c673eac9cbc89c71ea61fd06e",
+      "size": 26741
+    },
     "Content/Marcus/Anims/Marcus_M_Neutral_Crouch_Idle_Loop.uasset": {
       "hash": "sha256:3c5c0fdc1753b1658c8f2b0d6a24d74b1c150b0ab75f8c9ee54b050ad1ae8bbd",
       "size": 2161072
@@ -57374,6 +57390,58 @@
     "Content/Marcus/Anims/Marcus_M_Neutral_Walk_Loop_F.uasset": {
       "hash": "sha256:f03eafc4d68e85a7651ff06d01b47fc18df707db33b516ed07d8c30ee58947ea",
       "size": 987503
+    },
+    "Content/Marcus/MeleeAnims/Marcus_A_MeleePipe_Attack_L.uasset": {
+      "hash": "sha256:3303b977ebc156cae7d36b1a723fba4df05a3ef9d093c2ab8d5a4207977dfc1d",
+      "size": 402357
+    },
+    "Content/Marcus/MeleeAnims/Marcus_A_MeleePipe_Attack_R.uasset": {
+      "hash": "sha256:a42868a824c1779c76b5960fbac604d93edad074ec75ef297df01c2f90e8ab63",
+      "size": 639159
+    },
+    "Content/Marcus/MeleeAnims/Marcus_A_MeleePipe_Equip.uasset": {
+      "hash": "sha256:0ac4bfff3b71d5e20200d6cd01b6d1d94dd59a1c53d43cc905ee421cad63729d",
+      "size": 829751
+    },
+    "Content/Marcus/MeleeAnims/Marcus_A_MeleePipe_Idle.uasset": {
+      "hash": "sha256:a63232f8d285fbe9e0b49842beebcc451372c914c3429cd84a2d0c05e21c77e7",
+      "size": 932524
+    },
+    "Content/Marcus/MeleeAnims/Marcus_A_MeleePipe_Unequip.uasset": {
+      "hash": "sha256:90acd84ccac58c3a1f8d2821eefc272d5b5c212d7cd804624cb4a2a6e7cdd60f",
+      "size": 973387
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_Longs_BlockImpact1.uasset": {
+      "hash": "sha256:9541a7e7a72d3349870fed598081d2497fbcd32fe2dfdb8853e0f30b2e3d995c",
+      "size": 470032
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_Longs_BlockImpact2.uasset": {
+      "hash": "sha256:7c1d833deff72a748d2b97fdd84f702dea1305ded60836dee3034d90b17c2da7",
+      "size": 424100
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_Longs_BlockImpact3.uasset": {
+      "hash": "sha256:83c8f31abdcc59fd8e603408b4e04d750d1cf4cf173c38fa52295ad5730324e9",
+      "size": 451472
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_Longs_BlockLoop.uasset": {
+      "hash": "sha256:b1e71b1951e2126d44e4aefbc302d6ac9aae06b9dae736eff53f7fcaf13a9c8a",
+      "size": 906794
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_Longs_BlockStart.uasset": {
+      "hash": "sha256:463f12b7a1690999720556c719f8646405c774647e6be73108fed8d7b58607a2",
+      "size": 424806
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_Longs_BlockStop.uasset": {
+      "hash": "sha256:9839bfac4c748ea9a8bd994e4deed566520e4f58a822c53e97c3acd349287baf",
+      "size": 502128
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_Longs_BlockWalk.uasset": {
+      "hash": "sha256:2460bb1d60699802d4635b8538a9c0f61323a7363d9e55851c03c1b1ff09b2f6",
+      "size": 1023288
+    },
+    "Content/Marcus/MeleeAnims/Marcus_FPP_sns_Dodge.uasset": {
+      "hash": "sha256:b247f47fcb3ce84be2a2457e4415bc68642f5f93ee9ce196deadbfa7204c926c",
+      "size": 732480
     },
     "Content/Materials/UI/M_DamageReductionVignette.uasset": {
       "hash": "sha256:2064023756a9cc2854e5c76cc5e73a065e684acf76c23919ac6d9604968a2c1b",
@@ -74584,12 +74652,12 @@
       "size": 6632050
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility.umap": {
-      "hash": "sha256:7c0956673fb3a4b9fff5e61f14cc2cc200ad0237f9e3eb8b06b96fbf9d9ac440",
-      "size": 3191257
+      "hash": "sha256:a390d264a815ba9866d8195508a8bffd943d4b97f2d5e753ea2f66050b9757c1",
+      "size": 3257423
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility_BuiltData.uasset": {
-      "hash": "sha256:a010e519920b8af287f16f492646c2c5e50d71b7667a00c9537b0e6e04c1eb4e",
-      "size": 48571843
+      "hash": "sha256:00d06ddec993b93daa3423812e8971f692587b76987938abd361e3a868b657c9",
+      "size": 48571847
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/MI_Blood_1.uasset": {
       "hash": "sha256:17b79a4cdde9c7a1ebbff108246aab39c25f5df43d29e35c66b27fcfc16183cf",
@@ -75796,8 +75864,8 @@
       "size": 3520432
     },
     "Content/ResearchMegaPack/ResearchFacility/Textures/T_Button_1_B.uasset": {
-      "hash": "sha256:3037517313e6b302055b87e2a5d9855b8cb2af4852746afd6ecca230fbb57afd",
-      "size": 1061703
+      "hash": "sha256:45277e7898f2a63d4a33050881bb8c87b8c2d97aab2e720c5ae6c6cf99d6a131",
+      "size": 761926
     },
     "Content/ResearchMegaPack/ResearchFacility/Textures/T_Button_1_N.uasset": {
       "hash": "sha256:e0c2c316d86170a97ea461bdd55cdd2898068bbea351bd0398a3c086d2fdae70",

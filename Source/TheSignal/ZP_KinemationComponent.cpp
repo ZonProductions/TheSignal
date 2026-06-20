@@ -18,10 +18,20 @@
 #include "GameFramework/Controller.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "Materials/MaterialInterface.h"
+#include "UObject/ConstructorHelpers.h"
 
 UZP_KinemationComponent::UZP_KinemationComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	// Default melee hand skin (flat, tunable). Overridable in BP_GraceCharacter Details.
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> HandSkinFinder(
+		TEXT("/Game/Core/Materials/MI_HandSkin.MI_HandSkin"));
+	if (HandSkinFinder.Succeeded())
+	{
+		MeleeHandMaterial = HandSkinFinder.Object;
+	}
 }
 
 // NEVER move PlayerMesh to animate weapon transitions — the first-person
@@ -108,6 +118,9 @@ void UZP_KinemationComponent::InitializeKinemation()
 	// Plays on the dedicated MeleeViewMesh (TICKET-054), never on PlayerMesh.
 	// Attack_F dropped from the cycle (dev call): it's a longsword forward
 	// stab and reads wrong with a pipe. R/L swings only.
+	// REVERTED 2026-06-20: the CCMH-retargeted Marcus_ melee set collapsed the
+	// pose (arms mispositioned — "more than a tuning displacement"). Back to the
+	// proven Operator-skeleton A_MeleePipe clips on SKM_Operator_Mono below.
 	MeleeLightAnims.Reset();
 	for (const FString& Name : { FString(TEXT("A_MeleePipe_Attack_R")),
 	                             FString(TEXT("A_MeleePipe_Attack_L")) })
@@ -127,8 +140,13 @@ void UZP_KinemationComponent::InitializeKinemation()
 	GrenadeThrowAnim = LoadObject<UAnimSequenceBase>(nullptr,
 		TEXT("/Game/Animations/FPS/AM_FP_GrenadeThrow.AM_FP_GrenadeThrow"));
 
-	// View-model mesh: the SAME Operator body PlayerMesh wears — identical
-	// arms, identical materials. Legs hidden: never visible from the FP camera.
+	// View-model mesh: the Operator body PlayerMesh wears — PROVEN pose/skeleton.
+	// (CCMH swap reverted 2026-06-20: retarget onto the CCMH skeleton broke the
+	// pipe pose.) Legs + head hidden — never visible from the FP camera; head
+	// sits at camera height. Reskinned to Marcus's CCMH skin so the arms read as
+	// Marcus (same MI_Skin_Body_CCMH the working RANGED arms use — same Operator
+	// arm geometry/UVs, so it maps the same). Restores the Marcus-skin melee arms
+	// the dev had working before the per-hand block-offset knobs.
 	if (MeleeViewMeshComponent && !MeleeViewMeshComponent->GetSkeletalMeshAsset())
 	{
 		if (USkeletalMesh* ViewMesh = LoadObject<USkeletalMesh>(nullptr,
@@ -137,9 +155,31 @@ void UZP_KinemationComponent::InitializeKinemation()
 			MeleeViewMeshComponent->SetSkeletalMesh(ViewMesh);
 			MeleeViewMeshComponent->HideBoneByName(FName("thigh_l"), PBO_None);
 			MeleeViewMeshComponent->HideBoneByName(FName("thigh_r"), PBO_None);
-			// The Operator's face geometry sits at camera height on the view
-			// model — without this the player sees inside their own head.
 			MeleeViewMeshComponent->HideBoneByName(FName("head"), PBO_None);
+
+			// Paint the bare-skin slots (forearm MI_Skin + the hand MI_Gloves) with the
+			// MeleeHandMaterial (defaults to flat MI_HandSkin; settable in BP_GraceCharacter
+			// → KinemationComp Details → Kinemation|Melee). Flat = solid color = UV-independent
+			// — can't mismap the glove/hand UVs (that caused the splotch) and there is NO
+			// second mesh to z-fight. Tune tone on MI_HandSkin (SkinColor / Roughness params).
+			UMaterialInterface* HandSkin = MeleeHandMaterial;
+			if (!HandSkin)
+			{
+				HandSkin = LoadObject<UMaterialInterface>(nullptr,
+					TEXT("/Game/Core/Materials/MI_HandSkin.MI_HandSkin"));
+			}
+			if (HandSkin)
+			{
+				const TArray<FSkeletalMaterial>& Mats = ViewMesh->GetMaterials();
+				for (int32 i = 0; i < Mats.Num(); ++i)
+				{
+					const FString SlotName = Mats[i].MaterialSlotName.ToString();
+					if (SlotName.Contains(TEXT("Skin")) || SlotName.Contains(TEXT("Gloves")))
+					{
+						MeleeViewMeshComponent->SetMaterial(i, HandSkin);
+					}
+				}
+			}
 		}
 	}
 
@@ -744,6 +784,21 @@ void UZP_KinemationComponent::SetAiming(bool bAiming)
 	{
 		FKinemationBridge::RecoilSetAiming(RecoilAnimComp, bAiming);
 	}
+
+	// Per-weapon ADS FOV — the aim pose pulls the gun to the eye (the "zoom"); a wider
+	// FOV counteracts it. Widen shotgun/rifle to dial their zoom back. Hip-fire = default.
+	float TargetFOV = DefaultFOV;
+	if (bAiming)
+	{
+		switch (CurrentWeaponIcon)
+		{
+			case EZP_WeaponIcon::Shotgun: TargetFOV = AdsFOVShotgun; break;
+			case EZP_WeaponIcon::Rifle:   TargetFOV = AdsFOVRifle;   break;
+			case EZP_WeaponIcon::Pistol:  TargetFOV = AdsFOVPistol;  break;
+			default: break;
+		}
+	}
+	SetTargetFOV(TargetFOV, AdsFOVInterpSpeed);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::SetAiming(%s)"),
 		bAiming ? TEXT("true") : TEXT("false"));

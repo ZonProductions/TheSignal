@@ -31,6 +31,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Materials/MaterialInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Animation/AnimSequenceBase.h"
@@ -106,10 +107,60 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MeleeViewMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 	MeleeViewMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 
+	// Overalls sleeves for the view-model arms — leader-posed to MeleeViewMesh in setup.
+	MeleeViewOveralls = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeleeViewOveralls"));
+	MeleeViewOveralls->SetupAttachment(MeleeViewMesh);
+	MeleeViewOveralls->SetVisibility(false);
+	MeleeViewOveralls->SetOnlyOwnerSee(true);
+	MeleeViewOveralls->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeViewOveralls->bCastDynamicShadow = false;
+	MeleeViewOveralls->CastShadow = false;
+	MeleeViewOveralls->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	// Bare Marcus-skin hands for the melee view-model — leader-posed to MeleeViewMesh in
+	// setup (same bare-hand mesh the ranged arms use, so hands match on every weapon).
+	MeleeHands = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeleeHands"));
+	MeleeHands->SetupAttachment(MeleeViewMesh);
+	MeleeHands->SetVisibility(false);
+	MeleeHands->SetOnlyOwnerSee(true);
+	MeleeHands->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeHands->bCastDynamicShadow = false;
+	MeleeHands->CastShadow = false;
+	MeleeHands->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
 	PlayerMesh->SetOnlyOwnerSee(true);
 	PlayerMesh->bCastDynamicShadow = true;
 	PlayerMesh->CastShadow = true;
 	PlayerMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	// Ranged arms-only view-model: leader-posed to PlayerMesh (same Operator skeleton)
+	// so they ride the live Kinemation aim. Shown only while a ranged weapon is up.
+	RangedArms = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RangedArms"));
+	RangedArms->SetupAttachment(PlayerMesh);
+	RangedArms->SetVisibility(false);
+	RangedArms->SetOnlyOwnerSee(true);
+	RangedArms->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RangedArms->bCastDynamicShadow = false;
+	RangedArms->CastShadow = false;
+	RangedArms->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	RangedHands = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RangedHands"));
+	RangedHands->SetupAttachment(PlayerMesh);
+	RangedHands->SetVisibility(false);
+	RangedHands->SetOnlyOwnerSee(true);
+	RangedHands->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RangedHands->bCastDynamicShadow = false;
+	RangedHands->CastShadow = false;
+	RangedHands->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	RangedSleeve = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RangedSleeve"));
+	RangedSleeve->SetupAttachment(PlayerMesh);
+	RangedSleeve->SetVisibility(false);
+	RangedSleeve->SetOnlyOwnerSee(true);
+	RangedSleeve->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RangedSleeve->bCastDynamicShadow = false;
+	RangedSleeve->CastShadow = false;
+	RangedSleeve->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	// --- Marcus appearance (CCMH body shell) ---
 	// Meshes/AnimBP/leader-pose/source wired in SetupMarcusAppearance() at BeginPlay.
@@ -253,11 +304,12 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	static ConstructorHelpers::FObjectFinder<UInputAction> JumpActionFinder(TEXT("/Game/Core/Input/Actions/IA_Jump"));
 	if (JumpActionFinder.Succeeded()) JumpAction = JumpActionFinder.Object;
 
-	// Dodge anim — Kubold FPP sword-and-shield dodge (soft ref; loaded lazily)
+	// Dodge/block anims — Kubold FPP set on the Operator skeleton. (REVERTED
+	// 2026-06-20 from the Marcus_/CCMH retargets — they collapsed on the CCMH
+	// view-model; back to the proven Operator-skeleton clips for SKM_Operator_Mono.)
 	DodgeAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Dodge.FPP_sns_Dodge")));
 
-	// Block + idle anims — Kubold FPP Longsword set (soft refs)
 	BlockLoopAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/Longsword/FPP_Longs_BlockLoop.FPP_Longs_BlockLoop")));
 	BlockWalkAnim = TSoftObjectPtr<UAnimSequenceBase>(
@@ -410,6 +462,19 @@ void AZP_GraceCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Clamp how far the camera can pitch up/down. Reduces look-down so the FP
+	// camera never reaches the visible body's interior, and limits look-up to a
+	// natural ceiling. Values live as UPROPERTYs so dev can dial in Details ->
+	// Camera|Pitch; CalcCamera re-clamps each frame so live edits take effect.
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (PC->PlayerCameraManager)
+		{
+			PC->PlayerCameraManager->ViewPitchMin = -CameraPitchDownLimitDeg;
+			PC->PlayerCameraManager->ViewPitchMax =  CameraPitchUpLimitDeg;
+		}
+	}
+
 	// PlayerMesh must evaluate AFTER hidden Mesh, so NativePostEvaluateAnimation
 	// reads fresh source bone data when copying lower body.
 	PlayerMesh->AddTickPrerequisiteComponent(GetMesh());
@@ -558,6 +623,20 @@ void AZP_GraceCharacter::BeginPlay()
 		KinemationComp && KinemationComp->IsKinemationActive() ? TEXT("ACTIVE") : TEXT("OFF"));
 }
 
+FVector AZP_GraceCharacter::GetActiveMeleeHandOffset(bool bRight) const
+{
+	// Block uses the SAME grip connection as non-block pipe wielding (the tuned
+	// MeleeHand offset) as its base, so the hands grip the weapon identically.
+	// The per-hand Block offset is an OPTIONAL fine-tune added on top — leave it
+	// at zero and block inherits the exact non-block connection.
+	const FVector Base = bRight ? MeleeHandROffset : MeleeHandLOffset;
+	if (bIsBlocking)
+	{
+		return Base + (bRight ? BlockHandROffset : BlockHandLOffset);
+	}
+	return Base;
+}
+
 void AZP_GraceCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -566,6 +645,86 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	if (MarcusBody)
 	{
 		MarcusBody->SetRelativeRotation(FRotator(MarcusBodyPitch, -90.0f + MarcusBodyYaw, 0.0f));
+	}
+
+	// Per-action CAMERA offset during weapon actions (lerped, fed to GameplayComp).
+	// Priority on overlap: swing > block > reload > switch.
+	{
+		FVector TargetOffset = FVector::ZeroVector;
+		if (KinemationComp && KinemationComp->IsSwingingState())        TargetOffset = SwingCamOffset;
+		else if (bIsBlocking)                                          TargetOffset = BlockCamOffset;
+		else if (KinemationComp && KinemationComp->IsReloadingState()) TargetOffset = ReloadCamOffset;
+		else if (KinemationComp && KinemationComp->IsSwitchingState()) TargetOffset = SwitchCamOffset;
+		CurrentWeaponActionOffset = FMath::VInterpTo(CurrentWeaponActionOffset, TargetOffset, DeltaTime, WeaponActionOffsetSpeed);
+		if (GameplayComp) GameplayComp->WeaponActionCamOffset = CurrentWeaponActionOffset;
+	}
+
+	// Live-tunable framing for the Marcus weapon-arm view-model. While blocking, add the
+	// block-specific placement (BlockViewOffset) so the arms can sit differently in a guard.
+	if (MeleeViewMesh)
+	{
+		const FVector ViewLoc = MeleeViewOffset + (bIsBlocking ? BlockViewOffset : FVector::ZeroVector);
+		MeleeViewMesh->SetRelativeLocation(ViewLoc);
+		MeleeViewMesh->SetRelativeRotation(MeleeViewRotation);
+		MeleeViewMesh->SetRelativeScale3D(FVector(MeleeViewScale));
+	}
+
+	// Live-tunable offset for the RANGED arm view-model — all three move together so
+	// arms, hands and sleeve stay aligned (on top of the leader-posed Kinemation aim).
+	{
+		const FVector  ROff = RangedArmsOffset;
+		const FRotator RRot = RangedArmsRotation;
+		const FVector  RScl(RangedArmsScale);
+		if (RangedArms)   { RangedArms->SetRelativeLocation(ROff);   RangedArms->SetRelativeRotation(RRot);   RangedArms->SetRelativeScale3D(RScl); }
+		if (RangedHands)  { RangedHands->SetRelativeLocation(ROff);  RangedHands->SetRelativeRotation(RRot);  RangedHands->SetRelativeScale3D(RScl); }
+		if (RangedSleeve) { RangedSleeve->SetRelativeLocation(ROff); RangedSleeve->SetRelativeRotation(RRot); RangedSleeve->SetRelativeScale3D(RScl); }
+	}
+
+	// Weapon arms. Marcus's BODY stays visible for every state (so you always see him —
+	// overalls/legs — looking down). Only his own loco ARMS hide when a weapon's arms are
+	// shown, so they don't double. Melee = the CCMH MeleeViewMesh; ranged = the Kinemation
+	// arms (SK_Arm/Hand + FP sleeve) leader-posed to the live aim pose, reaching forward.
+	if (KinemationComp)
+	{
+		const bool bMeleeUp     = KinemationComp->IsMeleeViewModelActive();
+		const bool bRangedArmed = KinemationComp->ActiveWeapon != nullptr && !bMeleeUp;
+		const bool bWeaponArms  = bMeleeUp || bRangedArmed;
+
+		if (bRangedArmed != bRangedArmedState)
+		{
+			bRangedArmedState = bRangedArmed;
+			if (RangedArms)   RangedArms->SetVisibility(bRangedArmed);
+			if (RangedHands)  RangedHands->SetVisibility(bRangedArmed);
+			if (RangedSleeve) RangedSleeve->SetVisibility(bRangedArmed);
+		}
+		// Camera offset is selected EVERY frame from the current armed state — NOT
+		// only on the armed-state edge. The edge-only version left bCameraOffsetActive
+		// stuck at its spawn default, so the CameraRanged* knobs never took effect and
+		// the gun couldn't be tuned. false => GameplayComp uses CameraRanged* (gun at
+		// the pack-authored FPCamera socket); true => Marcus eye offset (CameraExtra*).
+		if (GameplayComp) GameplayComp->bCameraOffsetActive = !bRangedArmed;
+
+		// Hide Marcus's own arms whenever any weapon arms are shown (melee or ranged).
+		if (MarcusBody && bWeaponArms != bMarcusArmsHidden)
+		{
+			bMarcusArmsHidden = bWeaponArms;
+			const FName ArmRoots[] = { FName("clavicle_l"), FName("clavicle_r") };
+			for (const FName& Bone : ArmRoots)
+			{
+				if (bWeaponArms)
+				{
+					MarcusBody->HideBoneByName(Bone, EPhysBodyOp::PBO_None);
+					if (MarcusOveralls) MarcusOveralls->HideBoneByName(Bone, EPhysBodyOp::PBO_None);
+				}
+				else
+				{
+					MarcusBody->UnHideBoneByName(Bone);
+					if (MarcusOveralls) MarcusOveralls->UnHideBoneByName(Bone);
+				}
+			}
+		}
+		// Melee CCMH sleeves show only for melee.
+		if (MeleeViewOveralls) MeleeViewOveralls->SetVisibility(bMeleeUp);
 	}
 
 	// Force a fresh, deterministic retarget evaluation of Marcus AFTER PlayerMesh's
@@ -912,6 +1071,25 @@ void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult
 	}
 
 	Super::CalcCamera(DeltaTime, OutResult);
+
+	// Re-apply input clamps each frame so live edits to CameraPitchDownLimitDeg /
+	// CameraPitchUpLimitDeg take effect without restarting PIE.
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (PC->PlayerCameraManager)
+		{
+			PC->PlayerCameraManager->ViewPitchMin = -CameraPitchDownLimitDeg;
+			PC->PlayerCameraManager->ViewPitchMax =  CameraPitchUpLimitDeg;
+		}
+	}
+
+	// Final-camera-pitch clamp catches BOTH player look input AND animation-driven
+	// socket dives (Kinemation reload/equip pitches FPCamera socket below horizon)
+	// so the camera never reaches the body's interior cavity. Normalize first to
+	// handle wrapped values from socket transforms.
+	FRotator R = OutResult.Rotation;
+	R.Pitch = FMath::Clamp(FRotator::NormalizeAxis(R.Pitch), -CameraPitchDownLimitDeg, CameraPitchUpLimitDeg);
+	OutResult.Rotation = R;
 }
 
 // --- Crouch ---
@@ -1600,6 +1778,10 @@ void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 		bBlockWalkActive = false;
 		BlockImpactLockRemaining = 0.f;
 		BlockStartLockRemaining = 0.f;
+		// Mirror the block-START forward nudge so the BlockStop lean-OUT doesn't
+		// swing the body through the lens. Without this the unblock pose-out clips
+		// the camera (dev report: "body swings into my camera, looks messy").
+		BlockClearanceRemaining = BlockClearanceWindow;
 
 		// Play BlockStop (non-loop) first — the pose-out motion. Schedule a
 		// timer to settle into MeleeIdle when Stop finishes so the pose doesn't
@@ -2876,12 +3058,63 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 		MarcusSneakers->SetLeaderPoseComponent(MarcusBody);
 	}
 
+	// Weapon-arm view-model SLEEVES: DISABLED 2026-06-20. This leader-posed a CCMH
+	// Overalls_01 mesh to MeleeViewMesh — but MeleeViewMesh is back to the Operator
+	// skeleton (SKM_Operator_Mono), so a CCMH mesh can't leader-pose it (skeleton
+	// mismatch → frozen ref pose). The Operator mono view-model is already fully
+	// clothed, so no separate sleeve is needed. Leave MeleeViewOveralls empty.
+
+	// MeleeHands overlay DISABLED 2026-06-20: a separate SK_Hand_01a mesh leader-posed
+	// over the gloved hand (with the glove hidden) z-fought / rendered checkered. The
+	// hand is now skinned directly on the Operator mesh's own hand geometry with the
+	// flat MI_HandSkin material (Kinemation setup) — one mesh, no overlay, no z-fight.
+	// MeleeHands stays empty/hidden.
+
 	// Hide the Operator visible body from the OWNER only (FP body hide). NOT
 	// SetVisibility(false): that stops Kinemation's AC_FirstPersonCamera driving the
 	// camera rotation, leaving the raw ~90deg-rolled FPCamera socket orientation.
 	// SetOwnerNoSee keeps the mesh visible/ticking (camera drive + retarget source
 	// intact, shadow preserved) while hiding it from this player's own view.
 	PlayerMesh->SetOwnerNoSee(true);
+
+	// RANGED arms-only view-model: SK_Arm + SK_Hand (bare-skin, Operator skeleton)
+	// leader-posed to PlayerMesh so they ride the LIVE Kinemation aim pose — just arms
+	// + gun, no body, so there's NO clothing/boots mismatch. Reskinned to Marcus's CCMH
+	// skin so the hands/forearms match his body. Shown only while ranged (Tick toggle).
+	{
+		UMaterialInterface* MarcusSkin = LoadObject<UMaterialInterface>(nullptr,
+			TEXT("/Game/CharacterCustomizer/Characters/CCMH/Materials/Skin/MI_Skin_Body_CCMH.MI_Skin_Body_CCMH"));
+		if (USkeletalMesh* ArmMesh = LoadObject<USkeletalMesh>(nullptr,
+			TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SK_Arm_01a.SK_Arm_01a")))
+		{
+			RangedArms->SetSkeletalMesh(ArmMesh);
+			RangedArms->SetLeaderPoseComponent(PlayerMesh);
+			if (MarcusSkin) RangedArms->SetMaterial(0, MarcusSkin);
+		}
+		if (USkeletalMesh* HandMesh = LoadObject<USkeletalMesh>(nullptr,
+			TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SK_Hand_01a.SK_Hand_01a")))
+		{
+			RangedHands->SetSkeletalMesh(HandMesh);
+			RangedHands->SetLeaderPoseComponent(PlayerMesh);
+			if (MarcusSkin) RangedHands->SetMaterial(0, MarcusSkin);
+		}
+		// FP shirt sleeve over the bare arms so they're clothed, reskinned toward Marcus's
+		// shirt (closest Operator-skeleton sleeve we can leader-pose; CCMH overalls can't).
+		if (USkeletalMesh* SleeveMesh = LoadObject<USkeletalMesh>(nullptr,
+			TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SK_Shirt_01a_FPP.SK_Shirt_01a_FPP")))
+		{
+			RangedSleeve->SetSkeletalMesh(SleeveMesh);
+			RangedSleeve->SetLeaderPoseComponent(PlayerMesh);
+			if (UMaterialInterface* MarcusShirt = LoadObject<UMaterialInterface>(nullptr,
+				TEXT("/Game/CharacterCustomizer/Characters/CCMH/Apparel/Male/UpperBody/TShirt_01/MI_TShirt_Male.MI_TShirt_Male")))
+			{
+				RangedSleeve->SetMaterial(0, MarcusShirt);
+			}
+		}
+	}
+
+	// (Per-hand melee grip layer removed — an empty post-process AnimGraph outputs ref
+	// pose and flattened the arms. Needs a pass-through graph; revisiting separately.)
 
 	// FULL first-person body — chest, arms, legs, feet all visible. ONLY the head is
 	// hidden (above), since it sits at the FP camera. The dev wants to see the whole

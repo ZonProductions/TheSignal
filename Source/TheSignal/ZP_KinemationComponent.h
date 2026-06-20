@@ -164,12 +164,20 @@ public:
 	 *  anim or pipe mesh changes; it also writes the BP_GraceCharacter CDO.
 	 *  Includes the dev-tuned POV trim (POV_TRIM_DEG in the script): shaft
 	 *  swung 7.5° to the camera's right, pivoting on the left fist. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Melee")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
 	FVector MeleeGripOffset = FVector(-23.78f, -1.43f, 22.85f);
 
-	/** Straight-line channel-fit rotation (see MeleeGripOffset). */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Melee")
+	/** Straight-line channel-fit rotation (see MeleeGripOffset). Re-tune for the
+	 *  new CCMH hand. Applied EVERY frame so Details-panel edits show live in PIE. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
 	FRotator MeleeGripRotation = FRotator(3.15f, 95.41f, 40.23f);
+
+	/** Material painted on the melee view-model's bare-skin slots (forearm + hand) so the
+	 *  FP melee arms read as Marcus skin. Defaults to MI_HandSkin (flat, tunable tone).
+	 *  Swap or re-point this in BP_GraceCharacter → KinemationComp Details → Kinemation|Melee;
+	 *  applied on melee init (set value + restart PIE to re-apply). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	TObjectPtr<UMaterialInterface> MeleeHandMaterial;
 
 	// --- Throwable Config ---
 
@@ -304,6 +312,16 @@ public:
 	/** Field of view when aiming down sights. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|ADS")
 	float AdsFOV = 65.0f;
+
+	/** Per-weapon ADS field of view — the aim POSE pulls the sights to your eye (the
+	 *  "zoom"); a WIDER FOV here counteracts it (higher = less zoom). Tune shotgun/rifle
+	 *  up if they feel too zoomed. 90 = no FOV change (the pose's zoom only). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|ADS")
+	float AdsFOVPistol = 90.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|ADS")
+	float AdsFOVShotgun = 98.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|ADS")
+	float AdsFOVRifle = 98.0f;
 
 	/** Interpolation speed for FOV transitions. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|ADS")
@@ -451,6 +469,17 @@ private:
 public:
 	/** True while melee swing ADS animation is in progress — blocks manual ADS. */
 	bool bMeleeSwingActive = false;
+
+	/** True while the melee view-model (Marcus arms) is up. The character reads this
+	 *  to hide the body's own arms so they don't double with the view-model arms. */
+	bool IsMeleeViewModelActive() const { return bMeleeViewModelActive; }
+
+	/** Per-action state, read by the character to nudge the visible body off the camera
+	 *  during each move (the upper body leans forward and clips the lens). Block is
+	 *  tracked separately on the character. */
+	bool IsReloadingState()  const { return bIsReloading; }
+	bool IsSwingingState()   const { return bMeleeSwingActive; }
+	bool IsSwitchingState()  const { return bWeaponSwitching; }
 private:
 
 	/** Releases the fire lock after the weapon Draw montage lands. */

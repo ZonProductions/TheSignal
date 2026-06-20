@@ -530,6 +530,11 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 		return CapsuleOffset;
 	};
 
+	// Marcus eye-offset while unarmed/melee; the separate ranged offsets while a ranged
+	// weapon is up (Operator arms show — a different body needing its own framing).
+	const float EffCamForward = bCameraOffsetActive ? CameraExtraForward : CameraRangedForward;
+	const float EffCamHeight  = bCameraOffsetActive ? CameraExtraHeight  : CameraRangedHeight;
+
 	// --- Apply peek position based on source ---
 	if (bPeekFromAim && CachedMeshComponent)
 	{
@@ -541,8 +546,9 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 		CachedMeshComponent->SetRelativeLocation(MeshLoc);
 
 		// Camera gets head bob only (socket-space transformed); BaseCameraX
-		// preserves the forward offset from the constructor.
-		FVector BobCapsule(BaseCameraX + CurrentForwardClearance + CameraExtraForward, HeadBobOffsetY, BaseCameraZ + HeadBobOffsetZ + CameraExtraHeight);
+		// preserves the forward offset from the constructor. WeaponActionCamOffset
+		// pushes the lens off the body during reload/switch/swing/block.
+		FVector BobCapsule(BaseCameraX + CurrentForwardClearance + EffCamForward + WeaponActionCamOffset.X, HeadBobOffsetY + WeaponActionCamOffset.Y, BaseCameraZ + HeadBobOffsetZ + EffCamHeight + WeaponActionCamOffset.Z);
 		CameraComponent->SetRelativeLocation(ToSocketSpace(BobCapsule));
 	}
 	else
@@ -555,7 +561,7 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 			CachedMeshComponent->SetRelativeLocation(MeshLoc);
 		}
 
-		FVector CapsuleOffset(BaseCameraX + PeekX + CurrentForwardClearance + CameraExtraForward, HeadBobOffsetY + PeekY, BaseCameraZ + HeadBobOffsetZ + CameraExtraHeight);
+		FVector CapsuleOffset(BaseCameraX + PeekX + CurrentForwardClearance + EffCamForward + WeaponActionCamOffset.X, HeadBobOffsetY + PeekY + WeaponActionCamOffset.Y, BaseCameraZ + HeadBobOffsetZ + EffCamHeight + WeaponActionCamOffset.Z);
 		CameraComponent->SetRelativeLocation(ToSocketSpace(CapsuleOffset));
 	}
 

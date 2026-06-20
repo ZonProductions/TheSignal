@@ -85,7 +85,11 @@
       "mcp__nwiro__read_ik_rig",
       "mcp__nwiro__pie_get_game_state",
       "mcp__nwiro__play_in_editor",
-      "mcp__nwiro__read_data_table"
+      "mcp__nwiro__read_data_table",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "mcp__nwiro__create_anim_blueprint",
+      "mcp__nwiro__reparent_blueprint"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -133,6 +137,17 @@
           {
             "type": "command",
             "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/checkpoint_monitor.py\" stop"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/nwiro_shell_fallback.py\""
           }
         ]
       }

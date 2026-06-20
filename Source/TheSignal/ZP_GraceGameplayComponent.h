@@ -100,6 +100,30 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
 	float CameraExtraHeight = 12.0f;
 
+	/** When false, the Marcus eye-offset above is replaced by the ranged offsets below
+	 *  — used while a ranged weapon is up (visible arms are the Kinemation Operator on
+	 *  PlayerMesh, a different body). Set by the character. */
+	UPROPERTY(BlueprintReadWrite, Category = "Movement|Camera")
+	bool bCameraOffsetActive = true;
+
+	/** Camera forward/up offsets used ONLY while a ranged weapon is up — separate from
+	 *  the Marcus offsets so you can frame the armed POV (where the gun arms are)
+	 *  independently of the unarmed body view. Default 0,0 = camera AT the Operator
+	 *  FPCamera socket, i.e. the gun where the Kinemation pack authored it (correct hip
+	 *  + ADS distance). The old -70 default pulled the camera off that socket and shoved
+	 *  the gun into frame. Tune from 0. Live. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
+	float CameraRangedForward = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
+	float CameraRangedHeight = 0.0f;
+
+	/** Extra camera offset during weapon actions (reload/switch/swing/block), set by the
+	 *  character each frame (already lerped). Capsule space: +X = forward, +Z = up. Added
+	 *  on top of the camera position so the leaning body doesn't clip the lens. */
+	UPROPERTY(BlueprintReadWrite, Category = "Movement|Camera")
+	FVector WeaponActionCamOffset = FVector::ZeroVector;
+
+
 	// --- Peek State ---
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement|Peek")
