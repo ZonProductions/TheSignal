@@ -16,6 +16,7 @@
 #include "Sound/SoundAttenuation.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 AZP_ScytheerBase::AZP_ScytheerBase()
@@ -658,8 +659,12 @@ void AZP_ScytheerBase::OnSegmentComplete()
 {
 	switch (State)
 	{
-	case EScytheerState::Attack:
 	case EScytheerState::Hit:
+		// A forced stagger holds past the flinch clip — the StaggerHandle timer owns the exit.
+		if (bStaggerHold) { break; }
+		EnterState(bAggro ? EScytheerState::Chase : EScytheerState::Wander);
+		break;
+	case EScytheerState::Attack:
 		EnterState(bAggro ? EScytheerState::Chase : EScytheerState::Wander);
 		break;
 	case EScytheerState::Die:
@@ -802,6 +807,31 @@ void AZP_ScytheerBase::OnPointDamage(AActor* DamagedActor, float Damage, AContro
 	}
 }
 
+void AZP_ScytheerBase::ReceiveStagger_Implementation(float Duration)
+{
+	if (bDead || State == EScytheerState::Die) { return; }
+
+	// A landed hit/block means the player is right here — wake up and react.
+	bAggro = true;
+	LostSightTimer = 0.f;
+	LastHitReactTime = GetWorld()->GetTimeSeconds(); // refresh so the normal flinch path stays gated
+
+	bStaggerHold = true;
+	EnterState(EScytheerState::Hit); // plays the flinch clip + Hit SFX; FaceTargetSmooth runs in Tick
+	if (AICon) { AICon->StopMovement(); }
+
+	// Hold the stagger for Duration, then resume. OnSegmentComplete won't auto-exit while bStaggerHold.
+	GetWorld()->GetTimerManager().ClearTimer(StaggerHandle);
+	GetWorld()->GetTimerManager().SetTimer(StaggerHandle, FTimerDelegate::CreateWeakLambda(this, [this]()
+	{
+		bStaggerHold = false;
+		if (!bDead && State == EScytheerState::Hit)
+		{
+			EnterState(bAggro ? EScytheerState::Chase : EScytheerState::Wander);
+		}
+	}), FMath::Max(0.1f, Duration), false);
+}
+
 FRotator AZP_ScytheerBase::MakeOrientation(const FVector& Forward, const FVector& Up)
 {
 	const FVector SafeFwd = Forward.GetSafeNormal(KINDA_SMALL_NUMBER, FVector::ForwardVector);
@@ -810,7 +840,21 @@ FRotator AZP_ScytheerBase::MakeOrientation(const FVector& Forward, const FVector
 	// Orthonormalize Up against Forward — if the dev's wall normal isn't perfectly perpendicular to
 	// the spline tangent at this point, the matrix would otherwise be invalid.
 	SafeUp = (SafeUp - FVector::DotProduct(SafeUp, SafeFwd) * SafeFwd)
-		.GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
+		.GetSafeNormal(KINDA_SMALL_NUMBER, FVector::ZeroVector);
+
+	// Up collapsed to zero == the wall normal was (near-)parallel to the spline tangent — e.g. a
+	// vertical climb section whose normal was still left at world-up. Without a real Up, MakeFromXZ
+	// produces a garbage/flipped frame (the "back to the wall, walking on air" bug). Derive ANY
+	// stable perpendicular instead so the body stays sanely oriented until the normal is fixed.
+	if (SafeUp.IsNearlyZero())
+	{
+		SafeUp = FVector::CrossProduct(SafeFwd, FVector::RightVector);
+		if (SafeUp.IsNearlyZero())
+		{
+			SafeUp = FVector::CrossProduct(SafeFwd, FVector::UpVector);
+		}
+		SafeUp = SafeUp.GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
+	}
 
 	return FRotationMatrix::MakeFromXZ(SafeFwd, SafeUp).Rotator();
 }

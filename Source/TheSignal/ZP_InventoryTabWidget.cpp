@@ -7,6 +7,7 @@
 #include "ZP_MapVolume.h"
 #include "ZP_GraceCharacter.h"
 
+#include "GameFramework/PlayerController.h"
 #include "Blueprint/WidgetTree.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/Button.h"
@@ -149,6 +150,15 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		UE_LOG(LogTemp, Warning, TEXT("[INVTAB] >>> OPEN DETECTED: MoonvilleWidget=%s, bTabsWired=%d, PendingTab=%d"),
 			*MoonvilleWidget->GetName(), bTabsWired, (int32)PendingTab);
 		bIsOpen = true;
+
+		// Pause the world while the inventory is open — same SetPause the pause menu uses (dev request).
+		// Hooked here, not on the open input, so it stays synced to Moonville's ACTUAL viewport state
+		// and unpauses no matter how the menu closes (Tab / Map / right-click / EGUI). NativeTick keeps
+		// running while paused (Slate-driven), so the close branch below still fires.
+		if (APlayerController* PC = GetOwningPlayer())
+		{
+			PC->SetPause(true);
+		}
 		if (!bTabsWired)
 		{
 			WireTabsIntoMoonvilleWidget();
@@ -184,6 +194,14 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		}
 
 		bIsOpen = false;
+
+		// Inventory closed by any means — unpause (PlayerController::SetPause override restores
+		// game input/cursor on unpause).
+		if (APlayerController* PC = GetOwningPlayer())
+		{
+			PC->SetPause(false);
+		}
+
 		bTabsWired = false;
 		MoonvilleWidget = nullptr;
 		MoonvilleMapImage = nullptr;

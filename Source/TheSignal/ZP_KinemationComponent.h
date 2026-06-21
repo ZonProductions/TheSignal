@@ -32,6 +32,7 @@ class UCameraComponent;
 class USkeletalMeshComponent;
 class UMaterialInterface;
 class UAnimSequenceBase;
+class USoundBase;
 
 UCLASS(ClassGroup=(TheSignal), meta=(BlueprintSpawnableComponent))
 class THESIGNAL_API UZP_KinemationComponent : public UActorComponent
@@ -90,6 +91,35 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
 	float WeakPointRadius = 50.f;
 
+	// --- Bullet impact sounds (played once per shot at the impact point, chosen by weapon icon) ---
+
+	/** Pistol bullet-impact sound (icon == Pistol). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	TObjectPtr<USoundBase> PistolImpactSound;
+
+	/** Rifle bullet-impact sound (icon == Rifle). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	TObjectPtr<USoundBase> RifleImpactSound;
+
+	/** Shotgun bullet-impact sound (icon == Shotgun). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	TObjectPtr<USoundBase> ShotgunImpactSound;
+
+	// --- Shotgun spray (icon == Shotgun) ---
+	// Fires a randomized burst of pellets instead of one trace. HitscanBodyDamage /
+	// HitscanWeakPointDamage are the TOTAL per-shot damage (3x pistol), divided across
+	// the pellets — a full spray that all connects deals the total, partial hits less.
+
+	/** Pellets per shot, randomized in [Min,Max] each trigger pull. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	int32 ShotgunPelletMin = 15;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	int32 ShotgunPelletMax = 20;
+
+	/** Spread cone half-angle (degrees) the pellets scatter within. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
+	float ShotgunSpreadDegrees = 4.0f;
+
 	// --- Weapon Type ---
 
 	/** Current weapon archetype — drives fire input routing. */
@@ -117,6 +147,23 @@ public:
 	/** Minimum time between melee swings (seconds). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	float MeleeCooldown = 0.6f;
+
+	// --- Melee impact sounds ---
+	// The pipe is metal: a hit ALWAYS makes the metal sound. Striking an enemy
+	// ALSO layers a flesh impact on top (dev: "impact + hit at the same time").
+	// Striking a wall/hard surface plays the dedicated pipe-on-surface sound instead.
+
+	/** Metal sound of the pipe itself — plays on any enemy connect (SFX_PIPE_HIT). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<USoundBase> PipeMetalSound;
+
+	/** Flesh impacts, randomized — layered over the metal sound on enemy hits (SFX_MELEE_IMPACT1/2). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	TArray<TObjectPtr<USoundBase>> MeleeFleshImpactSounds;
+
+	/** Pipe striking a wall / hard non-enemy surface (SFX_PIPE_SURFACE_WALL_IMPACT). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<USoundBase> PipeWallImpactSound;
 
 	// --- Melee View Model (TICKET-054) ---
 	// Kubold FPP Melee Animset plays on a dedicated camera-child mesh
@@ -299,6 +346,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponTypeChanged, EZP_WeaponType, NewWeaponType);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponIconChanged, EZP_WeaponIcon, NewWeaponIcon);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThrowableConsumed);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReserveConsumed, int32, Rounds, EZP_WeaponIcon, AmmoIcon);
 
 	/** Broadcast when weapon is equipped or unequipped. NewWeapon is null on unequip. */
 	UPROPERTY(BlueprintAssignable, Category = "Kinemation|Weapon")
@@ -314,9 +362,26 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Ammo")
 	int32 CurrentAmmo = 12;
 
-	/** Reserve ammo (not in magazine). */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Ammo")
-	int32 ReserveAmmo = 48;
+	/** Reserve ammo — a MIRROR of the matching ammo the player is carrying in the
+	 *  Moonville inventory for the equipped weapon. The character syncs this from
+	 *  inventory (SyncReserveFromInventory); the component never stores ammo itself.
+	 *  Ammo always lives in the inventory grid (it's the survival challenge). */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Ammo")
+	int32 ReserveAmmo = 0;
+
+	/** Maximum reserve (inventory ammo of this type) the player may carry — the pickup
+	 *  cap. Set per-weapon in ApplyWeaponConfig from GetReserveCapForIcon.
+	 *  Pistol 48 / shotgun 24 / rifle 90. */
+	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Ammo")
+	int32 MaxReserveAmmo = 48;
+
+	/** Reserve cap for a weapon icon. Pistol 48 / Shotgun 24 / Rifle 90; 0 for
+	 *  melee/throwable/none (no reserve). */
+	static int32 GetReserveCapForIcon(EZP_WeaponIcon Icon);
+
+	/** Map an ammo item name to its weapon icon: "9mm"→Pistol, "Buckshot"→Shotgun,
+	 *  "556"→Rifle. None if the name matches no known ammo type. */
+	static EZP_WeaponIcon AmmoNameToIcon(const FString& AmmoItemName);
 
 	/** Broadcast when ammo count changes (fire, reload). */
 	UPROPERTY(BlueprintAssignable, Category = "Kinemation|Ammo")
@@ -333,6 +398,11 @@ public:
 	/** Broadcast when a throwable is consumed (thrown). Owner should remove 1 from inventory. */
 	UPROPERTY(BlueprintAssignable, Category = "Kinemation|Weapon")
 	FOnThrowableConsumed OnThrowableConsumed;
+
+	/** Broadcast when a reload pulls rounds from reserve — the character removes that
+	 *  many ammo items of AmmoIcon from the Moonville inventory (inventory IS the reserve). */
+	UPROPERTY(BlueprintAssignable, Category = "Kinemation|Ammo")
+	FOnReserveConsumed OnReserveConsumed;
 
 	// --- ADS Config ---
 
@@ -404,10 +474,6 @@ public:
 
 	/** Hide/show the head region during reload/swap montages (see-own-head fix). */
 	void SetCameraBonePinned(bool bPinned);
-
-	/** Add ammo to reserve pool. Called by ammo pickup items. */
-	UFUNCTION(BlueprintCallable, Category = "Kinemation|Ammo")
-	void AddReserveAmmo(int32 Amount);
 
 	// --- ADS API ---
 

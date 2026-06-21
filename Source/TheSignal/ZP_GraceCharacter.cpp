@@ -6,6 +6,7 @@
 #include "ZP_WeaponTypes.h"
 #include "ZP_HealthComponent.h"
 #include "ZP_ShamblerBehaviorComponent.h"
+#include "ZP_Staggerable.h"
 #include "ZP_GraceMovementConfig.h"
 #include "ZP_GracePlayerAnimInstance.h"
 #include "ZP_PlayerController.h"
@@ -21,6 +22,12 @@
 #include "UObject/UnrealType.h"
 #include "EngineUtils.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/Widget.h"
+#include "Components/RichTextBlock.h"
+#include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "ZP_FloorCullingComponent.h"
 #include "ZP_RuntimeISMBatcher.h"
@@ -375,6 +382,9 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	static ConstructorHelpers::FObjectFinder<UInputAction> Slot3Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot3"));
 	if (Slot3Finder.Succeeded()) InventorySlot3Action = Slot3Finder.Object;
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> FlashlightFinder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventoryFlashlight"));
+	if (FlashlightFinder.Succeeded()) FlashlightAction = FlashlightFinder.Object;
+
 	// Starting weapon (soft reference — doesn't force-load the asset)
 	StartingWeaponItem = TSoftObjectPtr<UObject>(FSoftObjectPath(TEXT("/Game/Core/Items/DA_Grace_Pistol.DA_Grace_Pistol")));
 
@@ -538,12 +548,17 @@ void AZP_GraceCharacter::BeginPlay()
 	// Grant starting items to inventory + set weapon slot 0
 	GrantStartingItems();
 
+	// Seed the pickup-block cache so owned-weapon / capped-ammo pickups start
+	// non-interactable (Tick + inventory updates keep it current thereafter).
+	GatherLevelPickups();
+
 	// Bind weapon change delegate BEFORE InitializeKinemation so the starting
 	// weapon broadcast registers in the slot system.
 	if (KinemationComp)
 	{
 		KinemationComp->OnWeaponChanged.AddDynamic(this, &AZP_GraceCharacter::OnWeaponChangedHandler);
 		KinemationComp->OnThrowableConsumed.AddDynamic(this, &AZP_GraceCharacter::OnThrowableConsumedHandler);
+		KinemationComp->OnReserveConsumed.AddDynamic(this, &AZP_GraceCharacter::OnReserveConsumedHandler);
 
 		// Initialize Kinemation AFTER Super::BeginPlay() — all SCS Blueprint components
 		// (AC_FirstPersonCamera, AC_TacticalShooterAnimation, etc.) have had their
@@ -641,6 +656,44 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Fall-damage apex tracking — while airborne, remember the highest point
+	// reached so the drop distance is measured peak-to-landing (a jump up then
+	// a fall counts from the top, not from takeoff).
+	if (bTrackingFall)
+	{
+		FallPeakZ = FMath::Max(FallPeakZ, GetActorLocation().Z);
+	}
+
+	// Keep blocked pickups (owned weapon / ammo at cap) non-interactable. Throttled
+	// so it catches ammo dropping below the cap without per-frame cost.
+	PickupBlockRefreshAccum += DeltaTime;
+	if (PickupBlockRefreshAccum >= 0.25f)
+	{
+		PickupBlockRefreshAccum = 0.f;
+		RefreshPickupBlockStates();
+	}
+
+	// Grab-all sweep: after E on a pickup, keep grabbing the next-closest pickup for a
+	// short window so a bunched pile (e.g. scattered ammo) comes up in one press. Each
+	// tick re-invokes Moonville's own pickup path; it recomputes the closest between
+	// ticks as items are consumed. Stops as soon as nothing pickup-like is closest.
+	if (GrabAllTicksRemaining > 0)
+	{
+		GrabAllTicksRemaining--;
+		AActor* Pickup = GetClosestMoonvillePickupOwner();
+		if (Pickup && MoonvilleInteractionComp && !ShouldBlockPickupInteraction(Pickup))
+		{
+			if (UFunction* F = MoonvilleInteractionComp->FindFunction(FName("Interact")))
+			{
+				MoonvilleInteractionComp->ProcessEvent(F, nullptr);
+			}
+		}
+		else
+		{
+			GrabAllTicksRemaining = 0;
+		}
+	}
+
 	// Live-tunable Marcus body facing (base -90 yaw + dev-dialed offset).
 	if (MarcusBody)
 	{
@@ -653,6 +706,12 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		FVector TargetOffset = FVector::ZeroVector;
 		if (KinemationComp && KinemationComp->IsSwingingState())        TargetOffset = SwingCamOffset;
 		else if (bIsBlocking)                                          TargetOffset = BlockCamOffset;
+		else if (DodgeClearanceRemaining > 0.f)
+		{
+			const bool bDodgeMelee = KinemationComp
+				&& KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee;
+			TargetOffset = bDodgeMelee ? DodgeCamOffsetMelee : DodgeCamOffsetRanged;
+		}
 		else if (KinemationComp && KinemationComp->IsReloadingState()) TargetOffset = ReloadCamOffset;
 		else if (KinemationComp && KinemationComp->IsSwitchingState()) TargetOffset = SwitchCamOffset;
 		CurrentWeaponActionOffset = FMath::VInterpTo(CurrentWeaponActionOffset, TargetOffset, DeltaTime, WeaponActionOffsetSpeed);
@@ -735,6 +794,11 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	if (DodgeCooldownRemaining > 0.f)
 	{
 		DodgeCooldownRemaining = FMath::Max(0.f, DodgeCooldownRemaining - DeltaTime);
+	}
+
+	if (DodgeLockRemaining > 0.f)
+	{
+		DodgeLockRemaining = FMath::Max(0.f, DodgeLockRemaining - DeltaTime);
 	}
 
 	if (DodgeClearanceRemaining > 0.f)
@@ -981,10 +1045,149 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 
 	// Bone copy now happens in NativePostEvaluateAnimation (inside animation pipeline).
 
+	// Save menu open → watch for it to close (the EGUI widget removes itself via its own back/close),
+	// then restore game input. UIOnly was set on open so the controller could navigate the menu; if
+	// we didn't restore here the player would be stuck unable to move after closing.
+	if (bSaveMenuOpen)
+	{
+		// Manual BACK: Face Right (B) / Escape closes the save menu. The EGUI save widget is shown via
+		// raw AddToViewport (not a CommonUI activatable stack), so CommonUI's back action never routes
+		// to it. Raw key poll works regardless of input mode (UIOnly) and IMC_Grace being removed.
+		if (ActiveSaveMenu.IsValid())
+		{
+			if (APlayerController* BackPC = Cast<APlayerController>(GetController()))
+			{
+				if (BackPC->WasInputKeyJustPressed(EKeys::Gamepad_FaceButton_Right)
+					|| BackPC->WasInputKeyJustPressed(EKeys::Escape))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[UIProbe] Save menu BACK pressed — closing"));
+					ActiveSaveMenu->RemoveFromParent(); // close-detection below restores game input
+				}
+			}
+		}
+
+		if (!ActiveSaveMenu.IsValid() || !ActiveSaveMenu->IsInViewport())
+		{
+			bSaveMenuOpen = false;
+			ActiveSaveMenu.Reset();
+			if (APlayerController* PC = Cast<APlayerController>(GetController()))
+			{
+				// Re-add the gameplay context we pulled in OpenSaveMenu, then hand input back to the game.
+				if (AZP_PlayerController* ZPC = Cast<AZP_PlayerController>(PC))
+				{
+					if (ZPC->DefaultMappingContext)
+					{
+						ZPC->AddMappingContext(ZPC->DefaultMappingContext, ZPC->DefaultMappingPriority);
+					}
+				}
+				PC->SetInputMode(FInputModeGameOnly());
+				PC->SetShowMouseCursor(false);
+			}
+		}
+	}
+
+	// First-time pickup notification (Moonville CommonUI splash): Moonville shows it but never
+	// switches input mode, so the game stays in GameOnly and ONLY the mouse can reach it — keyboard/
+	// gamepad do nothing (dev: "can't interact in UI, only mouse"). Same fix as the save menu: while
+	// it's open, pull IMC_Grace + go GameAndUI so the controller/keyboard reach the widget's own
+	// Continue button (A / Enter dismiss it; mouse still works so there's no hard-lock). Detected via
+	// Moonville's bFirstTimePickupMenuOpen flag; restore on close.
+	{
+		// Detect by WIDGET PRESENCE (Moonville's bFirstTimePickupMenuOpen flag proved unreliable).
+		static UClass* PickupCls = LoadClass<UUserWidget>(nullptr,
+			TEXT("/Game/InventorySystemPro/Blueprints/UI/SubWidgets/WBP_FirstTimePickupNotificationBase.WBP_FirstTimePickupNotificationBase_C"));
+		UUserWidget* PickupW = nullptr;
+		if (PickupCls)
+		{
+			TArray<UUserWidget*> Found;
+			UWidgetBlueprintLibrary::GetAllWidgetsOfClass(this, Found, PickupCls, false);
+			for (UUserWidget* W : Found) { if (W && W->IsInViewport()) { PickupW = W; break; } }
+		}
+		const bool bPickupNow = (PickupW != nullptr);
+		if (bPickupNow != bPickupMenuActive)
+		{
+			bPickupMenuActive = bPickupNow;
+			if (APlayerController* PC = Cast<APlayerController>(GetController()))
+			{
+				AZP_PlayerController* ZPC = Cast<AZP_PlayerController>(PC);
+				if (bPickupNow)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[UIProbe] PICKUP OPEN: widget=%s"), *PickupW->GetName());
+					if (ZPC && ZPC->DefaultMappingContext) { ZPC->RemoveMappingContext(ZPC->DefaultMappingContext); }
+					PC->SetInputMode(FInputModeGameOnly());
+					PC->SetShowMouseCursor(false);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[UIProbe] PICKUP CLOSED — restoring game input"));
+					if (ZPC && ZPC->DefaultMappingContext) { ZPC->AddMappingContext(ZPC->DefaultMappingContext, ZPC->DefaultMappingPriority); }
+					PC->SetInputMode(FInputModeGameOnly());
+					PC->SetShowMouseCursor(false);
+				}
+			}
+		}
+
+		// While the pickup widget is up, CommonActivatableWidget keeps re-applying its own InputConfig
+		// (UIOnly/GameAndUI) over the SetInputMode we set on open — which causes Slate to eat A and the
+		// PC's WasInputKeyJustPressed to return false. Re-assert GameOnly + IMC_Grace removal every Tick
+		// so the raw poll below actually receives A.
+		if (bPickupMenuActive && PickupW)
+		{
+			if (APlayerController* PC = Cast<APlayerController>(GetController()))
+			{
+				if (AZP_PlayerController* ZPC = Cast<AZP_PlayerController>(PC))
+				{
+					if (ZPC->DefaultMappingContext) { ZPC->RemoveMappingContext(ZPC->DefaultMappingContext); }
+				}
+				PC->SetInputMode(FInputModeGameOnly());
+
+				const bool bPressed =
+					PC->WasInputKeyJustPressed(EKeys::Gamepad_FaceButton_Bottom) ||
+					PC->WasInputKeyJustPressed(EKeys::Gamepad_FaceButton_Right)  ||
+					PC->WasInputKeyJustPressed(EKeys::Gamepad_FaceButton_Left)   ||
+					PC->WasInputKeyJustPressed(EKeys::Gamepad_FaceButton_Top)    ||
+					PC->WasInputKeyJustPressed(EKeys::E)                          ||
+					PC->WasInputKeyJustPressed(EKeys::Enter)                      ||
+					PC->WasInputKeyJustPressed(EKeys::SpaceBar)                   ||
+					PC->WasInputKeyJustPressed(EKeys::LeftMouseButton);
+				if (bPressed)
+				{
+					// Gate on Moonville's bCanBeSkipped (flips true ~0.2s after construct). If we don't
+					// gate, the SAME A press that picked the item up also fires this poll on the tick
+					// the widget appears, dismissing it instantly — widget never visible.
+					bool bCanSkip = false;
+					if (FBoolProperty* SkipP = CastField<FBoolProperty>(PickupW->GetClass()->FindPropertyByName(FName("bCanBeSkipped"))))
+					{
+						bCanSkip = SkipP->GetPropertyValue(SkipP->ContainerPtrToValuePtr<void>(PickupW));
+					}
+					if (bCanSkip)
+					{
+						bool bClosed = false;
+						if (UFunction* CloseFn = PickupW->FindFunction(FName("CloseFirstTimePickupNotification")))
+						{
+							void* Parms = FMemory_Alloca(FMath::Max<int32>(CloseFn->ParmsSize, 1));
+							FMemory::Memzero(Parms, CloseFn->ParmsSize);
+							PickupW->ProcessEvent(CloseFn, Parms);
+							bClosed = true;
+							UE_LOG(LogTemp, Warning, TEXT("[UIProbe] Pickup dismissed via key -> CloseFirstTimePickupNotification"));
+						}
+						if (!bClosed)
+						{
+							PickupW->RemoveFromParent();
+							UE_LOG(LogTemp, Warning, TEXT("[UIProbe] Pickup dismissed via RemoveFromParent fallback"));
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// --- Weapon slot keys (raw polling) ---
 	// Bypasses Enhanced Input entirely to avoid IMC conflicts between
 	// IMC_Grace and Moonville's IMC_InventoryCharacter double-firing.
-	if (!bInventoryMenuOpen && !bMapOpen && !bOnLadder)
+	// Gated while the save menu / first-time pickup is open so the D-pad drives the UI, not weapons
+	// (the raw poll reads hardware state and ignores input mode, so it needs an explicit guard).
+	if (!bInventoryMenuOpen && !bMapOpen && !bOnLadder && !bSaveMenuOpen && !bPickupMenuActive)
 	{
 		if (APlayerController* PC = Cast<APlayerController>(GetController()))
 		{
@@ -992,20 +1195,23 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			else if (PC->WasInputKeyJustPressed(EKeys::Two))   Input_InventorySlot(1);
 			else if (PC->WasInputKeyJustPressed(EKeys::Three)) Input_InventorySlot(2);
 			else if (PC->WasInputKeyJustPressed(EKeys::Four))  Input_InventorySlot(3);
+			// Controller D-pad → quick slots. Raw-polled here for the same reason as the number
+			// keys: slots bypass Enhanced Input to dodge the IMC_Grace / IMC_InventoryCharacter
+			// double-fire conflict, which also stranded the D-pad mapping. Order matches the
+			// original IMC_Grace D-pad bindings (Up=0, Right=1, Left=2, Down=3).
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Up))    Input_InventorySlot(0);
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Right)) Input_InventorySlot(1);
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Left))  Input_InventorySlot(2);
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Down))  Input_InventorySlot(3);
 		}
 	}
 
 	// --- Container close detection (briefcase sync + weapon unequip) ---
 	CheckContainerClosed();
 
-	// Flashlight toggle (F key — works even with menus open)
-	{
-		APlayerController* PC = Cast<APlayerController>(GetController());
-		if (PC && PC->WasInputKeyJustPressed(EKeys::F))
-		{
-			ToggleFlashlight();
-		}
-	}
+	// Flashlight toggle is now an Enhanced Input action (IA_InventoryFlashlight, bound to
+	// Input_Flashlight). Mapped in IMC_Grace (F + Right Shoulder); IMC_Grace stays active during
+	// menus so it still toggles with a menu open, same as the old raw F poll.
 
 	// Flashlight follows camera with lag (chest-mounted feel)
 	if (FlashlightComp && bFlashlightOn && FirstPersonCamera)
@@ -1204,6 +1410,10 @@ void AZP_GraceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	{
 		EIC->BindAction(InventoryMenuAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_InventoryMenu);
 	}
+	if (FlashlightAction)
+	{
+		EIC->BindAction(FlashlightAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Flashlight);
+	}
 	if (MapAction)
 	{
 		EIC->BindAction(MapAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Map);
@@ -1305,6 +1515,7 @@ void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_SprintStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
+	if (DodgeLockRemaining > 0.f) return; // locked out mid-dodge
 	// Toggle sprint: press to start, press again to stop
 	if (GameplayComp)
 	{
@@ -1322,6 +1533,16 @@ void AZP_GraceCharacter::Input_SprintStarted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_SprintCompleted(const FInputActionValue& Value)
 {
 	// Toggle mode: release does nothing. Sprint stops on next press or stamina depletion.
+}
+
+void AZP_GraceCharacter::CancelSprintFromAction()
+{
+	// Committing to an action breaks a sprint. Movement, look, and door/item interact are the
+	// only inputs that DON'T call this (sprint needs movement; interacting shouldn't break stride).
+	if (GameplayComp && GameplayComp->bIsSprinting)
+	{
+		GameplayComp->StopSprint();
+	}
 }
 
 void AZP_GraceCharacter::Input_Jump(const FInputActionValue& Value)
@@ -1435,6 +1656,14 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 					UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Hit: %s (class: %s) — Pickup=%d, Container=%d, Briefcase=%d"),
 						*HitActorName, *HitActor->GetClass()->GetName(), bMatchPickup, bMatchContainer, bIsBriefcase);
 
+					// Block pickup of a weapon already owned (2d) or ammo at cap (2b) —
+					// looking right at it and pressing E does nothing.
+					if (bMatchPickup && !bMatchContainer && ShouldBlockPickupInteraction(HitActor))
+					{
+						UE_LOG(LogTemp, Log, TEXT("[Pickup] %s blocked (already owned / ammo at cap)"), *HitActorName);
+						return;
+					}
+
 					if (bMatchPickup || bMatchContainer)
 					{
 						// --- Loot Locker filtering ---
@@ -1500,6 +1729,12 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Container opened — bContainerWasOpen=true, ActiveContainer=%s, ActiveBriefcase=%s"),
 							*HitActorName,
 							ActiveBriefcaseActor.IsValid() ? *ActiveBriefcaseActor->GetName() : TEXT("None"));
+
+						// Pure pickup (not a container) → sweep the rest of the pile this press.
+						if (bMatchPickup && !bMatchContainer)
+						{
+							GrabAllTicksRemaining = 20;
+						}
 
 						UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
 						if (InteractFunc)
@@ -1628,6 +1863,16 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 			UActorComponent* ClosestComp = Cast<UActorComponent>(ClosestProp->GetObjectPropertyValue(
 				ClosestProp->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp)));
 			AActor* ClosestOwner = ClosestComp ? ClosestComp->GetOwner() : nullptr;
+
+			// Same pickup gate as the crosshair path — Moonville's proximity Interact
+			// would otherwise grab an owned weapon / capped ammo here. Safe on any
+			// actor: ShouldBlockPickupInteraction returns false for non-pickups.
+			if (ClosestOwner && ShouldBlockPickupInteraction(ClosestOwner))
+			{
+				UE_LOG(LogTemp, Log, TEXT("[Pickup] %s blocked at proximity (owned / ammo at cap)"), *ClosestOwner->GetName());
+				return;
+			}
+
 			if (ClosestOwner)
 			{
 				bool bClosestContainer = false;
@@ -1655,6 +1900,12 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 					UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 3 container prep: %s"), *ClosestOwner->GetName());
 				}
 			}
+		}
+
+		// If the closest thing is a pickup, sweep the rest of the pile this press.
+		if (GetClosestMoonvillePickupOwner())
+		{
+			GrabAllTicksRemaining = 20;
 		}
 
 		UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
@@ -1709,6 +1960,7 @@ void AZP_GraceCharacter::Input_CrouchCompleted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_PeekStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
+	CancelSprintFromAction();
 	if (GameplayComp) GameplayComp->bWantsPeek = true;
 }
 
@@ -1722,6 +1974,8 @@ void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
 	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
+
+	CancelSprintFromAction(); // aiming / blocking breaks a sprint
 
 	// Pipe equipped → RMB blocks instead of ADS-ing.
 	if (KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee)
@@ -1856,6 +2110,7 @@ void AZP_GraceCharacter::Input_FireStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
 	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
+	CancelSprintFromAction(); // firing / melee swinging breaks a sprint
 	KinemationComp->FirePressed();
 }
 
@@ -1868,6 +2123,8 @@ void AZP_GraceCharacter::Input_FireCompleted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_ReloadStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
+	if (DodgeLockRemaining > 0.f) return; // no reload mid-dodge
+	CancelSprintFromAction(); // reloading breaks a sprint
 	if (KinemationComp) KinemationComp->Reload();
 }
 
@@ -1875,6 +2132,8 @@ void AZP_GraceCharacter::Input_InventoryMenu(const FInputActionValue& Value)
 {
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
 	if (!PC || !MoonvilleInventoryComp) return;
+
+	CancelSprintFromAction(); // opening the inventory breaks a sprint
 
 	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-INPUT] Tab pressed. bInventoryMenuOpen=%d, TabWidget IsMenuOpen=%d"),
 		bInventoryMenuOpen,
@@ -1907,6 +2166,8 @@ void AZP_GraceCharacter::Input_Map(const FInputActionValue& Value)
 {
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
 	if (!PC) return;
+
+	CancelSprintFromAction(); // opening the map breaks a sprint
 
 	// Use tab widget's reactive state — it tracks Moonville's actual viewport presence
 	const bool bMenuActuallyOpen = PC->InventoryTabWidget && PC->InventoryTabWidget->IsMenuOpen();
@@ -1983,6 +2244,9 @@ void AZP_GraceCharacter::OnWeaponChangedHandler(AActor* NewWeapon)
 {
 	// Sync for BP interface compat (GetPrimaryWeapon, GetMainWeapon)
 	ActiveWeapon = NewWeapon;
+
+	// New weapon up → the reserve count must reflect the inventory ammo for THIS gun.
+	SyncReserveFromInventory();
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter: Weapon changed → %s"),
 		NewWeapon ? *NewWeapon->GetName() : TEXT("NONE"));
@@ -2404,8 +2668,147 @@ void AZP_GraceCharacter::ScanInventoryForNotes()
 	HandleInventoryUpdate();
 }
 
+// Ammo lives in the Moonville inventory grid (the survival challenge). The HUD
+// "reserve" number is just a MIRROR of how much matching ammo the player carries
+// for the equipped weapon — these helpers read/spend that, never moving ammo out
+// of the grid except when a reload actually consumes rounds.
+
+int32 AZP_GraceCharacter::GetInventoryAmmoCount(EZP_WeaponIcon Icon)
+{
+	if (!MoonvilleInventoryComp || Icon == EZP_WeaponIcon::None) return 0;
+
+	FProperty* SlotsProp = MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	FArrayProperty* ArrayProp = SlotsProp ? CastField<FArrayProperty>(SlotsProp) : nullptr;
+	if (!ArrayProp) return 0;
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp));
+	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
+	if (!StructInner) return 0;
+
+	FProperty* ItemProp = nullptr;
+	FProperty* AmountProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (!ItemProp && It->GetName().Contains(TEXT("Item_")))   ItemProp = *It;
+		if (!AmountProp && It->GetName().Contains(TEXT("Amount"))) AmountProp = *It;
+	}
+	FObjectProperty* ObjProp = ItemProp ? CastField<FObjectProperty>(ItemProp) : nullptr;
+	FIntProperty* IntProp = AmountProp ? CastField<FIntProperty>(AmountProp) : nullptr;
+	if (!ObjProp) return 0;
+
+	int32 Total = 0;
+	for (int32 i = 0; i < ArrayHelper.Num(); ++i)
+	{
+		void* Elem = ArrayHelper.GetRawPtr(i);
+		UObject* ItemDA = ObjProp->GetObjectPropertyValue(ObjProp->ContainerPtrToValuePtr<void>(Elem));
+		if (!ItemDA) continue;
+		const FString Name = ItemDA->GetName();
+		if (!Name.Contains(TEXT("Ammo"))) continue;
+		if (UZP_KinemationComponent::AmmoNameToIcon(Name) != Icon) continue;
+		Total += IntProp ? IntProp->GetPropertyValue(IntProp->ContainerPtrToValuePtr<void>(Elem)) : 1;
+	}
+	return Total;
+}
+
+void AZP_GraceCharacter::EnforceAmmoCaps()
+{
+	if (!MoonvilleInventoryComp) return;
+
+	// A pickup adds a WHOLE stack, so picking up a 5-stack at 20/24 lands you at 25.
+	// Trim any ammo type back down to its cap (overflow is discarded — the cap is a
+	// hard ceiling). The block gate handles the already-at-cap case; this handles the
+	// would-exceed case.
+	static const EZP_WeaponIcon AmmoIcons[] = {
+		EZP_WeaponIcon::Pistol, EZP_WeaponIcon::Shotgun, EZP_WeaponIcon::Rifle };
+
+	for (EZP_WeaponIcon Icon : AmmoIcons)
+	{
+		const int32 Cap  = UZP_KinemationComponent::GetReserveCapForIcon(Icon);
+		const int32 Have = GetInventoryAmmoCount(Icon);
+		if (Cap > 0 && Have > Cap)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[Ammo] Trimming icon %d %d -> cap %d"), (int32)Icon, Have, Cap);
+			RemoveInventoryAmmo(Icon, Have - Cap);
+		}
+	}
+}
+
+void AZP_GraceCharacter::SyncReserveFromInventory()
+{
+	if (!KinemationComp) return;
+	KinemationComp->ReserveAmmo = GetInventoryAmmoCount(KinemationComp->CurrentWeaponIcon);
+	KinemationComp->OnAmmoChanged.Broadcast(KinemationComp->CurrentAmmo, KinemationComp->ReserveAmmo);
+}
+
+void AZP_GraceCharacter::RemoveInventoryAmmo(EZP_WeaponIcon Icon, int32 Rounds)
+{
+	if (!MoonvilleInventoryComp || Rounds <= 0 || Icon == EZP_WeaponIcon::None) return;
+	UFunction* RemoveFunc = MoonvilleInventoryComp->FindFunction(FName("RemoveItemByDataAsset"));
+	if (!RemoveFunc) return;
+
+	FProperty* SlotsProp = MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
+	FArrayProperty* ArrayProp = SlotsProp ? CastField<FArrayProperty>(SlotsProp) : nullptr;
+	if (!ArrayProp) return;
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp));
+	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
+	if (!StructInner) return;
+
+	FProperty* ItemProp = nullptr;
+	FProperty* AmountProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (!ItemProp && It->GetName().Contains(TEXT("Item_")))   ItemProp = *It;
+		if (!AmountProp && It->GetName().Contains(TEXT("Amount"))) AmountProp = *It;
+	}
+	FObjectProperty* ObjProp = ItemProp ? CastField<FObjectProperty>(ItemProp) : nullptr;
+	FIntProperty* IntProp = AmountProp ? CastField<FIntProperty>(AmountProp) : nullptr;
+	if (!ObjProp) return;
+
+	// Aggregate matching ammo by DA, then remove the rounds across stacks.
+	TMap<UObject*, int32> ByDA;
+	for (int32 i = 0; i < ArrayHelper.Num(); ++i)
+	{
+		void* Elem = ArrayHelper.GetRawPtr(i);
+		UObject* ItemDA = ObjProp->GetObjectPropertyValue(ObjProp->ContainerPtrToValuePtr<void>(Elem));
+		if (!ItemDA) continue;
+		const FString Name = ItemDA->GetName();
+		if (!Name.Contains(TEXT("Ammo"))) continue;
+		if (UZP_KinemationComponent::AmmoNameToIcon(Name) != Icon) continue;
+		ByDA.FindOrAdd(ItemDA) += IntProp ? IntProp->GetPropertyValue(IntProp->ContainerPtrToValuePtr<void>(Elem)) : 1;
+	}
+
+	int32 Remaining = Rounds;
+	for (const TPair<UObject*, int32>& P : ByDA)
+	{
+		if (Remaining <= 0) break;
+		const int32 Take = FMath::Min(Remaining, P.Value);
+		struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
+		Params.ItemDataAsset = P.Key;
+		Params.AmountToRemove = Take;
+		MoonvilleInventoryComp->ProcessEvent(RemoveFunc, &Params);
+		Remaining -= Take;
+	}
+}
+
+void AZP_GraceCharacter::OnReserveConsumedHandler(int32 Rounds, EZP_WeaponIcon Icon)
+{
+	// A reload pulled Rounds into the magazine — spend that many ammo items from the
+	// inventory, then re-sync the reserve mirror from what's left.
+	RemoveInventoryAmmo(Icon, Rounds);
+	SyncReserveFromInventory();
+}
+
 void AZP_GraceCharacter::HandleInventoryUpdate()
 {
+	// Trim any ammo type that a whole-stack pickup pushed over its cap, THEN mirror the
+	// (now-capped) inventory into the HUD reserve count.
+	EnforceAmmoCaps();
+	SyncReserveFromInventory();
+
+	// Inventory changed (acquired/dropped a weapon) → re-evaluate which pickups are
+	// now blocked (e.g. picked up shotgun → the other shotgun goes non-interactable).
+	GatherLevelPickups();
+	RefreshPickupBlockStates();
+
 	UE_LOG(LogTemp, Warning, TEXT("[NoteBridge] === SCAN START === MoonvilleInv=%s NoteComp=%s"),
 		MoonvilleInventoryComp ? TEXT("valid") : TEXT("null"),
 		NoteComp ? TEXT("valid") : TEXT("null"));
@@ -2576,6 +2979,9 @@ void AZP_GraceCharacter::Input_InventorySlot(int32 SlotIndex)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
 	if (SlotIndex < 0 || SlotIndex > 3) return;
+	if (DodgeLockRemaining > 0.f) return; // no weapon swap mid-dodge
+
+	CancelSprintFromAction(); // swapping / using a slot item breaks a sprint
 
 	// Try weapon equip first
 	TSubclassOf<AActor> SlotWeaponClass = GetWeaponFromShortcutSlot(SlotIndex);
@@ -2754,6 +3160,134 @@ TSubclassOf<AActor> AZP_GraceCharacter::GetWeaponClassFromItem(UObject* ItemDA)
 	return nullptr;
 }
 
+UObject* AZP_GraceCharacter::GetPickupItemDA(AActor* PickupActor)
+{
+	if (!PickupActor) return nullptr;
+
+	// BP_ItemPickup designers set "Item"; "ItemDataAsset" is the runtime mirror.
+	for (const TCHAR* PropName : { TEXT("Item"), TEXT("ItemDataAsset") })
+	{
+		if (FObjectProperty* ItemProp = CastField<FObjectProperty>(
+				PickupActor->GetClass()->FindPropertyByName(FName(PropName))))
+		{
+			if (UObject* DA = ItemProp->GetObjectPropertyValue(
+					ItemProp->ContainerPtrToValuePtr<void>(PickupActor)))
+			{
+				return DA;
+			}
+		}
+	}
+	return nullptr;
+}
+
+AActor* AZP_GraceCharacter::GetClosestMoonvillePickupOwner()
+{
+	if (!MoonvilleInteractionComp) return nullptr;
+
+	FObjectProperty* ClosestProp = CastField<FObjectProperty>(
+		MoonvilleInteractionComp->GetClass()->FindPropertyByName(TEXT("ClosestInteractable")));
+	if (!ClosestProp) return nullptr;
+
+	UActorComponent* Comp = Cast<UActorComponent>(ClosestProp->GetObjectPropertyValue(
+		ClosestProp->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp)));
+	AActor* PickupOwner = Comp ? Comp->GetOwner() : nullptr;
+	if (!PickupOwner) return nullptr;
+
+	for (UClass* C = PickupOwner->GetClass(); C; C = C->GetSuperClass())
+	{
+		if (C->GetName().Contains(TEXT("ItemPickup"))) return PickupOwner;
+	}
+	return nullptr;
+}
+
+bool AZP_GraceCharacter::ShouldBlockPickupInteraction(AActor* PickupActor)
+{
+	if (!PickupActor || !KinemationComp) return false;
+
+	UObject* ItemDA = GetPickupItemDA(PickupActor);
+	if (!ItemDA) return false;
+
+	const FString ItemName = ItemDA->GetName();
+
+	// 2d — already own this weapon. Throwables (grenade/rock) are EXCEPTED: they
+	// stack, so picking up more must stay allowed.
+	TSubclassOf<AActor> WClass = GetWeaponClassFromItem(ItemDA);
+	if (WClass)
+	{
+		const FString WName = WClass->GetName();
+		const bool bThrowable = WName.Contains(TEXT("Grenade")) || WName.Contains(TEXT("Rock"));
+		if (!bThrowable && CountWeaponClassInInventory(WClass) > 0)
+		{
+			return true;
+		}
+	}
+
+	// 2b — ammo whose reserve is already at the cap for that weapon type.
+	if (ItemName.Contains(TEXT("Ammo")))
+	{
+		const EZP_WeaponIcon Icon = UZP_KinemationComponent::AmmoNameToIcon(ItemName);
+		if (Icon != EZP_WeaponIcon::None
+			&& GetInventoryAmmoCount(Icon) >= UZP_KinemationComponent::GetReserveCapForIcon(Icon))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void AZP_GraceCharacter::GatherLevelPickups()
+{
+	CachedPickups.Reset();
+	if (!GetWorld()) return;
+
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		AActor* A = *It;
+		if (!A) continue;
+		for (UClass* C = A->GetClass(); C; C = C->GetSuperClass())
+		{
+			if (C->GetName().Contains(TEXT("ItemPickup")))
+			{
+				CachedPickups.Add(A);
+				break;
+			}
+		}
+	}
+}
+
+void AZP_GraceCharacter::RefreshPickupBlockStates()
+{
+	for (int32 i = CachedPickups.Num() - 1; i >= 0; --i)
+	{
+		AActor* P = CachedPickups[i].Get();
+		if (!P)
+		{
+			CachedPickups.RemoveAtSwap(i);
+			continue;
+		}
+
+		const ECollisionEnabled::Type Desired = ShouldBlockPickupInteraction(P)
+			? ECollisionEnabled::NoCollision   // off → Moonville can't see it (no popup, no pickup)
+			: ECollisionEnabled::QueryOnly;    // on → normal overlap detection
+
+		for (const TCHAR* CompName : { TEXT("InteractionArea"), TEXT("InteractionCollision") })
+		{
+			if (FObjectProperty* CompProp = CastField<FObjectProperty>(P->GetClass()->FindPropertyByName(FName(CompName))))
+			{
+				if (UPrimitiveComponent* Sphere = Cast<UPrimitiveComponent>(
+						CompProp->GetObjectPropertyValue(CompProp->ContainerPtrToValuePtr<void>(P))))
+				{
+					if (Sphere->GetCollisionEnabled() != Desired)
+					{
+						Sphere->SetCollisionEnabled(Desired);
+					}
+				}
+			}
+		}
+	}
+}
+
 // --- Death / Vignette ---
 
 void AZP_GraceCharacter::HandleDeath()
@@ -2784,8 +3318,14 @@ void AZP_GraceCharacter::UpdateHealthVignette(float NewHealth, float MaxHealth, 
 
 // --- Flashlight ---
 
+void AZP_GraceCharacter::Input_Flashlight(const FInputActionValue& Value)
+{
+	ToggleFlashlight();
+}
+
 void AZP_GraceCharacter::ToggleFlashlight()
 {
+	CancelSprintFromAction(); // toggling the flashlight breaks a sprint
 	bFlashlightOn = !bFlashlightOn;
 
 	if (FlashlightComp)
@@ -2817,6 +3357,57 @@ void AZP_GraceCharacter::ToggleFlashlight()
 
 // --- Starting Items ---
 
+void AZP_GraceCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	// Begin tracking a fall the moment we leave the ground. Seed the apex with
+	// the current Z; Tick raises it if we keep rising (jump arc).
+	if (GetCharacterMovement() && GetCharacterMovement()->IsFalling())
+	{
+		bTrackingFall = true;
+		FallPeakZ = GetActorLocation().Z;
+	}
+}
+
+void AZP_GraceCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	if (!bTrackingFall)
+	{
+		return;
+	}
+	bTrackingFall = false;
+
+	const float DropDistance = FallPeakZ - GetActorLocation().Z;
+
+	// Below the safe threshold: no damage (normal jumps/short hops).
+	if (DropDistance <= FallDamageMinDistance)
+	{
+		return;
+	}
+
+	// Lerp min→max damage across the [min,max] distance band; clamp above max.
+	float FallDamage = FallDamageMaxAmount;
+	if (FallDamageMaxDistance > FallDamageMinDistance)
+	{
+		const float Alpha = FMath::Clamp(
+			(DropDistance - FallDamageMinDistance) / (FallDamageMaxDistance - FallDamageMinDistance),
+			0.f, 1.f);
+		FallDamage = FMath::Lerp(FallDamageMinAmount, FallDamageMaxAmount, Alpha);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Fall: drop %.0fcm -> %.0f damage"), DropDistance, FallDamage);
+
+	// Apply straight through HealthComp — a fall isn't blockable and shouldn't
+	// route through the block-reduction / attacker-stagger path in TakeDamage.
+	if (HealthComp && FallDamage > 0.f)
+	{
+		HealthComp->ApplyDamage(FallDamage);
+	}
+}
+
 float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 	AController* EventInstigator, AActor* DamageCauser)
 {
@@ -2838,13 +3429,18 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		// Random FPP_Longs_BlockImpact 1/2/3 plays on the view mesh.
 		PlayBlockImpactAnim();
 
-		if (EventInstigator)
+		// Stagger the attacker on a successful block — rate-limited by BlockStaggerCooldown so
+		// blocking can't permanently stun-lock an enemy. Routed through IZP_Staggerable so it
+		// works for any enemy (Shambler, Scytheer, and future types) with no per-enemy code.
+		const double NowBlock = GetWorld()->GetTimeSeconds();
+		if ((NowBlock - LastBlockStaggerTime) >= BlockStaggerCooldown)
 		{
-			if (APawn* AttackerPawn = EventInstigator->GetPawn())
+			LastBlockStaggerTime = NowBlock;
+			if (EventInstigator)
 			{
-				if (auto* SC = AttackerPawn->FindComponentByClass<UZP_ShamblerBehaviorComponent>())
+				if (APawn* AttackerPawn = EventInstigator->GetPawn())
 				{
-					SC->ReceiveStaggerHit(BlockStaggerDuration);
+					StaggerEnemy(AttackerPawn, BlockStaggerDuration);
 				}
 			}
 		}
@@ -2875,6 +3471,96 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		ActualDamage, DamageCauser ? *DamageCauser->GetName() : TEXT("unknown"));
 
 	return ActualDamage;
+}
+
+void AZP_GraceCharacter::StaggerEnemy(AActor* Enemy, float Duration)
+{
+	if (!Enemy || Duration <= 0.f) { return; }
+
+	// The enemy itself may implement IZP_Staggerable (actor-based AI like the Scytheer)...
+	if (Enemy->GetClass()->ImplementsInterface(UZP_Staggerable::StaticClass()))
+	{
+		IZP_Staggerable::Execute_ReceiveStagger(Enemy, Duration);
+		return;
+	}
+	// ...or one of its components does (component-based AI like the Shambler).
+	for (UActorComponent* Comp : Enemy->GetComponents())
+	{
+		if (Comp && Comp->GetClass()->ImplementsInterface(UZP_Staggerable::StaticClass()))
+		{
+			IZP_Staggerable::Execute_ReceiveStagger(Comp, Duration);
+			return;
+		}
+	}
+}
+
+void AZP_GraceCharacter::MeleeStaggerEnemy(AActor* Enemy)
+{
+	// Rate-limit melee-hit staggers (0 = every hit staggers; the swing cooldown still paces it).
+	const double Now = GetWorld()->GetTimeSeconds();
+	if ((Now - LastHitStaggerTime) < HitStaggerCooldown)
+	{
+		return;
+	}
+	LastHitStaggerTime = Now;
+	StaggerEnemy(Enemy, HitStaggerDuration);
+}
+
+void AZP_GraceCharacter::OpenSaveMenu(UUserWidget* Menu)
+{
+	if (!Menu) return;
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) return;
+
+	ActiveSaveMenu = Menu;
+	bSaveMenuOpen = true;
+
+	// REMOVE the gameplay mapping context (IMC_Grace) while the save menu is open. The EGUI save
+	// widget is a CommonActivatableWidget — when it activates it re-applies its own input config on
+	// top of any SetInputMode we set, which let gameplay actions keep firing (dev heard the player
+	// dodging/moving "under" the menu, stealing the pad's nav inputs). With IMC_Grace pulled, NO
+	// gameplay action can fire regardless of the active input mode; the UI keeps its own nav input.
+	AZP_PlayerController* ZPC = Cast<AZP_PlayerController>(PC);
+	UE_LOG(LogTemp, Warning, TEXT("[UIProbe] OpenSaveMenu: widget=%s  ZPC=%s  DefaultMC=%s"),
+		*Menu->GetClass()->GetName(),
+		ZPC ? TEXT("OK") : TEXT("NULL(cast failed!)"),
+		(ZPC && ZPC->DefaultMappingContext) ? *ZPC->DefaultMappingContext->GetName() : TEXT("NULL"));
+	if (ZPC && ZPC->DefaultMappingContext)
+	{
+		ZPC->RemoveMappingContext(ZPC->DefaultMappingContext);
+		UE_LOG(LogTemp, Warning, TEXT("[UIProbe] OpenSaveMenu: removed gameplay context %s"),
+			*ZPC->DefaultMappingContext->GetName());
+	}
+
+	// NOTE: Back is handled manually in Tick (Face Right / Esc) — this widget is shown via raw
+	// AddToViewport, not a CommonUI activatable stack, so CommonUI's back action never routes to it.
+	// Adding nav contexts here doesn't help; polling the key + closing it ourselves is reliable.
+
+	// GameAndUI (NOT UIOnly): gameplay is already dead because we removed IMC_Grace above, so we don't
+	// need UIOnly — and UIOnly routes ALL input to Slate, so the PlayerController never sees keys and
+	// the manual Back poll (Tick) reads nothing. GameAndUI lets the widget keep UI navigation while
+	// letting unhandled keys (Face Right / Esc) reach the PlayerController for the Back poll.
+	// Do NOT force focus to the root — the CommonActivatableWidget focuses its own desired target
+	// (a save card) inside a proper nav scope; clobbering it gave only ONE Slate move then locked.
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
+	PC->SetInputMode(InputMode);
+	PC->SetShowMouseCursor(true);
+
+	// Auto-probe now AND again after the CommonActivatableWidget has had a chance to re-apply its own
+	// input config — if GAMEPLAY:Move/Jump still show live keys in the deferred dump, something
+	// re-added IMC_Grace after us.
+	if (ZPC)
+	{
+		ZPC->DumpUIInput();
+		FTimerHandle Tmp;
+		GetWorld()->GetTimerManager().SetTimer(Tmp, FTimerDelegate::CreateWeakLambda(ZPC, [ZPC]()
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[UIProbe] --- deferred (post-activation) dump ---"));
+			ZPC->DumpUIInput();
+		}), 0.5f, false);
+	}
 }
 
 void AZP_GraceCharacter::GrantStartingItems()
@@ -3153,6 +3839,24 @@ void AZP_GraceCharacter::PerformDodge()
 	}
 	Dir2D.Normalize();
 
+	// No forward dash — lunging forward on your feet is a dash, not a dodge. Block
+	// ANY forward component: straight-forward AND the two forward-diagonals. Allowed
+	// dodges are everything with no forward lean — pure side (Y≈0), straight back,
+	// and the back-diagonals (Y<0). Checked BEFORE spending stamina so a blocked
+	// forward press costs nothing.
+	if (Dir2D.Y > 0.05f)
+	{
+		return;
+	}
+
+	// Costs stamina — and is blocked entirely if you don't have enough.
+	if (GameplayComp && !GameplayComp->TryConsumeStaminaPercent(DodgeStaminaCostPercent))
+	{
+		return;
+	}
+
+	CancelSprintFromAction(); // the dodge has committed — break any active sprint
+
 	const FRotator YawRot(0.f, GetControlRotation().Yaw, 0.f);
 	const FVector Fwd   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
 	const FVector Right = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
@@ -3174,43 +3878,29 @@ void AZP_GraceCharacter::PerformDodge()
 	LaunchCharacter(LaunchDir * DodgeImpulse, /*bXYOverride*/ true, /*bZOverride*/ false);
 	DodgeCooldownRemaining = DodgeCooldown;
 	DodgeClearanceRemaining = DodgeClearanceWindow;
+	DodgeLockRemaining = DodgeLockWindow; // locks sprint + weapon swap for the dash
 	LogCameraProbe(TEXT("POST-LAUNCH"));
 
-	// FPP_sns_Dodge is a Kubold BACKSTEP pose — it only matches the motion for
-	// backward / side dodges. Skip it on forward dodge so the view mesh doesn't
-	// hold a mismatched stuck-looking pose (dev's "forward dodge breaks").
-	const bool bForwardDodge = Dir2D.Y > 0.f;
+	// Keep the pipe GLUED to the hand through the dash. There is no pipe-fitted
+	// dodge clip: the A_MeleePipe_* set has none, and FPP_sns_Dodge (used before)
+	// is a sword&shield clip whose fingers don't match the pipe's fitted hand_r
+	// grip, so it floated the pipe off the hand (dev report). Instead, hold the
+	// seated idle grip (A_MeleePipe_Idle) so hand_r stays at the fitted pose and
+	// the pipe never leaves the hand — the dash reads from body movement + the
+	// dodge camera offset. (DodgeAnim left wired for a future fitted clip.)
 	const bool bMeleeUp = KinemationComp
 		&& KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee;
-	if (!bForwardDodge && bMeleeUp && MeleeViewMesh && !DodgeAnim.IsNull())
+	if (bMeleeUp && MeleeViewMesh && !bIsBlocking)
 	{
-		if (UAnimSequenceBase* Anim = DodgeAnim.LoadSynchronous())
+		if (UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous())
 		{
 			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
 			{
-				SNI->SetAnimationAsset(Anim, false, 1.0f);
-				SNI->SetPlaying(true);
-
-				// Return to idle hold once the dodge clip finishes — otherwise
-				// the view mesh sticks on the dodge end-pose and looks broken.
-				const float Length = Anim->GetPlayLength();
-				FTimerHandle ReturnHandle;
-				GetWorldTimerManager().SetTimer(ReturnHandle, [this]()
+				if (SNI->GetCurrentAsset() != IdleAnim)
 				{
-					if (bIsBlocking) return; // block took over
-					if (!KinemationComp
-						|| KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee)
-					{
-						return;
-					}
-					UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous();
-					if (!IdleAnim || !MeleeViewMesh) return;
-					if (UAnimSingleNodeInstance* IdleSNI = MeleeViewMesh->GetSingleNodeInstance())
-					{
-						IdleSNI->SetAnimationAsset(IdleAnim, true, 1.0f);
-						IdleSNI->SetPlaying(true);
-					}
-				}, Length, false);
+					SNI->SetAnimationAsset(IdleAnim, true, 1.0f);
+					SNI->SetPlaying(true);
+				}
 			}
 		}
 	}
@@ -3568,36 +4258,39 @@ void AZP_GraceCharacter::FilterLockerAmmo(AActor* LockerActor)
 	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
 	if (!StructInner) return;
 
-	// Find Item_ field in slot struct
+	// Find the Item_ and Amount fields in the slot struct.
 	FObjectProperty* ItemObjProp = nullptr;
+	FIntProperty* AmountIntProp = nullptr;
 	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
 	{
-		if (It->GetName().Contains(TEXT("Item_")))
-		{
-			ItemObjProp = CastField<FObjectProperty>(*It);
-			break;
-		}
+		if (!ItemObjProp && It->GetName().Contains(TEXT("Item_")))    ItemObjProp = CastField<FObjectProperty>(*It);
+		if (!AmountIntProp && It->GetName().Contains(TEXT("Amount")))  AmountIntProp = CastField<FIntProperty>(*It);
 	}
 	if (!ItemObjProp) return;
 
-	// Collect ammo items to remove
-	TArray<UObject*> AmmoToRemove;
+	// Aggregate the EXACT amount of each unowned-ammo DA across all stacks. The old code passed
+	// AmountToRemove = 999, but Moonville REJECTS a removal when the amount exceeds what's actually
+	// there (the same trap as the ammo-pickup runaway) — so the ammo was never removed and kept
+	// showing. Removing the exact total is what RemoveInventoryAmmo already does correctly.
+	TMap<UObject*, int32> AmmoToRemove;
 	for (int32 i = 0; i < ArrayHelper.Num(); i++)
 	{
 		void* ElementData = ArrayHelper.GetRawPtr(i);
 		UObject* SlotItem = ItemObjProp->GetObjectPropertyValue(ItemObjProp->ContainerPtrToValuePtr<void>(ElementData));
 		if (!SlotItem) continue;
 
-		FString ItemName = SlotItem->GetName();
-		// Only filter ammo items
-		if (!ItemName.Contains(TEXT("Ammo"))) continue;
+		const FString ItemName = SlotItem->GetName();
+		if (!ItemName.Contains(TEXT("Ammo"))) continue;   // only filter ammo items
+		if (PlayerHasWeaponForAmmo(ItemName)) continue;   // keep ammo the player can actually use
 
-		if (!PlayerHasWeaponForAmmo(ItemName))
-		{
-			AmmoToRemove.Add(SlotItem);
-			UE_LOG(LogTemp, Log, TEXT("[LootLocker] Filtering out %s — player has no matching weapon"), *ItemName);
-		}
+		const int32 SlotAmount = AmountIntProp
+			? AmountIntProp->GetPropertyValue(AmountIntProp->ContainerPtrToValuePtr<void>(ElementData))
+			: 1;
+		AmmoToRemove.FindOrAdd(SlotItem) += FMath::Max(SlotAmount, 1);
+		UE_LOG(LogTemp, Log, TEXT("[LootLocker] Filtering out %s x%d — player has no matching weapon"), *ItemName, FMath::Max(SlotAmount, 1));
 	}
+
+	if (AmmoToRemove.Num() == 0) return;
 
 	// Remove filtered ammo via Moonville API
 	UFunction* RemoveFunc = LockerInvComp->FindFunction(FName("RemoveItemByDataAsset"));
@@ -3607,13 +4300,13 @@ void AZP_GraceCharacter::FilterLockerAmmo(AActor* LockerActor)
 		return;
 	}
 
-	for (UObject* AmmoDA : AmmoToRemove)
+	for (const TPair<UObject*, int32>& P : AmmoToRemove)
 	{
 		struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-		Params.ItemDataAsset = AmmoDA;
-		Params.AmountToRemove = 999; // Remove all stacks
+		Params.ItemDataAsset = P.Key;
+		Params.AmountToRemove = P.Value; // EXACT total — over-removal is silently rejected by Moonville
 		LockerInvComp->ProcessEvent(RemoveFunc, &Params);
-		UE_LOG(LogTemp, Log, TEXT("[LootLocker] Removed %s from locker %s"), *AmmoDA->GetName(), *LockerActor->GetName());
+		UE_LOG(LogTemp, Log, TEXT("[LootLocker] Removed %s x%d from locker %s"), *P.Key->GetName(), P.Value, *LockerActor->GetName());
 	}
 }
 

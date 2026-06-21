@@ -89,12 +89,22 @@ void AZP_SavePoint::OnInteract_Implementation(ACharacter* Interactor)
 					UE_LOG(LogTemp, Warning, TEXT("[TheSignal] SavePoint: InitWidget function not found on widget"));
 				}
 
-				// Switch to UI input so player can interact with save menu
-				FInputModeGameAndUI InputMode;
-				InputMode.SetWidgetToFocus(SaveMenu->TakeWidget());
-				InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-				PC->SetInputMode(InputMode);
-				PC->SetShowMouseCursor(true);
+				// Hand the menu to the character: it switches to UI-only input and focuses the widget
+				// so a CONTROLLER can navigate it (GameAndUI let gameplay eat the pad's nav inputs),
+				// and watches for the menu to close to restore game input.
+				if (AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(Interactor))
+				{
+					Grace->OpenSaveMenu(SaveMenu);
+				}
+				else
+				{
+					// Fallback if somehow not Grace — keep the old behavior so the menu is still usable.
+					FInputModeGameAndUI InputMode;
+					InputMode.SetWidgetToFocus(SaveMenu->TakeWidget());
+					InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+					PC->SetInputMode(InputMode);
+					PC->SetShowMouseCursor(true);
+				}
 
 				UE_LOG(LogTemp, Log, TEXT("[TheSignal] SavePoint: Opened save menu"));
 			}

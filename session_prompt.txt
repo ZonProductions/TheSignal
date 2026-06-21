@@ -962,6 +962,25 @@ This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAut
   - **Integration DONE:** MapComp on Grace, MapAction input, bMapOpen blocks gameplay input, MapWidget on PlayerController
   - **Remaining:** Create IA_Map + WBP_Map in editor, place MapVolumes, run capture script, place MapPickups
   - **Future:** Save/load integration for DiscoveredMaps, page switching between areas, ceiling-hiding in capture script
+  - **MAP GENERATION PIPELINE (2026-06-21):** primary generator is Scripts/Python/generate_floor_plan.py
+    (line-trace grid over a MapVolume -> RE-style wall-outline plan -> imports T_Map_<AREA_ID> to
+    /Game/TheSignal/Textures/Maps/ -> assigns to volume -> saves). capture_map.py is the orthographic-
+    photo alternative. Per floor: (1) open the .umap, run fix_all_generators2.py on new purchased
+    levels; (2) place a ZP_MapVolume (place_map_volume.py or by hand) with its CENTER Z at player
+    height and AreaBounds covering the floor; (3) set AREA_ID in generate_floor_plan.py to the
+    volume's AreaID; (4) run it via MCP :9847/api/python; (5) place a ZP_MapPickup with the SAME
+    AreaID. LOCKED: AreaID must match across MapVolume == script == MapPickup. Scan height = volume
+    center Z (NOT CaptureHeight). Full pipeline in CLAUDE.md "MAP GENERATION PIPELINE".
+
+### TICKET-072 — Generate per-floor maps (Building1)
+- Status: OPEN
+- Priority: HIGH
+- Category: Level / Map
+- Notes:
+  - Run the map-generation pipeline (above / CLAUDE.md) on each Building1 floor .umap.
+  - Per floor: place MapVolume (center Z at player height, bounds = footprint), set AREA_ID, run
+    generate_floor_plan.py, place a matching ZP_MapPickup.
+  - generate_floor_plan.py modernized for UE5.8 (EditorActorSubsystem / LevelEditorSubsystem).
 
 ### TICKET-052 — Background Environment: Tech Campus at Night
 - Status: PLANNED

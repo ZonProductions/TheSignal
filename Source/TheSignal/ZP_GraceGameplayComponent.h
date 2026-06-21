@@ -155,6 +155,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void StopSprint();
 
+	/** Spend a flat PERCENT of max stamina (0-100) for a one-shot action (dodge).
+	 *  Returns false and spends nothing if the player has less than Percent left.
+	 *  On success, resets the regen delay so stamina doesn't immediately tick back. */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	bool TryConsumeStaminaPercent(float Percent);
+
 	/** Forward-axis move input (W=+1, S=-1). Set every Input_Move tick; reset to 0 on Completed. */
 	void SetForwardInput(float Value) { CurrentForwardInput = Value; }
 

@@ -116,6 +116,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void RemoveMappingContext(UInputMappingContext* Context);
 
+	/** PROBE: type `DumpUIInput` in the console while a menu is open. Logs which keys are CURRENTLY
+	 *  live for the CommonUI accept/back/close-notification actions (i.e. across all active mapping
+	 *  contexts) + the focused widget — to diagnose why keyboard/gamepad don't drive CommonUI menus. */
+	UFUNCTION(Exec)
+	void DumpUIInput();
+
 	/**
 	 * Override SetPause to ensure input mode + cursor are always restored on unpause,
 	 * regardless of who triggered it (our ESC handler or EGUI's Continue button).

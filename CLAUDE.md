@@ -18,21 +18,6 @@ scripts, packaging scripts, exe-producing Python, shaders, etc.), you
   more than once and have explicitly told you to do this.
 - Report build success/failure and the artifact location.
 
-## ABSOLUTE RULE #2: First response of every session = audit hygiene pass
-
-The **very first response** you produce in a new conversation, before
-addressing the dev's prompt, must do an audit hygiene pass:
-
-1. Scan `.zon-portal/revert_requests/` — surface any file missing a final
-   `Status: DONE at …` line. Those are interrupted reverts. Ask the dev
-   if they want to resume.
-2. If you spot tool calls in your recent session log that don't appear to
-   be represented in the project (e.g. you edited a BP but the file's
-   mtime says otherwise), call it out up front.
-
-After the pass, address the dev's prompt. If nothing needs cleanup, a
-single line ("Audit clean — no unfinished revert requests.") is enough.
-
 ## On every turn
 
 1. **Verify, don't assume.** Read files or call `get_pin_info` /
@@ -46,20 +31,6 @@ single line ("Audit clean — no unfinished revert requests.") is enough.
 4. **End-of-turn summary line.** Last line of every response: a single
    imperative summary like `Set walk speed to 280`. The ZonPortalDev
    audit panel uses this as the row label.
-
-## On every revert
-
-Follow `.zon-portal/REVERT_PROTOCOL.md`. After completing, append
-`**Status: DONE at <ISO timestamp>**` to the request file via `Edit`. If
-anything couldn't be reversed exactly, add an `**Unresolved:**` section
-listing what's left.
-
-## Audit hygiene (continuous)
-
-- If you notice this turn might slip past the audit (subtle changes, slow
-  log flush), say so so the dev can verify.
-- If the dev says "audit looks wrong" or "this should be in the audit,"
-  reconcile against the session log and explain gaps. Don't guess.
 
 ## When in doubt
 
@@ -289,6 +260,33 @@ Exec input pins accept **only ONE connection.** Connecting a new wire **silently
 - **Script:** `Scripts/fix_all_generators2.py` — scans ALL static meshes in the level, finds any with convex hull collision larger than 300 UU, and switches to complex-as-simple. Run this on any new level that uses purchased environment assets.
 - **When to run:** After placing a new purchased environment level, or if player/creature gets stuck on invisible walls near large structures.
 - Removing collision to "fix" pathing is a DEAD END — creatures need BlockAll surfaces to climb on.
+
+---
+
+## MAP GENERATION PIPELINE (in-game floor-plan minimaps)
+
+RE/Silent-Hill style: one floor-plan texture per area, displayed by the Map widget (M / IA_Map) once
+the player picks up that area's map item. C++ foundation done (session 39): `AZP_MapVolume`
+(AreaID / AreaDisplayName / MapTexture / CaptureHeight / AreaBounds), `UZP_MapComponent`,
+`UZP_MapWidget`, `AZP_MapPickup`, `ZP_MapTypes`.
+
+**The generator:** `Scripts/Python/generate_floor_plan.py` — grid of downward line traces over a
+MapVolume's bounds → RE-style plan (wall outlines on dark) → imports `T_Map_<AREA_ID>` to
+`/Game/TheSignal/Textures/Maps/` → assigns it to the volume → saves the level. (Alt:
+`capture_map.py` = top-down orthographic photo capture using CaptureHeight.)
+
+**Per-floor pipeline:**
+1. Open the floor `.umap`. New purchased-asset level → run `Scripts/fix_all_generators2.py` first
+   (or interior walls won't register in the trace).
+2. Place a `ZP_MapVolume` (edit + run `place_map_volume.py`, or by hand). Its **center Z must sit at
+   room/player height** (the floor-plan scan starts at center Z and traces DOWN). Size AreaBounds to
+   cover the floor footprint.
+3. Set `AREA_ID` at the top of `generate_floor_plan.py` to the volume's AreaID.
+4. Run it via the MCP Python endpoint (`POST :9847/api/python`).
+5. Place a `ZP_MapPickup` for that area so the player finds the map in-world.
+
+**Locked rule:** `AreaID` MUST match across MapVolume.AreaID == script AREA_ID == MapPickup.AreaID —
+mismatched IDs = no map shows. Floor-plan scan height is the volume's CENTER Z, not CaptureHeight.
 
 ---
 

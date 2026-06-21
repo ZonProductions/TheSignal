@@ -192,6 +192,28 @@ void UZP_GraceGameplayComponent::StopSprint()
 	}
 }
 
+bool UZP_GraceGameplayComponent::TryConsumeStaminaPercent(float Percent)
+{
+	if (!MovementConfig) return false;
+
+	const float MaxStam = MovementConfig->MaxStamina;
+	const float Cost = MaxStam * (Percent / 100.0f);
+	if (Cost <= 0.0f) return true; // free action
+
+	if (CurrentStamina < Cost) return false; // not enough — spend nothing
+
+	CurrentStamina = FMath::Max(0.0f, CurrentStamina - Cost);
+
+	// Hold off auto-regen so a dodge actually costs something.
+	StaminaRegenTimer = MovementConfig->StaminaRegenDelay;
+
+	if (EventBroadcaster && MaxStam > 0.0f)
+	{
+		EventBroadcaster->BroadcastStaminaChanged(CurrentStamina / MaxStam);
+	}
+	return true;
+}
+
 // --- Head Bob ---
 
 void UZP_GraceGameplayComponent::UpdateHeadBob(float DeltaTime)

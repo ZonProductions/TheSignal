@@ -24,6 +24,7 @@
 #include "Components/ActorComponent.h"
 #include "AITypes.h"                       // FAIRequestID
 #include "Navigation/PathFollowingComponent.h" // EPathFollowingResult
+#include "ZP_Staggerable.h"
 #include "ZP_ShamblerBehaviorComponent.generated.h"
 
 class UAnimSequence;
@@ -45,7 +46,7 @@ enum class EShamblerState : uint8
 };
 
 UCLASS(ClassGroup = (TheSignal), meta = (BlueprintSpawnableComponent))
-class THESIGNAL_API UZP_ShamblerBehaviorComponent : public UActorComponent
+class THESIGNAL_API UZP_ShamblerBehaviorComponent : public UActorComponent, public IZP_Staggerable
 {
 	GENERATED_BODY()
 
@@ -280,6 +281,10 @@ public:
 	 *  block always reads visibly even right after a bullet flinch. */
 	UFUNCTION(BlueprintCallable, Category = "Shambler|Combat")
 	void ReceiveStaggerHit(float Duration);
+
+	// IZP_Staggerable — forwards to ReceiveStaggerHit so the player can stagger this enemy
+	// generically (melee hit / block) without knowing it's a Shambler.
+	virtual void ReceiveStagger_Implementation(float Duration) override { ReceiveStaggerHit(Duration); }
 
 protected:
 	virtual void BeginPlay() override;

@@ -208,6 +208,13 @@ void UZP_HUDWidget::SetAmmo(int32 CurrentAmmo, int32 ReserveAmmo)
 
 	switch (CachedWeaponType)
 	{
+	case EZP_WeaponType::None:
+		// Unarmed — no weapon up, so no ammo line at all (same as melee/pipe).
+		// Without this case, None fell through to the Ranged default and printed
+		// the pistol demo defaults (12 / 48).
+		AmmoText->SetVisibility(ESlateVisibility::Collapsed);
+		break;
+
 	case EZP_WeaponType::Melee:
 		// No ammo display for melee
 		AmmoText->SetVisibility(ESlateVisibility::Collapsed);

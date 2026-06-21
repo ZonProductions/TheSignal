@@ -1,11 +1,11 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-20T13:50:21",
+  "created": "2026-06-21T15:23:35",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:d0f516c3ef56fbac9d2bf4bd76cd47e8552f41dc9e0a3a6ecbc89424dda9e7ee",
-      "size": 7104384
+      "hash": "sha256:d822baa2ff58e42ffb640d818a478b26a179236e3810369c5c460d78d755d0f6",
+      "size": 7172517
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -2830,6 +2830,34 @@
     "Content/Audio/Signal/SFX_Signal_Alarm.uasset": {
       "hash": "sha256:a9403768e4e7bea563e4361aec5c1599ce49569c42f22c92f05fcd61401b6f5e",
       "size": 1105654
+    },
+    "Content/Audio/Weapons/SFX_MELEE_IMPACT1.uasset": {
+      "hash": "sha256:d845f06f96c4827db44f7fe5ca5fb54fc2c8bb4703fdfecc85f012f24b0322fb",
+      "size": 106551
+    },
+    "Content/Audio/Weapons/SFX_MELEE_IMPACT2.uasset": {
+      "hash": "sha256:d386e4485fa1ded7c8d0c4a4ffca165068074d23e37a8e0878643d7133fe4f5a",
+      "size": 109613
+    },
+    "Content/Audio/Weapons/SFX_PIPE_HIT.uasset": {
+      "hash": "sha256:82ac5066278a18df344fc4e94a266d778f299f2221bfaed4bb71402eb5082890",
+      "size": 65107
+    },
+    "Content/Audio/Weapons/SFX_PIPE_SURFACE_WALL_IMPACT.uasset": {
+      "hash": "sha256:c68149651c762e6770f643e2829d7becd8021218bc41ca80bc0bf459b2d2072b",
+      "size": 65219
+    },
+    "Content/Audio/Weapons/SFX_RANGE_IMPACT_PISTOL.uasset": {
+      "hash": "sha256:2394766bb751c27087505a96d6213b557360771b06b75a5bc5c8d7744597bdcd",
+      "size": 27707
+    },
+    "Content/Audio/Weapons/SFX_RANGE_IMPACT_RIFLE.uasset": {
+      "hash": "sha256:b2c70fd7a4291be8e850b4eaf46bd53bb5c61ee6a01e967214c756e7722e2c54",
+      "size": 45414
+    },
+    "Content/Audio/Weapons/SFX_RANGE_IMPACT_SHOTGUN.uasset": {
+      "hash": "sha256:26313041fefb59afac5d75ecf84ba0a28b9f09eb7741cd5d1bdb7cdb4a49eb34",
+      "size": 23479
     },
     "Content/BackgroundBuildings/Blueprint/B_LowPolyBuilding.uasset": {
       "hash": "sha256:b83f928021966c52ed9ef2ea5fad2e4fd32f4e58182a53e21d1d8000ffd33a69",
@@ -22704,8 +22732,8 @@
       "size": 1353
     },
     "Content/Core/Input/IMC_Grace.uasset": {
-      "hash": "sha256:5040b169c7c0c0d4b464a15df9c1a5846886a34be3d0f2d81a88021a79dd2688",
-      "size": 30567
+      "hash": "sha256:971ba9c9a35a6ecf36f491fb5b5b4ceac57b100d6d7fa15ba2a2eca845190b12",
+      "size": 19875
     },
     "Content/Core/Input/Actions/IA_Aim.uasset": {
       "hash": "sha256:2aa39b8438b5e5976a75e8f36f593d7a477d6cda0ca1969173290fb4ca12dd2f",
@@ -22916,8 +22944,8 @@
       "size": 71135
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:b6ca62e83bcb1722290747398a370135672f7f678e338d730355830bbf8215f4",
-      "size": 135120
+      "hash": "sha256:0fd7715d33a7e7c2ad2b83c640bbe4da14d6a2694ec712980200fefcf272cd23",
+      "size": 135243
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -23900,8 +23928,8 @@
       "size": 262648
     },
     "Content/EasyGameUI/EasyInputPrompts/Core/WBP_EasyInputPromptDisplayer.uasset": {
-      "hash": "sha256:38ee7dc105d4fc56a617e6252f525e24d5ec618057d7e2d5b70dbb401827a1f7",
-      "size": 625672
+      "hash": "sha256:00b956548952047ce86e4850960724009c3bf8864d21ccac0c0eaa3875e83aa3",
+      "size": 655337
     },
     "Content/EasyGameUI/EasyInputPrompts/Core/WBP_EasyMultiInputPromptDisplayer.uasset": {
       "hash": "sha256:6d01a8c1767fcfa4bfa5525abc748befd5042369462cc01e2158de0729d66d4a",
@@ -25008,8 +25036,8 @@
       "size": 269643
     },
     "Content/EasyGameUI/EasySaveGameUI/Core/Widgets/WBP_ESGU_SavesManagerUI.uasset": {
-      "hash": "sha256:d56e8c4496f7fbcc746cc7e8e8c572e779c9dcf3dd51856504945ae0177fa4f9",
-      "size": 902817
+      "hash": "sha256:fb030107fa1e9d2ab0ef7bb048b057699deb7eca5983356d09b443d558b5300f",
+      "size": 917801
     },
     "Content/EasyGameUI/EasySaveGameUI/Datas/E_SaveGameActorOperation.uasset": {
       "hash": "sha256:58797063720670405a823b64b3d8b6f5cbfa9141e735ff4040138a5cd1c646a3",
@@ -25286,6 +25314,58 @@
     "Content/Enemies/Shambler/Textures/zombie_monster_slasher_necromorph_texture_2.uasset": {
       "hash": "sha256:12a963159a782b6a272d9dc15c5bde40930c024019d01d583d3dddad75437cd0",
       "size": 31887806
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Materials/SF_decals.uasset": {
+      "hash": "sha256:dddd2906296d54812d83051c486ce03ce8710496d2d6bcb51f763c63c9263ae6",
+      "size": 78747
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Materials/texts.uasset": {
+      "hash": "sha256:822aa5b2d0f18594cebdb44281667e2e3174391cbc829d41738a71214b87704f",
+      "size": 80578
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Materials/tram.uasset": {
+      "hash": "sha256:904c50fd426a46d2b1ad07fe04d9d94620b3d842bd45f561cfd4276cf20a6313",
+      "size": 81559
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/StaticMeshes/tram_v2.uasset": {
+      "hash": "sha256:a013b287850bb327797c125c883dbf74f840a1a01f569a8787c21d9e23645815",
+      "size": 14022643
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/SF_decals_color.uasset": {
+      "hash": "sha256:f3d0a6463f0b3d9e44baddea79df3e311d52409c69f1e1687f9aa1acc9f9fb8b",
+      "size": 18165172
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/SF_decals_metallic-SF_decals_roughness.uasset": {
+      "hash": "sha256:cd0a1f82c95b430fd1c73032ef0fbbabf4d8f24ee35d4dc8f4d3bedc8744d2b2",
+      "size": 16566743
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/SF_decals_normal.uasset": {
+      "hash": "sha256:7a86cdf672c445945dc310477ae1ee6d01013416b002b74692cd7ef0f5d18951",
+      "size": 6385856
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/text_color.uasset": {
+      "hash": "sha256:9bbb261f8c960c980b9f4884a91d508a688e59a57069d0d88db361456ff00af2",
+      "size": 1190974
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/text_normal.uasset": {
+      "hash": "sha256:912c6e0f03d0aa3465d4ac350778d97b4ef2059d92add5114c8ac7de865fbab2",
+      "size": 9916380
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/text_roughness.uasset": {
+      "hash": "sha256:f287f9db71d96804ce3cae73a02bf47902dd79f71619d1b1cfcb03aa40bfeb73",
+      "size": 536240
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/tram_color.uasset": {
+      "hash": "sha256:62d4fff701b371004c31c1a010ba38c749e12a1ec5eba5ea5b0b016f72c6dc30",
+      "size": 12288093
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/tram_metallic-tram_roughness.uasset": {
+      "hash": "sha256:bf9bf052bf0d3282eb6e4efea27cb1128f9feb512cdbabbcdd55fac7513b80de",
+      "size": 12825940
+    },
+    "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/tram_normal.uasset": {
+      "hash": "sha256:b5aaafb8a18c4bcbb0774deea07e908b2bbd465c2b312c10d9015c33d93e02d9",
+      "size": 8755186
     },
     "Content/Fab/Scytheer_Alien_monster/scytheer_alien_monster/Materials/Drake.uasset": {
       "hash": "sha256:0f1f5cf7d05b21a5dd80bb820eb5719cfa825292f992c9bf83a08e37dea1a599",
@@ -34972,8 +35052,8 @@
       "size": 113073
     },
     "Content/InventorySystemPro/Blueprints/Actors/Pickup/BP_ItemPickup.uasset": {
-      "hash": "sha256:70d08aae6a2f8921368459c0052c294187c3b3fac52fc7676a1edd3e0d1562bf",
-      "size": 1006829
+      "hash": "sha256:be3288b5c14b41ef685c72bf97b4174a66157223c071d3963d19a93085c9c088",
+      "size": 1039160
     },
     "Content/InventorySystemPro/Blueprints/Actors/Pickup/BP_ItemPickupChest.uasset": {
       "hash": "sha256:69efa94a429347bf7d54d4f94c23bac39039820ad104c0d501fd36e712b944f7",
@@ -35096,8 +35176,8 @@
       "size": 2712
     },
     "Content/InventorySystemPro/Blueprints/Input/FirstTimePickup/IMC_InventoryFirstTimePickupNotification.uasset": {
-      "hash": "sha256:7a5e3eb67f88ce82f7d4bf823e95c8d63f1016e7ad632d483ad3bd07707173e8",
-      "size": 6912
+      "hash": "sha256:4684591af58576d6a02c5e68db71c3dfb3b32bd4640c6dfbe34618bbbd6743ad",
+      "size": 3948
     },
     "Content/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventoryAimWeapon.uasset": {
       "hash": "sha256:f3181d85b10fe72d10240ef708b090f7a3767297caf4850823502cf0d838649d",
@@ -35180,8 +35260,8 @@
       "size": 2320
     },
     "Content/InventorySystemPro/Blueprints/Input/InventoryCharacter/IMC_InventoryCharacter.uasset": {
-      "hash": "sha256:2cbfb303e81363dec4955015a16efe375bedbc9a2f90a6ee4469e2f3318e0c66",
-      "size": 37858
+      "hash": "sha256:f685e240ecae7f33af4abac871f8fd12bb252ef5757ad7ac89dc2539001066be",
+      "size": 18629
     },
     "Content/InventorySystemPro/Blueprints/Input/InventoryInspectionMenu/IA_UI_InventoryInspectionInteract.uasset": {
       "hash": "sha256:b25a96cc190abbdb9e1b6d91381e0c1cf18b168187280892ec2c26e2f247c069",
@@ -43360,8 +43440,8 @@
       "size": 8769
     },
     "Content/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_InventoryMenu_Horror.uasset": {
-      "hash": "sha256:01256cc0c7eb43d7774f554a13e02c001c48c39c4b830535f9ed5b586ee0b79b",
-      "size": 675454
+      "hash": "sha256:2bf28897845a10796bedf1a0bc3d720ed23410f77c664d1294eedb53f8eb3ed6",
+      "size": 713995
     },
     "Content/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_ItemContainerMenu_Horror.uasset": {
       "hash": "sha256:28e0856408cf15fda7baac10866e7c8891a49be32124a6e8ababba133303c822",
@@ -59760,8 +59840,8 @@
       "size": 332479
     },
     "Content/Office/Meshes/Sm_ConfernceTable.uasset": {
-      "hash": "sha256:6c1f81573c4c92d375d820e8a9cb571a0dff4016ff26a793cdd1e32979dff18e",
-      "size": 33888
+      "hash": "sha256:d44bf9fd25c75881672ea437f1131bda4c13a67c37f415ea00468716aa180efa",
+      "size": 34099
     },
     "Content/Office/Meshes/Sm_CopyMachine.uasset": {
       "hash": "sha256:64d2cc358c2060511eaa1e3c9ceca84ae24b9fa32c6c14fbf271f239a296034f",
@@ -74652,8 +74732,8 @@
       "size": 6632050
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility.umap": {
-      "hash": "sha256:6a7e5805dbec60482fa07398a0a5dbb291483439a0e6fedfa8515061455a927f",
-      "size": 3246206
+      "hash": "sha256:6c0b60bb3c97e87772ff527651b767f18fd5ec227d4ee469024aa65072462f6b",
+      "size": 3424854
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility_BuiltData.uasset": {
       "hash": "sha256:00d06ddec993b93daa3423812e8971f692587b76987938abd361e3a868b657c9",

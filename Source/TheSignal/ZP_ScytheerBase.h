@@ -30,6 +30,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "ZP_Staggerable.h"
 #include "ZP_ScytheerBase.generated.h"
 
 class UAnimSequence;
@@ -57,12 +58,16 @@ enum class EScytheerState : uint8
 };
 
 UCLASS()
-class THESIGNAL_API AZP_ScytheerBase : public ACharacter
+class THESIGNAL_API AZP_ScytheerBase : public ACharacter, public IZP_Staggerable
 {
 	GENERATED_BODY()
 
 public:
 	AZP_ScytheerBase();
+
+	// IZP_Staggerable — enter the Hit flinch and hold (AI paused) for Duration. Used by the
+	// player's melee hit and successful block.
+	virtual void ReceiveStagger_Implementation(float Duration) override;
 
 	// ── Detection ──────────────────────────────────────────────────
 	/** Straight-line distance to consider the player for aggro. Final gate is the navmesh
@@ -243,6 +248,10 @@ private:
 	double AttackStartTime = 0.0;
 	bool bAttackHitFired = false;
 	double LastHitReactTime = -1000.0;
+	/** While true, the Hit state holds (stays staggered) until StaggerHandle fires instead of
+	 *  auto-returning to Chase/Wander when the flinch clip ends. Set by ReceiveStagger. */
+	bool bStaggerHold = false;
+	FTimerHandle StaggerHandle;
 	float ChaseStuckTimer = 0.f;
 	FVector LastChaseStuckLoc = FVector::ZeroVector;
 	int32 PendingAttackVariant = 1;

@@ -44,6 +44,39 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Path|Scytheer")
 	TArray<FVector> PerPointWallNormals;
 
+	// ── Editor authoring ─────────────────────────────────────────────
+#if WITH_EDITORONLY_DATA
+	/** Number of points a single "Add Points To End" click appends. */
+	UPROPERTY(EditAnywhere, Category = "Path|Authoring", meta = (ClampMin = "1", ClampMax = "50"))
+	int32 PointsPerAdd = 1;
+
+	/** Step (UU) used for the new point(s) when the path has fewer than 2 points
+	 *  to extrapolate a direction from. Once there are 2+ points, the spacing of
+	 *  the last segment is reused instead. */
+	UPROPERTY(EditAnywhere, Category = "Path|Authoring", meta = (ClampMin = "1"))
+	float DefaultStep = 200.f;
+
+	/** How far (UU) "Snap Wall Normals To Geometry" probes around each point to find the
+	 *  surface that point rests on. Raise it if your points sit a little off the wall/floor. */
+	UPROPERTY(EditAnywhere, Category = "Path|Authoring", meta = (ClampMin = "1"))
+	float NormalProbeDistance = 100.f;
+#endif
+
+#if WITH_EDITOR
+	/** Details-panel button: appends PointsPerAdd point(s) to the END of the path,
+	 *  continuing the last segment's direction so you can keep extending it while you
+	 *  map the route. The new point inherits the last point's wall normal. */
+	UFUNCTION(CallInEditor, Category = "Path|Authoring")
+	void AddPointsToEnd();
+
+	/** Details-panel button: line-traces around every spline point and sets each point's
+	 *  wall normal to the surface it rests on (floor -> up, wall -> out of the wall). Run this
+	 *  after shaping the route so the Scytheer orients correctly up walls without hand-typing
+	 *  normals. Points that find no nearby surface keep their current normal. */
+	UFUNCTION(CallInEditor, Category = "Path|Authoring")
+	void SnapWallNormalsToGeometry();
+#endif
+
 	// ── Queries used by the Scytheer ─────────────────────────────────
 	float GetSplineLength() const;
 	FVector GetLocationAtDistance(float Distance) const;

@@ -26,8 +26,12 @@ COL_VOID  = (5, 5, 8)           # Near-black void/exterior
 
 
 # ── Find MapVolume ────────────────────────────────────────────
+# UE5.8: EditorLevelLibrary is deprecated — use the subsystems.
+_actor_ss = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+_level_ss = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+
 volume = None
-for actor in unreal.EditorLevelLibrary.get_all_level_actors():
+for actor in _actor_ss.get_all_level_actors():
     if 'ZP_MapVolume' in actor.get_class().get_name():
         if str(actor.get_editor_property('area_id')) == AREA_ID:
             volume = actor
@@ -197,7 +201,7 @@ print(f'[FloorPlan] Imported: {CONTENT_PATH}/{tex_name}')
 tex = unreal.load_asset(f'{CONTENT_PATH}/{tex_name}')
 if tex:
     volume.set_editor_property('map_texture', tex)
-    unreal.EditorLevelLibrary.save_current_level()
+    _level_ss.save_current_level()
     print('[FloorPlan] Assigned to MapVolume and saved. DONE!')
 else:
     print('[FloorPlan] WARNING: Could not load imported texture')

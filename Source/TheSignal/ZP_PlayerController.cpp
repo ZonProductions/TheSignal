@@ -232,6 +232,53 @@ void AZP_PlayerController::ExecuteRespawn()
 	UGameplayStatics::OpenLevel(GetWorld(), FName(*LevelName));
 }
 
+void AZP_PlayerController::DumpUIInput()
+{
+	UEnhancedInputLocalPlayerSubsystem* Subsys =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (!Subsys)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UIProbe] No EnhancedInput subsystem"));
+		return;
+	}
+
+	struct FProbe { const TCHAR* Name; const TCHAR* Path; };
+	const FProbe Probes[] = {
+		{ TEXT("CloseNotification"), TEXT("/Game/InventorySystemPro/Blueprints/Input/FirstTimePickup/IA_UI_InventoryCloseNotification.IA_UI_InventoryCloseNotification") },
+		{ TEXT("Select(accept)"),    TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryMenu/IA_UI_InventorySelect.IA_UI_InventorySelect") },
+		{ TEXT("Back"),              TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryMenu/IA_UI_InventoryBack.IA_UI_InventoryBack") },
+		{ TEXT("Interact"),          TEXT("/Game/Core/Input/Actions/IA_Interact.IA_Interact") },
+		// Gameplay actions: if these still have LIVE keys while a menu is open, IMC_Grace is still
+		// active and stealing the pad — proving the gameplay context wasn't actually suppressed.
+		{ TEXT("GAMEPLAY:Move"),     TEXT("/Game/Core/Input/Actions/IA_Move.IA_Move") },
+		{ TEXT("GAMEPLAY:Jump/Dodge"), TEXT("/Game/Core/Input/Actions/IA_Jump.IA_Jump") },
+	};
+
+	UE_LOG(LogTemp, Warning, TEXT("[UIProbe] ===== active key mappings (a menu should be open) ====="));
+	for (const FProbe& P : Probes)
+	{
+		UInputAction* IA = LoadObject<UInputAction>(nullptr, P.Path);
+		if (!IA)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[UIProbe]   %-18s : ACTION ASSET NOT FOUND (%s)"), P.Name, P.Path);
+			continue;
+		}
+		const TArray<FKey> Keys = Subsys->QueryKeysMappedToAction(IA);
+		FString S;
+		for (const FKey& K : Keys) { S += K.ToString() + TEXT(" "); }
+		UE_LOG(LogTemp, Warning, TEXT("[UIProbe]   %-18s : %s"),
+			P.Name, Keys.Num() ? *S : TEXT("(NONE — its mapping context is NOT active right now)"));
+	}
+
+	const bool bCursor = bShowMouseCursor;
+	UE_LOG(LogTemp, Warning, TEXT("[UIProbe]   ShowMouseCursor=%d  InputModeNote=check whether UIOnly/GameAndUI"), bCursor ? 1 : 0);
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Cyan, TEXT("[UIProbe] logged active UI key mappings — see Output Log"));
+	}
+}
+
 void AZP_PlayerController::AddMappingContext(UInputMappingContext* Context, int32 Priority)
 {
 	if (!Context) return;

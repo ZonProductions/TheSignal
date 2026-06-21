@@ -89,7 +89,9 @@
       "Skill(update-config)",
       "Skill(update-config:*)",
       "mcp__nwiro__create_anim_blueprint",
-      "mcp__nwiro__reparent_blueprint"
+      "mcp__nwiro__reparent_blueprint",
+      "mcp__nwiro__read_widget_blueprint",
+      "mcp__nwiro__edit_mapping_context"
     ]
   },
   "enableAllProjectMcpServers": true,

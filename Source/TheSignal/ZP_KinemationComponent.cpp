@@ -2,6 +2,7 @@
 
 #include "ZP_KinemationComponent.h"
 #include "ZP_CrawlerBehaviorComponent.h"
+#include "ZP_GraceCharacter.h"
 #include "ZP_GrenadeProjectile.h"
 #include "KinemationBridge.h"
 #include "Camera/CameraComponent.h"
@@ -32,6 +33,35 @@ UZP_KinemationComponent::UZP_KinemationComponent()
 	{
 		MeleeHandMaterial = HandSkinFinder.Object;
 	}
+
+	// --- Weapon / melee impact sounds (imported to /Game/Audio/Weapons) ---
+	static ConstructorHelpers::FObjectFinder<USoundBase> PistolImpactFinder(
+		TEXT("/Game/Audio/Weapons/SFX_RANGE_IMPACT_PISTOL.SFX_RANGE_IMPACT_PISTOL"));
+	if (PistolImpactFinder.Succeeded()) { PistolImpactSound = PistolImpactFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> RifleImpactFinder(
+		TEXT("/Game/Audio/Weapons/SFX_RANGE_IMPACT_RIFLE.SFX_RANGE_IMPACT_RIFLE"));
+	if (RifleImpactFinder.Succeeded()) { RifleImpactSound = RifleImpactFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> ShotgunImpactFinder(
+		TEXT("/Game/Audio/Weapons/SFX_RANGE_IMPACT_SHOTGUN.SFX_RANGE_IMPACT_SHOTGUN"));
+	if (ShotgunImpactFinder.Succeeded()) { ShotgunImpactSound = ShotgunImpactFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> PipeMetalFinder(
+		TEXT("/Game/Audio/Weapons/SFX_PIPE_HIT.SFX_PIPE_HIT"));
+	if (PipeMetalFinder.Succeeded()) { PipeMetalSound = PipeMetalFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> PipeWallFinder(
+		TEXT("/Game/Audio/Weapons/SFX_PIPE_SURFACE_WALL_IMPACT.SFX_PIPE_SURFACE_WALL_IMPACT"));
+	if (PipeWallFinder.Succeeded()) { PipeWallImpactSound = PipeWallFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeFlesh1Finder(
+		TEXT("/Game/Audio/Weapons/SFX_MELEE_IMPACT1.SFX_MELEE_IMPACT1"));
+	if (MeleeFlesh1Finder.Succeeded()) { MeleeFleshImpactSounds.Add(MeleeFlesh1Finder.Object); }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeFlesh2Finder(
+		TEXT("/Game/Audio/Weapons/SFX_MELEE_IMPACT2.SFX_MELEE_IMPACT2"));
+	if (MeleeFlesh2Finder.Succeeded()) { MeleeFleshImpactSounds.Add(MeleeFlesh2Finder.Object); }
 }
 
 // NEVER move PlayerMesh to animate weapon transitions — the first-person
@@ -587,10 +617,12 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	else if (WeaponName.Contains(TEXT("Herrington")))
 	{
 		// Herrington 11-87 — Shotgun (Police or standard)
+		// Buckshot spray: these are the TOTAL per-shot damage (3x pistol = 30/150),
+		// split across the pellets in PerformHitscan.
 		MagSize = 6;
 		FireCooldownTime = 0.8f;
-		HitscanBodyDamage = 35.f;
-		HitscanWeakPointDamage = 100.f;
+		HitscanBodyDamage = 30.f;
+		HitscanWeakPointDamage = 150.f;
 		ReserveAmmo = 24;
 		bShellReload = true;
 	}
@@ -615,11 +647,12 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	}
 	else if (WeaponName.Contains(TEXT("SRM")))
 	{
-		// SRM-12 — Shotgun
+		// SRM-12 — Shotgun. Buckshot spray: TOTAL per-shot damage (3x pistol = 30/150),
+		// split across the pellets in PerformHitscan.
 		MagSize = 8;
 		FireCooldownTime = 0.7f;
 		HitscanBodyDamage = 30.f;
-		HitscanWeakPointDamage = 90.f;
+		HitscanWeakPointDamage = 150.f;
 		ReserveAmmo = 32;
 		bShellReload = true;
 	}
@@ -647,6 +680,7 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		CurrentWeaponType = EZP_WeaponType::Ranged;
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] KinemationComponent::ApplyWeaponConfig — unknown weapon '%s', using defaults."), *WeaponName);
 	}
+
 
 	// HUD weapon icon — finer than CurrentWeaponType (Rifle vs Shotgun are both
 	// Ranged). Derived from the weapon name; default Rifle covers AK105/TR15 and
@@ -677,6 +711,12 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		*WeaponName, (int32)CurrentWeaponIcon, (int32)CurrentWeaponType);
 	OnWeaponIconChanged.Broadcast(CurrentWeaponIcon);
 
+	// Reserve cap is icon-driven (the per-weapon ReserveAmmo numbers set above are now
+	// dead — kept only for clarity). The live ReserveAmmo is a mirror of the inventory
+	// ammo for this weapon; the owning character sets it via SyncReserveFromInventory
+	// right after equip (OnWeaponChanged), so we don't seed it here.
+	MaxReserveAmmo = GetReserveCapForIcon(CurrentWeaponIcon);
+
 	// View model lifecycle (TICKET-054): the Kubold mesh replaces PlayerMesh
 	// arms while a melee weapon (both arms + pipe) or a throwable (right arm
 	// + grenade in the same fist) is held.
@@ -706,18 +746,23 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	}
 }
 
-void UZP_KinemationComponent::AddReserveAmmo(int32 Amount)
+int32 UZP_KinemationComponent::GetReserveCapForIcon(EZP_WeaponIcon Icon)
 {
-	if (Amount <= 0)
+	switch (Icon)
 	{
-		return;
+	case EZP_WeaponIcon::Pistol:  return 48;
+	case EZP_WeaponIcon::Shotgun: return 24;
+	case EZP_WeaponIcon::Rifle:   return 90;
+	default:                      return 0; // melee / throwable / none — no reserve
 	}
+}
 
-	ReserveAmmo += Amount;
-	OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
-
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::AddReserveAmmo — added %d rounds, reserve now %d"),
-		Amount, ReserveAmmo);
+EZP_WeaponIcon UZP_KinemationComponent::AmmoNameToIcon(const FString& AmmoItemName)
+{
+	if (AmmoItemName.Contains(TEXT("9mm")))      return EZP_WeaponIcon::Pistol;
+	if (AmmoItemName.Contains(TEXT("Buckshot"))) return EZP_WeaponIcon::Shotgun;
+	if (AmmoItemName.Contains(TEXT("556")))      return EZP_WeaponIcon::Rifle;
+	return EZP_WeaponIcon::None;
 }
 
 void UZP_KinemationComponent::UnequipWeapon()
@@ -762,6 +807,14 @@ void UZP_KinemationComponent::UnequipWeapon()
 	// Destroy the weapon actor
 	ActiveWeapon->Destroy();
 	ActiveWeapon = nullptr;
+
+	// Unarmed now — reset weapon identity so the HUD blanks the ammo line and the
+	// weapon icon. Without broadcasting None, the HUD keeps the last weapon's
+	// format and shows stale ammo (the 12/48 demo defaults on an empty hand).
+	CurrentWeaponType = EZP_WeaponType::None;
+	CurrentWeaponIcon = EZP_WeaponIcon::None;
+	OnWeaponTypeChanged.Broadcast(CurrentWeaponType);
+	OnWeaponIconChanged.Broadcast(CurrentWeaponIcon);
 
 	// Drop arms to low ready so empty hands aren't held up at camera level
 	if (TacticalAnimComp)
@@ -887,71 +940,91 @@ void UZP_KinemationComponent::PerformHitscan()
 
 	const FVector Start = CameraComponent->GetComponentLocation();
 	const FRotator AimRot = PC->GetControlRotation();
-	const FVector End = Start + AimRot.Vector() * HitscanRange;
+	const FVector AimDir = AimRot.Vector();
 
-	FHitResult Hit;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(GetOwner());
-	Params.AddIgnoredActor(ActiveWeapon);
+	// Shotguns fire a randomized buckshot spray; everything else is a single round.
+	// HitscanBodyDamage/WeakPointDamage are the TOTAL per-shot damage — split across the
+	// pellets, so a full spray that all connects deals the total and partial hits scale down.
+	const bool bShotgun = (CurrentWeaponIcon == EZP_WeaponIcon::Shotgun);
+	const int32 PelletCount = bShotgun
+		? FMath::Max(1, FMath::RandRange(ShotgunPelletMin, ShotgunPelletMax))
+		: 1;
+	const float SpreadRad = FMath::DegreesToRadians(FMath::Max(0.f, ShotgunSpreadDegrees));
 
-	// Channel trace, but SKIP QueryOnly trigger volumes (door interaction boxes, overlap zones). They
-	// BLOCK Visibility yet aren't solid — they were eating bullets near doorways, so the shot never
-	// reached the enemy behind them. Re-trace past each trigger until we hit real geometry / a pawn.
-	bool bGotSolidHit = false;
-	for (int32 TraceIter = 0; TraceIter < 8; ++TraceIter)
+	// Impact sound chosen by weapon identity — played ONCE per trigger pull at the
+	// first surface a round connects with (a 20-pellet shotgun must not fire 20 thuds).
+	USoundBase* ImpactSound = nullptr;
+	switch (CurrentWeaponIcon)
 	{
-		if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+		case EZP_WeaponIcon::Pistol:  ImpactSound = PistolImpactSound;  break;
+		case EZP_WeaponIcon::Rifle:   ImpactSound = RifleImpactSound;   break;
+		case EZP_WeaponIcon::Shotgun: ImpactSound = ShotgunImpactSound; break;
+		default: break;
+	}
+	bool bPlayedImpactSound = false;
+
+	for (int32 Pellet = 0; Pellet < PelletCount; ++Pellet)
+	{
+		const FVector Dir = (bShotgun && SpreadRad > 0.f) ? FMath::VRandCone(AimDir, SpreadRad) : AimDir;
+		const FVector End = Start + Dir * HitscanRange;
+
+		FHitResult Hit;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(GetOwner());
+		Params.AddIgnoredActor(ActiveWeapon);
+
+		// Channel trace, but SKIP QueryOnly trigger volumes (door interaction boxes, overlap zones). They
+		// BLOCK Visibility yet aren't solid — they were eating bullets near doorways, so the shot never
+		// reached the enemy behind them. Re-trace past each trigger until we hit real geometry / a pawn.
+		bool bGotSolidHit = false;
+		for (int32 TraceIter = 0; TraceIter < 8; ++TraceIter)
 		{
-			return; // nothing solid on the line
+			if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+			{
+				break; // this pellet hit nothing solid
+			}
+			UPrimitiveComponent* HitComp = Hit.GetComponent();
+			if (HitComp && HitComp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
+			{
+				Params.AddIgnoredComponent(HitComp); // trigger — pass through it
+				continue;
+			}
+			bGotSolidHit = true;
+			break;
 		}
-		UPrimitiveComponent* HitComp = Hit.GetComponent();
-		if (HitComp && HitComp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
+		if (!bGotSolidHit)
 		{
-			Params.AddIgnoredComponent(HitComp); // trigger — pass through it
-			continue;
+			continue; // pellet missed — next pellet
 		}
-		bGotSolidHit = true;
-		break;
-	}
-	if (!bGotSolidHit)
-	{
-		return;
-	}
 
-	UMaterialInterface* DecalMat = BulletDecalMaterials[FMath::RandRange(0, BulletDecalMaterials.Num() - 1)];
+		// First connecting round plays the bullet-impact sound at the surface.
+		if (!bPlayedImpactSound && ImpactSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, Hit.ImpactPoint);
+			bPlayedImpactSound = true;
+		}
 
-	// Decal projects along its local X — must face INTO the surface (opposite of impact normal)
-	const FRotator DecalRotation = (-Hit.ImpactNormal).Rotation();
+		UMaterialInterface* DecalMat = BulletDecalMaterials[FMath::RandRange(0, BulletDecalMaterials.Num() - 1)];
 
-	UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(
-		GetWorld(), DecalMat, DecalSize, Hit.ImpactPoint, DecalRotation, DecalLifetime);
+		// Decal projects along its local X — must face INTO the surface (opposite of impact normal)
+		const FRotator DecalRotation = (-Hit.ImpactNormal).Rotation();
+		if (UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(
+				GetWorld(), DecalMat, DecalSize, Hit.ImpactPoint, DecalRotation, DecalLifetime))
+		{
+			Decal->SetFadeOut(DecalLifetime - 2.0f, 2.0f);
+		}
 
-	if (Decal)
-	{
-		Decal->SetFadeOut(DecalLifetime - 2.0f, 2.0f);
-	}
+		// Apply this pellet's share of the damage to the hit actor.
+		if (Hit.GetActor())
+		{
+			const float DistFromCenter = FVector::Dist(Hit.ImpactPoint, Hit.GetActor()->GetActorLocation());
+			const bool bWeakPointHit = DistFromCenter <= WeakPointRadius;
+			const float FullDamage = bWeakPointHit ? HitscanWeakPointDamage : HitscanBodyDamage;
+			const float Damage = FullDamage / PelletCount; // per-pellet share of the total
 
-	// Apply damage to hit actor
-	if (Hit.GetActor())
-	{
-		const float DistFromCenter = FVector::Dist(Hit.ImpactPoint, Hit.GetActor()->GetActorLocation());
-		const bool bWeakPointHit = DistFromCenter <= WeakPointRadius;
-		const float Damage = bWeakPointHit ? HitscanWeakPointDamage : HitscanBodyDamage;
-
-		UGameplayStatics::ApplyPointDamage(
-			Hit.GetActor(),
-			Damage,
-			AimRot.Vector(),
-			Hit,
-			PC,
-			GetOwner(),
-			nullptr
-		);
-
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Hitscan hit %s — %s (%.0f dmg, dist from center: %.0f UU)"),
-			*Hit.GetActor()->GetName(),
-			bWeakPointHit ? TEXT("WEAK POINT") : TEXT("body"),
-			Damage, DistFromCenter);
+			UGameplayStatics::ApplyPointDamage(
+				Hit.GetActor(), Damage, Dir, Hit, PC, GetOwner(), nullptr);
+		}
 	}
 }
 
@@ -1002,11 +1075,13 @@ void UZP_KinemationComponent::Reload()
 		bIsReloading = false;
 		SetCameraBonePinned(false);
 
-		// Transfer ammo from reserve to magazine
+		// Transfer ammo from reserve (= inventory ammo) into the magazine. ReserveAmmo
+		// mirrors the inventory; the character consumes the actual items on the
+		// OnReserveConsumed broadcast, then re-syncs ReserveAmmo from what's left.
 		const int32 AmmoNeeded = MagSize - CurrentAmmo;
 		const int32 AmmoAvailable = FMath::Min(AmmoNeeded, ReserveAmmo);
 		CurrentAmmo += AmmoAvailable;
-		ReserveAmmo -= AmmoAvailable;
+		OnReserveConsumed.Broadcast(AmmoAvailable, CurrentWeaponIcon);
 		OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
 	}, ThisReloadTime, false);
 }
@@ -1084,15 +1159,59 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 			Params.AddIgnoredActor(ActiveWeapon);
 		}
 
-		FCollisionObjectQueryParams MeleeObjectParams;
-		MeleeObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		MeleeObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		MeleeObjectParams.AddObjectTypesToQuery(ECC_Pawn);
-		MeleeObjectParams.AddObjectTypesToQuery(ECC_PhysicsBody);
-
-		if (GetWorld()->SweepSingleByObjectType(Hit, Start, End, FQuat::Identity,
-			MeleeObjectParams, FCollisionShape::MakeSphere(MeleeSweepRadius), Params))
+		// Detect with the SAME channel the guns use (ECC_Visibility): enemies set their CAPSULE to
+		// BLOCK Visibility (mesh IGNORES it) so hitscan connects. BUT door/trigger interaction boxes
+		// are QueryOnly volumes that ALSO block Visibility while being non-solid — they were eating
+		// the whole swing (the sweep stopped on BP_InteractDoor near a doorway and the Scytheer/
+		// Shambler behind it took nothing). Mirror PerformHitscan: re-sweep past each QueryOnly
+		// volume until we reach real geometry / a pawn. Sphere keeps a little melee aim-forgiveness.
+		bool bGotSolidHit = false;
+		for (int32 Iter = 0; Iter < 8; ++Iter)
 		{
+			if (!GetWorld()->SweepSingleByChannel(Hit, Start, End, FQuat::Identity,
+				ECC_Visibility, FCollisionShape::MakeSphere(MeleeSweepRadius), Params))
+			{
+				break; // swung at nothing solid
+			}
+			UPrimitiveComponent* HitComp = Hit.GetComponent();
+			if (HitComp && HitComp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
+			{
+				Params.AddIgnoredComponent(HitComp); // interaction/trigger box — pass through it
+				continue;
+			}
+			bGotSolidHit = true;
+			break;
+		}
+
+		if (bGotSolidHit)
+		{
+			// An enemy is a Pawn; anything else is a wall / hard surface.
+			const bool bHitEnemy = Cast<APawn>(Hit.GetActor()) != nullptr;
+			const FVector ImpactLoc = Hit.ImpactPoint;
+
+			if (bHitEnemy)
+			{
+				// Pipe is metal — the metal sound always plays — and a flesh impact
+				// layers on top (dev: "impact + hit at the same time").
+				if (PipeMetalSound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, PipeMetalSound, ImpactLoc);
+				}
+				if (MeleeFleshImpactSounds.Num() > 0)
+				{
+					USoundBase* Flesh = MeleeFleshImpactSounds[FMath::RandRange(0, MeleeFleshImpactSounds.Num() - 1)];
+					if (Flesh)
+					{
+						UGameplayStatics::PlaySoundAtLocation(this, Flesh, ImpactLoc);
+					}
+				}
+			}
+			else if (PipeWallImpactSound)
+			{
+				// Pipe struck a wall / hard surface.
+				UGameplayStatics::PlaySoundAtLocation(this, PipeWallImpactSound, ImpactLoc);
+			}
+
 			if (Hit.GetActor())
 			{
 				UGameplayStatics::ApplyPointDamage(
@@ -1107,6 +1226,16 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 
 				UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee hit %s — %.0f dmg"),
 					*Hit.GetActor()->GetName(), MeleeDamage);
+
+				// Stagger the enemy on a landed pipe hit (HitStaggerDuration). Routed through the
+				// player so the duration stays an exposed knob and the IZP_Staggerable lookup is shared.
+				if (bHitEnemy)
+				{
+					if (AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(GetOwner()))
+					{
+						Grace->MeleeStaggerEnemy(Hit.GetActor());
+					}
+				}
 			}
 		}
 	}

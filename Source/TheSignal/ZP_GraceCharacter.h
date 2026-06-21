@@ -29,6 +29,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "ZP_WeaponTypes.h"
 #include "ZP_GraceCharacter.generated.h"
 
 class UCameraComponent;
@@ -182,6 +183,15 @@ public:
 	FVector SwingCamOffset = FVector(4.0f, 0.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (DisplayName = "Block Camera Offset (moves VIEW)"))
 	FVector BlockCamOffset = FVector(4.0f, 0.0f, 0.0f);
+
+	/** Camera offset held during a dodge — split by weapon so the melee (pipe) dash,
+	 *  where the body leans hard toward the lens, can push the view clear of the body
+	 *  independently of the ranged dash. Capsule space: +X = forward (lens away from
+	 *  body), +Z = up. Applied while the dodge clearance window is active. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (DisplayName = "Dodge Camera Offset (Melee)"))
+	FVector DodgeCamOffsetMelee = FVector(15.0f, 0.0f, 0.0f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (DisplayName = "Dodge Camera Offset (Ranged)"))
+	FVector DodgeCamOffsetRanged = FVector(0.0f, 0.0f, 0.0f);
 
 	/** Maximum degrees the camera may pitch DOWN from horizon (positive value).
 	 *  Clamps both controller look input AND animation-driven camera dives
@@ -395,11 +405,24 @@ public:
 
 	// --- Dodge (replaces Jump on space bar) ---
 
-	/** Horizontal launch impulse (cm/s) applied on dodge. Below sprint speed
-	 *  on purpose: a 700 spike feeds the locomotion blend a "running" signal
-	 *  in one frame, which yanks the spine and the FPCamera-socketed view. */
+	/** Horizontal launch velocity (cm/s) applied on dodge. With ground braking
+	 *  this overrides the CMC velocity and decelerates to a stop, so the dash
+	 *  COVERS roughly DodgeImpulse²/(2·braking) cm — ~1200 ≈ a 3m lunge. Tuned
+	 *  up from 400 (which was below sprint speed and felt like a walk). If the
+	 *  spine/camera yanks at high values, that's the locomotion blend reading a
+	 *  one-frame "running" spike — tune down rather than re-architecting. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
-	float DodgeImpulse = 400.f;
+	float DodgeImpulse = 1200.f;
+
+	/** Stamina consumed per dodge, as a PERCENT of max stamina (0-100). The
+	 *  dodge is blocked if the player doesn't have at least this much. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
+	float DodgeStaminaCostPercent = 20.f;
+
+	/** Seconds after a dodge fires during which sprinting and weapon swapping
+	 *  are locked out (the player is committed to the dash). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
+	float DodgeLockWindow = 0.5f;
 
 	/** Cooldown between dodges (seconds). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
@@ -410,6 +433,28 @@ public:
 	 *  view model is active (pipe up). Movement impulse fires either way. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
 	TSoftObjectPtr<UAnimSequenceBase> DodgeAnim;
+
+	// --- Fall Damage ---
+
+	/** Drop distance (cm, peak-to-landing) below which a fall deals NO damage —
+	 *  normal jumps and short hops are free. At/just above this, damage starts at
+	 *  FallDamageMinAmount. Tune to ~1 story so a one-floor drop hurts (30 HP) but
+	 *  stepping off a curb doesn't. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
+	float FallDamageMinDistance = 300.f;
+
+	/** Drop distance (cm) at/above which a fall deals FallDamageMaxAmount (lethal).
+	 *  Tune to ~2 stories. Between min and max, damage lerps min→max amount. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
+	float FallDamageMaxDistance = 600.f;
+
+	/** Damage dealt at exactly FallDamageMinDistance (1-story drop). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
+	float FallDamageMinAmount = 30.f;
+
+	/** Damage dealt at/above FallDamageMaxDistance (2-story drop = lethal). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
+	float FallDamageMaxAmount = 100.f;
 
 	// --- Block (RMB hold while pipe equipped) ---
 
@@ -426,9 +471,23 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
 	float BlockDamageReductionMul = 0.25f;
 
-	/** Seconds the attacker is staggered after a blocked hit. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
+	// ── Stagger (exposed knobs) ──────────────────────────────────────
+	/** Seconds the attacker is staggered after a successful BLOCK. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
 	float BlockStaggerDuration = 1.0f;
+
+	/** Minimum seconds between block-staggers so blocking can't permanently stun-lock an enemy. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
+	float BlockStaggerCooldown = 5.0f;
+
+	/** Seconds the enemy is staggered by a landed melee (pipe) HIT. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
+	float HitStaggerDuration = 0.5f;
+
+	/** Minimum seconds between melee-hit staggers on the SAME enemy chain. 0 = every hit staggers
+	 *  (melee swing cooldown already paces it). Raise it if you want the stagger to be occasional. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
+	float HitStaggerCooldown = 0.0f;
 
 	/** Kubold FPP_Longs_BlockLoop — held block pose, standing still. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
@@ -512,6 +571,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
 	bool bInventoryMenuOpen = false;
 
+	/** True while a save-point menu is open. Routes gamepad to the UI (UIOnly) and gates the raw
+	 *  weapon-slot polling so the D-pad navigates the menu instead of swapping weapons. */
+	UPROPERTY(BlueprintReadOnly, Category = "SavePoint")
+	bool bSaveMenuOpen = false;
+
+	/** True while Moonville's first-time-pickup notification is open — we pull IMC_Grace + go
+	 *  GameAndUI so keyboard/gamepad can dismiss it (Moonville leaves it in GameOnly = mouse-only). */
+	bool bPickupMenuActive = false;
+
+	/** The open save-point widget — watched in Tick to restore game input when it closes. */
+	UPROPERTY()
+	TWeakObjectPtr<UUserWidget> ActiveSaveMenu;
+
 	/** Runtime IMC that maps OwnSlotActions to Keys 1-4 at high priority. */
 	UPROPERTY()
 	TObjectPtr<UInputMappingContext> WeaponSlotIMC;
@@ -546,6 +618,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
 	TObjectPtr<UInputAction> InventorySlot3Action;
 
+	/** Flashlight toggle action (IA_InventoryFlashlight). Mapped in IMC_Grace to F + Right Shoulder. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> FlashlightAction;
+
 	/** PDA_Item data asset for starting weapon. Granted to inventory at BeginPlay. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
 	TSoftObjectPtr<UObject> StartingWeaponItem;
@@ -572,6 +648,20 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
 
+	/** Stagger an enemy for Duration seconds via the IZP_Staggerable interface (checks the actor
+	 *  AND its components, so component-based AI like the Shambler works too). No-op if the target
+	 *  doesn't implement the interface — new enemies become staggerable just by implementing it. */
+	void StaggerEnemy(AActor* Enemy, float Duration);
+
+	/** Stagger an enemy using HitStaggerDuration — called by the melee component on a landed pipe hit. */
+	UFUNCTION(BlueprintCallable, Category = "Combat|Stagger")
+	void MeleeStaggerEnemy(AActor* Enemy);
+
+	/** Called by AZP_SavePoint after it spawns + inits the save widget: takes UI-only input, focuses
+	 *  the menu for controller navigation, and starts watching (in Tick) for it to close so game
+	 *  input is restored. */
+	void OpenSaveMenu(UUserWidget* Menu);
+
 	/** Override in Blueprint for interaction logic. */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Interaction")
 	void OnInteract(AActor* InteractTarget);
@@ -584,6 +674,8 @@ protected:
 	virtual void CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult) override;
 	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
+	virtual void Landed(const FHitResult& Hit) override;
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 private:
 	// --- Death / Vignette ---
@@ -592,6 +684,11 @@ private:
 
 	UFUNCTION()
 	void UpdateHealthVignette(float NewHealth, float MaxHealth, float DamageAmount);
+
+	/** Cancel any active sprint because the player committed to an action (dodge, weapon use, aim,
+	 *  reload, weapon swap, peek, menu, etc.). Called from every action handler EXCEPT movement,
+	 *  look, and door/item interact — those must not break a sprint. */
+	void CancelSprintFromAction();
 
 	// --- Input Handlers ---
 	void Input_Move(const FInputActionValue& Value);
@@ -621,6 +718,7 @@ private:
 
 	/** Handles quickslot press: equips weapon OR uses consumable. SlotIndex is 0-based (Key 1 = slot 0). */
 	void Input_InventorySlot(int32 SlotIndex);
+	void Input_Flashlight(const FInputActionValue& Value);
 
 	/** Calls Moonville's ExecuteItemActionByShortcut for consumable items. */
 	void UseItemFromShortcutSlot(int32 SlotIndex);
@@ -640,6 +738,10 @@ private:
 	/** Seconds remaining on dodge cooldown. Decremented in Tick. */
 	float DodgeCooldownRemaining = 0.f;
 
+	/** Seconds remaining where sprint + weapon swap are locked out by an active
+	 *  dodge. Set to DodgeLockWindow in PerformDodge, decremented in Tick. */
+	float DodgeLockRemaining = 0.f;
+
 	/** Seconds remaining where the dodge holds extra forward camera clearance
 	 *  (covers the launch lean). Set in PerformDodge, decremented in Tick. */
 	float DodgeClearanceRemaining = 0.f;
@@ -647,6 +749,14 @@ private:
 	/** Duration of the dodge forward-clearance window (seconds). */
 	UPROPERTY(EditDefaultsOnly, Category = "Dodge")
 	float DodgeClearanceWindow = 0.5f;
+
+	// --- Fall Damage tracking ---
+	/** Highest Z reached since the current fall began (the apex). Drop distance =
+	 *  FallPeakZ - landing Z, so a jump-then-fall measures from the top, not from
+	 *  takeoff. */
+	float FallPeakZ = 0.f;
+	/** True while airborne in MOVE_Falling — gates the apex tracking in Tick. */
+	bool bTrackingFall = false;
 
 	/** Seconds remaining where the block forward-clearance nudge is active. Set on
 	 *  block start, decremented in Tick. A transient window — NOT the whole hold —
@@ -670,6 +780,12 @@ private:
 	 *  UpdateBlockAnimation bails while this is > 0 so it can't yank the Start
 	 *  clip out and snap straight to BlockLoop. */
 	float BlockStartLockRemaining = 0.f;
+
+	/** Last time a blocked hit staggered the attacker — gates re-stagger by BlockStaggerCooldown. */
+	double LastBlockStaggerTime = -1000.0;
+
+	/** Last time a melee hit staggered an enemy — gates re-stagger by HitStaggerCooldown. */
+	double LastHitStaggerTime = -1000.0;
 
 	/** Switch MeleeViewMesh between BlockLoop / BlockWalk based on motion. */
 	void UpdateBlockAnimation();
@@ -703,6 +819,38 @@ private:
 	/** Reads ObjectClass from a PDA_Item via reflection. Returns null if not a weapon. */
 	TSubclassOf<AActor> GetWeaponClassFromItem(UObject* ItemDA);
 
+	/** Reads the configured Item DataAsset off a Moonville BP_ItemPickup (the "Item"
+	 *  property, falling back to "ItemDataAsset"). Null if the actor isn't a pickup. */
+	UObject* GetPickupItemDA(AActor* PickupActor);
+
+	/** True if the player must NOT be able to pick up this pickup: a firearm/melee
+	 *  weapon already owned (2d — throwables excepted, they stack), or ammo whose
+	 *  reserve is already at the cap (2b). Used to gate both interaction paths. */
+	bool ShouldBlockPickupInteraction(AActor* PickupActor);
+
+	/** Turn a blocked pickup's InteractionArea/InteractionCollision spheres OFF so
+	 *  Moonville neither shows its "Press E" popup nor registers it — and back ON
+	 *  when it's no longer blocked. Throttled from Tick over CachedPickups. */
+	void RefreshPickupBlockStates();
+
+	/** (Re)collect the level's BP_ItemPickup actors into CachedPickups. */
+	void GatherLevelPickups();
+
+	/** Cached level pickups for the block refresh (weak — destroyed when picked up). */
+	TArray<TWeakObjectPtr<AActor>> CachedPickups;
+
+	/** Tick throttle for RefreshPickupBlockStates. */
+	float PickupBlockRefreshAccum = 0.f;
+
+	/** Owner of Moonville's current ClosestInteractable IF it's a world pickup, else
+	 *  null. Drives the grab-all sweep + pickup detection. */
+	AActor* GetClosestMoonvillePickupOwner();
+
+	/** Frames left in a "grab the whole pile" sweep after E is pressed on a pickup —
+	 *  each tick grabs the next-closest pickup so bunched items come up in one press
+	 *  instead of repositioning per item. */
+	int32 GrabAllTicksRemaining = 0;
+
 	/** Reads weapon class from Moonville's ShortcutSlots[SlotIndex] via reflection. */
 	TSubclassOf<AActor> GetWeaponFromShortcutSlot(int32 SlotIndex);
 
@@ -717,6 +865,27 @@ private:
 	/** Bridge: Moonville OnInventoryUpdate → scan items for notes → NoteComponent. */
 	UFUNCTION()
 	void HandleInventoryUpdate();
+
+	/** Total rounds of the given ammo type carried in the Moonville inventory (sum of
+	 *  DA_Ammo_* stacks whose name maps to Icon). This IS the reserve. */
+	int32 GetInventoryAmmoCount(EZP_WeaponIcon Icon);
+
+	/** Trim any ammo type over its cap back down to the cap (a whole-stack pickup can
+	 *  push you past max; the overflow is discarded). Runs on every inventory change. */
+	void EnforceAmmoCaps();
+
+	/** Push the equipped weapon's inventory ammo count into KinemationComp->ReserveAmmo
+	 *  and broadcast OnAmmoChanged so the HUD reserve mirrors what's carried. */
+	void SyncReserveFromInventory();
+
+	/** Remove Rounds of the given ammo type from the Moonville inventory (called when a
+	 *  reload consumes reserve). Spreads across stacks of that ammo. */
+	void RemoveInventoryAmmo(EZP_WeaponIcon Icon, int32 Rounds);
+
+	/** Bound to KinemationComp->OnReserveConsumed: a reload pulled Rounds into the mag →
+	 *  spend that many inventory ammo items, then re-sync the reserve mirror. */
+	UFUNCTION()
+	void OnReserveConsumedHandler(int32 Rounds, EZP_WeaponIcon Icon);
 
 	/** Bind to Moonville's OnInventoryUpdate dispatcher via reflection. */
 	void BindInventoryUpdateDelegate();
