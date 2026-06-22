@@ -32,4 +32,8 @@ class THESIGNAL_API AZP_GameMode : public AGameModeBase
 
 public:
 	AZP_GameMode();
+
+	/** Arrival routing: if the transit subsystem has a pending arrival tag, spawn the player
+	 *  at the PlayerStart whose PlayerStartTag matches it; otherwise default behavior. */
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 };

@@ -1,0 +1,11 @@
+[
+	{
+		"Id": "OFFICE1",
+		"Title": "FINDING A WAY OUT",
+		"bSideObjective": false,
+		"bStartOnLoad": true,
+		"Requires": [],
+		"SubObjectives": [
+			{ "Id": "OFFICEA", "Title": "Search for clues", "Requirements": [ { "Type": "FlagSet", "Value": "TestFlagA" } ] }		]
+	}
+]

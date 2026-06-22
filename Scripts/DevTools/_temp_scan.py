@@ -4,11 +4,14 @@ import math
 
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
 
-FLOOR_Z_MIN = 1900
-FLOOR_Z_MAX = 2300
-FLOOR_LEVEL_Z = 1987
+FLOOR_Z_MIN = 900
+FLOOR_Z_MAX = 1200
+FLOOR_LEVEL_Z = 987
 
-wall_meshes = {"SM_Cube","SM_Column","SM_Cylinder","SM_WcWall","SM_Securitywall","SM_FrameTall","SM_FrameTallDoor","SM_LastLineEndWall","SM_CenterRoomsinnerWall","SM_ElevatorWall","SM_Elevator","SM_Room2SideGlass","SM_SecuritySilling","SM_SillingTile","SM_SillingCompoDark","SM_ThinBoxHorizen","SM_ThinBoxVertical","SM_ThinBoxHorizenDouble","SM_ThinBoxVerticalDouble","SM_WebPartitionFrame","SM_PartitionWorkSpace","SM_WorkStation_Partition","SM_Fence","SM_Steps","SM_Antena","SM_DoorOfficeFrame","SM_DoorExitFrame","SM_AutoDoorBase"}
+wall_meshes = {"SM_Cube","SM_Column","SM_Cylinder","SM_WcWall","SM_Securitywall","SM_FrameTall","SM_FrameTallDoor","SM_LastLineEndWall","SM_CenterRoomsinnerWall","SM_ElevatorWall","SM_Elevator","SM_Room2SideGlass","SM_SecuritySilling","SM_SillingTile","SM_SillingCompoDark","SM_ThinBoxHorizen","SM_ThinBoxVertical","SM_ThinBoxHorizenDouble","SM_ThinBoxVerticalDouble","SM_WebPartitionFrame","SM_PartitionWorkSpace","SM_WorkStation_Partition","SM_Fence","SM_Steps","SM_Antena","SM_DoorOfficeFrame","SM_DoorExitFrame","SM_AutoDoorBase","SM_wallBrick"}
+# Any mesh whose name contains one of these (case-insensitive) is treated as a wall: covers
+# SM_wallBrick + other maps' wall meshes without listing every one. Add map-specific keywords here.
+wall_keywords = ("wall", "brick")
 room_meshes = {"SM_RoomManagerA","SM_RoomManagerB","SM_ConferenceSecretaryRoom"}
 floor_meshes = {"SM_Woodfloor","SM_OutsideFloor","SM_KitchenFloor"}
 door_meshes = {"SM_DoorOffice","SM_DoorExit","SM_AutoDoorLeft","SM_AutoDoorRight","SM_RoomManagerDoor"}
@@ -65,6 +68,7 @@ for a in eas.get_all_level_actors():
         elif mn in floor_meshes: floors.append(get_rect(a, comps[0]))
         elif mn in room_meshes: rooms.append(get_rect(a, comps[0]))
         elif mn in wall_meshes: walls.append(get_rect(a, comps[0]))
+        elif any(k in mn.lower() for k in wall_keywords): walls.append(get_rect(a, comps[0]))
     elif cn in ladder_classes:
         x,y = loc.x, loc.y
         ladders.append([(x-30,y-15),(x+30,y-15),(x+30,y+15),(x-30,y+15)])

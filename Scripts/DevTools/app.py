@@ -16,18 +16,24 @@ import os
 MCP_URL = "http://localhost:9847/api/python"
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "FloorPlans")
 
+# Z window per floor = [floor_z - 100, floor_z + 400]. Floors are spaced 500 UU apart, so this tiles
+# the building cleanly: each floor owns a 500-tall slab that captures its FLOOR + full-height WALLS
+# (a wall's actor center sits ~250 UU above the floor) and stops just before the next floor's floor.
+# (Old windows were only ~210 above floor_z, so interior SM_Cube walls at floor_z+~250 got dropped.)
 FLOOR_CONFIG = {
-    1: {"z_min": -50,   "z_max": 200,  "floor_z": -13},
-    2: {"z_min": 400,   "z_max": 700,  "floor_z": 487},
-    3: {"z_min": 900,   "z_max": 1200, "floor_z": 987},
-    4: {"z_min": 1400,  "z_max": 1700, "floor_z": 1487},
-    5: {"z_min": 1900,  "z_max": 2300, "floor_z": 1987},
+    1: {"z_min": -113,  "z_max": 387,  "floor_z": -13},
+    2: {"z_min": 387,   "z_max": 887,  "floor_z": 487},
+    3: {"z_min": 887,   "z_max": 1387, "floor_z": 987},
+    4: {"z_min": 1387,  "z_max": 1887, "floor_z": 1487},
+    5: {"z_min": 1887,  "z_max": 2387, "floor_z": 1987},
 }
 
 
-def run_ue_python(code: str) -> dict:
+def run_ue_python(code: str, timeout: int = 600) -> dict:
+    # The MCP call runs SYNCHRONOUSLY on the editor game thread, so a big level scan freezes the
+    # editor for the whole scan. 120s was too short (it timed out + discarded the result mid-scan).
     try:
-        resp = requests.post(MCP_URL, json={"code": code}, timeout=120)
+        resp = requests.post(MCP_URL, json={"code": code}, timeout=timeout)
         return resp.json()
     except requests.ConnectionError:
         return {"success": False, "error": "Cannot connect to MCP. Is the editor open?"}
@@ -572,7 +578,9 @@ class DevToolsApp:
         script = script.replace("__FLOOR_Z__", str(cfg["floor_z"]))
 
         temp_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_temp_scan.py")
-        with open(temp_script, "w") as f:
+        # UTF-8: the editor reads this file back as UTF-8, so writing it in the Windows default
+        # codepage (cp1252) corrupts any non-ASCII char (e.g. an em-dash) -> UnicodeDecodeError.
+        with open(temp_script, "w", encoding="utf-8") as f:
             f.write(script)
 
         code = f'exec(open("{temp_script.replace(chr(92), "/")}").read())'
@@ -2328,7 +2336,10 @@ FLOOR_Z_MIN = __Z_MIN__
 FLOOR_Z_MAX = __Z_MAX__
 FLOOR_LEVEL_Z = __FLOOR_Z__
 
-wall_meshes = {"SM_Cube","SM_Column","SM_Cylinder","SM_WcWall","SM_Securitywall","SM_FrameTall","SM_FrameTallDoor","SM_LastLineEndWall","SM_CenterRoomsinnerWall","SM_ElevatorWall","SM_Elevator","SM_Room2SideGlass","SM_SecuritySilling","SM_SillingTile","SM_SillingCompoDark","SM_ThinBoxHorizen","SM_ThinBoxVertical","SM_ThinBoxHorizenDouble","SM_ThinBoxVerticalDouble","SM_WebPartitionFrame","SM_PartitionWorkSpace","SM_WorkStation_Partition","SM_Fence","SM_Steps","SM_Antena","SM_DoorOfficeFrame","SM_DoorExitFrame","SM_AutoDoorBase"}
+wall_meshes = {"SM_Cube","SM_Column","SM_Cylinder","SM_WcWall","SM_Securitywall","SM_FrameTall","SM_FrameTallDoor","SM_LastLineEndWall","SM_CenterRoomsinnerWall","SM_ElevatorWall","SM_Elevator","SM_Room2SideGlass","SM_SecuritySilling","SM_SillingTile","SM_SillingCompoDark","SM_ThinBoxHorizen","SM_ThinBoxVertical","SM_ThinBoxHorizenDouble","SM_ThinBoxVerticalDouble","SM_WebPartitionFrame","SM_PartitionWorkSpace","SM_WorkStation_Partition","SM_Fence","SM_Steps","SM_Antena","SM_DoorOfficeFrame","SM_DoorExitFrame","SM_AutoDoorBase","SM_wallBrick"}
+# Any mesh whose name contains one of these (case-insensitive) is treated as a wall: covers
+# SM_wallBrick + other maps' wall meshes without listing every one. Add map-specific keywords here.
+wall_keywords = ("wall", "brick")
 room_meshes = {"SM_RoomManagerA","SM_RoomManagerB","SM_ConferenceSecretaryRoom"}
 floor_meshes = {"SM_Woodfloor","SM_OutsideFloor","SM_KitchenFloor"}
 door_meshes = {"SM_DoorOffice","SM_DoorExit","SM_AutoDoorLeft","SM_AutoDoorRight","SM_RoomManagerDoor"}
@@ -2385,6 +2396,7 @@ for a in eas.get_all_level_actors():
         elif mn in floor_meshes: floors.append(get_rect(a, comps[0]))
         elif mn in room_meshes: rooms.append(get_rect(a, comps[0]))
         elif mn in wall_meshes: walls.append(get_rect(a, comps[0]))
+        elif any(k in mn.lower() for k in wall_keywords): walls.append(get_rect(a, comps[0]))
     elif cn in ladder_classes:
         x,y = loc.x, loc.y
         ladders.append([(x-30,y-15),(x+30,y-15),(x+30,y+15),(x-30,y+15)])

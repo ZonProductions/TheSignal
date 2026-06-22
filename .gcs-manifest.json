@@ -1,11 +1,15 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-21T15:23:35",
+  "created": "2026-06-21T23:40:05",
   "files": {
     "Content/Building1_3rdFloor.umap": {
-      "hash": "sha256:d822baa2ff58e42ffb640d818a478b26a179236e3810369c5c460d78d755d0f6",
-      "size": 7172517
+      "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
+      "size": 7143657
+    },
+    "Content/Building1_emptyfloor.umap": {
+      "hash": "sha256:218fc4a31a389c1896257368290202e172452c408af6f74ab2c3b5c847f16e2e",
+      "size": 7155330
     },
     "Content/NS_VoidMote.uasset": {
       "hash": "sha256:bbe65906827e6641d132e998f94276222a935d608f2c2cb4f89ff30119f30f40",
@@ -2862,6 +2866,10 @@
     "Content/BackgroundBuildings/Blueprint/B_LowPolyBuilding.uasset": {
       "hash": "sha256:b83f928021966c52ed9ef2ea5fad2e4fd32f4e58182a53e21d1d8000ffd33a69",
       "size": 537144
+    },
+    "Content/BackgroundBuildings/checkpoints/2026-06-21_fake_window_interior.md": {
+      "hash": "sha256:a3d58b0189ff450c6eb7e9fcdccf2d4024c98b3fb1eb447cb8a2c253858bce41",
+      "size": 3881
     },
     "Content/BackgroundBuildings/InstancedMaterials/MI_Asphalt.uasset": {
       "hash": "sha256:2cc4e8b30a534d1768c1d6e76d8a73ca4ca2f2186d6e14cde5fc587e347e5d3f",
@@ -12028,8 +12036,8 @@
       "size": 19724
     },
     "Content/Blueprints/UI/WBP_HUD.uasset": {
-      "hash": "sha256:128646ade87e81d7b3219a949c57cc248bcc249d3a2eba057f494fa894507bbf",
-      "size": 40154
+      "hash": "sha256:7974262b6e94eab3027fb8d91f5bfc878114aa6fdcc2a879effd8baaee73fe45",
+      "size": 64265
     },
     "Content/Blueprints/UI/WBP_InventoryTab.uasset": {
       "hash": "sha256:4857bdfba3ab29185bf3920723f57f473e8461173e2259585e715e731fff12f4",
@@ -12050,6 +12058,22 @@
     "Content/Blueprints/Widgets/WBP_DesignNameOverlay.uasset": {
       "hash": "sha256:f5b8f2810c54515b232775120ac957fdb827d93ecfb4f0561e100ed674449249",
       "size": 23887
+    },
+    "Content/Campaign/Building1_3rdFloor.umap": {
+      "hash": "sha256:b1cda18a0c56dd11d63e28857027a1e1fe77e244944b12044a0ed43378e3c752",
+      "size": 6642671
+    },
+    "Content/Campaign/Building1_Empty.umap": {
+      "hash": "sha256:36eb0abb741ced77340da5affd0a177c9f780dbe6f084812352db4ae509d34a2",
+      "size": 4684409
+    },
+    "Content/Campaign/UI/WBP_TransitMenu.uasset": {
+      "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
+      "size": 32979
+    },
+    "Content/Campaign/UI/WBP_TransitRow.uasset": {
+      "hash": "sha256:b2b80f22519a7615380073a3b221b678eff257fbe2b653eb840efe8a7599d77d",
+      "size": 24321
     },
     "Content/CharacterCustomizer/Base_Materials/M_Base_Material.uasset": {
       "hash": "sha256:8585519ec999c3bb7b3371c7525381f2792e516eec43945966ce2205b150c4cb",
@@ -22831,6 +22855,10 @@
       "hash": "sha256:635daeac631a954455bd60f771b93d4dbd95b91d27af985764c339235ad02499",
       "size": 4823
     },
+    "Content/Core/Items/DA_Note_Mysterious_Note.uasset": {
+      "hash": "sha256:04c37dcd8f462622e915b6859c9dbcff47f56edff3f1223cf85be8d118b8679b",
+      "size": 2662
+    },
     "Content/Core/Items/DA_Pipe.uasset": {
       "hash": "sha256:d70a9ba4bb5518d7079b4be5bd598e425dea863165d381c4094a5dddb0002a2b",
       "size": 7856
@@ -22907,6 +22935,10 @@
       "hash": "sha256:278b1f1a9295fd6b1afd94ddc038a56cc3b2536247f825d06f6387a52d0c368e",
       "size": 10032
     },
+    "Content/Core/Materials/M_FakeWindowInterior.uasset": {
+      "hash": "sha256:369c83ecf778658986f1ef16e01e535af7c592088c80b8f9f0298c93fc31c1a5",
+      "size": 15967
+    },
     "Content/Core/Materials/M_HandSkin.uasset": {
       "hash": "sha256:cab1449d8bc7bf059562e4697c65edf8df27ccb1d07528acfbbbf5ede3564bdc",
       "size": 10114
@@ -22943,6 +22975,10 @@
       "hash": "sha256:95a5d835d06640d09c4e0abb2b6e6b9616fce022ede1e54dc65f3a9c133277e8",
       "size": 71135
     },
+    "Content/Core/Player/BPC_ObjectiveHudGlue.uasset": {
+      "hash": "sha256:513b087fbb5c11b69e9e8e6014f4baf40527bb7085821832034bd7c9436125a2",
+      "size": 68476
+    },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
       "hash": "sha256:0fd7715d33a7e7c2ad2b83c640bbe4da14d6a2694ec712980200fefcf272cd23",
       "size": 135243
@@ -22952,8 +22988,12 @@
       "size": 9525
     },
     "Content/Core/Player/PC_Grace.uasset": {
-      "hash": "sha256:2320078ea89ab4b4ae949705d9813684e0743c53cec2b7644a824d38da6f414d",
-      "size": 17275
+      "hash": "sha256:ba30e997971b323bf314224d6869a7b6a4b8e4857c8f37e294b1645b7b6530c0",
+      "size": 18476
+    },
+    "Content/Data/DT_Objectives.uasset": {
+      "hash": "sha256:1ced7bf18a8fe726dd4268360f92ade349305165ea14a982a888381c73bfbec4",
+      "size": 3338
     },
     "Content/Dialogue/Dialogue_Test.uasset": {
       "hash": "sha256:98831845dc9341524ec30b6cdce299e0728e24f6ea87f4b94d7c49b8030bc4f2",
@@ -25328,8 +25368,8 @@
       "size": 81559
     },
     "Content/Fab/Science_Fiction_Tram___Train/tram_v2/StaticMeshes/tram_v2.uasset": {
-      "hash": "sha256:a013b287850bb327797c125c883dbf74f840a1a01f569a8787c21d9e23645815",
-      "size": 14022643
+      "hash": "sha256:22659008a6fb770d60c974879cccb5879cebe449bdf0eeb505c89a56aa7b70b6",
+      "size": 14023480
     },
     "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Textures/SF_decals_color.uasset": {
       "hash": "sha256:f3d0a6463f0b3d9e44baddea79df3e311d52409c69f1e1687f9aa1acc9f9fb8b",
@@ -60583,9 +60623,17 @@
       "hash": "sha256:d241ecda048139cdce2b9b234d4325b13c0d6c55511f007d388327498e88b70e",
       "size": 15098
     },
+    "Content/Office/OfficeMats/MI_Carpet02_Tile1m.uasset": {
+      "hash": "sha256:5a506cd8ba7feff2341fbaac9e784a326c4be7cfd9072e573df822a81a0c3dc8",
+      "size": 7487
+    },
     "Content/Office/OfficeMats/MI_Carpet03.uasset": {
       "hash": "sha256:361b839076e915a17a773e34bf629419c9af28a29d99c365e2b62ae9cf1de493",
       "size": 14565
+    },
+    "Content/Office/OfficeMats/MI_Carpet03_Tile1m.uasset": {
+      "hash": "sha256:d90daff9410b23746fd5ba269796ec783844e57f78f4e54fd155bf24eb24c2c4",
+      "size": 8168
     },
     "Content/Office/OfficeMats/MI_Clock.uasset": {
       "hash": "sha256:e7d0c7e187ace01e1acfcc8e93f7be1742176105b3681f13bc120727048ecd81",
@@ -60602,6 +60650,10 @@
     "Content/Office/OfficeMats/MI_Concrete01.uasset": {
       "hash": "sha256:14edcdeee80ddd571c63a8e0bbee8794127e177f35ae3bc8c0bc9310af58e88f",
       "size": 16021
+    },
+    "Content/Office/OfficeMats/MI_Concrete01_Ground.uasset": {
+      "hash": "sha256:1c33dab61893cf76e50e14c59e6c841ce2d99f12f4ef9489f979c4a43f8e1c24",
+      "size": 7865
     },
     "Content/Office/OfficeMats/MI_Dark.uasset": {
       "hash": "sha256:6874d36fff56a92d3ba2b08fbbbdfb2d730921f00e325401b023fa503e98d6a1",
@@ -62240,8 +62292,8 @@
       "size": 7775
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ElevatorKeys.uasset": {
-      "hash": "sha256:c0bd56c5355c0709df3f781f7a57f79e70672a74a92ee848f57aff4a84909f64",
-      "size": 12701
+      "hash": "sha256:b64a97cb4c9713b813358d82f09d09d7e9b75147cf3b77aad864cde75cac730a",
+      "size": 12567
     },
     "Content/office_BigCompanyArchViz/Materials/MI_EspressoMachineABlack.uasset": {
       "hash": "sha256:256e3bdf4ac4eeffc2b3609618e61e5623001e6d6e42796f700d393ae2bf6219",

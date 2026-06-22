@@ -24,6 +24,8 @@ public class TheSignal : ModuleRules
 			"RHI", // ZP_LipSyncComponent GMaxRHIShaderPlatform
 			"AudioMixer", // ZP_LipSyncComponent submix buffer listener for OVRLipSync PCM capture
 			"GameplayTags", // Notes bridge — FGameplayTag::RequestGameplayTag for Item.Note tag
+			"Json",          // ZP_ObjectiveSubsystem (M2) — objective defs loaded from Content/Data/Objectives.json
+			"JsonUtilities", // ZP_ObjectiveSubsystem (M2) — FJsonObjectConverter
 			// FLAGGED FOR REVIEW (UE 5.7 upgrade): FReply is in our PUBLIC header
 			// (ZP_InventoryTabWidget::NativeOnKeyDown). 5.7 made FReply(bool) an
 			// out-of-line SLATECORE_API ctor and Engine pulls SlateCore privately,

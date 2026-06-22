@@ -1,0 +1,2954 @@
+[
+ {
+  "label": "F2_SM_SecuritySilling2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SecuritySilling",
+  "x": 1858.4,
+  "y": -1169.3,
+  "z": 984.6
+ },
+ {
+  "label": "F3_Exit_door_pCube164",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExit",
+  "x": 939.4,
+  "y": -1859.0,
+  "z": 999.4
+ },
+ {
+  "label": "F3_Exit_door_polySurface61",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExitFrame",
+  "x": 939.4,
+  "y": -1859.0,
+  "z": 999.4
+ },
+ {
+  "label": "F3_Cylinder58",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": -2173.7,
+  "y": 322.1,
+  "z": 1511.3
+ },
+ {
+  "label": "F3_Cylinder59",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": -2173.7,
+  "y": 319.9,
+  "z": 1009.0
+ },
+ {
+  "label": "F3_office_door_polySurface83",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -3001.3,
+  "y": -1175.4,
+  "z": 1001.5
+ },
+ {
+  "label": "F3_Elevator_final_polySurface72",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Elevator",
+  "x": 1379.0,
+  "y": -1851.7,
+  "z": 1003.8
+ },
+ {
+  "label": "F3_Elevator_final_polySurface73",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Elevator",
+  "x": 1107.0,
+  "y": -1852.7,
+  "z": 1003.8
+ },
+ {
+  "label": "F3_SM_ElevatorLeftDoor2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ElevatorLeftDoor",
+  "x": 1167.9,
+  "y": -1850.3,
+  "z": 1003.7
+ },
+ {
+  "label": "F3_SM_ElevatorRightDoor2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ElevatorRightDoor",
+  "x": 1048.7,
+  "y": -1850.3,
+  "z": 1003.7
+ },
+ {
+  "label": "F3_SM_wallBrick26",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1731.7,
+  "y": -1606.8,
+  "z": 1244.6
+ },
+ {
+  "label": "F3_SM_wallBrick27",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2290.4,
+  "y": -1607.0,
+  "z": 1265.4
+ },
+ {
+  "label": "F3_SM_wallBrick29",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -746.7,
+  "y": -1606.8,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_wallBrick30",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -247.8,
+  "y": -1606.8,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_Cube61",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -9.7,
+  "y": -1604.4,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube62",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -9.3,
+  "y": -1607.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube63",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -500.1,
+  "y": -1604.4,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube64",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -499.8,
+  "y": -1607.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube65",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -995.1,
+  "y": -1604.4,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube66",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -994.8,
+  "y": -1607.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube68",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1483.6,
+  "y": -1607.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube76",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1142.2,
+  "y": 1229.5,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube81",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3963.6,
+  "y": 1229.5,
+  "z": 1252.3
+ },
+ {
+  "label": "F3_SM_Cube83",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2633.3,
+  "y": -1174.2,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube87",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2637.2,
+  "y": -1394.8,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_Cube89",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3984.1,
+  "y": -1394.8,
+  "z": 1222.7
+ },
+ {
+  "label": "F3_SM_Cube90",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3762.4,
+  "y": -1602.9,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_Cube91",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3331.4,
+  "y": -1602.9,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_Cube92",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2877.0,
+  "y": -1602.9,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_WcWall3",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WcWall",
+  "x": -3314.5,
+  "y": -1164.5,
+  "z": 1003.0
+ },
+ {
+  "label": "F3_BP_ElevatorDoors2",
+  "class": "BP_ElevatorDoors_C",
+  "mesh": "SM_ElevatorLeftDoor",
+  "x": 1438.7,
+  "y": -1852.6,
+  "z": 1005.5
+ },
+ {
+  "label": "DoorTrigger_F3_F3_Exit_door_pCube164_Rotate",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": 939.4,
+  "y": -1324.0,
+  "z": 1049.4
+ },
+ {
+  "label": "DoorTrigger_F3_F3_office_door_polySurface82_Rotate",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3217.3,
+  "y": -1175.4,
+  "z": 1051.5
+ },
+ {
+  "label": "DoorTrigger_F3_F3_office_door_polySurface83_Rotate",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3001.3,
+  "y": -1175.4,
+  "z": 1051.5
+ },
+ {
+  "label": "DoorTrigger_F3_F3_Aotu_door_pCube1387_Slide",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -2630.6,
+  "y": -652.5,
+  "z": 1051.5
+ },
+ {
+  "label": "DoorTrigger_F3_F3_BP_WCDoor2_Rotate",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3217.8,
+  "y": -1175.8,
+  "z": 1050.7
+ },
+ {
+  "label": "DoorTrigger_F3_F3_BP_WCDoor3_Rotate",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3000.5,
+  "y": -1172.4,
+  "z": 1051.1
+ },
+ {
+  "label": "BP_FloorSign_3",
+  "class": "BP_FloorSign_3_C",
+  "mesh": "Plane",
+  "x": 601.0,
+  "y": -1852.1,
+  "z": 1246.9
+ },
+ {
+  "label": "F3_line_box_glass3",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FireExtinguisherBoxGlass",
+  "x": 621.9,
+  "y": -1872.6,
+  "z": 1144.3
+ },
+ {
+  "label": "F3_line_box_glass4",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FireExtinguisherBoxGlass",
+  "x": 749.1,
+  "y": -1872.6,
+  "z": 1165.1
+ },
+ {
+  "label": "F3_BP_WCDoor3",
+  "class": "BP_WCDoor02_C",
+  "mesh": "SM_DoorOffice",
+  "x": -3000.5,
+  "y": -1172.4,
+  "z": 1001.1
+ },
+ {
+  "label": "BP_CardReaderPanel3",
+  "class": "BP_CardReaderPanel_C",
+  "mesh": "SM_BiometricTime",
+  "x": 988.8,
+  "y": -1852.8,
+  "z": 1163.8
+ },
+ {
+  "label": "F3_SM_wallBrick38",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3159.9,
+  "y": -309.7,
+  "z": 1258.6
+ },
+ {
+  "label": "F3_SM_wallBrick39",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3680.8,
+  "y": -309.9,
+  "z": 1258.6
+ },
+ {
+  "label": "F3_SM_wallBrick40",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2326.6,
+  "y": -309.7,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick42",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1254.0,
+  "y": -309.7,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick43",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1819.9,
+  "y": -309.7,
+  "z": 1261.0
+ },
+ {
+  "label": "F5_office_door_polySurface86",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -1250.1,
+  "y": -738.8,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick46",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 85.4,
+  "y": -312.3,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick78",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 528.3,
+  "y": -492.0,
+  "z": 1175.0
+ },
+ {
+  "label": "F3_SM_wallBrick79",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2626.9,
+  "y": -1232.0,
+  "z": 1269.5
+ },
+ {
+  "label": "F5_office_door_polySurface89",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -2627.6,
+  "y": -852.2,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick80",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2626.9,
+  "y": -520.4,
+  "z": 1265.9
+ },
+ {
+  "label": "F3_Cylinder158",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": 1199.8,
+  "y": 428.0,
+  "z": 1445.2
+ },
+ {
+  "label": "F3_SM_wallBrick81",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1252.3,
+  "y": -1265.8,
+  "z": 1247.7
+ },
+ {
+  "label": "F3_SM_wallBrick82",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": -448.3,
+  "z": 1272.1
+ },
+ {
+  "label": "F3_SM_wallBrick85",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 328.8,
+  "y": -1265.8,
+  "z": 1251.0
+ },
+ {
+  "label": "F3_SM_wallBrick83",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1495.8,
+  "y": -925.7,
+  "z": 1266.1
+ },
+ {
+  "label": "F5_office_door_polySurface90",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -1874.8,
+  "y": -925.7,
+  "z": 1002.8
+ },
+ {
+  "label": "F5_office_door_polySurface91",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -295.3,
+  "y": -925.7,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick77",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -343.9,
+  "y": -141.0,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick98",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -634.6,
+  "y": 28.3,
+  "z": 1464.7
+ },
+ {
+  "label": "F3_SM_wallBrick101",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 183.7,
+  "y": -672.2,
+  "z": 1258.5
+ },
+ {
+  "label": "F5_office_door_polySurface92",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -295.3,
+  "y": -672.2,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick103",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -245.7,
+  "y": -672.2,
+  "z": 1391.6
+ },
+ {
+  "label": "F3_SM_wallBrick45",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1143.4,
+  "y": -672.2,
+  "z": 1264.2
+ },
+ {
+  "label": "F3_SM_wallBrick104",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": -912.8,
+  "z": 1229.8
+ },
+ {
+  "label": "F5_managchair_sec_low10",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairManagerB",
+  "x": -2224.6,
+  "y": -1436.8,
+  "z": 1025.9
+ },
+ {
+  "label": "F5_manage_fridge7",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FridgeShort",
+  "x": -2091.2,
+  "y": -1322.4,
+  "z": 1023.9
+ },
+ {
+  "label": "BP_SavePoint2",
+  "class": "BP_SavePoint_C",
+  "mesh": "Sm_MangerTable",
+  "x": -2218.0,
+  "y": -1486.3,
+  "z": 1023.9
+ },
+ {
+  "label": "F5_LaptopB9",
+  "class": "StaticMeshActor",
+  "mesh": "SM_LaptopB",
+  "x": -2286.0,
+  "y": -1529.5,
+  "z": 1104.0
+ },
+ {
+  "label": "F5_allinone_sep_lowt_polySurface199",
+  "class": "StaticMeshActor",
+  "mesh": "SM_KeyboardMini",
+  "x": -2210.1,
+  "y": -1548.0,
+  "z": 1104.2
+ },
+ {
+  "label": "F5_allinone_sep_lowt_polySurface200",
+  "class": "StaticMeshActor",
+  "mesh": "SM_MouseA",
+  "x": -2210.1,
+  "y": -1548.0,
+  "z": 1104.2
+ },
+ {
+  "label": "F5_allinone_sep_lowt_polySurface201",
+  "class": "StaticMeshActor",
+  "mesh": "SM_MonitorAllInOne",
+  "x": -2186.4,
+  "y": -1546.4,
+  "z": 1103.9
+ },
+ {
+  "label": "F5_office_door_polySurface93",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -2176.7,
+  "y": -925.7,
+  "z": 1005.3
+ },
+ {
+  "label": "F3_SM_wallBrick107",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1967.3,
+  "y": -925.7,
+  "z": 1270.0
+ },
+ {
+  "label": "F3_Exit_door_pCube168",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExit",
+  "x": 939.4,
+  "y": -1859.0,
+  "z": 536.9
+ },
+ {
+  "label": "F3_line_box_glass11",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FireExtinguisherBoxGlass",
+  "x": 621.9,
+  "y": -1872.6,
+  "z": 681.8
+ },
+ {
+  "label": "F3_line_box_glass12",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FireExtinguisherBoxGlass",
+  "x": 749.1,
+  "y": -1872.6,
+  "z": 702.6
+ },
+ {
+  "label": "F3_Exit_door_polySurface62",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExitFrame",
+  "x": 939.4,
+  "y": -1859.0,
+  "z": 543.9
+ },
+ {
+  "label": "F3_SM_wallBrick51",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2875.4,
+  "y": -1607.0,
+  "z": 1132.7
+ },
+ {
+  "label": "F3_SM_wallBrick52",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3460.4,
+  "y": -1607.0,
+  "z": 1132.7
+ },
+ {
+  "label": "F3_Exit_door_pCube170",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExit",
+  "x": -3975.6,
+  "y": -1794.0,
+  "z": 1021.4
+ },
+ {
+  "label": "F3_Exit_door_polySurface66",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExitFrame",
+  "x": -3975.6,
+  "y": -1794.0,
+  "z": 1029.4
+ },
+ {
+  "label": "F3_SM_wallBrick53",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3865.4,
+  "y": -1607.0,
+  "z": 1185.9
+ },
+ {
+  "label": "F3_SM_wallBrick54",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": -1637.0,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_wallBrick56",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": -1832.0,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_wallBrick57",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": -1737.0,
+  "z": 1384.4
+ },
+ {
+  "label": "F3_SM_wallBrick37",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1236.7,
+  "y": -1606.8,
+  "z": 1247.7
+ },
+ {
+  "label": "F3_SM_wallBrick31",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 161.1,
+  "y": -1606.8,
+  "z": 1224.4
+ },
+ {
+  "label": "BP_HorrorLight",
+  "class": "BP_HorrorLight_C",
+  "mesh": "Cylinder",
+  "x": 1725.1,
+  "y": -1728.1,
+  "z": 1304.2
+ },
+ {
+  "label": "F3_SM_wallBrick143",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1862.1,
+  "y": -312.3,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick146",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1147.7,
+  "y": -312.3,
+  "z": 1268.6
+ },
+ {
+  "label": "F5_office_door_polySurface94",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": 1606.9,
+  "y": -309.7,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick147",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1656.4,
+  "y": -312.3,
+  "z": 1392.7
+ },
+ {
+  "label": "F3_SM_wallBrick47",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2649.9,
+  "y": -309.7,
+  "z": 1258.6
+ },
+ {
+  "label": "F3_SM_wallBrick202",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1193.3,
+  "y": 1231.7,
+  "z": 1224.4
+ },
+ {
+  "label": "BP_Light_16",
+  "class": "BP_Light_1_C",
+  "mesh": "SM_Lamp_A",
+  "x": 887.8,
+  "y": -2003.7,
+  "z": 981.9
+ },
+ {
+  "label": "BP_Light_17",
+  "class": "BP_Light_1_C",
+  "mesh": "SM_Lamp_A",
+  "x": 887.8,
+  "y": -2003.7,
+  "z": 1446.9
+ },
+ {
+  "label": "BP_FloorSign_10",
+  "class": "BP_FloorSign_3_C",
+  "mesh": "Plane",
+  "x": 990.8,
+  "y": -1864.3,
+  "z": 1168.1
+ },
+ {
+  "label": "F5_kiosk27",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletKiosk",
+  "x": -3916.7,
+  "y": -1533.4,
+  "z": 1025.5
+ },
+ {
+  "label": "F5_kiosk28",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletKiosk",
+  "x": -3799.0,
+  "y": -1533.4,
+  "z": 1025.5
+ },
+ {
+  "label": "F5_kiosk29",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletKiosk",
+  "x": -3681.4,
+  "y": -1533.4,
+  "z": 1025.5
+ },
+ {
+  "label": "F5_kiosk30",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletKiosk",
+  "x": -3563.5,
+  "y": -1533.4,
+  "z": 1025.5
+ },
+ {
+  "label": "F5_toilet_tissu19",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletTissu",
+  "x": -3623.4,
+  "y": -1494.3,
+  "z": 1077.3
+ },
+ {
+  "label": "F5_toilet_tissu20",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletTissu",
+  "x": -3858.9,
+  "y": -1494.3,
+  "z": 1077.3
+ },
+ {
+  "label": "F5_recycle_toilei_paper19",
+  "class": "StaticMeshActor",
+  "mesh": "SM_REcycleToiletPaper",
+  "x": -3624.0,
+  "y": -1536.5,
+  "z": 1058.5
+ },
+ {
+  "label": "F5_recycle_toilei_paper20",
+  "class": "StaticMeshActor",
+  "mesh": "SM_REcycleToiletPaper",
+  "x": -3859.1,
+  "y": -1536.5,
+  "z": 1058.5
+ },
+ {
+  "label": "F5_toilet_unit_a8",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletUnitA",
+  "x": -3803.7,
+  "y": -1581.5,
+  "z": 1025.5
+ },
+ {
+  "label": "F5_first_aid7",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FirstAid",
+  "x": -3979.9,
+  "y": -1327.9,
+  "z": 1178.0
+ },
+ {
+  "label": "F5_wash_basin19",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WashBasinB",
+  "x": -3528.7,
+  "y": -1184.1,
+  "z": 1006.6
+ },
+ {
+  "label": "F5_handdryer9",
+  "class": "StaticMeshActor",
+  "mesh": "SM_HandDryer",
+  "x": -3767.8,
+  "y": -1182.2,
+  "z": 1152.8
+ },
+ {
+  "label": "F5_toilet_tissu21",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ToiletTissu",
+  "x": -3742.0,
+  "y": -1494.3,
+  "z": 1077.3
+ },
+ {
+  "label": "F5_recycle_toilei_paper21",
+  "class": "StaticMeshActor",
+  "mesh": "SM_REcycleToiletPaper",
+  "x": -3742.2,
+  "y": -1536.5,
+  "z": 1058.5
+ },
+ {
+  "label": "F3_SM_wallBrick130",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3732.7,
+  "y": -957.3,
+  "z": 1274.1
+ },
+ {
+  "label": "F3_SM_wallBrick149",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3732.7,
+  "y": -450.7,
+  "z": 1267.1
+ },
+ {
+  "label": "F5_office_door_polySurface102",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -3731.7,
+  "y": -723.1,
+  "z": 1002.8
+ },
+ {
+  "label": "BP_Ladder",
+  "class": "BP_Ladder_C",
+  "mesh": null,
+  "x": -3858.3,
+  "y": -1144.3,
+  "z": 1017.3
+ },
+ {
+  "label": "F3_SM_wallBrick270",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2120.5,
+  "y": -925.7,
+  "z": 1395.0
+ },
+ {
+  "label": "F3_SM_wallBrick271",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1817.4,
+  "y": -925.7,
+  "z": 1395.0
+ },
+ {
+  "label": "F3_SM_wallBrick275",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3972.5,
+  "y": -1398.9,
+  "z": 1404.3
+ },
+ {
+  "label": "F3_SM_wallBrick105",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": -1401.0,
+  "z": 1222.7
+ },
+ {
+  "label": "BP_Ladder2",
+  "class": "BP_Ladder_C",
+  "mesh": null,
+  "x": 485.0,
+  "y": -384.1,
+  "z": 1017.3
+ },
+ {
+  "label": "F3_SM_wallBrick274",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 528.3,
+  "y": -568.5,
+  "z": 1393.8
+ },
+ {
+  "label": "F3_SM_wallBrick276",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": -664.7,
+  "z": 1221.5
+ },
+ {
+  "label": "F3_SM_wallBrick278",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": -686.5,
+  "z": 1135.4
+ },
+ {
+  "label": "F3_SM_wallBrick86",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1937.2,
+  "y": -701.1,
+  "z": 1436.6
+ },
+ {
+  "label": "BP_Light_23",
+  "class": "BP_Light_1_C",
+  "mesh": "SM_Lamp_A",
+  "x": -2349.0,
+  "y": -1321.1,
+  "z": 1509.4
+ },
+ {
+  "label": "F3_SM_wallBrick272",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 613.5,
+  "y": -312.3,
+  "z": 1140.3
+ },
+ {
+  "label": "F3_SM_wallBrick284",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 715.5,
+  "y": -750.7,
+  "z": 1431.4
+ },
+ {
+  "label": "F3_SM_wallBrick285",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 529.5,
+  "y": -946.1,
+  "z": 1432.1
+ },
+ {
+  "label": "F3_SM_wallBrick286",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1268.1,
+  "y": -540.0,
+  "z": 1432.1
+ },
+ {
+  "label": "F3_SM_wallBrick291",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1937.2,
+  "y": -921.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick292",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -663.0,
+  "y": -919.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick293",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 25.0,
+  "y": -919.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick294",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1937.2,
+  "y": -702.5,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick295",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -663.0,
+  "y": -701.4,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick296",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1382.0,
+  "y": -315.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick303",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 715.0,
+  "y": -716.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick304",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 530.4,
+  "y": -581.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick307",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1269.0,
+  "y": -539.0,
+  "z": 1436.6
+ },
+ {
+  "label": "SM_WhiteBoard",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WhiteBoard",
+  "x": -2890.5,
+  "y": -299.7,
+  "z": 1201.6
+ },
+ {
+  "label": "SM_TVmural",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2725.6,
+  "y": -299.7,
+  "z": 1275.5
+ },
+ {
+  "label": "SM_TVmural2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2545.4,
+  "y": -299.7,
+  "z": 1275.5
+ },
+ {
+  "label": "SM_TVmural3",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2545.4,
+  "y": -299.7,
+  "z": 1172.4
+ },
+ {
+  "label": "SM_TVmural4",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2725.6,
+  "y": -299.7,
+  "z": 1172.4
+ },
+ {
+  "label": "SM_WeekBoard",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WeekBoard",
+  "x": -3033.4,
+  "y": -299.7,
+  "z": 1196.9
+ },
+ {
+  "label": "SM_SofaLB",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLB",
+  "x": -3898.7,
+  "y": 663.0,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_SofaGuestTable",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaGuestTable",
+  "x": -3724.0,
+  "y": 515.2,
+  "z": 1027.3
+ },
+ {
+  "label": "F3_Cylinder60",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": -2173.7,
+  "y": 322.1,
+  "z": 1031.1
+ },
+ {
+  "label": "F5_armchairlongback55",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairLongBack",
+  "x": -732.1,
+  "y": -258.2,
+  "z": 1030.4
+ },
+ {
+  "label": "F5_armchairlongback56",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairLongBack",
+  "x": -497.7,
+  "y": -183.1,
+  "z": 1030.4
+ },
+ {
+  "label": "SM_SofaLA_SmallTable2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -2412.6,
+  "y": -211.6,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_SofaLA_SmallTable3",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -3116.5,
+  "y": -211.6,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_ArmchairA",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairA",
+  "x": 706.5,
+  "y": -1327.2,
+  "z": 1028.6
+ },
+ {
+  "label": "SM_ArmchairA2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairA",
+  "x": 482.3,
+  "y": -1532.5,
+  "z": 1028.6
+ },
+ {
+  "label": "SM_ArmchairA6",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairA",
+  "x": 980.6,
+  "y": -1327.2,
+  "z": 1062.2
+ },
+ {
+  "label": "SM_TVmural5",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": 1226.8,
+  "y": -1427.6,
+  "z": 1159.4
+ },
+ {
+  "label": "F5_armchairlongback59",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairLongBack",
+  "x": 1487.4,
+  "y": -1460.6,
+  "z": 1035.3
+ },
+ {
+  "label": "SM_SofaLA_SmallTable5",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -232.8,
+  "y": -229.5,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_SofaLA_SmallTable6",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -249.6,
+  "y": -130.2,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_WhiteBoard2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WhiteBoard",
+  "x": 243.1,
+  "y": -302.0,
+  "z": 1201.6
+ },
+ {
+  "label": "F3_SM_wallBrick315",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 261.0,
+  "y": -700.5,
+  "z": 1436.6
+ },
+ {
+  "label": "SM_QubeLamp",
+  "class": "StaticMeshActor",
+  "mesh": "SM_QubeLamp",
+  "x": -3955.9,
+  "y": 304.9,
+  "z": 1027.3
+ },
+ {
+  "label": "Sm_Phone02",
+  "class": "StaticMeshActor",
+  "mesh": "Sm_Phone02",
+  "x": -2365.0,
+  "y": -1524.1,
+  "z": 1105.2
+ },
+ {
+  "label": "BP_InteractDoor10",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": 1728.6,
+  "y": -309.7,
+  "z": 1265.1
+ },
+ {
+  "label": "BP_InteractDoor",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -1256.3,
+  "y": -859.4,
+  "z": 1262.7
+ },
+ {
+  "label": "BP_InteractDoor8",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -176.7,
+  "y": -672.2,
+  "z": 1262.7
+ },
+ {
+  "label": "BP_InteractDoor9",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -2060.6,
+  "y": -925.7,
+  "z": 1266.5
+ },
+ {
+  "label": "BP_InteractDoor17",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -3727.7,
+  "y": -604.5,
+  "z": 1263.6
+ },
+ {
+  "label": "BP_InteractDoor6",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -1759.3,
+  "y": -925.7,
+  "z": 1262.7
+ },
+ {
+  "label": "BP_InteractDoor2",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -2623.6,
+  "y": -735.5,
+  "z": 1268.1
+ },
+ {
+  "label": "BP_InteractDoor7",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -179.2,
+  "y": -925.7,
+  "z": 1262.7
+ },
+ {
+  "label": "TEST_ScytheerPath",
+  "class": "ZP_ScytheerClimbPath",
+  "mesh": null,
+  "x": -3496.6,
+  "y": -1057.0,
+  "z": 1089.9
+ },
+ {
+  "label": "F2_SM_SecuritySilling3",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SecuritySilling",
+  "x": 1858.4,
+  "y": 6247.6,
+  "z": 984.6
+ },
+ {
+  "label": "F3_Exit_door_pCube165",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExit",
+  "x": 822.8,
+  "y": 6909.2,
+  "z": 999.4
+ },
+ {
+  "label": "F3_Exit_door_polySurface67",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExitFrame",
+  "x": 939.4,
+  "y": 6914.4,
+  "z": 999.4
+ },
+ {
+  "label": "F3_Cylinder65",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": -2173.7,
+  "y": 4729.9,
+  "z": 1511.3
+ },
+ {
+  "label": "F3_office_door_polySurface84",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -3312.4,
+  "y": 6227.4,
+  "z": 1001.5
+ },
+ {
+  "label": "F3_office_door_polySurface85",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -3096.3,
+  "y": 6227.4,
+  "z": 1001.5
+ },
+ {
+  "label": "F3_SM_wallBrick28",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1731.7,
+  "y": 6658.8,
+  "z": 1244.6
+ },
+ {
+  "label": "F3_SM_wallBrick41",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2290.4,
+  "y": 6659.0,
+  "z": 1233.2
+ },
+ {
+  "label": "F3_SM_wallBrick44",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -746.7,
+  "y": 6658.8,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_wallBrick58",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -247.8,
+  "y": 6658.8,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_Cube67",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -9.7,
+  "y": 6656.4,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube69",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -9.3,
+  "y": 6659.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube70",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -500.1,
+  "y": 6656.4,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube72",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -499.8,
+  "y": 6659.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube99",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -995.1,
+  "y": 6656.4,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube100",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -994.8,
+  "y": 6659.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube101",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1483.6,
+  "y": 6659.7,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube103",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1142.2,
+  "y": 3822.5,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube108",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3963.6,
+  "y": 3822.5,
+  "z": 1252.3
+ },
+ {
+  "label": "F3_SM_Cube109",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2633.3,
+  "y": 6226.2,
+  "z": 1224.9
+ },
+ {
+  "label": "F3_SM_Cube111",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2637.2,
+  "y": 6446.8,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_Cube113",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3984.1,
+  "y": 6446.8,
+  "z": 1222.7
+ },
+ {
+  "label": "F3_SM_Cube114",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3762.4,
+  "y": 6654.9,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_Cube115",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3331.4,
+  "y": 6654.9,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_Cube116",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2877.0,
+  "y": 6654.9,
+  "z": 1137.1
+ },
+ {
+  "label": "F3_SM_WcWall5",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WcWall",
+  "x": -3314.5,
+  "y": 6224.8,
+  "z": 1001.1
+ },
+ {
+  "label": "F3_SM_WcWall6",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WcWall",
+  "x": -3314.5,
+  "y": 6233.9,
+  "z": 1001.1
+ },
+ {
+  "label": "DoorTrigger_F3_F3_Exit_door_pCube164_Rotate2",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": 939.4,
+  "y": 6376.0,
+  "z": 1049.4
+ },
+ {
+  "label": "DoorTrigger_F3_F3_office_door_polySurface82_Rotate2",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3217.3,
+  "y": 6227.4,
+  "z": 1051.5
+ },
+ {
+  "label": "DoorTrigger_F3_F3_office_door_polySurface83_Rotate2",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3001.3,
+  "y": 6227.4,
+  "z": 1051.5
+ },
+ {
+  "label": "DoorTrigger_F3_F3_Aotu_door_pCube1387_Slide2",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -2630.6,
+  "y": 5704.5,
+  "z": 1051.5
+ },
+ {
+  "label": "DoorTrigger_F3_F3_BP_WCDoor2_Rotate2",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3217.8,
+  "y": 6227.8,
+  "z": 1050.7
+ },
+ {
+  "label": "DoorTrigger_F3_F3_BP_WCDoor3_Rotate2",
+  "class": "ZP_InteractDoor",
+  "mesh": null,
+  "x": -3000.5,
+  "y": 6224.4,
+  "z": 1051.1
+ },
+ {
+  "label": "BP_FloorSign_4",
+  "class": "BP_FloorSign_3_C",
+  "mesh": "Plane",
+  "x": 601.0,
+  "y": 6904.1,
+  "z": 1246.9
+ },
+ {
+  "label": "F3_line_box_glass5",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FireExtinguisherBoxGlass",
+  "x": 632.1,
+  "y": 6891.6,
+  "z": 1146.5
+ },
+ {
+  "label": "F3_line_box_glass6",
+  "class": "StaticMeshActor",
+  "mesh": "SM_FireExtinguisherBoxGlass",
+  "x": 758.8,
+  "y": 6891.6,
+  "z": 1168.5
+ },
+ {
+  "label": "BP_CardReaderPanel4",
+  "class": "BP_CardReaderPanel_C",
+  "mesh": "SM_BiometricTime",
+  "x": 988.8,
+  "y": 6904.8,
+  "z": 1163.8
+ },
+ {
+  "label": "F3_SM_wallBrick72",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3159.9,
+  "y": 5361.7,
+  "z": 1258.6
+ },
+ {
+  "label": "F3_SM_wallBrick73",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3680.8,
+  "y": 5361.9,
+  "z": 1258.6
+ },
+ {
+  "label": "F3_SM_wallBrick76",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2326.6,
+  "y": 5361.7,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick114",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1819.9,
+  "y": 5361.7,
+  "z": 1261.0
+ },
+ {
+  "label": "F5_office_door_polySurface87",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -1250.1,
+  "y": 5907.3,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick115",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 85.4,
+  "y": 5364.3,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick120",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 528.3,
+  "y": 5544.0,
+  "z": 1175.0
+ },
+ {
+  "label": "F3_SM_wallBrick148",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2626.9,
+  "y": 6284.0,
+  "z": 1260.3
+ },
+ {
+  "label": "F5_office_door_polySurface95",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -2627.6,
+  "y": 5787.7,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick150",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2626.9,
+  "y": 5572.4,
+  "z": 1256.7
+ },
+ {
+  "label": "F3_Cylinder161",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": 1199.8,
+  "y": 4624.0,
+  "z": 1503.2
+ },
+ {
+  "label": "F3_Cylinder162",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": 1199.8,
+  "y": 4624.0,
+  "z": 1023.1
+ },
+ {
+  "label": "F3_SM_wallBrick151",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1252.3,
+  "y": 6317.8,
+  "z": 1247.7
+ },
+ {
+  "label": "F3_SM_wallBrick152",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": 5500.3,
+  "z": 1251.7
+ },
+ {
+  "label": "F3_SM_wallBrick153",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 328.8,
+  "y": 6317.8,
+  "z": 1251.0
+ },
+ {
+  "label": "F3_SM_wallBrick154",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1495.8,
+  "y": 5977.7,
+  "z": 1266.1
+ },
+ {
+  "label": "F3_SM_wallBrick156",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2404.4,
+  "y": 5977.7,
+  "z": 1267.2
+ },
+ {
+  "label": "F5_office_door_polySurface96",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -1758.2,
+  "y": 5977.7,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick157",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 83.7,
+  "y": 5977.7,
+  "z": 1251.0
+ },
+ {
+  "label": "F3_SM_wallBrick158",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -677.0,
+  "y": 5977.8,
+  "z": 1255.8
+ },
+ {
+  "label": "F5_office_door_polySurface97",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -178.8,
+  "y": 5977.7,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick159",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -245.7,
+  "y": 5977.7,
+  "z": 1389.8
+ },
+ {
+  "label": "F3_SM_wallBrick160",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1147.1,
+  "y": 5977.7,
+  "z": 1247.7
+ },
+ {
+  "label": "F3_SM_wallBrick161",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": 5652.7,
+  "z": 1233.6
+ },
+ {
+  "label": "F3_SM_wallBrick162",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -343.9,
+  "y": 5193.0,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick163",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -634.6,
+  "y": 5023.7,
+  "z": 1464.7
+ },
+ {
+  "label": "F3_SM_wallBrick166",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 183.7,
+  "y": 5724.2,
+  "z": 1258.5
+ },
+ {
+  "label": "F3_SM_wallBrick167",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -677.0,
+  "y": 5724.2,
+  "z": 1268.4
+ },
+ {
+  "label": "F5_office_door_polySurface98",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -178.8,
+  "y": 5724.2,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick168",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -245.7,
+  "y": 5724.2,
+  "z": 1391.6
+ },
+ {
+  "label": "F3_SM_wallBrick169",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1143.4,
+  "y": 5724.2,
+  "z": 1264.2
+ },
+ {
+  "label": "F3_SM_wallBrick170",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": 5964.8,
+  "z": 1229.8
+ },
+ {
+  "label": "F5_allinone_sep_lowt_polySurface289",
+  "class": "StaticMeshActor",
+  "mesh": "SM_KeyboardMini",
+  "x": -2194.8,
+  "y": 6589.3,
+  "z": 1104.2
+ },
+ {
+  "label": "F5_allinone_sep_lowt_polySurface290",
+  "class": "StaticMeshActor",
+  "mesh": "SM_MouseA",
+  "x": -2143.4,
+  "y": 6553.3,
+  "z": 1104.2
+ },
+ {
+  "label": "F5_office_door_polySurface99",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -2060.2,
+  "y": 5977.7,
+  "z": 1005.3
+ },
+ {
+  "label": "F3_SM_wallBrick171",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1967.3,
+  "y": 5977.7,
+  "z": 1249.6
+ },
+ {
+  "label": "F3_SM_wallBrick201",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2875.4,
+  "y": 6659.0,
+  "z": 1132.7
+ },
+ {
+  "label": "F3_SM_wallBrick203",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3460.4,
+  "y": 6659.0,
+  "z": 1132.7
+ },
+ {
+  "label": "F3_Exit_door_pCube175",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExit",
+  "x": -3961.4,
+  "y": 6846.0,
+  "z": 1021.4
+ },
+ {
+  "label": "F3_Exit_door_polySurface72",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorExitFrame",
+  "x": -3979.1,
+  "y": 6846.0,
+  "z": 1029.4
+ },
+ {
+  "label": "F3_SM_wallBrick205",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3865.4,
+  "y": 6659.0,
+  "z": 1185.9
+ },
+ {
+  "label": "F3_SM_wallBrick206",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": 6689.0,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_wallBrick207",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": 6884.0,
+  "z": 1224.4
+ },
+ {
+  "label": "F3_SM_wallBrick208",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": 6789.0,
+  "z": 1384.4
+ },
+ {
+  "label": "F3_SM_wallBrick229",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1236.7,
+  "y": 6658.8,
+  "z": 1247.7
+ },
+ {
+  "label": "F3_SM_wallBrick230",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 161.1,
+  "y": 6658.8,
+  "z": 1224.4
+ },
+ {
+  "label": "BP_HorrorLight7",
+  "class": "BP_HorrorLight_C",
+  "mesh": "Cylinder",
+  "x": 1725.1,
+  "y": 6780.1,
+  "z": 1520.5
+ },
+ {
+  "label": "F3_SM_wallBrick231",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1862.1,
+  "y": 5364.3,
+  "z": 1261.0
+ },
+ {
+  "label": "F3_SM_wallBrick232",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1147.7,
+  "y": 5364.3,
+  "z": 1268.6
+ },
+ {
+  "label": "F5_office_door_polySurface100",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": 1723.4,
+  "y": 5361.7,
+  "z": 1002.8
+ },
+ {
+  "label": "F3_SM_wallBrick233",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1656.4,
+  "y": 5364.3,
+  "z": 1392.7
+ },
+ {
+  "label": "F3_SM_wallBrick234",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2649.9,
+  "y": 5361.7,
+  "z": 1258.6
+ },
+ {
+  "label": "F3_SM_wallBrick235",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1193.3,
+  "y": 3820.3,
+  "z": 1224.4
+ },
+ {
+  "label": "BP_Light_24",
+  "class": "BP_Light_1_C",
+  "mesh": "SM_Lamp_A",
+  "x": 887.8,
+  "y": 7055.7,
+  "z": 957.2
+ },
+ {
+  "label": "BP_Light_25",
+  "class": "BP_Light_1_C",
+  "mesh": "SM_Lamp_A",
+  "x": 887.8,
+  "y": 7055.7,
+  "z": 1422.2
+ },
+ {
+  "label": "BP_FloorSign_11",
+  "class": "BP_FloorSign_3_C",
+  "mesh": "Plane",
+  "x": 990.8,
+  "y": 6916.3,
+  "z": 1168.1
+ },
+ {
+  "label": "F3_SM_wallBrick236",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3732.7,
+  "y": 6009.3,
+  "z": 1279.5
+ },
+ {
+  "label": "F3_SM_wallBrick237",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3732.7,
+  "y": 5502.7,
+  "z": 1273.4
+ },
+ {
+  "label": "F5_office_door_polySurface103",
+  "class": "StaticMeshActor",
+  "mesh": "SM_DoorOfficeFrame",
+  "x": -3731.7,
+  "y": 5658.5,
+  "z": 1002.8
+ },
+ {
+  "label": "BP_Ladder3",
+  "class": "BP_Ladder_C",
+  "mesh": null,
+  "x": -3858.3,
+  "y": 6196.3,
+  "z": 1017.3
+ },
+ {
+  "label": "F3_SM_wallBrick324",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2120.5,
+  "y": 5977.7,
+  "z": 1395.0
+ },
+ {
+  "label": "F3_SM_wallBrick325",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1817.4,
+  "y": 5977.7,
+  "z": 1395.0
+ },
+ {
+  "label": "F3_SM_wallBrick326",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3732.7,
+  "y": 5714.5,
+  "z": 1395.0
+ },
+ {
+  "label": "F3_SM_wallBrick240",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -2036.4,
+  "y": 6317.8,
+  "z": 1247.7
+ },
+ {
+  "label": "F3_SM_wallBrick329",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3972.5,
+  "y": 6450.9,
+  "z": 1404.3
+ },
+ {
+  "label": "F3_SM_wallBrick241",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3980.4,
+  "y": 6453.0,
+  "z": 1222.7
+ },
+ {
+  "label": "BP_Ladder4",
+  "class": "BP_Ladder_C",
+  "mesh": null,
+  "x": 485.0,
+  "y": 5436.1,
+  "z": 1017.3
+ },
+ {
+  "label": "F3_SM_wallBrick332",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 528.3,
+  "y": 5620.5,
+  "z": 1393.8
+ },
+ {
+  "label": "F3_SM_wallBrick333",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": 5716.7,
+  "z": 1221.5
+ },
+ {
+  "label": "F3_SM_wallBrick335",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1250.0,
+  "y": 5738.5,
+  "z": 1135.4
+ },
+ {
+  "label": "F3_SM_wallBrick244",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1937.2,
+  "y": 5753.1,
+  "z": 1436.6
+ },
+ {
+  "label": "BP_Light_31",
+  "class": "BP_Light_1_C",
+  "mesh": "SM_Lamp_A",
+  "x": -2349.0,
+  "y": 6373.1,
+  "z": 1484.8
+ },
+ {
+  "label": "F3_SM_wallBrick337",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 613.5,
+  "y": 5364.3,
+  "z": 1140.3
+ },
+ {
+  "label": "F3_SM_wallBrick340",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 715.5,
+  "y": 5802.7,
+  "z": 1431.4
+ },
+ {
+  "label": "F3_SM_wallBrick341",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 529.5,
+  "y": 5998.1,
+  "z": 1432.1
+ },
+ {
+  "label": "F3_SM_wallBrick342",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1268.1,
+  "y": 5592.0,
+  "z": 1432.1
+ },
+ {
+  "label": "F3_SM_wallBrick347",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1937.2,
+  "y": 5930.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick348",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -663.0,
+  "y": 5928.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick349",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 25.0,
+  "y": 5928.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick350",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1937.2,
+  "y": 5754.5,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick351",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -663.0,
+  "y": 5753.4,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick352",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1382.0,
+  "y": 5367.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick359",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 715.0,
+  "y": 5768.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick360",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 530.4,
+  "y": 5633.0,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick363",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 1269.0,
+  "y": 5591.0,
+  "z": 1436.6
+ },
+ {
+  "label": "SM_WhiteBoard3",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WhiteBoard",
+  "x": -2890.5,
+  "y": 5345.4,
+  "z": 1201.6
+ },
+ {
+  "label": "SM_TVmural6",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2725.6,
+  "y": 5341.4,
+  "z": 1275.5
+ },
+ {
+  "label": "SM_TVmural7",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2545.4,
+  "y": 5341.4,
+  "z": 1275.5
+ },
+ {
+  "label": "SM_TVmural8",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2545.4,
+  "y": 5341.4,
+  "z": 1172.4
+ },
+ {
+  "label": "SM_TVmural9",
+  "class": "StaticMeshActor",
+  "mesh": "SM_TVmural",
+  "x": -2725.6,
+  "y": 5341.4,
+  "z": 1172.4
+ },
+ {
+  "label": "SM_WeekBoard2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WeekBoard",
+  "x": -3033.4,
+  "y": 5351.1,
+  "z": 1196.9
+ },
+ {
+  "label": "SM_SofaLB2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLB",
+  "x": -3871.4,
+  "y": 5236.7,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_SofaGuestTable2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaGuestTable",
+  "x": -3887.9,
+  "y": 5159.2,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_RoomManagerA5",
+  "class": "StaticMeshActor",
+  "mesh": "SM_RoomManagerA",
+  "x": -2090.9,
+  "y": 5194.7,
+  "z": 1027.3
+ },
+ {
+  "label": "F3_Cylinder67",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": -2173.7,
+  "y": 4729.9,
+  "z": 1031.1
+ },
+ {
+  "label": "F5_armchairlongback92",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairLongBack",
+  "x": -745.7,
+  "y": 5322.8,
+  "z": 1023.1
+ },
+ {
+  "label": "F5_armchairlongback93",
+  "class": "StaticMeshActor",
+  "mesh": "SM_ArmchairLongBack",
+  "x": -490.1,
+  "y": 5252.1,
+  "z": 1023.1
+ },
+ {
+  "label": "SM_RoomManagerA6",
+  "class": "StaticMeshActor",
+  "mesh": "SM_RoomManagerA",
+  "x": -1552.1,
+  "y": 5194.7,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_SofaLA_SmallTable4",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -2412.6,
+  "y": 5306.1,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_SofaLA_SmallTable7",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -3116.5,
+  "y": 5306.1,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_RoomManagerA7",
+  "class": "StaticMeshActor",
+  "mesh": "SM_RoomManagerA",
+  "x": 282.2,
+  "y": 5194.7,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_RoomManagerA8",
+  "class": "StaticMeshActor",
+  "mesh": "SM_RoomManagerA",
+  "x": 987.6,
+  "y": 5194.7,
+  "z": 1027.3
+ },
+ {
+  "label": "F3_SM_wallBrick245",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -938.9,
+  "y": 5193.0,
+  "z": 1261.0
+ },
+ {
+  "label": "SM_SofaLA_SmallTable8",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -243.8,
+  "y": 5322.5,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_SofaLA_SmallTable9",
+  "class": "StaticMeshActor",
+  "mesh": "SM_SofaLA_SmallTable",
+  "x": -279.6,
+  "y": 5212.3,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_WhiteBoard4",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WhiteBoard",
+  "x": 243.1,
+  "y": 5347.7,
+  "z": 1201.6
+ },
+ {
+  "label": "F3_Cylinder68",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": -163.3,
+  "y": 4729.9,
+  "z": 1511.3
+ },
+ {
+  "label": "F3_Cylinder70",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cylinder",
+  "x": -163.3,
+  "y": 4729.9,
+  "z": 1031.1
+ },
+ {
+  "label": "F3_SM_wallBrick371",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 261.0,
+  "y": 5752.5,
+  "z": 1436.6
+ },
+ {
+  "label": "SM_QubeLamp2",
+  "class": "StaticMeshActor",
+  "mesh": "SM_QubeLamp",
+  "x": -3955.9,
+  "y": 4749.0,
+  "z": 1027.3
+ },
+ {
+  "label": "BP_InteractDoor11",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": 1598.1,
+  "y": 5361.7,
+  "z": 1265.1
+ },
+ {
+  "label": "BP_InteractDoor3",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -1256.3,
+  "y": 5911.4,
+  "z": 1262.7
+ },
+ {
+  "label": "BP_InteractDoor12",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -176.7,
+  "y": 5724.2,
+  "z": 1262.7
+ },
+ {
+  "label": "BP_InteractDoor13",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -2060.6,
+  "y": 5977.7,
+  "z": 1266.5
+ },
+ {
+  "label": "BP_InteractDoor18",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -3727.7,
+  "y": 5780.3,
+  "z": 1268.1
+ },
+ {
+  "label": "BP_InteractDoor14",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -1759.3,
+  "y": 5977.7,
+  "z": 1262.7
+ },
+ {
+  "label": "BP_InteractDoor4",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -2623.6,
+  "y": 5787.5,
+  "z": 1268.1
+ },
+ {
+  "label": "BP_InteractDoor15",
+  "class": "BP_InteractDoor_C",
+  "mesh": "SM_DoorOffice",
+  "x": -297.9,
+  "y": 5977.7,
+  "z": 1262.7
+ },
+ {
+  "label": "SM_RoomManagerA11",
+  "class": "StaticMeshActor",
+  "mesh": "SM_RoomManagerA",
+  "x": 614.4,
+  "y": -121.3,
+  "z": 1027.3
+ },
+ {
+  "label": "SM_RoomManagerA12",
+  "class": "StaticMeshActor",
+  "mesh": "SM_RoomManagerA",
+  "x": 1153.2,
+  "y": -121.3,
+  "z": 1027.3
+ },
+ {
+  "label": "BP_FloorSign_13",
+  "class": "BP_FloorSign_3_C",
+  "mesh": "Plane",
+  "x": 611.0,
+  "y": 6907.0,
+  "z": 1254.0
+ },
+ {
+  "label": "F3_SM_WcWall7",
+  "class": "StaticMeshActor",
+  "mesh": "SM_WcWall",
+  "x": -3314.5,
+  "y": -1164.5,
+  "z": 1003.0
+ },
+ {
+  "label": "ZP_ScytheerClimbPath2",
+  "class": "ZP_ScytheerClimbPath",
+  "mesh": null,
+  "x": 854.0,
+  "y": 1049.8,
+  "z": 1068.9
+ },
+ {
+  "label": "ZP_ScytheerClimbPath3",
+  "class": "ZP_ScytheerClimbPath",
+  "mesh": null,
+  "x": 176.1,
+  "y": 825.8,
+  "z": 1068.9
+ },
+ {
+  "label": "F3_SM_wallBrick102",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -677.0,
+  "y": -671.9,
+  "z": 1255.8
+ },
+ {
+  "label": "F3_SM_wallBrick175",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -3732.7,
+  "y": -665.7,
+  "z": 1398.8
+ },
+ {
+  "label": "F3_SM_wallBrick399",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -1937.2,
+  "y": -696.6,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick404",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": -663.0,
+  "y": -694.6,
+  "z": 1436.6
+ },
+ {
+  "label": "F3_SM_wallBrick405",
+  "class": "StaticMeshActor",
+  "mesh": "SM_Cube",
+  "x": 25.0,
+  "y": -694.6,
+  "z": 1436.6
+ },
+ {
+  "label": "BP_LootLocker10",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -1213.4,
+  "y": -514.5,
+  "z": 1008.1
+ },
+ {
+  "label": "BP_LootLocker11",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -1213.4,
+  "y": -454.9,
+  "z": 1008.1
+ },
+ {
+  "label": "BP_Briefcase4",
+  "class": "BP_Briefcase_C",
+  "mesh": "SM_ItemContainer",
+  "x": -2511.7,
+  "y": -996.1,
+  "z": 1032.5
+ },
+ {
+  "label": "BP_ItemPickup17",
+  "class": "BP_ItemPickup_C",
+  "mesh": "SM_PoliceShotgun",
+  "x": -575.3,
+  "y": -244.7,
+  "z": 1011.8
+ },
+ {
+  "label": "BP_ItemPickup19",
+  "class": "BP_ItemPickup_C",
+  "mesh": "SM_grenade",
+  "x": 607.3,
+  "y": -383.4,
+  "z": 1072.9
+ },
+ {
+  "label": "BP_LootLocker27",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": 634.0,
+  "y": -275.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_LootLocker28",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -164.2,
+  "y": -275.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_LootLocker29",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -104.2,
+  "y": -275.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_Shambler",
+  "class": "BP_Shambler_C",
+  "mesh": null,
+  "x": -1480.0,
+  "y": -787.5,
+  "z": 1127.7
+ },
+ {
+  "label": "BP_ItemPickup21",
+  "class": "BP_ItemPickup_C",
+  "mesh": "SM_Screwdriver",
+  "x": -180.7,
+  "y": -452.1,
+  "z": 1105.1
+ },
+ {
+  "label": "TEST_Scytheer",
+  "class": "BP_Scytheer_C",
+  "mesh": null,
+  "x": -3256.7,
+  "y": -1067.5,
+  "z": 1092.0
+ },
+ {
+  "label": "BP_ItemPickup13",
+  "class": "BP_ItemPickup_C",
+  "mesh": "SM_Keycard",
+  "x": -174.2,
+  "y": 5486.2,
+  "z": 1105.6
+ },
+ {
+  "label": "BP_LootLocker12",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -2264.0,
+  "y": 5328.0,
+  "z": 1026.1
+ },
+ {
+  "label": "BP_LootLocker13",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -2323.6,
+  "y": 5328.0,
+  "z": 1026.1
+ },
+ {
+  "label": "BP_LootLocker14",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -1728.2,
+  "y": 5327.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_LootLocker15",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -1787.8,
+  "y": 5327.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_LootLocker16",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -1668.7,
+  "y": 5327.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_LootLocker17",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -1213.4,
+  "y": 5566.5,
+  "z": 1008.1
+ },
+ {
+  "label": "BP_LootLocker18",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -1213.4,
+  "y": 5506.9,
+  "z": 1008.1
+ },
+ {
+  "label": "BP_ItemPickup23",
+  "class": "BP_ItemPickup_C",
+  "mesh": "SM_grenade",
+  "x": 1020.7,
+  "y": 5435.4,
+  "z": 1072.9
+ },
+ {
+  "label": "BP_LootLocker32",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": 634.0,
+  "y": 5327.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_LootLocker33",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -164.2,
+  "y": 5327.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_LootLocker34",
+  "class": "BP_LootLocker_C",
+  "mesh": "SM_ItemContainer",
+  "x": -104.2,
+  "y": 5327.8,
+  "z": 1026.5
+ },
+ {
+  "label": "BP_ItemPickup18",
+  "class": "BP_ItemPickup_C",
+  "mesh": "SM_Rifle",
+  "x": -575.3,
+  "y": -420.4,
+  "z": 1011.8
+ },
+ {
+  "label": "BP_ItemPickup20",
+  "class": "BP_ItemPickup_C",
+  "mesh": "SM_Pistol",
+  "x": -2510.9,
+  "y": -1563.6,
+  "z": 1099.9
+ },
+ {
+  "label": "BP_Shambler2",
+  "class": "BP_Shambler_C",
+  "mesh": null,
+  "x": -939.2,
+  "y": -1103.8,
+  "z": 1127.7
+ },
+ {
+  "label": "BP_Shambler3",
+  "class": "BP_Shambler_C",
+  "mesh": null,
+  "x": 135.5,
+  "y": -1384.5,
+  "z": 1115.8
+ },
+ {
+  "label": "TEST_Scytheer3",
+  "class": "BP_Scytheer_C",
+  "mesh": null,
+  "x": 1653.1,
+  "y": 1024.9,
+  "z": 1058.0
+ },
+ {
+  "label": "TEST_Scytheer4",
+  "class": "BP_Scytheer_C",
+  "mesh": null,
+  "x": 151.2,
+  "y": 26.7,
+  "z": 1058.0
+ }
+]

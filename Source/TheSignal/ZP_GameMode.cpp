@@ -4,6 +4,10 @@
 #include "ZP_GraceCharacter.h"
 #include "ZP_PlayerController.h"
 #include "ZP_GameState.h"
+#include "ZP_TransitSubsystem.h"
+#include "GameFramework/PlayerStart.h"
+#include "Engine/GameInstance.h"
+#include "EngineUtils.h"
 
 AZP_GameMode::AZP_GameMode()
 {
@@ -15,4 +19,30 @@ AZP_GameMode::AZP_GameMode()
 	// FClassFinder for Blueprint classes in constructors causes cascading loads during CDO construction.
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GameMode constructed — DefaultPawn: ZP_GraceCharacter, Controller: ZP_PlayerController"));
+}
+
+AActor* AZP_GameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UZP_TransitSubsystem* Transit = GI->GetSubsystem<UZP_TransitSubsystem>())
+		{
+			const FName Tag = Transit->PeekPendingArrivalTag();
+			if (Tag != NAME_None)
+			{
+				for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+				{
+					if (It->PlayerStartTag == Tag)
+					{
+						Transit->ConsumePendingArrivalTag();
+						UE_LOG(LogTemp, Log, TEXT("[TheSignal] GameMode: Arrival at PlayerStart with tag '%s'"), *Tag.ToString());
+						return *It;
+					}
+				}
+				UE_LOG(LogTemp, Warning, TEXT("[TheSignal] GameMode: No PlayerStart tagged '%s' on this map — default spawn"), *Tag.ToString());
+			}
+		}
+	}
+
+	return Super::ChoosePlayerStart_Implementation(Player);
 }

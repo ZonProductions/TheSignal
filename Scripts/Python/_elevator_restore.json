@@ -1,0 +1,149 @@
+[
+ {
+  "label": "F3_Elevator_final_polySurface72",
+  "cls": "StaticMeshActor",
+  "is_bp": false,
+  "bp_path": "/Script/Engine.StaticMeshActor",
+  "mesh": "/Game/office_BigCompanyArchViz/StaticMesh/Probs/SM_Elevator.SM_Elevator",
+  "loc": [
+   1379.016235,
+   -1851.740321034425,
+   1003.8438934489359
+  ],
+  "rot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "scl": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "mats": [
+   "/Game/BACKUP_InventorySystemPro/ExampleContent/Common/Art/Materials/MI_KeyBlack.MI_KeyBlack",
+   "/Game/office_BigCompanyArchViz/Materials/MI_BlackMarble.MI_BlackMarble",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ColorDarkMetallic.MI_ColorDarkMetallic",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ElevatorBody.MI_ElevatorBody",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ColorDarkMetallic.MI_ColorDarkMetallic",
+   "/Game/office_BigCompanyArchViz/Materials/MI_Steel1.MI_Steel1",
+   "/Game/office_BigCompanyArchViz/Materials/MI_Monitors_Black.MI_Monitors_Black",
+   "/Game/HorrorLight/Materials/MI_FlickeringLight.MI_FlickeringLight",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ElevatorBody.MI_ElevatorBody",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ElevatorBody.MI_ElevatorBody",
+   "/Game/HorrorLight/Materials/MI_FlickeringLight.MI_FlickeringLight",
+   "/Game/office_BigCompanyArchViz/Materials/MI_Steel2.MI_Steel2"
+  ]
+ },
+ {
+  "label": "F3_Elevator_final_polySurface73",
+  "cls": "StaticMeshActor",
+  "is_bp": false,
+  "bp_path": "/Script/Engine.StaticMeshActor",
+  "mesh": "/Game/office_BigCompanyArchViz/StaticMesh/Probs/SM_Elevator.SM_Elevator",
+  "loc": [
+   1107.017944,
+   -1852.6585249779143,
+   1003.8439411863619
+  ],
+  "rot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "scl": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "mats": [
+   "/Game/office_BigCompanyArchViz/Materials/MI_ElevatorKeys.MI_ElevatorKeys",
+   "/Game/office_BigCompanyArchViz/Materials/MI_BlackMarble.MI_BlackMarble",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ColorDarkMetallic.MI_ColorDarkMetallic",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ElevatorBody.MI_ElevatorBody",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ColorDarkMetallic.MI_ColorDarkMetallic",
+   "/Game/office_BigCompanyArchViz/Materials/MI_Steel1.MI_Steel1",
+   "/Game/office_BigCompanyArchViz/Materials/MI_Mirror.MI_Mirror",
+   "/Game/office_BigCompanyArchViz/Materials/MI_LightWhite.MI_LightWhite",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ElevatorBody.MI_ElevatorBody",
+   "/Game/office_BigCompanyArchViz/Materials/MI_ElevatorBody.MI_ElevatorBody",
+   "/Game/office_BigCompanyArchViz/Materials/MI_LightBlue.MI_LightBlue",
+   "/Game/office_BigCompanyArchViz/Materials/MI_Steel2.MI_Steel2"
+  ]
+ },
+ {
+  "label": "F3_SM_ElevatorLeftDoor2",
+  "cls": "StaticMeshActor",
+  "is_bp": false,
+  "bp_path": "/Script/Engine.StaticMeshActor",
+  "mesh": "/Game/office_BigCompanyArchViz/StaticMesh/Probs/SM_ElevatorLeftDoor.SM_ElevatorLeftDoor",
+  "loc": [
+   1167.935791,
+   -1850.282471,
+   1003.685425
+  ],
+  "rot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "scl": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "mats": [
+   "/Game/office_BigCompanyArchViz/Materials/M_Metal.M_Metal"
+  ]
+ },
+ {
+  "label": "F3_SM_ElevatorRightDoor2",
+  "cls": "StaticMeshActor",
+  "is_bp": false,
+  "bp_path": "/Script/Engine.StaticMeshActor",
+  "mesh": "/Game/office_BigCompanyArchViz/StaticMesh/Probs/SM_ElevatorRightDoor.SM_ElevatorRightDoor",
+  "loc": [
+   1048.651733,
+   -1850.282471,
+   1003.685425
+  ],
+  "rot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "scl": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "mats": [
+   "/Game/office_BigCompanyArchViz/Materials/M_Metal.M_Metal"
+  ]
+ },
+ {
+  "label": "F3_BP_ElevatorDoors2",
+  "cls": "BP_ElevatorDoors_C",
+  "is_bp": true,
+  "bp_path": "/Game/office_BigCompanyArchViz/Blueprints/BP_ElevatorDoors.BP_ElevatorDoors_C",
+  "mesh": "/Game/office_BigCompanyArchViz/StaticMesh/Probs/SM_ElevatorLeftDoor.SM_ElevatorLeftDoor",
+  "loc": [
+   1438.702392,
+   -1852.631374,
+   1005.50516
+  ],
+  "rot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "scl": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "mats": [
+   "/Game/office_BigCompanyArchViz/Materials/M_Metal.M_Metal"
+  ]
+ }
+]
