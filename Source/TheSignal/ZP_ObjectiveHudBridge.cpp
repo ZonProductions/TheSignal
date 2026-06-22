@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
+#include "TimerManager.h"
 
 UZP_ObjectiveHudBridge::UZP_ObjectiveHudBridge()
 {
@@ -69,6 +70,7 @@ void UZP_ObjectiveHudBridge::HandleTrackerRefresh()
 	FZP_ObjectiveDef Def;
 	if (!Subsystem->GetActiveMainObjective(Def))
 	{
+		if (UWorld* W = GetWorld()) W->GetTimerManager().ClearTimer(FadeTimer);
 		HideObjective(QuestWidget);
 		return;
 	}
@@ -80,4 +82,17 @@ void UZP_ObjectiveHudBridge::HandleTrackerRefresh()
 		AddObjectiveRow(Sub.Id, Sub.Title, Subsystem->IsSubObjectiveComplete(Sub.Id));
 	}
 	EndObjective(QuestWidget, Def.Title);
+
+	// Show window: this call IS a show event (level load / objective update / menu close all route here).
+	// (Re)start the countdown so the tracker fades out ShowDuration seconds after the most recent event.
+	if (UWorld* W = GetWorld())
+	{
+		W->GetTimerManager().SetTimer(FadeTimer, this, &UZP_ObjectiveHudBridge::FadeOutTracker, ShowDuration, false);
+	}
+}
+
+void UZP_ObjectiveHudBridge::FadeOutTracker()
+{
+	// EasyGameUI ClearCurrentQuest plays the module's fade-out; a later show event re-displays it.
+	HideObjective(QuestWidget);
 }

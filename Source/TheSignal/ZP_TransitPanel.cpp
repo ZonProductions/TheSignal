@@ -12,6 +12,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "ZP_ObjectiveSubsystem.h"
+#include "ZP_NoteSubsystem.h"
 
 AZP_TransitPanel::AZP_TransitPanel()
 {
@@ -98,7 +100,9 @@ void AZP_TransitPanel::BuildMenuEntries(TArray<FZP_TransitMenuEntry>& OutEntries
 		const FZP_TransitDestination& D = Destinations[i];
 		const bool bAvail = IsDestinationAvailable(D, User);
 
-		// M3 will skip HiddenUntilKnown locked entries here. M1 shows everything.
+		// HiddenUntilKnown: omit locked destinations entirely until they become available.
+		if (!bAvail && D.LockStyle == EZP_TransitLockStyle::HiddenUntilKnown) continue;
+
 		FZP_TransitMenuEntry Entry;
 		Entry.DestinationIndex = i;
 		Entry.DisplayName = D.DisplayName;
@@ -110,7 +114,42 @@ void AZP_TransitPanel::BuildMenuEntries(TArray<FZP_TransitMenuEntry>& OutEntries
 
 bool AZP_TransitPanel::IsDestinationAvailable(const FZP_TransitDestination& Dest, ACharacter* ForCharacter) const
 {
-	// M1: every destination is available. M3 adds objective-complete + key-item gating here.
+	UWorld* World = GetWorld();
+	UGameInstance* GI = World ? World->GetGameInstance() : nullptr;
+
+	// --- Objective gate: the named objective must be complete. ---
+	if (!Dest.RequiredObjectiveId.IsNone())
+	{
+		bool bComplete = false;
+		if (GI)
+		{
+			if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>())
+			{
+				bComplete = Obj->IsObjectiveComplete(Dest.RequiredObjectiveId);
+			}
+		}
+		if (!bComplete) return false;
+	}
+
+	// --- Key/note gate: the player must have collected the note (NoteSubsystem). ---
+	// (A collected note is stored under FName(DataAsset->GetPathName()), which equals the soft-path string.)
+	if (!Dest.RequiredKeyItem.IsNull())
+	{
+		const FName ItemId(*Dest.RequiredKeyItem.ToSoftObjectPath().ToString());
+		bool bHas = false;
+		if (GI)
+		{
+			if (UZP_NoteSubsystem* Notes = GI->GetSubsystem<UZP_NoteSubsystem>())
+			{
+				bHas = Notes->HasNote(ItemId);
+			}
+		}
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Transit '%s' key/note gate: id=%s has=%d"),
+			*Dest.DestinationId.ToString(), *ItemId.ToString(), bHas ? 1 : 0);
+		// NOTE: real Moonville inventory keycards (not notes) would also be checked here — see M3.
+		if (!bHas) return false;
+	}
+
 	return true;
 }
 

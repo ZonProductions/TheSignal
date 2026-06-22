@@ -33,6 +33,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Objectives")
 	TSubclassOf<UUserWidget> QuestWidgetClass;
 
+	/** Seconds the tracker stays up after a show event (menu close / level load / objective update)
+	 *  before it fades out. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Objectives")
+	float ShowDuration = 8.f;
+
 	/** Force a refresh (also called on bind). BP-callable for testing. */
 	UFUNCTION(BlueprintCallable, Category = "Objectives")
 	void RefreshNow() { HandleTrackerRefresh(); }
@@ -65,6 +70,9 @@ protected:
 	UFUNCTION()
 	void HandleTrackerRefresh();
 
+	/** Timer callback: fade the tracker out after ShowDuration. */
+	void FadeOutTracker();
+
 private:
 	UPROPERTY()
 	TObjectPtr<UZP_ObjectiveSubsystem> Subsystem;
@@ -73,4 +81,6 @@ private:
 	TObjectPtr<UUserWidget> QuestWidget;
 
 	bool bAutoCreated = false; // true if QuestWidget was auto-created (vs registered from the HUD)
+
+	FTimerHandle FadeTimer; // counts down ShowDuration after each show event
 };

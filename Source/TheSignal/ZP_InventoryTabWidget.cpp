@@ -6,6 +6,8 @@
 #include "ZP_NotesWidget.h"
 #include "ZP_MapVolume.h"
 #include "ZP_GraceCharacter.h"
+#include "ZP_ObjectiveSubsystem.h"
+#include "Engine/GameInstance.h"
 
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/WidgetTree.h"
@@ -200,6 +202,15 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		if (APlayerController* PC = GetOwningPlayer())
 		{
 			PC->SetPause(false);
+		}
+
+		// Tab menu (Map/Inventory/Notes) closed → re-show the objective tracker for its timed window.
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UZP_ObjectiveSubsystem* ObjSys = GI->GetSubsystem<UZP_ObjectiveSubsystem>())
+			{
+				ObjSys->NotifyMenuClosed();
+			}
 		}
 
 		bTabsWired = false;
