@@ -1,11 +1,46 @@
 [
 	{
 		"Id": "OFFICE1",
-		"Title": "FINDING A WAY OUT",
+		"Title": "Find a way out",
 		"bSideObjective": false,
 		"bStartOnLoad": true,
 		"Requires": [],
 		"SubObjectives": [
-			{ "Id": "OFFICEA", "Title": "Search for clues", "Requirements": [ { "Type": "FlagSet", "Value": "TestFlagA" } ] }		]
+			{
+				"Id": "OFF_CLUES",
+				"Title": "Search for clues",
+				"RevealRequirements": [],
+				"Requirements": [
+					{ "Type": "HasItem", "Value": "/Game/Core/Items/DA_Note_Mysterious_Note.DA_Note_Mysterious_Note" }
+				],
+				"Stages": [
+					{
+						"Title": "Go to the empty floor",
+						"EnterFlag": "empty_floor_available",
+						"Requirements": [
+							{ "Type": "FlagSet", "Value": "reached_empty_floor" }
+						]
+					}
+				]
+			},
+			{
+				"Id": "OFF_CARD",
+				"Title": "Find security card",
+				"RevealRequirements": [
+					{ "Type": "FlagSet", "Value": "tried_card_reader" }
+				],
+				"Requirements": [
+					{ "Type": "HasItem", "Value": "/Game/Core/Items/DA_IDCard.DA_IDCard" }
+				],
+				"Stages": [
+					{
+						"Title": "Access east wing",
+						"Requirements": [
+							{ "Type": "FlagSet", "Value": "east_wing_unlocked" }
+						]
+					}
+				]
+			}
+		]
 	}
 ]

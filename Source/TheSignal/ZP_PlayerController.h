@@ -98,6 +98,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UUserWidget> PauseMenuWidgetClass;
 
+	/** True while the pause menu is up — gameplay/inventory input handlers suppress themselves under it. */
+	UFUNCTION(BlueprintPure, Category = "UI")
+	bool IsPauseMenuOpen() const;
+
+	/** Dev console: set an objective progression flag (e.g. `ZP_ObjFlag reached_empty_floor` to complete
+	 *  a step gated on that flag). Lets you verify objective progression without placing a trigger. */
+	UFUNCTION(Exec)
+	void ZP_ObjFlag(const FString& Flag);
+
+	/** Dev console: wipe saved objective progress + in-memory state for a fresh run (`ZP_ObjReset`). */
+	UFUNCTION(Exec)
+	void ZP_ObjReset();
+
+	/** Dev console: delete the persisted inventory snapshot so the NEXT PIE start grants the fresh
+	 *  starting loadout (`ZP_InvReset`). Restart PIE after running it. */
+	UFUNCTION(Exec)
+	void ZP_InvReset();
+
 	// --- Input ---
 
 	/** Default mapping context applied on BeginPlay. Set in PC_Grace Blueprint. */

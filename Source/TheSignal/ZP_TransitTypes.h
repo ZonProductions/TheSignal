@@ -56,6 +56,12 @@ struct FZP_TransitDestination
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit|Gating")
 	FName RequiredObjectiveId = NAME_None;
 
+	/** Objective progression FLAG that must be set before this destination is available. None = no gate.
+	 *  Preferred gate for objective STEPS (sub-objective stages have no id): the step sets a flag via its
+	 *  EnterFlag, and flags auto-persist — so the floor stays unlocked across save/load. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit|Gating")
+	FName RequiredFlag = NAME_None;
+
 	/** If the player selects/discovers this but isn't ready, start this objective ("Find L5 keycard"). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit|Gating")
 	FName StartObjectiveIfLocked = NAME_None;

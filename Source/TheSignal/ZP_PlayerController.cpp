@@ -14,6 +14,8 @@
 #include "Components/Widget.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "ZP_ObjectiveSubsystem.h"
+#include "Engine/GameInstance.h"
 
 AZP_PlayerController::AZP_PlayerController()
 {
@@ -154,12 +156,66 @@ bool AZP_PlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate)
 	// (our ESC handler, EGUI's Continue button, etc.)
 	if (!bPause)
 	{
+		// Re-arm the gameplay mapping context we suspended when the pause menu opened. Remove-then-add
+		// guarantees exactly one instance no matter which path triggered the unpause (so the player is
+		// never left stuck or with a duplicated context).
+		if (DefaultMappingContext)
+		{
+			RemoveMappingContext(DefaultMappingContext);
+			AddMappingContext(DefaultMappingContext, DefaultMappingPriority);
+		}
 		SetInputMode(FInputModeGameOnly());
 		SetShowMouseCursor(false);
 		ActivePauseMenu.Reset();
 	}
 
 	return Result;
+}
+
+bool AZP_PlayerController::IsPauseMenuOpen() const
+{
+	return ActivePauseMenu.IsValid() && ActivePauseMenu->IsInViewport();
+}
+
+void AZP_PlayerController::ZP_ObjFlag(const FString& Flag)
+{
+	if (Flag.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ZP_ObjFlag usage: ZP_ObjFlag <flagName>  (e.g. reached_empty_floor)"));
+		return;
+	}
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>())
+		{
+			Obj->SetFlag(FName(*Flag));
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_ObjFlag: set objective flag '%s'"), *Flag);
+		}
+	}
+}
+
+void AZP_PlayerController::ZP_ObjReset()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>())
+		{
+			Obj->ResetAllProgress();
+		}
+	}
+}
+
+void AZP_PlayerController::ZP_InvReset()
+{
+	if (UGameplayStatics::DoesSaveGameExist(TEXT("TheSignal_Inventory"), 0))
+	{
+		UGameplayStatics::DeleteGameInSlot(TEXT("TheSignal_Inventory"), 0);
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_InvReset: cleared inventory snapshot — restart PIE for a fresh loadout."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_InvReset: no inventory snapshot to clear."));
+	}
 }
 
 void AZP_PlayerController::TogglePauseMenu()
@@ -201,9 +257,25 @@ void AZP_PlayerController::TogglePauseMenu()
 		}
 
 		SetPause(true);
-		SetInputMode(FInputModeGameAndUI().SetWidgetToFocus(Menu->TakeWidget()));
+
+		// True pause for the player: SetPause alone left the pad's left-stick driving the character
+		// "under" the menu and let gameplay actions steal the controller's menu-nav inputs. Removing the
+		// gameplay mapping context (IMC_Grace) kills EVERY gameplay action regardless of input mode — the
+		// exact fix the save menu uses. Restored in SetPause(false) on unpause.
+		if (DefaultMappingContext)
+		{
+			RemoveMappingContext(DefaultMappingContext);
+		}
+
+		// GameAndUI (not UIOnly) and DON'T force focus to the root: the EGUI pause widget is a
+		// CommonActivatableWidget that focuses its own nav target — clobbering it with the root breaks
+		// controller navigation (proven on the save menu). Gameplay is already dead via the IMC removal.
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		SetInputMode(InputMode);
 		SetShowMouseCursor(true);
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Pause menu opened."));
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Pause menu opened (gameplay input suspended)."));
 	}
 }
 

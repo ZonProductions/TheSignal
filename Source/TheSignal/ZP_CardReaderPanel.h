@@ -89,6 +89,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
 	FText AccessGrantedMessage = FText::FromString(TEXT("Access Granted"));
 
+	// --- Objective hooks (optional; leave None to disable) ---
+
+	/** Objective flag set the first time the player interacts with this reader, locked or not.
+	 *  Use it to REVEAL a hidden sub-objective (e.g. "Find security card") via its RevealRequirements. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader|Objective")
+	FName ObjectiveFlagOnTry = NAME_None;
+
+	/** Objective flag set when this reader is successfully unlocked. Use it to COMPLETE the access
+	 *  step (e.g. an "Access east wing" stage gated on FlagSet of this flag). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader|Objective")
+	FName ObjectiveFlagOnUnlock = NAME_None;
+
 	// --- IZP_Interactable ---
 
 	virtual FText GetInteractionPrompt_Implementation() override;
@@ -125,4 +137,7 @@ private:
 	UActorComponent* GetMoonvilleInventoryComp(ACharacter* Character);
 
 	void SetStatusLightColor(FLinearColor Color);
+
+	/** Set an objective progression flag on the global ObjectiveSubsystem (no-op if Flag is None). */
+	void SetObjectiveFlag(FName Flag);
 };

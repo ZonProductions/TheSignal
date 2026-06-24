@@ -131,6 +131,23 @@ bool AZP_TransitPanel::IsDestinationAvailable(const FZP_TransitDestination& Dest
 		if (!bComplete) return false;
 	}
 
+	// --- Flag gate: an objective progression flag must be set. Flags auto-persist, so a floor gated
+	//     this way (e.g. on an objective STEP being reached) stays unlocked across save/load. ---
+	if (!Dest.RequiredFlag.IsNone())
+	{
+		bool bSet = false;
+		if (GI)
+		{
+			if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>())
+			{
+				bSet = Obj->HasFlag(Dest.RequiredFlag);
+			}
+		}
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Transit '%s' flag gate: flag=%s set=%d"),
+			*Dest.DestinationId.ToString(), *Dest.RequiredFlag.ToString(), bSet ? 1 : 0);
+		if (!bSet) return false;
+	}
+
 	// --- Key/note gate: the player must have collected the note (NoteSubsystem). ---
 	// (A collected note is stored under FName(DataAsset->GetPathName()), which equals the soft-path string.)
 	if (!Dest.RequiredKeyItem.IsNull())

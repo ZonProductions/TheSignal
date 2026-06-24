@@ -91,7 +91,8 @@
       "mcp__nwiro__create_anim_blueprint",
       "mcp__nwiro__reparent_blueprint",
       "mcp__nwiro__read_widget_blueprint",
-      "mcp__nwiro__edit_mapping_context"
+      "mcp__nwiro__edit_mapping_context",
+      "mcp__nwiro__set_actor_property"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -54,6 +54,51 @@ public:
 	UPROPERTY(SaveGame)
 	TArray<FZP_NoteEntry> CollectedNotes;
 
+	// --- Objective progression (UZP_ObjectiveSubsystem) ---
+
+	/** Objectives currently in progress. */
+	UPROPERTY(SaveGame)
+	TArray<FName> ActiveObjectives;
+
+	/** Main objectives the player has completed. */
+	UPROPERTY(SaveGame)
+	TArray<FName> CompletedObjectives;
+
+	/** Sub-objectives (steps) the player has completed. */
+	UPROPERTY(SaveGame)
+	TArray<FName> CompletedSubObjectives;
+
+	/** Hidden sub-objectives that have been revealed (e.g. after trying a locked card reader). */
+	UPROPERTY(SaveGame)
+	TArray<FName> RevealedSubObjectives;
+
+	/** Per-sub completed-stage count — drives a multi-stage step's current title across save/load. */
+	UPROPERTY(SaveGame)
+	TMap<FName, int32> SubObjectiveStages;
+
+	/** Progression flags set by triggers/dialogue/events. */
+	UPROPERTY(SaveGame)
+	TArray<FName> ProgressFlags;
+
+	/** Trigger ids the player has reached (ReachedTrigger requirements). */
+	UPROPERTY(SaveGame)
+	TArray<FName> ReachedTriggers;
+
+	// --- Moonville inventory persistence (AZP_GraceCharacter) ---
+
+	/** True once an inventory snapshot has been written (distinguishes a saved-but-empty inventory from
+	 *  a brand-new game, so a new game still grants the starting weapon). */
+	UPROPERTY(SaveGame)
+	bool bHasSavedInventory = false;
+
+	/** Moonville item DataAsset paths (one per occupied grid slot), parallel to SavedInventoryAmounts. */
+	UPROPERTY(SaveGame)
+	TArray<FString> SavedInventoryItemPaths;
+
+	/** Stack amount for each saved item, parallel to SavedInventoryItemPaths. */
+	UPROPERTY(SaveGame)
+	TArray<int32> SavedInventoryAmounts;
+
 	/** Slot name used for this save. */
 	static const FString DefaultSlotName;
 };

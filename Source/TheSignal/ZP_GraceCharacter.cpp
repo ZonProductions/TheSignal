@@ -51,6 +51,10 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "ZP_BriefcaseSubsystem.h"
+#include "ZP_ObjectiveSubsystem.h"
+#include "ZP_SaveGame.h"
+#include "UObject/SoftObjectPath.h"
+#include "Dom/JsonObject.h"
 #include "ZP_Ladder.h"
 #include "Components/ArrowComponent.h"
 
@@ -386,7 +390,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	if (FlashlightFinder.Succeeded()) FlashlightAction = FlashlightFinder.Object;
 
 	// Starting weapon (soft reference — doesn't force-load the asset)
-	StartingWeaponItem = TSoftObjectPtr<UObject>(FSoftObjectPath(TEXT("/Game/Core/Items/DA_Grace_Pistol.DA_Grace_Pistol")));
+	StartingWeaponItem = TSoftObjectPtr<UObject>(FSoftObjectPath(TEXT("/Game/Core/Items/DA_Pipe.DA_Pipe")));
 
 	// Bullet decal materials (soft references)
 	BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_01.MI_BulletHole_Metal_01"))));
@@ -545,8 +549,11 @@ void AZP_GraceCharacter::BeginPlay()
 	// Bind to Moonville OnInventoryUpdate for notes bridge
 	BindInventoryUpdateDelegate();
 
-	// Grant starting items to inventory + set weapon slot 0
+	// Fresh start always gets the starting loadout. Inventory persistence is tied to the SAVE FILE: an
+	// EasyGameUI LOAD restores items via the BP_EasySaveGameComponent hook (OnEguiSaveLoadVariables),
+	// which overwrites this fresh inventory. A plain PIE start / new game keeps just the starting loadout.
 	GrantStartingItems();
+	BindEguiSaveComponent();
 
 	// Seed the pickup-block cache so owned-weapon / capped-ammo pickups start
 	// non-interactable (Tick + inventory updates keep it current thereafter).
@@ -1199,10 +1206,10 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			// keys: slots bypass Enhanced Input to dodge the IMC_Grace / IMC_InventoryCharacter
 			// double-fire conflict, which also stranded the D-pad mapping. Order matches the
 			// original IMC_Grace D-pad bindings (Up=0, Right=1, Left=2, Down=3).
-			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Up))    Input_InventorySlot(0);
-			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Right)) Input_InventorySlot(1);
-			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Left))  Input_InventorySlot(2);
-			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Down))  Input_InventorySlot(3);
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Up))    { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Up -> slot 2")); Input_InventorySlot(2); }
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Right)) { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Right -> slot 0")); Input_InventorySlot(0); }
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Left))  { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Left -> slot 3")); Input_InventorySlot(3); }
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Down))  { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Down -> slot 1")); Input_InventorySlot(1); }
 		}
 	}
 
@@ -2128,8 +2135,22 @@ void AZP_GraceCharacter::Input_ReloadStarted(const FInputActionValue& Value)
 	if (KinemationComp) KinemationComp->Reload();
 }
 
+bool AZP_GraceCharacter::IsModalMenuOpen() const
+{
+	if (bSaveMenuOpen || bPickupMenuActive) return true;
+	if (const AZP_PlayerController* ZPC = Cast<AZP_PlayerController>(GetController()))
+	{
+		return ZPC->IsPauseMenuOpen();
+	}
+	return false;
+}
+
 void AZP_GraceCharacter::Input_InventoryMenu(const FInputActionValue& Value)
 {
+	// Don't let the inventory/notes/map tabs open UNDER the save point or pause menu (Moonville's
+	// IMC_InventoryCharacter stays active under those menus, so this action would otherwise still fire).
+	if (IsModalMenuOpen()) return;
+
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
 	if (!PC || !MoonvilleInventoryComp) return;
 
@@ -2164,6 +2185,9 @@ void AZP_GraceCharacter::Input_InventoryMenu(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_Map(const FInputActionValue& Value)
 {
+	// Don't let the map tab open UNDER the save point or pause menu.
+	if (IsModalMenuOpen()) return;
+
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
 	if (!PC) return;
 
@@ -2804,6 +2828,17 @@ void AZP_GraceCharacter::HandleInventoryUpdate()
 	EnforceAmmoCaps();
 	SyncReserveFromInventory();
 
+	// Inventory changed → re-evaluate objective HasItem requirements (key card / mysterious note
+	// pickups advance their steps; this is the single notify point for the whole Moonville grid).
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>())
+		{
+			Obj->NotifyInventoryChanged(NAME_None);
+		}
+	}
+
+
 	// Inventory changed (acquired/dropped a weapon) → re-evaluate which pickups are
 	// now blocked (e.g. picked up shotgun → the other shotgun goes non-interactable).
 	GatherLevelPickups();
@@ -2989,6 +3024,15 @@ void AZP_GraceCharacter::Input_InventorySlot(int32 SlotIndex)
 	{
 		if (!KinemationComp) return;
 
+		// A quick-slot still referencing a weapon that's no longer in the GRID (e.g. moved to a briefcase)
+		// is stale — don't equip a phantom weapon the player doesn't actually have.
+		if (!IsWeaponClassInGrid(SlotWeaponClass))
+		{
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Quick-slot %d: %s not in inventory (stale shortcut) — ignoring"),
+				SlotIndex, *SlotWeaponClass->GetName());
+			return;
+		}
+
 		// Throwables: only equippable while supply remains (stack-aware —
 		// replaces the old permanent consumed-class blocklist that killed
 		// the hotkey after one throw from a stack)
@@ -3093,6 +3137,31 @@ TSubclassOf<AActor> AZP_GraceCharacter::GetWeaponFromShortcutSlot(int32 SlotInde
 	if (!ItemDA) return nullptr;
 
 	return GetWeaponClassFromItem(ItemDA);
+}
+
+bool AZP_GraceCharacter::IsWeaponClassInGrid(TSubclassOf<AActor> InWeaponClass)
+{
+	if (!MoonvilleInventoryComp || !InWeaponClass) return false;
+
+	FArrayProperty* GridProp = CastField<FArrayProperty>(MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots")));
+	if (!GridProp) return false;
+	FStructProperty* StructInner = CastField<FStructProperty>(GridProp->Inner);
+	if (!StructInner) return false;
+
+	FObjectProperty* ItemProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("Item_"))) { ItemProp = CastField<FObjectProperty>(*It); break; }
+	}
+	if (!ItemProp) return false;
+
+	FScriptArrayHelper Helper(GridProp, GridProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp));
+	for (int32 i = 0; i < Helper.Num(); ++i)
+	{
+		UObject* ItemDA = ItemProp->GetObjectPropertyValue(ItemProp->ContainerPtrToValuePtr<void>(Helper.GetRawPtr(i)));
+		if (ItemDA && GetWeaponClassFromItem(ItemDA) == InWeaponClass) return true;
+	}
+	return false;
 }
 
 TSubclassOf<AActor> AZP_GraceCharacter::GetWeaponClassFromItem(UObject* ItemDA)
@@ -3585,6 +3654,207 @@ void AZP_GraceCharacter::GrantStartingItems()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] StartingWeaponItem not set — no starting item granted"));
 	}
+}
+
+void AZP_GraceCharacter::BindEguiSaveComponent()
+{
+	// Find the EasyGameUI save component (BP_EasySaveGameComponent) on this actor and bind our handler to
+	// its LoadingOrSavingVariables dispatcher. It fires on every per-slot SAVE and LOAD. The player is a
+	// Persistent EGUI actor restored IN PLACE, so this hook (not BeginPlay) is how a load reaches us.
+	UActorComponent* SaveComp = nullptr;
+	for (UActorComponent* C : GetComponents())
+	{
+		if (C && C->GetClass()->GetName().Contains(TEXT("EasySaveGameComponent")))
+		{
+			SaveComp = C;
+			break;
+		}
+	}
+	if (!SaveComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] Inventory persist: NO BP_EasySaveGameComponent on the player — add it to BP_GraceCharacter (ActorSaveType=Persistent, HasVariablesToSave=true). Inventory will NOT persist via the save file."));
+		return;
+	}
+
+	FMulticastDelegateProperty* DProp = CastField<FMulticastDelegateProperty>(
+		SaveComp->GetClass()->FindPropertyByName(FName("LoadingOrSavingVariables")));
+	if (!DProp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] Inventory persist: LoadingOrSavingVariables dispatcher not found on %s"), *SaveComp->GetClass()->GetName());
+		return;
+	}
+
+	FScriptDelegate Del;
+	Del.BindUFunction(this, FName("OnEguiSaveLoadVariables"));
+	DProp->AddDelegate(MoveTemp(Del), SaveComp, DProp->ContainerPtrToValuePtr<void>(SaveComp));
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory persist: bound to EGUI LoadingOrSavingVariables on %s"), *SaveComp->GetName());
+}
+
+void AZP_GraceCharacter::OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjectWrapper JsonObject)
+{
+	// OperationType (E_SaveGameOperationType): 0 = Save, 1 = Load.
+	if (!JsonObject.JsonObject.IsValid()) return;
+
+	static const FString InvKey(TEXT("SignalInventory"));
+	static const FString SizeXKey(TEXT("SignalInvSizeX"));
+	static const FString SizeYKey(TEXT("SignalInvSizeY"));
+
+	static const FString EquipKey(TEXT("SignalEquippedWeapon"));
+
+	if (OperationType == 0) // SAVE — write the current inventory into the slot's JSON
+	{
+		FVector2D Size(0.f, 0.f);
+		const FString InvText = ExportInventoryText(Size);
+		JsonObject.JsonObject->SetStringField(InvKey, InvText);
+		JsonObject.JsonObject->SetNumberField(SizeXKey, Size.X);
+		JsonObject.JsonObject->SetNumberField(SizeYKey, Size.Y);
+		// Remember which weapon was in-hand so we re-equip it on load (the grid restore alone leaves you
+		// holding the default weapon).
+		if (KinemationComp && KinemationComp->WeaponClass.Get())
+		{
+			JsonObject.JsonObject->SetStringField(EquipKey, KinemationComp->WeaponClass.Get()->GetPathName());
+		}
+		// Also persist the quick-slot bar (ShortcutSlots). LoadInventoryFromSavegame only restores the GRID
+		// (ItemSlots), so without this the D-pad/number quick-slots come back empty (weapons not assigned) and
+		// slot 0 keeps a stale starting-weapon ref you can still equip after moving it out.
+		if (FArrayProperty* ShortcutProp = MoonvilleInventoryComp
+			? CastField<FArrayProperty>(MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ShortcutSlots"))) : nullptr)
+		{
+			FString ShortcutText;
+			ShortcutProp->ExportText_Direct(ShortcutText, ShortcutProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp), nullptr, MoonvilleInventoryComp, PPF_None);
+			JsonObject.JsonObject->SetStringField(TEXT("SignalShortcuts"), ShortcutText);
+		}
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory SAVE -> EGUI json (%d chars)"), InvText.Len());
+
+		// Objectives are save-file-tied too (bAutoPersist=false → fresh PIE starts clean). Persist on save.
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>()) { Obj->SaveObjectiveState(); }
+		}
+	}
+	else // LOAD — read it back from the slot's JSON and apply
+	{
+		FString InvText;
+		if (JsonObject.JsonObject->TryGetStringField(InvKey, InvText) && !InvText.IsEmpty())
+		{
+			double SX = 0.0, SY = 0.0;
+			JsonObject.JsonObject->TryGetNumberField(SizeXKey, SX);
+			JsonObject.JsonObject->TryGetNumberField(SizeYKey, SY);
+			ApplyInventoryFromText(InvText, FVector2D((float)SX, (float)SY));
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory LOAD <- EGUI json (%d chars)"), InvText.Len());
+		}
+
+		// Restore the quick-slot bar AFTER the grid so the D-pad/number slots map to the saved weapons (and
+		// the stale starting-weapon ref in slot 0 is overwritten).
+		FString ShortcutText;
+		if (MoonvilleInventoryComp
+			&& JsonObject.JsonObject->TryGetStringField(TEXT("SignalShortcuts"), ShortcutText) && !ShortcutText.IsEmpty())
+		{
+			if (FArrayProperty* ShortcutProp = CastField<FArrayProperty>(MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ShortcutSlots"))))
+			{
+				ShortcutProp->ImportText_Direct(*ShortcutText, ShortcutProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp), MoonvilleInventoryComp, PPF_None);
+				UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory LOAD: restored quick-slot bar (%d chars)"), ShortcutText.Len());
+			}
+		}
+
+		// Re-equip the saved in-hand weapon, deferred a tick so the just-restored grid/pawn are settled.
+		FString WeaponPath;
+		if (JsonObject.JsonObject->TryGetStringField(EquipKey, WeaponPath) && !WeaponPath.IsEmpty())
+		{
+			if (UWorld* W = GetWorld())
+			{
+				TWeakObjectPtr<AZP_GraceCharacter> WeakThis(this);
+				const FString PathCopy = WeaponPath;
+				W->GetTimerManager().SetTimerForNextTick([WeakThis, PathCopy]()
+				{
+					if (AZP_GraceCharacter* Self = WeakThis.Get()) { Self->ReEquipWeaponByPath(PathCopy); }
+				});
+			}
+		}
+
+		// Objectives: restore from the save file (bAutoPersist=false, so this hook is the only restore path).
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>()) { Obj->LoadObjectiveState(); }
+		}
+	}
+}
+
+void AZP_GraceCharacter::ReEquipWeaponByPath(const FString& WeaponClassPath)
+{
+	if (!KinemationComp || WeaponClassPath.IsEmpty()) return;
+	if (UClass* WClass = LoadClass<AActor>(nullptr, *WeaponClassPath))
+	{
+		KinemationComp->EquipWeaponClass(WClass);
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Re-equipped saved weapon: %s"), *WClass->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ReEquipWeaponByPath: could not load class '%s'"), *WeaponClassPath);
+	}
+}
+
+FString AZP_GraceCharacter::ExportInventoryText(FVector2D& OutSizeExpansion) const
+{
+	OutSizeExpansion = FVector2D::ZeroVector;
+	if (!MoonvilleInventoryComp) return FString();
+
+	FArrayProperty* SlotsProp = CastField<FArrayProperty>(
+		MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots")));
+	if (!SlotsProp) return FString();
+
+	// UE text export of the whole ItemSlots array — preserves EVERY FFItemSlot field (Amount/stack count,
+	// Durability, InventoryPosition, rotation, GUID...). Item refs export as asset paths. (Briefcase idiom.)
+	FString Out;
+	SlotsProp->ExportText_Direct(Out, SlotsProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp), nullptr, MoonvilleInventoryComp, PPF_None);
+
+	if (FStructProperty* SizeProp = CastField<FStructProperty>(
+		MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("InventorySizeExpansion"))))
+	{
+		OutSizeExpansion = *SizeProp->ContainerPtrToValuePtr<FVector2D>(MoonvilleInventoryComp);
+	}
+	return Out;
+}
+
+void AZP_GraceCharacter::ApplyInventoryFromText(const FString& Text, FVector2D SizeExpansion)
+{
+	if (!MoonvilleInventoryComp || Text.IsEmpty()) return;
+
+	// Restore via Moonville's own LoadInventoryFromSavegame(ItemSlots, InventorySizeExpansion): it sets the
+	// size, wholesale-replaces ItemSlots with-notify (rebuilds the grid UI), and refreshes the allocation
+	// cache. We import the exported text directly into the function's ItemSlots param, then ProcessEvent.
+	UFunction* Fn = MoonvilleInventoryComp->FindFunction(FName("LoadInventoryFromSavegame"));
+	if (!Fn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ApplyInventoryFromText: LoadInventoryFromSavegame not found"));
+		return;
+	}
+
+	void* Params = FMemory::Malloc(FMath::Max<int32>(Fn->ParmsSize, 1), Fn->GetMinAlignment());
+	FMemory::Memzero(Params, Fn->ParmsSize);
+	for (TFieldIterator<FProperty> It(Fn); It && It->HasAnyPropertyFlags(CPF_Parm); ++It)
+	{
+		It->InitializeValue_InContainer(Params);
+	}
+
+	if (FArrayProperty* SlotsParam = CastField<FArrayProperty>(Fn->FindPropertyByName(FName("ItemSlots"))))
+	{
+		SlotsParam->ImportText_Direct(*Text, SlotsParam->ContainerPtrToValuePtr<void>(Params), MoonvilleInventoryComp, PPF_None);
+	}
+	if (FStructProperty* SizeParam = CastField<FStructProperty>(Fn->FindPropertyByName(FName("InventorySizeExpansion"))))
+	{
+		*SizeParam->ContainerPtrToValuePtr<FVector2D>(Params) = SizeExpansion;
+	}
+
+	MoonvilleInventoryComp->ProcessEvent(Fn, Params);
+
+	for (TFieldIterator<FProperty> It(Fn); It && It->HasAnyPropertyFlags(CPF_Parm); ++It)
+	{
+		It->DestroyValue_InContainer(Params);
+	}
+	FMemory::Free(Params);
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ApplyInventoryFromText: applied %d chars via LoadInventoryFromSavegame"), Text.Len());
 }
 
 // --- Diagnostics ---
@@ -4193,17 +4463,31 @@ void AZP_GraceCharacter::UnequipMissingWeapon()
 
 	bool bWeaponStillInSlots = false;
 
-	for (int32 i = 0; i < 4; ++i)
+	// Check the GRID (ItemSlots) — the source of truth — NOT the shortcut bar. The shortcut bar can keep a
+	// STALE ref to the weapon after it's moved to a briefcase (Moonville doesn't always clear it), which let
+	// the old shortcut-based check think the weapon was still owned and leave it equipped (the regressed bug).
+	if (FArrayProperty* GridProp = CastField<FArrayProperty>(MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots"))))
 	{
-		TSubclassOf<AActor> SlotWeaponClass = GetWeaponFromShortcutSlot(i);
-		UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Slot %d: %s"), i,
-			SlotWeaponClass ? *SlotWeaponClass->GetName() : TEXT("EMPTY"));
-
-		if (SlotWeaponClass && SlotWeaponClass == CurrentWeaponClass)
+		if (FStructProperty* StructInner = CastField<FStructProperty>(GridProp->Inner))
 		{
-			bWeaponStillInSlots = true;
-			UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] MATCH found in slot %d — weapon still in inventory"), i);
-			break;
+			FObjectProperty* ItemProp = nullptr;
+			for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+			{
+				if (It->GetName().Contains(TEXT("Item_"))) { ItemProp = CastField<FObjectProperty>(*It); break; }
+			}
+			if (ItemProp)
+			{
+				FScriptArrayHelper Helper(GridProp, GridProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp));
+				for (int32 i = 0; i < Helper.Num() && !bWeaponStillInSlots; ++i)
+				{
+					UObject* ItemDA = ItemProp->GetObjectPropertyValue(ItemProp->ContainerPtrToValuePtr<void>(Helper.GetRawPtr(i)));
+					if (ItemDA && GetWeaponClassFromItem(ItemDA) == CurrentWeaponClass)
+					{
+						bWeaponStillInSlots = true;
+						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Equipped weapon still in the GRID (ItemSlots[%d]) — keep equipped"), i);
+					}
+				}
+			}
 		}
 	}
 

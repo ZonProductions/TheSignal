@@ -26,6 +26,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FZP_OnObjectiveEvent, FName, Objecti
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FZP_OnFlagEvent, FName, Flag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FZP_OnTrackerRefresh);
 
+class UZP_SaveGame;
+
 UCLASS()
 class THESIGNAL_API UZP_ObjectiveSubsystem : public UGameInstanceSubsystem
 {
@@ -51,6 +53,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Objectives")
 	void SetFlag(FName Flag);
 
+	/** Item the player acquired/lost — re-runs auto-advance so HasItem requirements resolve.
+	 *  Call this from the item pickup / inventory-changed path. ItemId is informational. */
+	UFUNCTION(BlueprintCallable, Category = "Objectives")
+	void NotifyInventoryChanged(FName ItemId);
+
+	/** Force a re-evaluation of all auto-advance rules (e.g. after an inventory change). */
+	UFUNCTION(BlueprintCallable, Category = "Objectives")
+	void ReevaluateObjectives();
+
+	/** Wipe ALL objective progress (active/completed/subs/reveals/stages/flags), delete the persisted
+	 *  slot, and re-start bStartOnLoad objectives. For testing a clean run. */
+	UFUNCTION(BlueprintCallable, Category = "Objectives")
+	void ResetAllProgress();
+
 	// --- Queries ---
 	UFUNCTION(BlueprintPure, Category = "Objectives")
 	bool IsObjectiveComplete(FName ObjectiveId) const;
@@ -60,6 +76,14 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Objectives")
 	bool IsSubObjectiveComplete(FName SubObjectiveId) const;
+
+	/** True once a (hidden) sub-objective's RevealRequirements are met and it's tracked in the HUD. */
+	UFUNCTION(BlueprintPure, Category = "Objectives")
+	bool IsSubObjectiveRevealed(FName SubObjectiveId) const;
+
+	/** Current stage index a sub-objective is displaying (0 = first). Drives the re-titling step. */
+	UFUNCTION(BlueprintPure, Category = "Objectives")
+	int32 GetSubObjectiveStage(FName SubObjectiveId) const;
 
 	UFUNCTION(BlueprintPure, Category = "Objectives")
 	bool HasFlag(FName Flag) const;
@@ -71,6 +95,12 @@ public:
 	/** First active MAIN objective (skips side objectives) — what the HUD tracker shows. */
 	UFUNCTION(BlueprintPure, Category = "Objectives")
 	bool GetActiveMainObjective(FZP_ObjectiveDef& OutDef) const;
+
+	/** The HUD tracker view of the active main: the objective itself + one row per currently-VISIBLE,
+	 *  not-yet-complete sub, each already resolved to its current-stage title. Hidden (unrevealed) and
+	 *  completed subs are omitted so a finished step fades out and the rest remain. */
+	UFUNCTION(BlueprintPure, Category = "Objectives")
+	bool GetActiveMainObjectiveView(FZP_ObjectiveDef& OutDef, TArray<FZP_ObjectiveRow>& OutRows) const;
 
 	/** Call when a tab menu (map/inventory/notes) closes — re-fires OnTrackerRefresh so the HUD pops for 8s. */
 	UFUNCTION(BlueprintCallable, Category = "Objectives")
@@ -85,6 +115,32 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Objectives")
 	void RestoreSaveState(const TArray<FName>& InActive, const TArray<FName>& InCompleted, const TArray<FName>& InCompletedSubs, const TArray<FName>& InFlags);
+
+	/** Copy current objective state INTO a save object — call just before SaveGameToSlot in the main save flow. */
+	UFUNCTION(BlueprintCallable, Category = "Objectives|Save")
+	void WriteToSave(UZP_SaveGame* Save) const;
+
+	/** Restore objective state FROM a save object — call just after LoadGameFromSlot in the main load flow. */
+	UFUNCTION(BlueprintCallable, Category = "Objectives|Save")
+	void ReadFromSave(const UZP_SaveGame* Save);
+
+	/** Self-contained persistence: write objective state to a dedicated slot (auto-called on change when bAutoPersist). */
+	UFUNCTION(BlueprintCallable, Category = "Objectives|Save")
+	void SaveObjectiveState();
+
+	/** Self-contained persistence: restore objective state from the dedicated slot. */
+	UFUNCTION(BlueprintCallable, Category = "Objectives|Save")
+	void LoadObjectiveState();
+
+	/** Dedicated slot used by SaveObjectiveState/LoadObjectiveState (separate from the player's manual save slots). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objectives|Save")
+	FString ObjectiveStateSlot = TEXT("TheSignal_Objectives");
+
+	/** When true, objective state auto-persists to ObjectiveStateSlot on every change and restores on game
+	 *  start. FALSE = save-file-tied: a fresh PIE / new game starts clean (bStartOnLoad only); save/restore is
+	 *  driven from the EasyGameUI save hook (AZP_GraceCharacter::OnEguiSaveLoadVariables → Save/LoadObjectiveState). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objectives|Save")
+	bool bAutoPersist = false;
 
 	// --- Events ---
 	UPROPERTY(BlueprintAssignable, Category = "Objectives") FZP_OnObjectiveEvent OnObjectiveStarted;
@@ -102,12 +158,21 @@ private:
 	TSet<FName> ActiveObjectives;
 	TSet<FName> CompletedObjectives;
 	TSet<FName> CompletedSubObjectives;
+	TSet<FName> RevealedSubObjectives;       // hidden subs whose RevealRequirements have been met
+	TMap<FName, int32> SubObjectiveStage;    // per-sub completed-stage count (monotonic; survives item consumption)
 	TSet<FName> Flags;
 	TArray<FName> StartOnLoadIds; // objectives auto-started at game start (JSON "startOnLoad")
 
 	bool bAdvancing = false;
+	bool bRestoring = false; // suppress auto-persist while restoring from a save
 
 	const FZP_ObjectiveDef* FindDef(FName Id) const;
+	/** Locate a sub-objective by id across all definitions; optionally returns its owning main. */
+	const FZP_SubObjectiveDef* FindSubDef(FName SubId, const FZP_ObjectiveDef** OutOwner = nullptr) const;
 	bool EvaluateRequirement(const FZP_ObjectiveRequirement& Req) const;
-	void TryAdvance(); // auto-complete subs/mains whose reqs are met; auto-start unlocked mains
+	bool AreRequirementsMet(const TArray<FZP_ObjectiveRequirement>& Reqs) const; // all met (empty = false)
+	void TryAdvance(); // reveal subs, advance stages, complete subs/mains, auto-start unlocked mains
+
+	/** True if the player's Moonville inventory currently holds the item at ItemPath (a PDA_Item asset path). */
+	bool PlayerHasItem(const FString& ItemPath) const;
 };

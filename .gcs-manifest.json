@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-22T09:18:41",
+  "created": "2026-06-23T23:24:18",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -12060,12 +12060,16 @@
       "size": 23887
     },
     "Content/Campaign/Building1_3rdFloor.umap": {
-      "hash": "sha256:c79c5b061ba7a53370699166e0732f7327ac416ae1b761759cb0b9e06f074fcf",
-      "size": 6696600
+      "hash": "sha256:57f247a00f0941e2e8c01006063b8d1adeced5ce63137961cf7c34ba7ee5cfbd",
+      "size": 6684322
     },
     "Content/Campaign/Building1_Empty.umap": {
-      "hash": "sha256:36eb0abb741ced77340da5affd0a177c9f780dbe6f084812352db4ae509d34a2",
-      "size": 4684409
+      "hash": "sha256:ebd097c4b2e34168ade5373528cd4d4b4d55db70a216b5d86b65b679a85c98e5",
+      "size": 4687924
+    },
+    "Content/Campaign/ResearchFacility.umap": {
+      "hash": "sha256:0828642aac2341eedeb2b19e2eddc6f664bd6ff0407919700b503416cd4af3f6",
+      "size": 3411471
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -22980,8 +22984,8 @@
       "size": 68476
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:0fd7715d33a7e7c2ad2b83c640bbe4da14d6a2694ec712980200fefcf272cd23",
-      "size": 135243
+      "hash": "sha256:3d4dba7bfba9d9a41b26c63bc8925329d7b2b24835b95f50a5d2f624c2338bf8",
+      "size": 135615
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -22992,8 +22996,8 @@
       "size": 18476
     },
     "Content/Data/DT_Objectives.uasset": {
-      "hash": "sha256:1ced7bf18a8fe726dd4268360f92ade349305165ea14a982a888381c73bfbec4",
-      "size": 3338
+      "hash": "sha256:36a71bf9f606cd7497bf61dcc27eca9f3b2f2e941bfc71172f7f79ebce84cd61",
+      "size": 5777
     },
     "Content/Dialogue/Dialogue_Test.uasset": {
       "hash": "sha256:98831845dc9341524ec30b6cdce299e0728e24f6ea87f4b94d7c49b8030bc4f2",
@@ -72416,8 +72420,8 @@
       "size": 101017
     },
     "Content/ResearchMegaPack/ResearchCenter/Blueprint/BP_Light_4.uasset": {
-      "hash": "sha256:413dc42fb050b2aa183827571f0bb08a2c7235eb7d7c41a185017357f195782b",
-      "size": 112617
+      "hash": "sha256:17a47ad55fe57d37d9e5e3a6e8d787162d5c02fcf1be76e7cbf4fcb3f17ceafa",
+      "size": 116082
     },
     "Content/ResearchMegaPack/ResearchCenter/Blueprint/BP_Light_5.uasset": {
       "hash": "sha256:b4e60968957c653df42e7d13f40388d3f639f37e3e98d1be5e814474829437e6",
@@ -74756,12 +74760,12 @@
       "size": 101574
     },
     "Content/ResearchMegaPack/ResearchFacility/Blueprint/BP_Light_1.uasset": {
-      "hash": "sha256:52f4936d5b3af5d69e1cace301102b5b1ea307595752098986f79cccc1dc439e",
-      "size": 95962
+      "hash": "sha256:894169be154a19bea73d4e68020526db1ddc35b1798d3bef054702d1334b6de3",
+      "size": 99439
     },
     "Content/ResearchMegaPack/ResearchFacility/Blueprint/BP_Light_2.uasset": {
-      "hash": "sha256:47f769a856b84f655636a227ca734e52d950862f17472feb5afc2a241fe25d94",
-      "size": 95013
+      "hash": "sha256:d7a19683dbdbc151b1e021a9e2f31c4651478cffa821afe8e1cb3383e194b02b",
+      "size": 98290
     },
     "Content/ResearchMegaPack/ResearchFacility/Blueprint/BP_Meshes_1.uasset": {
       "hash": "sha256:b78f74fcef634fcb17cbb01896313700e51e4461909d4b9574dd550add0d10a6",
@@ -74784,8 +74788,8 @@
       "size": 6632050
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility.umap": {
-      "hash": "sha256:6c0b60bb3c97e87772ff527651b767f18fd5ec227d4ee469024aa65072462f6b",
-      "size": 3424854
+      "hash": "sha256:af826f13936a32db245ee4434e089f94f51016ea814c4d9168bed4b64fc19c11",
+      "size": 3405158
     },
     "Content/ResearchMegaPack/ResearchFacility/Map/ResearchFacility_BuiltData.uasset": {
       "hash": "sha256:00d06ddec993b93daa3423812e8971f692587b76987938abd361e3a868b657c9",
@@ -74812,8 +74816,8 @@
       "size": 123715
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/MI_Elevator_Wall_4.uasset": {
-      "hash": "sha256:5e6ea2a9af043faa7bf263cc302fc15cc965f86eeec4acca23a3bf37b7fb7755",
-      "size": 110880
+      "hash": "sha256:d66cfca79b04e815ce348c5388554e6d80f0a6336cdbc64e5cdf8b307d91feea",
+      "size": 111455
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/MI_Floor_4.uasset": {
       "hash": "sha256:43ae0d2d372fd863fa8679146ce5edf171bd01dd527ff5d180d89b2ea2f71fd6",
@@ -74832,16 +74836,16 @@
       "size": 119747
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/MI_Monitor_Screen_2.uasset": {
-      "hash": "sha256:eb01952101a8be29cc4ef224152edfc691f7e90bc34b3b2ae5fb0d5d1fa4c44a",
-      "size": 122690
+      "hash": "sha256:d7c51b03551bc43c52286f1f22010e95b71e6f584b47fdcb1161f97d22b18598",
+      "size": 123310
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/MI_Monitor_Screen_3.uasset": {
-      "hash": "sha256:74215eb07605977be3ad835baa6eb2b7b2cd99ef45d88686b6da6ae084bc6a8f",
-      "size": 114185
+      "hash": "sha256:666d084860c54a88b34f69e461dbfc8b39777a0180338f8f745adf32927d050e",
+      "size": 114820
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/MI_Monitor_Screen_4.uasset": {
-      "hash": "sha256:1cca012b85b04a0ee68c324bef40556e4bee4bad1de8e7ca4dba88b61fd95cba",
-      "size": 118563
+      "hash": "sha256:3a676020b8a6a48f7f93b64a51b940de6f8f5d22fbab499c68c9595fe98c6f31",
+      "size": 119198
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/MI_Monitor_Screen_5.uasset": {
       "hash": "sha256:f012597c2f9958dbd06f421afa04179dd269411b23d3b3a71c13cacd9d73df17",
@@ -74904,8 +74908,8 @@
       "size": 25791
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Board_1.uasset": {
-      "hash": "sha256:0a8c9e2a1d457bdd3d3a534389444fc1b457fc580f30b54505e51a07b041f5ef",
-      "size": 108487
+      "hash": "sha256:1bdd527ac4e0cc8283e75050b406baceb80c84d03f9dac09d9de0f29c11d739d",
+      "size": 14586
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Button_1.uasset": {
       "hash": "sha256:ce545a84c6616b85b3ee91842846f53bcf6b42f3659627f0565cd1d8da32114e",
@@ -74940,8 +74944,8 @@
       "size": 104010
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_1.uasset": {
-      "hash": "sha256:f0c49182bb8eab27b15a3153cff95a2d949e9f7efc65ee8b3a4d45ccd7c255fc",
-      "size": 13192
+      "hash": "sha256:ae76d958809987f6d8e1bef1b11a6a9a0f186787fbbeec90ebb8e4c788debeab",
+      "size": 13358
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_1_A.uasset": {
       "hash": "sha256:faad0066c2f5e1aa12119f7ca237ba0ed7e5a44c18f7219bda951f582d7ad23b",
@@ -74952,12 +74956,12 @@
       "size": 111402
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_Ceilin_1.uasset": {
-      "hash": "sha256:46c5b74cfcc22c2d5c35d4b882b9ca5c78be3352338ca585687ad4dc5cec88e4",
-      "size": 114005
+      "hash": "sha256:0ad276bfaf05827bcbbc3eec150ad96eb2400e2216fd206a0952509ba59c9074",
+      "size": 15344
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_Pipe_1.uasset": {
-      "hash": "sha256:1ede1716f78c1059d8f9ad49b67853a78af346f86f267e223c73ac321ca02460",
-      "size": 114262
+      "hash": "sha256:b9298c916d954ca1e0a824194af2788a98c3e3e44a4f66c182583fc1baa72a83",
+      "size": 15256
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Chair_1.uasset": {
       "hash": "sha256:b8b2a0cdff2a47863908d27485a45234adde6c02c29a3ba3e240b6469d31460c",
@@ -74968,52 +74972,52 @@
       "size": 110404
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Colomn_3.uasset": {
-      "hash": "sha256:7017a510f31c4d6a1d5817da8c584aea605408301d6026eb1a18e7e414a8d7da",
-      "size": 114221
+      "hash": "sha256:99ad270fbc1b652c03b29f36a7add37e2bfb59c46f3c5361a5fab7146be89ab1",
+      "size": 13493
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Computer_Cart_1.uasset": {
       "hash": "sha256:0c27d92a6f01fd0d9d8c15ec16cd35be98caa26c6b8c92b15bece6b5bb1766fc",
       "size": 106055
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_1.uasset": {
-      "hash": "sha256:d18f0bd46e1d5c5249069d0b4bae3b4b16383943fc6ab00745132828b034c3ea",
-      "size": 95845
+      "hash": "sha256:c6f06ce5dad6d56004dd4f4d329a3740b52aa86f202b6d55ceee455127c6c468",
+      "size": 12819
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_2.uasset": {
       "hash": "sha256:60a98258282b478e2dc64ae0905288d110acb61964a258fa7bc6a8321bcda6d1",
       "size": 125122
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_3.uasset": {
-      "hash": "sha256:3175b8b5ca5ea7cb3b919f5b9377f42e81ce1d037ab4d1317c7719aec39098f7",
-      "size": 107750
+      "hash": "sha256:de5e6b4fed7897653b81e0be064c6e68039dbf1ed5aa0b398bb2e08aea769449",
+      "size": 14253
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_4.uasset": {
-      "hash": "sha256:3df8e4345bc77dcfe1717fd9e07b9d251cc2e1da7d3518b0aba0837863581496",
-      "size": 105953
+      "hash": "sha256:057fb7f36137d10f56b25e1874e0399b3a1ffa4cd6127cb6e8db472d3ac5709d",
+      "size": 14927
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_5.uasset": {
       "hash": "sha256:82fae8b50269480fa262c6e3b70379de5046c80e5bfd09c7b88b4f4322e3ee78",
       "size": 102446
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Control_Panel_1.uasset": {
-      "hash": "sha256:dac9601cc917bef21799ca8ed1d5bd625d32b0f68000fcaf33c3e1b282517e7f",
-      "size": 113384
+      "hash": "sha256:5cdebfae25b0495b1a1553a940e33218e88071e46c4292a83ddbfc125cf5cb3c",
+      "size": 14968
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Floor_1.uasset": {
-      "hash": "sha256:0d16796fa10a05727563f6cdb26467635933a220579fc70bce24b8bd94113109",
-      "size": 103671
+      "hash": "sha256:2bf369e06e676561527c0289d1a0b0f4739ae119735ee38d0e72c9a3a72dad1a",
+      "size": 14286
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Wall_1.uasset": {
-      "hash": "sha256:5a638c473613f97dabf80975fc770ad6742a67fec31fa472b533e4611f652a5e",
-      "size": 112748
+      "hash": "sha256:9e64ad4793dac9a94868272156152847a24fc899d0f6abe8510e18d58a094bcb",
+      "size": 14146
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Wall_3.uasset": {
-      "hash": "sha256:53b51fcad46e6f6f60f2dff7545afb797bcd0573a23aff1545dbac4509269af6",
-      "size": 108940
+      "hash": "sha256:3a6472a6f2655350705986cd8e3e209075dc4beaa0891dda843ad9b7bdaffc85",
+      "size": 15017
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Corridor_Wall_5.uasset": {
-      "hash": "sha256:febe1dfddd1b33db8b3364125f3cfe30ac585b395dca7c47550eaec2d4be9f5b",
-      "size": 109683
+      "hash": "sha256:1f6000157c473e928e69672a4eb3b9c503675947704c7ca848e61b5aabc3de29",
+      "size": 13634
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cover_1.uasset": {
       "hash": "sha256:6c0268cb170b8449bfaa831136c1a9c8ea830596a5820ad5bdd5d7481e681bd2",
@@ -75088,20 +75092,20 @@
       "size": 12600
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_3.uasset": {
-      "hash": "sha256:b1985a41eb96678ec9c30116f3af2b209f27957b06acd6f03c3ddcf1f9fe45d7",
-      "size": 109496
+      "hash": "sha256:86985fc5e607c862da5c951fadb02ff27e72c65db559ecc2378144f0ee0f451d",
+      "size": 13535
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_3_A.uasset": {
-      "hash": "sha256:a0af96fce6ba7eec825ab9bbd1831d3753ad955b98091b0d22812e8e26d71689",
-      "size": 113021
+      "hash": "sha256:efae047655b075aa52ed2758bd1fee669bb96e766f8213fa3c0656bc28ef2d35",
+      "size": 14602
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_4.uasset": {
       "hash": "sha256:7a4d4b5495839fde800e6807041b664e45abb4c0ab5c4d64ec6425d6ec09e604",
       "size": 116697
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Wall_5.uasset": {
-      "hash": "sha256:c6549d94841f260982488c492d1fc33282266f1feb085aa0459e4a37accd74bd",
-      "size": 112736
+      "hash": "sha256:33a5a458578311fef03a4891e478b7268872532551909f92b8bab4c43aacad93",
+      "size": 14254
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Fabric_1.uasset": {
       "hash": "sha256:6d70c412bd7d85dbfb4cb5e8075ee8292fc59b7b8be004b37c412bc0be6420f9",
@@ -75136,8 +75140,8 @@
       "size": 87688
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Glass_2.uasset": {
-      "hash": "sha256:b977d1b0b67f2cc078d6e847865339aa2c88525619b77da5c3df3b090bb2014c",
-      "size": 82818
+      "hash": "sha256:ffb12b3ea4a2a89f478ba843a3437102cd2bd9bf38dc150486e7df56e983ff55",
+      "size": 13110
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Gurney_Metal_1.uasset": {
       "hash": "sha256:e0e8202891f3bf119bd516d0ca703a3a2e86d618c92192f14406b944b5c5463e",
@@ -75184,8 +75188,8 @@
       "size": 112526
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_1.uasset": {
-      "hash": "sha256:dd5c76bbbd941a683a71ecc79c17ba5cd366ee81c11fbb23ee446748e3fee6c8",
-      "size": 96707
+      "hash": "sha256:176fe855a261a33a6357a110b120a4f11bc560c7588f07b9f8c1846c5687b5d2",
+      "size": 16519
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_2.uasset": {
       "hash": "sha256:8ed0046c3b63cefb1aa8545c5ebc18093f5282c643f1078bb6ff24061767ca98",
@@ -75264,36 +75268,36 @@
       "size": 110481
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_1.uasset": {
-      "hash": "sha256:057a8dec3bcc45f15e312b74087d1f3da8ca2c3666ccc0bef36a17241a5a8c2e",
-      "size": 102137
+      "hash": "sha256:c6c9a27feb06b3b3cc714529d4beac6ab5f8a2fb2a28c890c3cdcd9563132106",
+      "size": 15777
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_2.uasset": {
-      "hash": "sha256:559665c7dbc8133002c788c1b12f4aabe1fdb377a6756223faceb49b6dbf4fae",
-      "size": 93162
+      "hash": "sha256:e2834802e82cc895b0802754856548ab9ee837058b2378b2b6f4ab3e68ae8433",
+      "size": 14099
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_3.uasset": {
-      "hash": "sha256:59ad2543d2598504f6e9b31265ba74a8d07c651f4458e606c2ce335bc9c8aa66",
-      "size": 101129
+      "hash": "sha256:c81158e4a47497dab8704ab790aa9223600298e681b96921a064b1887b734454",
+      "size": 14335
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_4.uasset": {
-      "hash": "sha256:25ba345f441401b84dc56730ef99660269638e21916f56d53f64094a415e8dad",
-      "size": 107161
+      "hash": "sha256:ecca4f1dea90154e6e3da6712b511127d182e01f6d02dceb5ddb0ae9da311891",
+      "size": 14123
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_5.uasset": {
-      "hash": "sha256:f0a9ff4d65f92e025ebd958d8560ceb571ac424bd6ca4b533b358c779977bbec",
-      "size": 111280
+      "hash": "sha256:d4b16cca29715f2720db8e0d213739782113e0c70b45f746c7ad7ab4e20f66fd",
+      "size": 12832
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_Box_1.uasset": {
-      "hash": "sha256:5c38d86caa0585b83319204beeb2eff30ecf9714f15ee6dac9b03a92a62d6b26",
-      "size": 113244
+      "hash": "sha256:32c10edf571bea8d9b6930617e10d6f0f535b4b9d23a7a092a9a8864b53ec621",
+      "size": 14257
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Rust_1.uasset": {
       "hash": "sha256:8cd1a3f0f0cc25fc36c0f24030cc6c3a1aab9da30f54b2948e2c18ce156f6ae1",
       "size": 15184
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Steel_1.uasset": {
-      "hash": "sha256:6fd74a4011c2f1dab1c73c452e88d33ad551bc4dc08b16740dacad4f3d85c3e0",
-      "size": 111022
+      "hash": "sha256:a0c433384736338e47bf5b78105fe607fb9c6042db24773368a65c50db005948",
+      "size": 13659
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Stool_1.uasset": {
       "hash": "sha256:a40634224875df0f95e1a38d3c48722a63a797d7ea7c2938abe870eb9e66d567",
@@ -75328,24 +75332,24 @@
       "size": 105640
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_10.uasset": {
-      "hash": "sha256:76dcbfc3560b2fa6307bf2978b5d1c0d7fa05d3a1d3e1b2798eb0541510fa070",
-      "size": 113742
+      "hash": "sha256:6b792958e6abac48f518ff0618630c6b0213df765d98ab2801d26463c6f71ed0",
+      "size": 13801
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_10_Window_1.uasset": {
-      "hash": "sha256:fd5c8a155d3ab7676329fed333844a851a69f32df614c209eeb47f88e008a611",
-      "size": 111395
+      "hash": "sha256:d614b69243eb5adc052548d3f70b42e93698b1effb8e622db7914329997e27ba",
+      "size": 13902
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_11.uasset": {
-      "hash": "sha256:1245cd35f7e6ec530fcc2a8d1737c71fe43374229383e5a7665502d53868e3f5",
-      "size": 114468
+      "hash": "sha256:5401c205b12a393fcd1947dfc6e867feab7471a4a44e99542dc5f80fef99e813",
+      "size": 13070
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_12.uasset": {
       "hash": "sha256:4395904e134beafb2d14a1c9fd7a05c5e232aba4223c75ed1d81666f15e20f24",
       "size": 113320
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_13.uasset": {
-      "hash": "sha256:4a2ffdcc3008c970efa2cb2277c0009b8b980378ee5e2b121cbfe324dbbf5c48",
-      "size": 113561
+      "hash": "sha256:b6a399fc7f4e317583d8a21a8cc7aa282ba6c68e526dd6539af9810b1c409868",
+      "size": 13582
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_14.uasset": {
       "hash": "sha256:4d3f85708ac3b63bbf477fe626e3dd990ded0afa83cae36facf1ce8ab9b9b8ed",
@@ -75360,24 +75364,24 @@
       "size": 104423
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_4.uasset": {
-      "hash": "sha256:16c6ff740e9424983d8c7c55b53c5865865a1bfda0835ce3e2ef07208e376335",
-      "size": 110393
+      "hash": "sha256:d893d4a278197b5eccf9e28789ccb9423ee232661d201614e397abd213710ba4",
+      "size": 13864
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_5.uasset": {
-      "hash": "sha256:88d3eaccf722aa2878d846960aa1f86b54911bf246d0029b0e9c72f943eab160",
-      "size": 105146
+      "hash": "sha256:91e5dccd02b0dd287cda3b1e1fa9ecebf8dd103c4ee68c27d399f0a143322083",
+      "size": 14982
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_7.uasset": {
-      "hash": "sha256:bde18b6958065f991e087b517bb0eb26bb4b800f0eac1f6b4e48778892ac0fd3",
-      "size": 117131
+      "hash": "sha256:db9eaf5f513b73921c060cbd25f212adb346f7c6b39b7e046d3c2a661ac446a9",
+      "size": 14514
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_8.uasset": {
-      "hash": "sha256:b49103b4db9fefb41c41848217aecd471054d4370b94e0342beaa66c7743dc3c",
-      "size": 112200
+      "hash": "sha256:13dfe874838b9de38def8848dce457574b9c3fcee586417159d39e5ae5992812",
+      "size": 12510
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_9.uasset": {
-      "hash": "sha256:33a79cd281373d73c51fa9da369cf860b76e5ee372d6a6ddeb32d710e10c027c",
-      "size": 114164
+      "hash": "sha256:0b9eaf11ee2ad2f42c2d248c6dd3a014107332c26fdd6d1eaa9510cb66ba43aa",
+      "size": 13534
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Water_Puddle_1.uasset": {
       "hash": "sha256:6d8aa93d69e80d4574fa3e81f629f87b59e77c8fccb422ef44d036078b335e99",
@@ -75428,8 +75432,8 @@
       "size": 725162
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Board_1.uasset": {
-      "hash": "sha256:d08585b03a702029214e0319ed14b1d1ad045ca5e50f88f657e1591251f1ca8d",
-      "size": 96220
+      "hash": "sha256:fcb9099c93ccc34359f40573e548a77a16a9a175934ac3874c126e31c04d0cfd",
+      "size": 99553
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Button_1.uasset": {
       "hash": "sha256:0c14fe22750e9b158e5f88c3025394a03755f9a9336462f1af06d18a31b47eaf",
@@ -75460,16 +75464,16 @@
       "size": 468836
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Capsule_1.uasset": {
-      "hash": "sha256:8b3f9fb5bcd1ff97970a85d4c530f4c2e77e44c023c8664c3d35772cf60ed2fa",
-      "size": 295644
+      "hash": "sha256:b28bcf9a51ae1ed34fd731b891e71ec508023d5a732e73b332354bcbfcf71a13",
+      "size": 316148
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Capsule_2.uasset": {
       "hash": "sha256:85585151957c3f797d7ca9b8716b38cfc93b8b8e694d88af2563e16bbb854c68",
       "size": 222523
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Capsule_Ceiling_1.uasset": {
-      "hash": "sha256:f89ac90854e32447d2509574123889f2b0cb839ca8033532fe1e3032f0245981",
-      "size": 125200
+      "hash": "sha256:d2b879b2ed153e095ff31b47f9482da56346e9c781ddf87bc5c8305248bb2c95",
+      "size": 124345
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Capsule_Pipe_1.uasset": {
       "hash": "sha256:c3728f05fd196ee11554716acb2cd100c54c491e043e73ef29cb4485a32b7b74",
@@ -75492,16 +75496,16 @@
       "size": 218745
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Colomn_1.uasset": {
-      "hash": "sha256:e1ed2343a04cc3769378227b3b3a1039e481aeb493dff57e830a5a1a392315f7",
-      "size": 102862
+      "hash": "sha256:163846fa8bb9cf0753db8aec7d2c20586663334f004d0f1974b2ba0e7c2f0687",
+      "size": 106342
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Colomn_2.uasset": {
-      "hash": "sha256:eb75d4cfe3bd54c09a8ca8de42735303cab17c40366d1b7942bc2aae3e689f85",
-      "size": 97308
+      "hash": "sha256:0cd8a7df86a82a7e0007e128b2227dbd71f08129f7cba07941ea48faf8d64861",
+      "size": 100477
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Colomn_3.uasset": {
-      "hash": "sha256:cd574058012db4ba2bfb7f6a89f1a716f5a3e9aea31339ada80f6b8cb84eda6c",
-      "size": 97493
+      "hash": "sha256:74bf7a5f17028786a9dfd48a7c217d455c549918f17a9d20bb69ea2935280f69",
+      "size": 99588
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Computer_Cart_1.uasset": {
       "hash": "sha256:e654a8b04db831e60e168bc85a160b276e79eeacd79d629d400a980f787d645c",
@@ -75516,48 +75520,48 @@
       "size": 93596
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Control_Room_1.uasset": {
-      "hash": "sha256:074e05901c0416b19791e9d54ad3319d15969971c2209f4b08d1fc629a8cd1c9",
-      "size": 113253
+      "hash": "sha256:caee31e16ee786a169382ac3be3f7d0418dfa8666c5cb05a00be90ff8af6d7f5",
+      "size": 117115
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Corridor_Floor_1.uasset": {
-      "hash": "sha256:3c36ecb22677b935775f5caef5a098c5811538c2991cc913655c984cc0595a7c",
-      "size": 98673
+      "hash": "sha256:5259630733041e7e2c70e526f2b77dcb3f4347c5fe9ca0d996bfb25b8101a964",
+      "size": 102016
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Corridor_Wall_1.uasset": {
-      "hash": "sha256:70289ed1bbd94e66f4c3aa481a4e8cc67f354a44aa3cb0c7db7c75e590044b7f",
-      "size": 97029
+      "hash": "sha256:135b75aaee51e074ac97f1389c02e4cd5899d2742c37eaf54f0a2cbd8d5f5b17",
+      "size": 100405
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Corridor_Wall_2.uasset": {
-      "hash": "sha256:3389a559e8efee6f19ed821e78a999ade2d00160f337d92d8547ee1121f7b2e7",
-      "size": 98268
+      "hash": "sha256:5b7515b50a7166798171957cadc72c06670113a2a8a3769b75be440003facb6a",
+      "size": 101660
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Corridor_Wall_3.uasset": {
-      "hash": "sha256:11958d98c87d00409ae8b606f385e1c22d35da642e94044ad96c309c2c7c99fa",
-      "size": 116904
+      "hash": "sha256:dbc35ae6b03b1ee5b3967dc59ad85e04f09bad6bfb74df69f8869b3cc2c79223",
+      "size": 118111
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Corridor_Wall_4.uasset": {
-      "hash": "sha256:d055d9a55f36ef14f4e34abd78eef39ce8d27098974c0e56b1d40a9198f88ae3",
-      "size": 156224
+      "hash": "sha256:0285f8b11e7e7aaf5799a0e2ffcadb29d9c554cce2b4d68941925b9881971c17",
+      "size": 147510
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Corridor_Wall_5.uasset": {
-      "hash": "sha256:d9991ddfe7810b8cc1b18c87117040faaf2c8f17a85c9831229ddf44aaac294a",
-      "size": 104497
+      "hash": "sha256:f43e47e54001a443005a50249539cbdc9ced1a4ba9095e3e0090f22ee8f03941",
+      "size": 106921
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Cover_1.uasset": {
-      "hash": "sha256:736280f02e96961a01cba2bb8f382c628c3e138a1cb296134d6808e2c1ab2ffb",
-      "size": 83971
+      "hash": "sha256:2174779369935dfde0349b967382c9b159462b5c4c514ce9031db1618be22516",
+      "size": 86760
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Detail_3.uasset": {
-      "hash": "sha256:c84c9016401658e0fad7fc49fadccafb6eb30383a4c8d67650f36e5e39fbe2f8",
-      "size": 74373
+      "hash": "sha256:30f5d769f92c37d50bc15b0440ea9d95a327d4431edddfb3e09402efec5d3764",
+      "size": 77223
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Door_1.uasset": {
       "hash": "sha256:070be987f789dbde2c53881bc5fd88da8ec455016b0eb29573e5e95123ec902a",
       "size": 102620
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Door_2.uasset": {
-      "hash": "sha256:4e64d26ada500b682678a87c2628f52ea526a9327d9c498a42b5ddf18922dd9c",
-      "size": 128815
+      "hash": "sha256:6c5b6c5a9a545d3044f841800bb00081f69b9e633a069c12c8f40e44bc2686c7",
+      "size": 131388
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Door_Case_1.uasset": {
       "hash": "sha256:2a4c910b3bd2c782e968783562c62995bbd0f045192eb73a47f8fa36ec50d847",
@@ -75568,40 +75572,40 @@
       "size": 100000
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_1.uasset": {
-      "hash": "sha256:67349a1ad06f64632d4ab709bfcf35cdbb42f3fd43f341f692e3b00f29a29383",
-      "size": 267865
+      "hash": "sha256:7f11fa0c51c62cbec2cafc669ed6167b368cfdabbb5b313a335f64ebe6258802",
+      "size": 237518
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Cable_1.uasset": {
-      "hash": "sha256:6fd9c9143d234e9298cdf76de972de96322433808b8f4fa6f5f6805497663954",
-      "size": 207532
+      "hash": "sha256:ea14843a688e663a2c20147f46447c44d5d48c4210550379fa1587921f0bb074",
+      "size": 172539
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Ceiling_1.uasset": {
-      "hash": "sha256:1d324137ec43cf3698237513b1d2e2d29c0278a325212c4b4b46c0d0f956ce2e",
-      "size": 103858
+      "hash": "sha256:f11ceedff1fe1a42be25f24e886f2b851d9aa468d310529aa2460828469e5334",
+      "size": 105729
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Floor_1.uasset": {
-      "hash": "sha256:d248da0cb826c33a17aa4d6c73598cd9bb5810981c10c76e58d1481e9461412e",
-      "size": 96544
+      "hash": "sha256:7644055c5806a3407afab693fb5ad2cd79a00627852756dc04f96b21af84860b",
+      "size": 99939
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Floor_3.uasset": {
-      "hash": "sha256:07a6ece0ed274500f16bc546bf0ee0836b15a42868685685678b2f3ff5dfbac9",
-      "size": 103176
+      "hash": "sha256:f9b031ec67a79ce44c278ad2da80a8edb1ccb9f2e95116fb2018908047151d8c",
+      "size": 105242
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Light_1.uasset": {
       "hash": "sha256:bbfc0af61eb15f00a5b3e8679e5b59a326548aa611fbe75d85307af07b28a304",
       "size": 93236
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Metal_1.uasset": {
-      "hash": "sha256:32b5afe5ba1e8523245b68d94ce9e313c06e83d9ff347ec33a609b1583d949a5",
-      "size": 168781
+      "hash": "sha256:a90167be48cb42b48c881530de0cd22e81c929366dfde6c204334ed8a6ef150c",
+      "size": 159730
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Metal_2.uasset": {
-      "hash": "sha256:398f74fd9fa59f79cf546a3b80ce0d0817c26b083ae48885c36fb45311bee2bf",
-      "size": 102177
+      "hash": "sha256:d0ac03690208e2903c45f251fb0a4f08938e0a75ee8fc61008505c752c427181",
+      "size": 105307
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Metal_5.uasset": {
-      "hash": "sha256:9d0e27ec995773e7924c5d158623e9c751a29b19ce555cc4ea3237bd71e70f20",
-      "size": 101346
+      "hash": "sha256:2630f140a935466e4673e8cff5422d9aac6a25383ec11102e5d36fe81c665006",
+      "size": 103823
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Wall_1.uasset": {
       "hash": "sha256:43698d5555f5a33e11d967cb426f35f10305c051d6251bcfe8e398788d06a15c",
@@ -75612,36 +75616,36 @@
       "size": 106375
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Wall_3.uasset": {
-      "hash": "sha256:9962e7eb73aad2c9baca7a650b51927ad1d3a885ef502db1888ea7de5ae787b7",
-      "size": 131571
+      "hash": "sha256:8e18546490c1af1d23ae40728a27a08fd50b687749d7588e8f208dfacf309100",
+      "size": 134594
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Wall_4.uasset": {
-      "hash": "sha256:dbef6ab78c8a2ae4307bc6065b25e4549876b5c1d25a2b0e762739a19d00a867",
-      "size": 105757
+      "hash": "sha256:e2b3128a2ba6679d06252c2589383179e53d09d5801a91c67f8035bae884af05",
+      "size": 107793
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Wall_5.uasset": {
-      "hash": "sha256:4b18752f0dcfc9c63fc8311a56acb643089cb8d622d1cc7fde5346c3378b9f64",
-      "size": 148983
+      "hash": "sha256:fdb255bc38cc5328d9ea3f5d8ef657a948efe87d958b139ab93bbb95ba1f5ff1",
+      "size": 149224
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Flash_Light_1.uasset": {
       "hash": "sha256:4a7cd9e82ce041fc5afb25b23f4fe37efbd8486b07610ce196c4d174952cecaa",
       "size": 116082
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Floor_1.uasset": {
-      "hash": "sha256:edfeea64247987d29b607b200d0f34edaec1d8a319303d4f76732db884405c21",
-      "size": 97061
+      "hash": "sha256:0437a3a7c63e42eb3e5636a423aec05ee8f463e759f1cfcf57e59b905fb445d6",
+      "size": 99955
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Floor_2.uasset": {
       "hash": "sha256:ff04f6d3a1b4d996327c2a67440beeaa41ca927ca74761804bcaec1cbdc14c6d",
       "size": 98988
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Floor_3.uasset": {
-      "hash": "sha256:2ead4597cdd4c6ce96925f5f0d6829f232171114ae5cb44d9bc092bbdacc7323",
-      "size": 89058
+      "hash": "sha256:efab229f4fd5754d0d9fd9f91deef9c9739f6bfdabd3a1f96a91abc4735ad059",
+      "size": 91843
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Floor_4.uasset": {
-      "hash": "sha256:8fc12bd915d9cc1f020ba54b3b85abe4ddc59f369d2a1485df8519a9c4d881c2",
-      "size": 96036
+      "hash": "sha256:48043c05113e634cac77da39499b2ae18ee99f347cda03aa32a3fad33df7c9fa",
+      "size": 99347
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Gurney_1.uasset": {
       "hash": "sha256:37a7765ee74cc14f04fb2d092b632c5b1e8a48287ece74ac8c41825861abf315",
@@ -75724,8 +75728,8 @@
       "size": 171537
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_MRI_Bed_1.uasset": {
-      "hash": "sha256:7b20cf7138c9cdc944cff955c3e7e2819ee4ade1e2c4e6d3e9118ecae9e61225",
-      "size": 158769
+      "hash": "sha256:3e0292fcc6c8055134e5ebdc229888cfc7a0a8cad9cd107ac3ed077ef491a41e",
+      "size": 153313
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Othoscope_1.uasset": {
       "hash": "sha256:ba190cc7379706790d5fc76e072bca875ad28a302813e637d22c0f5ec509bc24",
@@ -75784,8 +75788,8 @@
       "size": 122987
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Platform_Detail_1.uasset": {
-      "hash": "sha256:5d30629564e6303203e41bf3d496c57e37b5f7081d269506124bd6b9c0869cdb",
-      "size": 106288
+      "hash": "sha256:935b93e6a85782056ef24ca24c64454bbec53ab4e81732330f31eae5378dae4c",
+      "size": 108692
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Railing_Platform_2.uasset": {
       "hash": "sha256:75d11fbc5d4fe7d50ce5282dd2caea3b2b19d3c9630b10523ae4412d3a632fdf",
@@ -75812,68 +75816,68 @@
       "size": 778683
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_1.uasset": {
-      "hash": "sha256:8dd48d75469ca12fa8aae31f59767be17b807b4813c63f3aa11e79634908d076",
-      "size": 120915
+      "hash": "sha256:9c6f70986562966fb27bca4937477f21a1807705058a9b04b11bb3c7d9016e4c",
+      "size": 120208
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_10.uasset": {
-      "hash": "sha256:fc7c20904e667f6b68e1fc08c2565e8b91400451b21e5b777d6b7596dc149687",
-      "size": 111638
+      "hash": "sha256:0e2675cd9ffcb46b313f3bb129a20192fe5749f832b74c03c38948117cf8d016",
+      "size": 112528
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_10_Glass.uasset": {
-      "hash": "sha256:1b56fc6337f51789bc773f2b1a9942db2b695bd78faa4f8e8066d3b67afb179a",
-      "size": 94000
+      "hash": "sha256:ee31e6c9d5aa208be2ce1a6a2c74bd750e21cd943ad0cd63286a03a0778d9355",
+      "size": 97294
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_10_Window.uasset": {
-      "hash": "sha256:c582237bcbd0bafd370a4d818028350e3ac83e3d9f600ecd3ae2d05300464903",
-      "size": 104258
+      "hash": "sha256:6bba89b260b73e5883f47165369893bea3a3a103323a9488cfdbdabb75747770",
+      "size": 106901
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_11.uasset": {
-      "hash": "sha256:1924f5af0b61763e51bd21555f8370182174e7e8b82f0fc7dcbe14fcbb69b701",
-      "size": 105843
+      "hash": "sha256:acd44eee9875b73c120effd47f2aa1ba71d6899b46006253d56b53ec66e98d30",
+      "size": 107424
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_12.uasset": {
-      "hash": "sha256:389825980a694d2a24257525bda35781c5fcb8c179d188957be93ea46fa1368d",
-      "size": 102082
+      "hash": "sha256:1dc26eacd5a85499c91f0c7c57c66620b57c996102121104abcbe94770059218",
+      "size": 104669
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_13.uasset": {
-      "hash": "sha256:f38fa0b3aa59e68ba558cd469a0e32aa12b3cce045ccdcbc64ff91358cb04106",
-      "size": 99465
+      "hash": "sha256:2b024f030412b9e7e03b6a9d78e6f4fe78cd8f6dc0328707aa0bf0b536557885",
+      "size": 101931
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_14.uasset": {
       "hash": "sha256:e7816a1cf7e6b722d4c9fbdb1d2dd5b200a0408c5e7223bcf89349cf02afacff",
       "size": 109109
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_2.uasset": {
-      "hash": "sha256:a9a978f5d88a642d18dea4ba8d4b2e2e57541ff9183212cb92f9211f6db7bbe5",
-      "size": 116439
+      "hash": "sha256:f2b1474e749cd34eecc24e25574efa83cfb06e03c36d12f0fe0c04ad09635674",
+      "size": 117012
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_3.uasset": {
-      "hash": "sha256:0f704a212aa406d3c74e256d97f95b080da043bf58093dfa7dfd0ea54da43f7b",
-      "size": 112007
+      "hash": "sha256:8a30baa41a84a5a05d943e51e162a61caa619d1ef011b17503982425d07af01a",
+      "size": 112903
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_4.uasset": {
-      "hash": "sha256:e0165b3fe90c161dd3a9d7785a9bcca526c9c7fad933d02edea42f78b4b68997",
-      "size": 91474
+      "hash": "sha256:018139ca65544b1add7b46d6ce47d31e5c12d4c36f92c534603c1c422a78cf2f",
+      "size": 94837
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_5.uasset": {
-      "hash": "sha256:7b1090321b85736d0ae3553934476669a61926df83a1d01aebf7dcf5c0dbfd05",
-      "size": 119405
+      "hash": "sha256:1cce17c8dcec4b67e626e1bf1faac0e3d7f4b1c33d4c28053917346fe721c562",
+      "size": 121860
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_6.uasset": {
       "hash": "sha256:335895b638c95365d68212fe65e1d91c4572593e4c5bf96325b5e2d1d24c4ebe",
       "size": 118575
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_7.uasset": {
-      "hash": "sha256:ef20754aa962ae65f2ea7ea170cf378afd530128663d2d0f1f7597fdcf501799",
-      "size": 111792
+      "hash": "sha256:fcd8f7565c610eafb54c0d800dd194f279ddaca01b3cb9e1564a2a223ea57338",
+      "size": 112601
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_8.uasset": {
-      "hash": "sha256:4a20607c37cc8bde88f11d4a2aea7688107a75ca0c326b52451301ee35e9571f",
-      "size": 94597
+      "hash": "sha256:5650f632a7369330c02d30166d8022c5217cbbc5d53df1f4894c4078ec690391",
+      "size": 97809
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_9.uasset": {
-      "hash": "sha256:b0d9f547c698796221372700109df318931667e37c43e85d8f3101f45a619add",
-      "size": 125209
+      "hash": "sha256:266a0c3492f4779ea1615a8f7ffee16fb985d64b69e2330e7ee5d716afd53daa",
+      "size": 123313
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Window_1.uasset": {
       "hash": "sha256:2c09d102a8f5e2687f00bb11d79341c4b2e5af688d5c1d66ba00993d09fbcda3",
@@ -77576,8 +77580,8 @@
       "size": 157610
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_1.uasset": {
-      "hash": "sha256:7447e6768508c58673c29a5011a6235912c118fdf3165d40a346cfe8a55645da",
-      "size": 117844
+      "hash": "sha256:3f0d2dbe95fcd0fa26297899470009d2defd724fdb54fe9c28d76f667e2b16ab",
+      "size": 14291
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Metal_Door_1.uasset": {
       "hash": "sha256:b02f8b7d56ab29aec9e5a35b6b5470454b9e7498c514fc383ef5f5815d6559ea",
@@ -77728,16 +77732,16 @@
       "size": 13543
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_1.uasset": {
-      "hash": "sha256:689f8cac117dd7c010f4c34bbdb63653082af34a862e1da33c7aa663f35b74a3",
-      "size": 110003
+      "hash": "sha256:8b24ca07664f6e54520f5f0d0f75911fac887866a3f3ba33b208ee33cbe6a28d",
+      "size": 14490
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_2.uasset": {
-      "hash": "sha256:519bfe2d4c62645c27df150253a3477e5cc5af0d305c9692a485f09d0c60db5d",
-      "size": 108038
+      "hash": "sha256:3eb37f1b68f1a837016ad3d68789a7efc367bc5b1748dce112a62f049617b7a3",
+      "size": 14385
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_3.uasset": {
-      "hash": "sha256:ceeeb3875af0ec2dd5c0f22ef24e7184f39a1d5cb9c8608c8991cbc41a079e67",
-      "size": 119736
+      "hash": "sha256:58389a221891c45920c1660b5073545f84a6951542f5c803a240c81280778d52",
+      "size": 14380
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_4.uasset": {
       "hash": "sha256:5a6afe73b7679364733646f5ba9124ddc474feb3899a83af901958342147e881",
@@ -78264,8 +78268,8 @@
       "size": 101216
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Detail_2.uasset": {
-      "hash": "sha256:66e8ee9c881e5e195f9609cfd036440b1cedd56ce8d9344f2119075d3cbb8f87",
-      "size": 73538
+      "hash": "sha256:9ad6ad1864fd7f957ff62c4454c0fad2a10c93f4034100070eae7d96ea7ffacf",
+      "size": 76348
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Door_1.uasset": {
       "hash": "sha256:e458eeaf7859b8d1b8d10fd7c79c100846dc44fe728abc9c300798f4959b6a4e",
@@ -78284,8 +78288,8 @@
       "size": 95473
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Elevator_Floor_2.uasset": {
-      "hash": "sha256:a5b522004e44325e1684e21daacae3869ba0417b05a1973a500345594bd1ad32",
-      "size": 100438
+      "hash": "sha256:1dc4b4a036a758dd42dcbe3fe97ceb5cf625114f1ab58b3faaca4eb1087aa4fa",
+      "size": 103199
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Elevator_Floor_3.uasset": {
       "hash": "sha256:6298e58c564ee92e5c24df09cd8b1bdce65ad14a3907b17c9f66086f2f12b056",
@@ -78300,8 +78304,8 @@
       "size": 104549
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Elevator_Metal_4.uasset": {
-      "hash": "sha256:8ced69c82ca9a0e5fd76c8d983598acfc0e0a95c6d92d1d40a90e6f87015ad21",
-      "size": 100492
+      "hash": "sha256:8fb533f2a2bee8a4729ca745ce5684cb27a49f8ea6fcc4112c00925c67464628",
+      "size": 103709
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Elevator_Wall_1.uasset": {
       "hash": "sha256:5463ee07adfb1a25f33af1abc4965e168303216083eb8de05112536ba206a6bd",
@@ -78444,8 +78448,8 @@
       "size": 113377
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Panel_Box_1.uasset": {
-      "hash": "sha256:38a3476082db0e93b4a339ee005cad06c4a833ad4544263458b4fd7e9b06eae8",
-      "size": 200745
+      "hash": "sha256:667002526628fa04579994d7d92c733161bea69b467dc840a0eaa86d7c91db9c",
+      "size": 179776
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Pillow_1.uasset": {
       "hash": "sha256:720fc4902c1209dcba6694bf89d287d6e4a3fc1243cda230c237e10993b31b8b",
@@ -78540,8 +78544,8 @@
       "size": 121029
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Railing_Platform_1.uasset": {
-      "hash": "sha256:397c362a8523bbf0f187910f49ccc32367185c711a4a8901473ce14786ae3139",
-      "size": 110622
+      "hash": "sha256:bf0a368028b06f50dadafc45d2a0562c54048b5000b48616a1dd46039a70be66",
+      "size": 112354
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Red_Light_1.uasset": {
       "hash": "sha256:0d23abd642de06094f15246ba7b66c261b4be563f18cbd52df914072270e2846",
@@ -78680,8 +78684,8 @@
       "size": 93322
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Shelf_1.uasset": {
-      "hash": "sha256:a7bbcf88b3779b5f80911a9e1a25f0c24a46b8c04787674489a4d7dfb3537f95",
-      "size": 169015
+      "hash": "sha256:4e8245b9b8829ac6bba431676a1b80d647cd7a63d8da9ee8127ad29f28fad864",
+      "size": 154772
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Sign_1.uasset": {
       "hash": "sha256:19c7e012e71092ae8bfd68b7813662cc74940efd8c0b87690b9011ac5d042135",
@@ -78720,8 +78724,8 @@
       "size": 235157
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Tape_1.uasset": {
-      "hash": "sha256:071cafefc773024c76526274808972e97fc36ce61bdb32eb027e5b0e2b4207d8",
-      "size": 93208
+      "hash": "sha256:b4f97f336b48c2b53448b7eeb4d1277515eb3ac7298b5d12288328ca07cf91b4",
+      "size": 96389
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Text_1.uasset": {
       "hash": "sha256:b49c968731f84075e24ea127ac2fc01b9842f7729d49ba912eb3c9234140dc2a",
@@ -81448,8 +81452,8 @@
       "size": 132700
     },
     "Content/ResearchMegaPack/SecretBase/Meshes/SM_Pipe_9.uasset": {
-      "hash": "sha256:618c6da43d46e3fe08b326f6aa0ce35d5ad7d4c24254bcad09717e4964041e3c",
-      "size": 176619
+      "hash": "sha256:d4ba251928189e7b91e92f509b05426b7d3dd59bbd60407c16e88bc79681566d",
+      "size": 167626
     },
     "Content/ResearchMegaPack/SecretBase/Meshes/SM_Plant_1.uasset": {
       "hash": "sha256:8f8da9f87565b3538a47c3f555cd4ca4ce141d154d080093826297bdb441de93",

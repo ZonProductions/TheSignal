@@ -29,6 +29,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "JsonObjectWrapper.h"
 #include "ZP_WeaponTypes.h"
 #include "ZP_GraceCharacter.generated.h"
 
@@ -707,6 +708,11 @@ private:
 	void Input_FireStarted(const FInputActionValue& Value);
 	void Input_FireCompleted(const FInputActionValue& Value);
 	void Input_ReloadStarted(const FInputActionValue& Value);
+
+	/** True while a modal menu owns the screen (save point OR pause menu). Menu-open input handlers
+	 *  early-out on this so the player can't pull up the inventory/notes/map tabs UNDER those menus. */
+	bool IsModalMenuOpen() const;
+
 	void Input_InventoryMenu(const FInputActionValue& Value);
 	void Input_Map(const FInputActionValue& Value);
 	void Input_TabCycleLeft(const FInputActionValue& Value);
@@ -725,6 +731,29 @@ private:
 
 	/** Adds StartingWeaponItem to inventory at BeginPlay. */
 	void GrantStartingItems();
+
+	// --- Inventory persistence via EasyGameUI's per-slot save FILE ---
+	// The player carries a BP_EasySaveGameComponent (added in BP_GraceCharacter). On SAVE/LOAD it fires its
+	// LoadingOrSavingVariables dispatcher with the chosen slot's JSON; we hook that to serialize/restore the
+	// Moonville grid FAITHFULLY (UE text export keeps stack amounts/durability/positions). Tied to the save
+	// FILE — a fresh PIE / new game just runs GrantStartingItems (no auto-restore).
+
+	/** Bind OnEguiSaveLoadVariables to the BP_EasySaveGameComponent's LoadingOrSavingVariables dispatcher. */
+	void BindEguiSaveComponent();
+
+	/** EGUI save/load hook. OperationType: 0 = Save (write inventory text into Json), 1 = Load (read + apply). */
+	UFUNCTION()
+	void OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjectWrapper JsonObject);
+
+	/** Export the Moonville grid (ItemSlots) to UE text + read InventorySizeExpansion. Empty if no inv comp. */
+	FString ExportInventoryText(FVector2D& OutSizeExpansion) const;
+
+	/** Apply previously-exported inventory text via Moonville LoadInventoryFromSavegame (faithful: keeps
+	 *  stack amounts, durability, grid positions, rotation). */
+	void ApplyInventoryFromText(const FString& Text, FVector2D SizeExpansion);
+
+	/** Re-equip the weapon that was in-hand at save time (by actor class path) after a load restore. */
+	void ReEquipWeaponByPath(const FString& WeaponClassPath);
 
 	/** Directional dash on space bar (replaces Jump). Uses CurrentMoveInput;
 	 *  defaults to backward when stationary. Plays FPP_sns_Dodge on
@@ -853,6 +882,10 @@ private:
 
 	/** Reads weapon class from Moonville's ShortcutSlots[SlotIndex] via reflection. */
 	TSubclassOf<AActor> GetWeaponFromShortcutSlot(int32 SlotIndex);
+
+	/** True if the weapon class is actually in the GRID (ItemSlots) — the source of truth. A quick-slot can
+	 *  keep a stale ref after the item moves to a briefcase, so we verify the grid before equipping. */
+	bool IsWeaponClassInGrid(TSubclassOf<AActor> InWeaponClass);
 
 	/** Syncs ActiveWeapon from KinemationComp when weapon changes (equip/unequip). */
 	UFUNCTION()

@@ -7,6 +7,8 @@
 #include "ZP_GraceCharacter.h"
 #include "ZP_PlayerController.h"
 #include "ZP_HUDWidget.h"
+#include "ZP_ObjectiveSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/PointLightComponent.h"
@@ -81,6 +83,10 @@ void AZP_CardReaderPanel::OnInteract_Implementation(ACharacter* Interactor)
 			*GetName());
 		return;
 	}
+
+	// Reveal the related sub-objective on first contact with the (locked) reader — set BEFORE the
+	// item check so the "Find security card" step appears even when the player already has the card.
+	SetObjectiveFlag(ObjectiveFlagOnTry);
 
 	// Auto-check inventory and use key if present
 	if (CheckPlayerHasItem(Interactor))
@@ -327,6 +333,9 @@ void AZP_CardReaderPanel::UseKey(ACharacter* Character)
 
 	// Switch status light to green
 	SetStatusLightColor(FLinearColor(0.1f, 0.8f, 0.1f));
+
+	// Advance objective state — completes the "Access east wing" step gated on this flag.
+	SetObjectiveFlag(ObjectiveFlagOnUnlock);
 }
 
 void AZP_CardReaderPanel::SetStatusLightColor(FLinearColor Color)
@@ -334,5 +343,18 @@ void AZP_CardReaderPanel::SetStatusLightColor(FLinearColor Color)
 	if (StatusLight)
 	{
 		StatusLight->SetLightColor(Color);
+	}
+}
+
+void AZP_CardReaderPanel::SetObjectiveFlag(FName Flag)
+{
+	if (Flag.IsNone()) return;
+	UWorld* World = GetWorld();
+	UGameInstance* GI = World ? World->GetGameInstance() : nullptr;
+	if (UZP_ObjectiveSubsystem* Obj = GI ? GI->GetSubsystem<UZP_ObjectiveSubsystem>() : nullptr)
+	{
+		Obj->SetFlag(Flag);
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: set objective flag '%s'"),
+			*GetName(), *Flag.ToString());
 	}
 }

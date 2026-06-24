@@ -69,6 +69,38 @@ doors, dialogue) gate on objective/flag state.
 
 ---
 
+## Hidden/revealed steps + re-titling stages (2026-06-23)
+
+Two capabilities added so a single tracked step can appear on a trigger and re-title itself as the player
+progresses (e.g. office "Find a way out": *Search for clues* → *Go to the empty floor*; a hidden
+*Find security card* → *Access east wing*).
+
+- **`FZP_SubObjectiveDef.RevealRequirements`** (`TArray<FZP_ObjectiveRequirement>`): empty = the sub is
+  visible as soon as its main is active; non-empty = the sub stays HIDDEN until all are met, then pops into
+  the tracker. Tracked in `UZP_ObjectiveSubsystem::RevealedSubObjectives` (monotonic, persisted).
+- **`FZP_SubObjectiveDef.Stages`** (`TArray<FZP_ObjectiveStage{ FText Title; TArray<FZP_ObjectiveRequirement> Requirements }>`):
+  effective stage list = `[{Title, Requirements}] + Stages`. The sub shows the CURRENT stage's title; meeting a
+  stage's requirements advances to the next; completing the LAST stage completes the sub. Per-sub completed-stage
+  count in `SubObjectiveStage` (`TMap<FName,int32>`, monotonic → a consumed key item can't roll the title back;
+  persisted). `Sub.GetEffectiveStages()` synthesizes the list.
+- **Main completion rule:** a main completes when every *in-play* sub (always-visible OR revealed) is complete;
+  still-hidden optional subs never block it.
+- **HUD view:** `GetActiveMainObjectiveView(OutDef, OutRows)` returns one `FZP_ObjectiveRow{ SubId, Title, bComplete }`
+  per VISIBLE, not-yet-complete sub, already resolved to its current-stage title. Completed subs are dropped so a
+  finished step fades out and the rest remain. The HUD bridge just loops these rows (all filtering is in C++).
+
+### External requirement eval — now wired
+- **`HasItem`** resolves against the live Moonville grid (`PlayerHasItem`), re-checked on every inventory change:
+  `AZP_GraceCharacter::HandleInventoryUpdate()` calls `NotifyInventoryChanged` (single notify point for the whole grid).
+- **Flag-driven beats** (used for unlocks / arrivals):
+  - `AZP_CardReaderPanel` gained `ObjectiveFlagOnTry` (set on first interact → reveals the related sub) and
+    `ObjectiveFlagOnUnlock` (set on successful unlock → completes the access stage). Both default None (opt-in per instance).
+  - `AZP_ObjectiveTrigger` (new drop-in box volume): on player overlap performs one action — SetFlag /
+    CompleteSubObjective / CompleteObjective / StartObjective (`TargetId`), with optional `RequiresActiveObjective`
+    gate and `bOneShot`. Use SetFlag for "reach a place" beats (e.g. *Go to the empty floor*).
+
+---
+
 ## Decisions that changed from the original plan
 - **FName ids, NOT GameplayTags** — matches the project's existing `TriggeredNarrativeBeats`/`PlayedDialogueIDs`
   idiom; no new tag taxonomy.

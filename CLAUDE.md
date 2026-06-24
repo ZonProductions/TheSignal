@@ -69,10 +69,13 @@ Project-specific guidance follows below.
 ## PROJECT IDENTITY
 
 - **Title:** The Signal
-- **Protagonist:** Grace Owens — failed actor/thespian, male, late 20s–early 30s. Takes any gig to survive. Recently fired from a cancelled TV show. Working a corporate event at a high-tech research campus when containment breach occurs.
-- **Antagonist/Guide:** Ren — a primordial entity that communicates through radio frequencies and electronics. Presents as a warm, calm, helpful human voice through Grace's earpiece. Chose the name "Ren" because a name makes something feel human. True goal: inhabit autonomous exoskeletons from a cancelled defense project. Every act of help moves Grace closer to reactivating that hardware.
-- **Core Premise:** Grace thinks he's escaping. He's assembling the key.
-- **"The Signal"** is the meta-level name for what Ren is. To Grace, it is only ever **Ren.**
+- **STORY — SINGLE SOURCE OF TRUTH:** the `/SignalSTR/` folder (read `signal_story_bible.md`,
+  `marcus_backstory.md`, `campaign_structure.md`). The protagonist is **Marcus**. Do NOT describe
+  story or characters from memory or from this file — open SignalSTR and read it.
+- **DEAD CANON — DO NOT USE:** the old **"Grace / Ren"** story (Grace Owens protagonist; "Ren" the
+  radio-entity guide; the exoskeleton premise) is SCRAPPED. It survives only in some legacy asset /
+  file names — ignore those names, they carry no story meaning. Never reintroduce Grace or Ren into
+  docs, deliverables, or design work.
 
 ### Tone Pillars
 - Psychological dread over jump scares
@@ -85,10 +88,8 @@ Project-specific guidance follows below.
 - **Alan Wake 2** — Narrative structure, reality distortion, meta-storytelling
 - **Silent Hill 2** — Psychological horror, environmental symbolism, atmospheric dread
 - **Resident Evil 7** — First-person pacing, resource tension, grounded-to-surreal arc
-- **BioShock (Atlas)** — A guide whose helpfulness IS the deception
-- **BioShock Infinite** — World-building through environment, companion relationships
 - **The Last of Us 1/2** — Emotional storytelling benchmark
-- **Futurama God Entity** — Ren's true nature. Vast. Doesn't need to perform power.
+- (Current story-specific influences live in `/SignalSTR/` — not duplicated here.)
 
 ### Target
 - **Playtime:** TBD (scope being determined during campaign build)
@@ -287,6 +288,66 @@ MapVolume's bounds → RE-style plan (wall outlines on dark) → imports `T_Map_
 
 **Locked rule:** `AreaID` MUST match across MapVolume.AreaID == script AREA_ID == MapPickup.AreaID —
 mismatched IDs = no map shows. Floor-plan scan height is the volume's CENTER Z, not CaptureHeight.
+
+---
+
+## CHECKPOINT PROTOCOL
+
+`/checkpoints/` is this project's **troubleshooting knowledge base** — a Confluence/KB-style archive
+of every working session (265+ entries and growing). Each file is a dated, self-contained record of
+what changed, why, what broke, and what's still open. Treat it as the **institutional memory of the
+project**, not as disposable scratch notes. When you write one, you are filing a KB article a future
+session will rely on; when you hit a problem, the answer is often already filed.
+
+### READ FIRST — checkpoints are a primary historical source
+- **Before troubleshooting any bug, re-attempting a fix, or touching an unfamiliar system, SEARCH the
+  checkpoints.** A past session very likely already hit it. E.g. `grep -ril "flashlight" checkpoints/`
+  or `grep -rin "exposure\|lumen\|swimming pool" checkpoints/`. Use the Grep tool over `checkpoints/`.
+- Checkpoints pair with the **DEAD ENDS** table below: DEAD ENDS = the one-line "never do this again"
+  index; checkpoints = the full story behind each entry. If a checkpoint documents a confirmed failure,
+  also add a DEAD ENDS row so it's indexed.
+- After context **compaction**, the hook auto-injects only the **single most recent** checkpoint (by
+  file mtime). That is NOT the whole history — the rest of the folder is still there. `grep` it; never
+  assume the one re-injected file is all that exists.
+
+### WHEN to write one (enforced by `.claude/hooks/checkpoint_monitor.py`)
+- The counter resets to 0 whenever a new `.md` lands in `/checkpoints/`. The **Stop** hook BLOCKS
+  stopping once **60 tool calls** (TOOL_CALL_THRESHOLD) have passed since the last checkpoint — so
+  write one *well before* then, not only when the hook nags.
+- The **PreCompact** hook warns near the context limit: write a checkpoint IMMEDIATELY when you see it,
+  before context is compacted and detail is lost.
+- Also write one: at the end of a session, after solving a non-obvious problem, and before any risky,
+  destructive, or hard-to-reverse operation.
+- GOTCHA: the counter only resets when a **new `.md` filename** lands in `/checkpoints/`. Overwriting
+  an existing checkpoint does NOT reset it — write a new dated file (several per day is normal here).
+
+### NAMING
+`YYYY-MM-DD_short_snake_topic.md` (e.g. `2026-06-22_editor_pie_exposure_gamesettings.md`). Use a
+**descriptive, keyword-rich** topic so future greps hit it. The newest mtime is the file the
+SessionStart hook restores after compaction — keep the most recent checkpoint current and complete.
+
+### FORMAT (match the existing files)
+```
+# Checkpoint - YYYY-MM-DD - <one-line headline of the outcome>
+
+## State
+What is true right now: the system worked on, current status, what's verified vs unverified.
+
+## What changed / how it works
+The actual change, the mechanism, key values, the reasoning — enough for a future session to
+reconstruct it without re-deriving from scratch.
+
+## STILL OPEN / NEXT
+Open tickets, the next concrete step, anything BLOCKED on the dev.
+
+## GOTCHAS
+Traps, surprises, "looks done but isn't," engine/tool quirks discovered this session.
+
+## Files / artifacts
+Source/asset/script paths touched, memory entries added, related checkpoints/tickets by name.
+```
+Keep it factual and plain — a future Claude (or the dev) must be able to act on it cold. Cross-link
+related checkpoints by filename and DEAD ENDS rows by date.
 
 ---
 

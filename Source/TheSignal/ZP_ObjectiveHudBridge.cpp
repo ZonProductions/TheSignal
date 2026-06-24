@@ -68,18 +68,20 @@ void UZP_ObjectiveHudBridge::HandleTrackerRefresh()
 	}
 
 	FZP_ObjectiveDef Def;
-	if (!Subsystem->GetActiveMainObjective(Def))
+	TArray<FZP_ObjectiveRow> Rows;
+	if (!Subsystem->GetActiveMainObjectiveView(Def, Rows))
 	{
 		if (UWorld* W = GetWorld()) W->GetTimerManager().ClearTimer(FadeTimer);
 		HideObjective(QuestWidget);
 		return;
 	}
 
-	// Drive the BP glue: Begin -> one row per sub -> End. (Loop in C++ keeps each BP graph trivial.)
+	// Drive the BP glue: Begin -> one row per VISIBLE sub (current-stage title) -> End.
+	// (Reveal/stage/complete filtering happens in the subsystem so each BP graph stays trivial.)
 	BeginObjective();
-	for (const FZP_SubObjectiveDef& Sub : Def.SubObjectives)
+	for (const FZP_ObjectiveRow& Row : Rows)
 	{
-		AddObjectiveRow(Sub.Id, Sub.Title, Subsystem->IsSubObjectiveComplete(Sub.Id));
+		AddObjectiveRow(Row.SubId, Row.Title, Row.bComplete);
 	}
 	EndObjective(QuestWidget, Def.Title);
 
