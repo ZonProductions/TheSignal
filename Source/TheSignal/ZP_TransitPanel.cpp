@@ -3,6 +3,7 @@
 #include "ZP_TransitPanel.h"
 #include "ZP_TransitMenuWidget.h"
 #include "ZP_TransitSubsystem.h"
+#include "ZP_Elevator.h"
 #include "ZP_GraceCharacter.h"
 #include "ZP_PlayerController.h"
 #include "ZP_HUDWidget.h"
@@ -43,6 +44,13 @@ void AZP_TransitPanel::BeginPlay()
 
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_TransitPanel::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_TransitPanel::OnOverlapEnd);
+
+	// In-map elevator panels are mounted inside the car — ride with it so the console (and its
+	// interaction volume) stay reachable at every floor. KeepWorld preserves the placed transform.
+	if (LinkedElevator && LinkedElevator->PlatformMesh)
+	{
+		AttachToComponent(LinkedElevator->PlatformMesh, FAttachmentTransformRules::KeepWorldTransform);
+	}
 }
 
 FText AZP_TransitPanel::GetInteractionPrompt_Implementation()
@@ -186,6 +194,24 @@ void AZP_TransitPanel::TravelToDestination(int32 DestinationIndex)
 		return;
 	}
 
+	// --- In-map elevator: move the linked car within this map instead of loading a level. ---
+	if (D.DestType == EZP_TransitDestType::InMapElevator)
+	{
+		if (LinkedElevator)
+		{
+			LinkedElevator->MoveToRelativeZ(D.ElevatorTargetRelativeZ);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] TransitPanel %s: elevator %s -> relative Z %.1f"),
+				*GetName(), *LinkedElevator->GetName(), D.ElevatorTargetRelativeZ);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitPanel %s: destination %s is InMapElevator but LinkedElevator is unset"),
+				*GetName(), *D.DestinationId.ToString());
+		}
+		return;
+	}
+
+	// --- LoadLevel: open the target map (original behaviour). ---
 	if (D.TargetLevel.IsNull())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitPanel %s: destination %s has no TargetLevel"), *GetName(), *D.DestinationId.ToString());

@@ -62,6 +62,14 @@
 - **Alternate structure (under consideration):** Dual protagonist — Grace through B1-3, meet new character (MGS/AC playstyle), Treatment Facility, replay B1-3 as new character, Labs as both. Would require second character controller + animation set.
 
 ## CURRENT PRIORITIES
+0. ENEMY PERSISTENCE + REVIVAL (2026-06-24) — BUILT + BP-wired, NEEDS PIE TEST. Dead enemies persist
+   across save/load as corpses (NOT destroyed); completing an objective revives them. C++: ZP_Revivable.h
+   (IZP_Revivable), rewritten ZP_DeathSaveComponent (was Destroy-based — now state-based), Shambler+Scytheer
+   implement revive. BP_Shambler/BP_Scytheer wired with DeathSave + EasySaveGameComp (Persistent,
+   HasVariablesToSave=true, RegisterDestruction=FALSE). REMAINING: per placed enemy, set the DeathSave
+   component's ReviveOnObjective to the Objectives.json Id that revives it (e.g. OFF_CLUES) — DEV decides
+   which. Then PIE-test: kill->save->reload (stays dead)->complete objective (revives). Checkpoint:
+   2026-06-24_enemy_death_persistence_and_objective_revival.md.
 1. ~~TICKET-053: Floor splotch flickering~~ DONE — Lumen GI disabled via PPV_GlobalDarkness, brightness tuned to 0.0025
 2. TICKET-052: Background environment — tech campus at night visible outside building windows
 3. FIX: DoorSign orientation — red arrow parallel to rectangle length, can't face door surface

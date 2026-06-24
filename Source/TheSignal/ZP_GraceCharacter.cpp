@@ -1206,9 +1206,9 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			// keys: slots bypass Enhanced Input to dodge the IMC_Grace / IMC_InventoryCharacter
 			// double-fire conflict, which also stranded the D-pad mapping. Order matches the
 			// original IMC_Grace D-pad bindings (Up=0, Right=1, Left=2, Down=3).
-			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Up))    { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Up -> slot 2")); Input_InventorySlot(2); }
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Up))    { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Up -> slot 3 (Key4)")); Input_InventorySlot(3); }
 			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Right)) { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Right -> slot 0")); Input_InventorySlot(0); }
-			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Left))  { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Left -> slot 3")); Input_InventorySlot(3); }
+			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Left))  { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Left -> slot 2 (Key3)")); Input_InventorySlot(2); }
 			else if (PC->WasInputKeyJustPressed(EKeys::Gamepad_DPad_Down))  { UE_LOG(LogTemp, Warning, TEXT("[DPadProbe] raw EKey DPad_Down -> slot 1")); Input_InventorySlot(1); }
 		}
 	}

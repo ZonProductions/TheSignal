@@ -868,3 +868,42 @@ void AZP_ScytheerBase::OnOwnerDied()
 	if (UCharacterMovementComponent* CM = GetCharacterMovement()) { CM->StopMovementImmediately(); CM->DisableMovement(); }
 	EnterState(EScytheerState::Die);
 }
+
+// ───────────────────────── IZP_Revivable (save-state + revival) ─────────────────────────
+
+void AZP_ScytheerBase::ApplyDeadStateInstant_Implementation()
+{
+	// Snap to the corpse pose without replaying the die clip from the start — used on a LOAD restore.
+	bDead = true;
+	bAggro = false;
+	if (UCapsuleComponent* Cap = GetCapsuleComponent()) { Cap->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
+	if (UCharacterMovementComponent* CM = GetCharacterMovement()) { CM->StopMovementImmediately(); CM->DisableMovement(); }
+	EnterState(EScytheerState::Die); // sets the Die anim segment (SegStartT..SegEndT)
+	if (USkeletalMeshComponent* M = GetMesh()) { M->SetPosition(SegEndT, /*bFireNotifies=*/false); } // hold final frame
+	UE_LOG(LogTemp, Log, TEXT("[Scytheer] dead-state restored on load: %s"), *GetName());
+}
+
+void AZP_ScytheerBase::ReviveEnemy_Implementation()
+{
+	// Bring a dead Scytheer back to a fully alive, patrolling state.
+	bDead = false;
+	bAggro = false;
+	LostSightTimer = 0.f;
+
+	if (Health) { Health->ResetHealth(); } // CurrentHealth=Max, bIsDead=false
+
+	if (UCapsuleComponent* Cap = GetCapsuleComponent())
+	{
+		Cap->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Cap->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block); // re-assert shootability
+	}
+	if (UCharacterMovementComponent* CM = GetCharacterMovement())
+	{
+		CM->SetMovementMode(MOVE_Walking);
+	}
+
+	// EnterState(Wander) restores the walk segment + speed, rejoins the patrol path, and parks
+	// CharacterMovement appropriately (MOVE_None for spline-direct patrol).
+	EnterState(EScytheerState::Wander);
+	UE_LOG(LogTemp, Log, TEXT("[Scytheer] REVIVED: %s"), *GetName());
+}

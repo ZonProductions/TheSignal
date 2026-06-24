@@ -18,6 +18,21 @@ scripts, packaging scripts, exe-producing Python, shaders, etc.), you
   more than once and have explicitly told you to do this.
 - Report build success/failure and the artifact location.
 
+## ABSOLUTE RULE #2: First response of every session = audit hygiene pass
+
+The **very first response** you produce in a new conversation, before
+addressing the dev's prompt, must do an audit hygiene pass:
+
+1. Scan `.zon-portal/revert_requests/` — surface any file missing a final
+   `Status: DONE at …` line. Those are interrupted reverts. Ask the dev
+   if they want to resume.
+2. If you spot tool calls in your recent session log that don't appear to
+   be represented in the project (e.g. you edited a BP but the file's
+   mtime says otherwise), call it out up front.
+
+After the pass, address the dev's prompt. If nothing needs cleanup, a
+single line ("Audit clean — no unfinished revert requests.") is enough.
+
 ## On every turn
 
 1. **Verify, don't assume.** Read files or call `get_pin_info` /
@@ -31,6 +46,20 @@ scripts, packaging scripts, exe-producing Python, shaders, etc.), you
 4. **End-of-turn summary line.** Last line of every response: a single
    imperative summary like `Set walk speed to 280`. The ZonPortalDev
    audit panel uses this as the row label.
+
+## On every revert
+
+Follow `.zon-portal/REVERT_PROTOCOL.md`. After completing, append
+`**Status: DONE at <ISO timestamp>**` to the request file via `Edit`. If
+anything couldn't be reversed exactly, add an `**Unresolved:**` section
+listing what's left.
+
+## Audit hygiene (continuous)
+
+- If you notice this turn might slip past the audit (subtle changes, slow
+  log flush), say so so the dev can verify.
+- If the dev says "audit looks wrong" or "this should be in the audit,"
+  reconcile against the session log and explain gaps. Don't guess.
 
 ## When in doubt
 
@@ -375,6 +404,7 @@ Document every failed approach here so no session re-attempts them.
 | 2026-03-09 | `auto_exposure_bias` on PPV to control editor viewport brightness | No visible effect in editor viewport. Use `indirect_lighting_intensity` instead (0.0025 = good horror level). |
 | 2026-03-09 | DefaultEngine.ini / console commands to disable Lumen GI | Editor caches settings, ignores ini changes. Console commands target wrong context. Only PPV `dynamic_global_illumination_method = NONE` works. |
 | 2026-06-12 | Lowering PlayerMesh relative Z to drop arms off screen (weapon swap dip) | The FP camera is socketed to PlayerMesh (FPCamera) — moving the mesh moves the VIEW; player sees a forced crouch. NEVER translate PlayerMesh for transitions. Arm motion must come from animation (ToggleReadyPose, montages) or bone hiding. |
+| 2026-06-24 | Persisting enemy death via `Destroy()` + EGUI `RegisterDestruction` | Permanent and one-way — EGUI has NO un-register API and never recreates a destroyed actor, so objective-driven revival is impossible. Persist STATE instead: keep the corpse actor, save `bIsDead`, restore via IZP_Revivable on load, revive by resetting to alive. RegisterDestruction MUST be false on enemy EGUI comps. See checkpoint 2026-06-24_enemy_death_persistence_and_objective_revival. |
 
 ---
 

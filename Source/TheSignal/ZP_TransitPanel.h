@@ -29,6 +29,7 @@
 class UStaticMeshComponent;
 class UBoxComponent;
 class UUserWidget;
+class AZP_Elevator;
 
 UCLASS(Blueprintable)
 class THESIGNAL_API AZP_TransitPanel : public AActor, public IZP_Interactable
@@ -47,6 +48,11 @@ public:
 	/** Destinations offered by this panel (per-placement; promote to DataAsset in M5). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
 	TArray<FZP_TransitDestination> Destinations;
+
+	/** The elevator car this console rides/controls. Required only if any destination is of type
+	 *  InMapElevator. The panel auto-attaches to this car at BeginPlay so the console rides with it. */
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Transit")
+	TObjectPtr<AZP_Elevator> LinkedElevator;
 
 	/** Floor-selection widget. Must extend UZP_TransitMenuWidget. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")

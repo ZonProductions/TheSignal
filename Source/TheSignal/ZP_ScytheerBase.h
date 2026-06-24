@@ -31,6 +31,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ZP_Staggerable.h"
+#include "ZP_Revivable.h"
 #include "ZP_ScytheerBase.generated.h"
 
 class UAnimSequence;
@@ -58,7 +59,7 @@ enum class EScytheerState : uint8
 };
 
 UCLASS()
-class THESIGNAL_API AZP_ScytheerBase : public ACharacter, public IZP_Staggerable
+class THESIGNAL_API AZP_ScytheerBase : public ACharacter, public IZP_Staggerable, public IZP_Revivable
 {
 	GENERATED_BODY()
 
@@ -68,6 +69,10 @@ public:
 	// IZP_Staggerable — enter the Hit flinch and hold (AI paused) for Duration. Used by the
 	// player's melee hit and successful block.
 	virtual void ReceiveStagger_Implementation(float Duration) override;
+
+	// IZP_Revivable — death-state persistence + objective-driven revival (UZP_DeathSaveComponent).
+	virtual void ApplyDeadStateInstant_Implementation() override;
+	virtual void ReviveEnemy_Implementation() override;
 
 	// ── Detection ──────────────────────────────────────────────────
 	/** Straight-line distance to consider the player for aggro. Final gate is the navmesh

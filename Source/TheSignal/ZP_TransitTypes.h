@@ -28,6 +28,16 @@ enum class EZP_TransitLockStyle : uint8
 	GreyedWithReason UMETA(DisplayName = "Greyed With Reason")
 };
 
+/** What kind of travel a transit destination performs. Same menu, different destination type. */
+UENUM(BlueprintType)
+enum class EZP_TransitDestType : uint8
+{
+	/** Load another map (OpenLevel to TargetLevel, spawn at ArrivalPointTag). The original behaviour. */
+	LoadLevel     UMETA(DisplayName = "Load Level"),
+	/** Move the panel's LinkedElevator up/down to a relative Z within the CURRENT map — no level load. */
+	InMapElevator UMETA(DisplayName = "In-Map Elevator")
+};
+
 /** A single travel destination offered by a transit panel. */
 USTRUCT(BlueprintType)
 struct FZP_TransitDestination
@@ -42,13 +52,22 @@ struct FZP_TransitDestination
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
 	FText DisplayName;
 
-	/** Map to travel to. */
+	/** LoadLevel = open another map; InMapElevator = ride the panel's LinkedElevator within this map. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
+	EZP_TransitDestType DestType = EZP_TransitDestType::LoadLevel;
+
+	/** [LoadLevel] Map to travel to. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit", meta = (EditCondition = "DestType == EZP_TransitDestType::LoadLevel"))
 	TSoftObjectPtr<UWorld> TargetLevel;
 
-	/** PlayerStart.PlayerStartTag to spawn at on arrival. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
+	/** [LoadLevel] PlayerStart.PlayerStartTag to spawn at on arrival. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit", meta = (EditCondition = "DestType == EZP_TransitDestType::LoadLevel"))
 	FName ArrivalPointTag = NAME_None;
+
+	/** [InMapElevator] Relative Z (UU) from the elevator's start position this stop travels to.
+	 *  0 = the elevator's starting floor, +400 = one floor up, etc. The panel's LinkedElevator is the car. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit", meta = (EditCondition = "DestType == EZP_TransitDestType::InMapElevator"))
+	float ElevatorTargetRelativeZ = 0.f;
 
 	// --- Gating (authored now; enforced from M3) ---
 

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-23T23:24:18",
+  "created": "2026-06-24T17:16:42",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -12064,12 +12064,12 @@
       "size": 6684322
     },
     "Content/Campaign/Building1_Empty.umap": {
-      "hash": "sha256:ebd097c4b2e34168ade5373528cd4d4b4d55db70a216b5d86b65b679a85c98e5",
-      "size": 4687924
+      "hash": "sha256:7e1bd0d924f8c6eca2599185613bfe19ce4c046ee9f7f55ddc12a905ab4795e3",
+      "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:0828642aac2341eedeb2b19e2eddc6f664bd6ff0407919700b503416cd4af3f6",
-      "size": 3411471
+      "hash": "sha256:5b25fc3cf3cd44c2bc9526224e803341d02aa17e8478870272676aa340fdfb0f",
+      "size": 3409847
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -25244,16 +25244,16 @@
       "size": 12213
     },
     "Content/Enemies/Scytheer/BP_Scytheer.uasset": {
-      "hash": "sha256:03aeb98a5d04327debe050dadde0e4de1661d11e67bc91d8f43a086ebafb876e",
-      "size": 34874
+      "hash": "sha256:16d6940551a46843b7c18823ba0fb2afd820f87ce333699610bffce0097d18be",
+      "size": 37430
     },
     "Content/Enemies/Shambler/ABP_Shambler.uasset": {
       "hash": "sha256:7a3d9ee2015e0c354c792ab0f4f122a506e05bd1c740a22e91d937262198bd97",
       "size": 67913
     },
     "Content/Enemies/Shambler/BP_Shambler.uasset": {
-      "hash": "sha256:fc6942e9404721bfdc18dc6339d33c76902ea70fe477c246e457eba0d18c6bd0",
-      "size": 59531
+      "hash": "sha256:b1136acd9ee1d8c180e362db654eba25ef555381623f15ac1e6b405f7474d937",
+      "size": 61908
     },
     "Content/Enemies/Shambler/BS_Shambler.uasset": {
       "hash": "sha256:2e43ad9214ff2bacf9c4c6f4810ee9d4f510c0b61b7a017dbdd7e2e8fd41cc20",

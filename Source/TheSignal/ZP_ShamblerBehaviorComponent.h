@@ -25,6 +25,7 @@
 #include "AITypes.h"                       // FAIRequestID
 #include "Navigation/PathFollowingComponent.h" // EPathFollowingResult
 #include "ZP_Staggerable.h"
+#include "ZP_Revivable.h"
 #include "ZP_ShamblerBehaviorComponent.generated.h"
 
 class UAnimSequence;
@@ -46,7 +47,7 @@ enum class EShamblerState : uint8
 };
 
 UCLASS(ClassGroup = (TheSignal), meta = (BlueprintSpawnableComponent))
-class THESIGNAL_API UZP_ShamblerBehaviorComponent : public UActorComponent, public IZP_Staggerable
+class THESIGNAL_API UZP_ShamblerBehaviorComponent : public UActorComponent, public IZP_Staggerable, public IZP_Revivable
 {
 	GENERATED_BODY()
 
@@ -285,6 +286,10 @@ public:
 	// IZP_Staggerable — forwards to ReceiveStaggerHit so the player can stagger this enemy
 	// generically (melee hit / block) without knowing it's a Shambler.
 	virtual void ReceiveStagger_Implementation(float Duration) override { ReceiveStaggerHit(Duration); }
+
+	// IZP_Revivable — death-state persistence + objective-driven revival (UZP_DeathSaveComponent).
+	virtual void ApplyDeadStateInstant_Implementation() override;
+	virtual void ReviveEnemy_Implementation() override;
 
 protected:
 	virtual void BeginPlay() override;

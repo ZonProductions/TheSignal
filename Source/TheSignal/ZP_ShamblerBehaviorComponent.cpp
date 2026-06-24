@@ -840,3 +840,71 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 			DeathAnim ? *DeathAnim->GetName() : TEXT("none-yet (retarget pending)"), bLastHitFront ? 1 : 0);
 	}
 }
+
+// ───────────────────────── IZP_Revivable (save-state + revival) ─────────────────────────
+
+void UZP_ShamblerBehaviorComponent::ApplyDeadStateInstant_Implementation()
+{
+	// Snap to the corpse pose without replaying the fall/SFX — used when a LOAD restores a dead Shambler.
+	if (!Owner) { return; }
+	bDead = true;
+	bDropping = false; // no easing on restore — we jump straight to grounded
+	if (UWorld* W = GetWorld())
+	{
+		W->GetTimerManager().ClearTimer(EvalTimer);
+		W->GetTimerManager().ClearTimer(AttackHitTimer);
+	}
+	if (AICon) { AICon->StopMovement(); }
+	SetSpeed(0.f);
+
+	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent()) { Cap->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
+	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement()) { CM->StopMovementImmediately(); CM->DisableMovement(); }
+
+	UAnimSequence* DeathAnim = DeathFrontAnim ? DeathFrontAnim : DeathBackAnim;
+	if (USkeletalMeshComponent* M = Owner->GetMesh())
+	{
+		if (DeathAnim)
+		{
+			M->PlayAnimation(DeathAnim, /*bLooping=*/false);
+			M->SetPosition(DeathAnim->GetPlayLength(), /*bFireNotifies=*/false); // hold the final (corpse) frame
+		}
+		FVector RL = M->GetRelativeLocation();
+		RL.Z = MeshBaseRelZ - DeathDropZ; // apply the full grounding drop instantly
+		M->SetRelativeLocation(RL);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[Shambler] dead-state restored on load: %s"), *Owner->GetName());
+}
+
+void UZP_ShamblerBehaviorComponent::ReviveEnemy_Implementation()
+{
+	// Bring a dead Shambler back to a fully alive, patrolling state.
+	if (!Owner) { return; }
+	bDead = false;
+	bDropping = false;
+	bStaggered = false;
+	Target = nullptr;
+	LostSightTimer = 0.f;
+
+	if (Health) { Health->ResetHealth(); } // CurrentHealth=Max, bIsDead=false
+
+	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
+	{
+		Cap->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Cap->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block); // re-assert shootability
+	}
+	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+	{
+		CM->SetMovementMode(MOVE_Walking);
+	}
+
+	// SetState(Wander) re-links the locomotion AnimBP (EnsureLocomotion), restores walk speed and the
+	// mesh's base Z, and clears the idle/stumble bookkeeping.
+	SetState(EShamblerState::Wander);
+
+	// Restart the AI evaluation loop (cleared on death / dead-state restore).
+	if (UWorld* W = GetWorld())
+	{
+		W->GetTimerManager().SetTimer(EvalTimer, this, &UZP_ShamblerBehaviorComponent::Evaluate, EvalInterval, true);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[Shambler] REVIVED: %s"), *Owner->GetName());
+}
