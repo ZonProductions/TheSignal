@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-24T17:16:42",
+  "created": "2026-06-24T23:19:36",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -12060,16 +12060,16 @@
       "size": 23887
     },
     "Content/Campaign/Building1_3rdFloor.umap": {
-      "hash": "sha256:57f247a00f0941e2e8c01006063b8d1adeced5ce63137961cf7c34ba7ee5cfbd",
-      "size": 6684322
+      "hash": "sha256:a1278cf9d68b11cf3b213e7ee2eba9fe5d655208e02bdcb616a3821f29c845c7",
+      "size": 6688403
     },
     "Content/Campaign/Building1_Empty.umap": {
       "hash": "sha256:7e1bd0d924f8c6eca2599185613bfe19ce4c046ee9f7f55ddc12a905ab4795e3",
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:5b25fc3cf3cd44c2bc9526224e803341d02aa17e8478870272676aa340fdfb0f",
-      "size": 3409847
+      "hash": "sha256:942bbde1db02f9aeeb64cb448ec37fd84aef765180415163cd6328ffa20a3113",
+      "size": 5876150
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -22443,6 +22443,14 @@
       "hash": "sha256:79e51cfb42bcb35c9023aa5e3832799f69e69a793da9f10ce9ef64c892bf1898",
       "size": 2473347
     },
+    "Content/checkpoints/2026-06-24_elevator_picker_fix_and_research_car_build.md": {
+      "hash": "sha256:f689069ca900be3085bde0218b5258d1019f1db0d374955634969865aff9ac92",
+      "size": 6444
+    },
+    "Content/checkpoints/2026-06-24_inner_map_elevator_transit_system.md": {
+      "hash": "sha256:c372b76c16d6a31589387037b3c4bfd72b09cdb39d920529dfda828ff009387c",
+      "size": 8083
+    },
     "Content/Container_Yard/Materials/Decals/DE_Container_Branding_01.uasset": {
       "hash": "sha256:45d95b0faa964d5213d6a8f55533dfe2923e78a73883caba80fda2d8bdc4d7a3",
       "size": 11353
@@ -22710,6 +22718,10 @@
     "Content/Core/Actors/BP_CardReaderPanel.uasset": {
       "hash": "sha256:028e56f30da3754881a5a8358664a3a990d47a69024ae3ce1c8562f2a5eed6ac",
       "size": 26102
+    },
+    "Content/Core/Actors/BP_Elevator.uasset": {
+      "hash": "sha256:3124123849a826b9fe54a42ace5487b6b7bde48238e8edc4c6e78eb4b4031578",
+      "size": 40363
     },
     "Content/Core/Actors/BP_InteractDoor.uasset": {
       "hash": "sha256:f7b5ae0930839df3dd708fb718a2559a6b5ad8dff6a4b5ce06e3d45268d224bd",
