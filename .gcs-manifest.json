@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-25T23:53:57",
+  "created": "2026-06-26T14:05:42",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -12068,8 +12068,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:e8eef559cfbe230c1d4829ea8a85aaa5f3d21224d8e172ca41cd02b414ff6e3d",
-      "size": 7381588
+      "hash": "sha256:bbf8ad657c5853468030fce47cf7f771392f5139390c4d056bf2644f00f650a1",
+      "size": 7532973
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -75402,6 +75402,14 @@
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Window_1.uasset": {
       "hash": "sha256:9faeebbcc370836f38545a1b5d7bc11a43261a4da36349c5b2a1fb9991449897",
       "size": 113414
+    },
+    "Content/ResearchMegaPack/ResearchFacility/Meshes/M_SM_Floor_3_M_Concrete_5_A565DAA04B4929DAB59BD1B861E63F6F.uasset": {
+      "hash": "sha256:4e397dedb5a7607875bfc62166338d33f537c91069bb5744281935b8f8190498",
+      "size": 16636
+    },
+    "Content/ResearchMegaPack/ResearchFacility/Meshes/M_SM_Floor_3_M_Concrete_5_D094CB2847157A2CD3747CAA502DC88D.uasset": {
+      "hash": "sha256:c6387d03821c26cf71c69bc59b87003f132b6e6b550bfd8f9e971d3803c89f87",
+      "size": 20898
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Barrel_1.uasset": {
       "hash": "sha256:d506afcd8eb9d8000a39260b027e327b70bfcab31756d24784fa5f92ace71cbe",

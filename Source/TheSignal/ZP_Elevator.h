@@ -80,6 +80,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elevator")
 	float GetCurrentRelativeZ() const;
 
+	/** World Z captured at BeginPlay (the car's starting pivot height). Used to convert an
+	 *  AZP_TransitLocation's world Z into a relative move: relativeZ = location.Z - GetOriginZ(). */
+	UFUNCTION(BlueprintPure, Category = "Elevator")
+	float GetOriginZ() const { return OriginLocation.Z; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

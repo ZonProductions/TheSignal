@@ -61,6 +61,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")
 	FText PromptText = FText::FromString(TEXT("Use Elevator"));
 
+	/** How close (UU) the elevator pivot must be to a destination's ElevatorLocation to count as
+	 *  "already here" — that destination is then hidden from the menu. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
+	float CurrentFloorTolerance = 20.f;
+
 	// --- IZP_Interactable ---
 	virtual FText GetInteractionPrompt_Implementation() override;
 	virtual void OnInteract_Implementation(ACharacter* Interactor) override;

@@ -4,6 +4,7 @@
 #include "ZP_TransitMenuWidget.h"
 #include "ZP_TransitSubsystem.h"
 #include "ZP_Elevator.h"
+#include "ZP_TransitLocation.h"
 #include "ZP_GraceCharacter.h"
 #include "ZP_PlayerController.h"
 #include "ZP_HUDWidget.h"
@@ -111,6 +112,16 @@ void AZP_TransitPanel::BuildMenuEntries(TArray<FZP_TransitMenuEntry>& OutEntries
 		// HiddenUntilKnown: omit locked destinations entirely until they become available.
 		if (!bAvail && D.LockStyle == EZP_TransitLockStyle::HiddenUntilKnown) continue;
 
+		// In-map elevator: hide the floor the car is already parked at (can't travel to where you are).
+		if (D.DestType == EZP_TransitDestType::InMapElevator && LinkedElevator && D.ElevatorLocation)
+		{
+			const float TargetRelZ = D.ElevatorLocation->GetActorLocation().Z - LinkedElevator->GetOriginZ();
+			if (FMath::Abs(LinkedElevator->GetCurrentRelativeZ() - TargetRelZ) < CurrentFloorTolerance)
+			{
+				continue;
+			}
+		}
+
 		FZP_TransitMenuEntry Entry;
 		Entry.DestinationIndex = i;
 		Entry.DisplayName = D.DisplayName;
@@ -199,9 +210,14 @@ void AZP_TransitPanel::TravelToDestination(int32 DestinationIndex)
 	{
 		if (LinkedElevator)
 		{
-			LinkedElevator->MoveToRelativeZ(D.ElevatorTargetRelativeZ);
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] TransitPanel %s: elevator %s -> relative Z %.1f"),
-				*GetName(), *LinkedElevator->GetName(), D.ElevatorTargetRelativeZ);
+			// Prefer the linked stop marker (Z computed against the car's origin); else the raw fallback.
+			const float RelZ = D.ElevatorLocation
+				? (D.ElevatorLocation->GetActorLocation().Z - LinkedElevator->GetOriginZ())
+				: D.ElevatorTargetRelativeZ;
+			LinkedElevator->MoveToRelativeZ(RelZ);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] TransitPanel %s: elevator %s -> relative Z %.1f (loc=%s)"),
+				*GetName(), *LinkedElevator->GetName(), RelZ,
+				D.ElevatorLocation ? *D.ElevatorLocation->GetName() : TEXT("none"));
 		}
 		else
 		{

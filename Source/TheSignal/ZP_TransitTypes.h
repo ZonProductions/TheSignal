@@ -18,6 +18,7 @@
 #include "ZP_TransitTypes.generated.h"
 
 class UWorld;
+class AZP_TransitLocation;
 
 UENUM(BlueprintType)
 enum class EZP_TransitLockStyle : uint8
@@ -64,8 +65,15 @@ struct FZP_TransitDestination
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit", meta = (EditCondition = "DestType == EZP_TransitDestType::LoadLevel"))
 	FName ArrivalPointTag = NAME_None;
 
-	/** [InMapElevator] Relative Z (UU) from the elevator's start position this stop travels to.
-	 *  0 = the elevator's starting floor, +400 = one floor up, etc. The panel's LinkedElevator is the car. */
+	/** [InMapElevator] PREFERRED: the stop this destination travels to. The car moves so its pivot
+	 *  reaches this marker's world Z (computed against the elevator's BeginPlay origin), and the row is
+	 *  HIDDEN from the menu while the car is already at it. Place one AZP_TransitLocation per floor at the
+	 *  elevator's resting pivot height. If set, this overrides ElevatorTargetRelativeZ. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit", meta = (EditCondition = "DestType == EZP_TransitDestType::InMapElevator"))
+	TObjectPtr<AZP_TransitLocation> ElevatorLocation;
+
+	/** [InMapElevator] FALLBACK (used only if ElevatorLocation is unset): raw relative Z (UU) from the
+	 *  elevator's start position. 0 = starting floor, +400 = one floor up. No current-floor hiding. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit", meta = (EditCondition = "DestType == EZP_TransitDestType::InMapElevator"))
 	float ElevatorTargetRelativeZ = 0.f;
 
