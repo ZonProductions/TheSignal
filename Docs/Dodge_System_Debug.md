@@ -5,7 +5,7 @@ _Last updated: 2026-06-20. Covers the dodge rework done in this session
 
 ## Summary
 
-Dodge replaces Jump on the **space bar**. It launches Grace a short distance,
+Dodge replaces Jump on the **space bar**. It launches Marcus a short distance,
 costs stamina, locks out sprint/weapon-swap/reload for the dash, and cannot be
 performed in the forward direction (forward = a dash, not a dodge).
 

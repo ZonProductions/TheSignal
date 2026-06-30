@@ -880,6 +880,12 @@ private:
 	 *  instead of repositioning per item. */
 	int32 GrabAllTicksRemaining = 0;
 
+	/** Actors already grabbed during the current grab-all sweep. Prevents the sweep from
+	 *  re-grabbing the same pickup while it lingers as Moonville's ClosestInteractable before
+	 *  being destroyed — a re-grab spawned duplicate inventory slots for non-stacking items
+	 *  (e.g. one pistol pickup yielded 5). Reset when a new sweep starts. */
+	TSet<TWeakObjectPtr<AActor>> GrabAllGrabbedActors;
+
 	/** Reads weapon class from Moonville's ShortcutSlots[SlotIndex] via reflection. */
 	TSubclassOf<AActor> GetWeaponFromShortcutSlot(int32 SlotIndex);
 

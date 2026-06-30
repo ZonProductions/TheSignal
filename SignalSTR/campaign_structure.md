@@ -9,13 +9,15 @@ Solo dev — keep systems lean.*
 ## What the game is
 
 A survival-horror escape, Dead Space-shaped. Marcus is a janitor caught in a containment
-breach, fighting outward and upward through the campus to reach the tram and get clear —
-and getting dragged, by curiosity, into how deep this goes. The threat is external: the
+breach, fighting through the campus to get clear — and getting roped into a containment
+mission by a voice on his earbud (the Guide), pulled deeper into how far this goes. The
+threat is external: the
 void, the corrupted, the failing facility. That's the game.
 
 Marcus's past (see `marcus_backstory.md`) is a **texture layer underneath**, not the
-engine. It surfaces in the occasional whisper or found note that lands a little too
-personal — a reminder that the void picks at whoever it's near. It deepens a few moments.
+engine. It surfaces in the occasional whisper, found note, or a line from the Guide that
+lands a little too personal — a reminder the void picks at whoever it's near, through
+whatever channel it has. It deepens a few moments.
 It is **not** a psychological character-study the whole campaign hangs on. This isn't
 Silent Hill 2 and it doesn't need to be.
 
@@ -23,76 +25,112 @@ Silent Hill 2 and it doesn't need to be.
 
 ## Chapter flow
 
-Mapped to the location progression in the bible — basement of the world, climbing toward
-the source. Roughly 1–1.5 hrs each lands the 8–10 hr target.
+Five chapters. Location spine: **Research Facility → Offices → Water Treatment → Sewers →
+back into the Research Facility (containment).** The tram is the connective transit
+(set-location autopilot between zones). The Guide frames the whole run as "close the rift,
+save the world" — the twist is what that's actually worth.
 
-**0. The Shielded Room** *(janitorial / testing room)*
-Tutorial. The breach happens while Marcus is inside, earbuds in, unaware. He steps out and
-the coworker he just talked to is corrupted. The HSO is born. Establishes the invisible
-night-shift guy.
+**1. The Shielded Room** *(Research Facility — 3 floors)*
+Opens on **Sub-Floor 3**: Marcus was cleaning the shielded containment room when the breach
+hit, which is why he lives. Sub-Floor 3 is small — a couple of rooms, **2 key objects, an
+elevator, and a fuse box.** The facility is on **auxiliary power.** Objective: climb to
+**Floors 1 and 2 and recover 3 fuses** to restore power and unlock the building. A myriad of
+**light puzzles** and maze-like navigation; **shamblers and crawlers** loose throughout.
+(The interference tracker is born here — first humanoid fodder, melee into first tools.)
 
-**1. Nobody's Shift** *(janitorial sublevels)*
-The core loop: HSO tracking, first humanoid fodder, melee into first tools. The guide makes
-contact over the earbud and ropes him toward the tram.
+**2. The Offices** *(office building — 5 floors; the demo slice)*
+All 3 fuses placed → the facility unlocks and Marcus exits to the tram. The tram's only
+autopilot destination from the Research Facility is the **Offices**, and Marcus means to make
+a break for it on arrival. But the instant the tram moves, **The Guide** makes contact (no
+name yet). His pitch: if the rift isn't closed, **another breach** can occur — a bigger
+infection radius, this time including Marcus. The Guide can push an **autopilot override** to
+the tram, but it needs a specific **role clearance** assigned — which means powering up the
+**HR management computer** so he can remote in and grant access. It's currently dead. Marcus
+works through **5 floors of office space** to reach and activate it. (Documents start telling
+the lore: **Polaris knew.** The front/secret document gradient is specced in `polaris_background.md`.)
 
-**2. Pressure** *(water treatment)*
-Industrial, claustrophobic. First non-humanoid spawn. The void's interference reads as a
-real threat sense now. First whisper slips in — easy to miss, easy to dismiss.
+**3. Water Treatment** *(water treatment facility)*
+Back to the tram, course set for **Water Treatment.** The Guide says there's a **direct
+entrance to the remote lab** here — but the door is deactivated and on lockdown, and neither
+Marcus nor the Guide can crack it. Alternate way in: the **sewer system**, which connects
+deep within the treatment facility. Multiple underground levels with a **rising/lowering
+water mechanic** — OOT64 Water Temple energy.
 
-**3. Open Plan** *(office spaces — Building 1, the demo slice)*
-The clearance-ladder climb, vents-as-bypass, the lockdown puzzle (see
-`level_build1_floor3.md`). Documents start telling the lore: **Polaris knew.** The
-corrupted-manager fight is the personal capstone of the floor.
+**4. The Sewers** *(sewer maze)*
+A maze, and the **only level with no player-viewable map** — remembering your route matters,
+**reading the interference tracker matters.** ("Lost Woods" from OOT, dropped into Silent Hill.) Ends in a **boss
+fight** — likely **charges you set to stun the boss** for an easier kill; otherwise a lot of
+bullets, melee, and clean dodging.
 
-**4. The Line** *(tram system)*
-Transit set-pieces; survivor stops between zones. The objective firms up: the rift can be
-re-sealed, and it's a manual, fatal job at the source. The guide's agenda greys.
+**5. Containment** *(back into the Research Facility)*
+The sewers feed the **maintenance shaft** back into the Research Facility. The Guide assures
+Marcus this is the final stretch — destroy the breach, save the world. Like the Offices, it
+climbs deeper through **security levels 1–3** to the **containment zone.**
 
-**5. Epicenter** *(research labs)*
-The why. The rift up close, heaviest enemy mix. What Polaris was containing, and what it
-cost them to hold it.
-
-**6. Signal** *(the rift / finale)*
-Final gauntlet to the door. The ending resolves here.
+### The twist
+As Marcus arms the charges in the room shielding the containment, he sees — through the
+**rift, from the other side** — a **woman in a protective suit.** She explains the rift is
+**already contained for good**: she trapped *herself* on the far side to stop another breach.
+She begs him to **contact someone and NOT set the charges.** The Guide instantly calls her
+**contaminated** — claims she only wants to stop him from destroying the rift. Marcus has
+been steered the whole time: blowing the containment doesn't *close* the rift, it
+**re-opens** it.
 
 ---
 
-## The guide NPC
+## The Guide
 
-The voice that ropes Marcus in — a surviving researcher from the containment program, now
-trying to fix what their work helped unleash. Grey and agenda-laden: lies by omission, uses
-Marcus, has their own stake. But per the bible's guard rail, **culpable, never the secret
-villain** — the big-bad stays the void. No Atlas/mastermind turn.
+The voice over the earbud that ropes Marcus into the containment mission. **Locked reading —
+fully puppeted (A):** the Guide was infected by the void **before** first contact and has
+**no awareness** of it. The void uses him as a **conduit** — a trusted human voice — to steer
+Marcus into re-opening the rift (the second breach the void wants).
+
+He's a **secret *victim*, not a secret villain** — no agency, no scheme. This keeps the
+bible's guard rail intact: **the void stays the sole antagonist**; the Guide is only its
+mask. Purest hit on the **"trust as horror"** pillar — the one voice helping you was the
+infection all along.
+
+**Psychological-warfare twist:** the void periodically puppets the Guide to speak **details
+that haunt Marcus** — pieces of his past (the father, the family; see `marcus_backstory.md`)
+that a stranger shouldn't know. In the moment it's spun as the **"I'm just a guy behind a
+computer — I know more about you than you'd think"** handler trope (he has your file, he's
+been watching), so the player rationalizes it. The reveal recasts those gut-punches as the
+**void reaching into Marcus through the Guide** — the same channel as the whispers and
+impossible notes, now wearing a friendly voice. This makes the Guide the in-fiction source of
+the earbud "voice that knows things it shouldn't" in `marcus_backstory.md` — one unified
+channel, not two.
 
 ---
 
-## The three endings
+## Endings
 
-Keep the triggers concrete and cheap — this is a finale fork, not a hidden morality engine.
+A two-way choice at the containment room. The Guide's framing ("close the rift") is the lie;
+the scientist's plea is the truth.
 
-**Escape — he saves himself.** The default. Marcus reaches the door and gets clear. He
-lives; the breach is left for someone else, or left cracked. Survival, bittersweet.
+**A — Set the charges.** You do what the Guide said. The charges **kill the scientist and
+trigger a second breach** — exactly what the void (through the Guide) wanted. Polaris's
+failsafe fires: a **tactical nuke** levels the facility and everything around it — countless
+dead, the Pacific NW site gone. The bad end. Not "a villain tricked you" — you were steered
+by someone the void had already taken, and you couldn't have known.
 
-**Sacrifice — he contains the breach.** Re-sealing the rift is a manual job that can't be
-done remotely — someone has to stay and finish it by hand. **Circumstance, not destiny:**
-Marcus isn't the chosen key, he's just the one who's there and chooses to be the one. He
-dies; the door closes; people get out because of him.
+**B — Walk out.** You don't set the charges. You **contact the Polaris superiors the
+scientist named.** The Guide is **found and taken into care for his illness** (a victim, not
+a culprit). The rift **stays contained.** The scientist is **left to die, trapped** on the
+far side — the cost of the good ending.
 
-- These two are a straight **choice at the finale.** Both legitimate; which is "canonical
-  good" is your call.
-
-**Join the Void — alt, playthrough 2.** The dark path. Marcus walks into it instead of
-fighting or fleeing — a quiet surrender that reads as peace, which is the horror. Gated
-behind NG+ and undefined easter eggs (parked — see below).
+### The final twist
+Revealed at/after the ending: **the Guide was infected the entire time** — the void's
+mouthpiece, never a schemer. Recolors every helpful word he ever said. (See "The Guide.")
 
 ---
 
 ## Open knobs (parked)
 
-- **Join-the-Void triggers:** undefined. Likely NG+-gated — collectibles, a hidden path,
-  or refusing survivors. Define later, keep it light.
-- **Earbud as resource:** losing or removing it (bible lever) — silence at the cost of your
-  threat sense. Possible finale-adjacent moment.
-- **Who the final survivor is** (the guide vs. a late civilian) — shapes the finale's
-  emotional weight.
-- **Canonical "good" ending** (Escape vs. Sacrifice) — your call; structure supports either.
+- **The Guide's name** — none yet ("The Guide" for now).
+- **The scientist** — who she is, her tie to Polaris and the containment program, how much
+  Marcus learns before the choice.
+- **Ch. 4 boss** — the charges-to-stun mechanic vs. straight combat; what the boss is.
+- **Earbud as resource** — losing/removing it (bible lever); strong in the no-map sewers.
+- **Canonical ending** — B reads as the "good" end; confirm.
+- **Past-dosage** — how many Guide-delivered gut-punches land before the reveal (keep it low
+  per `marcus_backstory.md`).

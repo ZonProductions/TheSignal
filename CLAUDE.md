@@ -147,7 +147,7 @@ Project-specific guidance follows below.
 - C++ AnimInstance base classes with Blueprint-exposed parameters.
 - AnimGraph nodes in C++ for custom blending, IK, procedural motion.
 - Blueprint AnimBPs extend C++ base for character-specific tuning.
-- **Grace is not a soldier.** Animation must communicate vulnerability — unfamiliar weapon sway, panicked sprinting, anxious idle states.
+- **Marcus is not a soldier.** Animation must communicate vulnerability — unfamiliar weapon sway, panicked sprinting, anxious idle states.
 - **NEVER retarget 3P animations to 1P.** This is a proven dead end (NightShadow lesson). Use purpose-built FPS animation assets or author from scratch.
 
 ### Automation
@@ -174,10 +174,10 @@ Every C++ base class must have a header comment block documenting:
 | Prefix | Type | Example |
 |--------|------|---------|
 | `BP_` | Blueprint Actors | `BP_FacilityDoor` |
-| `BPC_` | Blueprint Components | `BPC_RenAudioSource` |
+| `BPC_` | Blueprint Components | `BPC_GuideAudioSource` |
 | `BPI_` | Blueprint Interfaces | `BPI_FacilityDevice` |
-| `ABP_` | Animation Blueprints | `ABP_Grace` |
-| `DA_` | Data Assets | `DA_RenDialogue` |
+| `ABP_` | Animation Blueprints | `ABP_Marcus` |
+| `DA_` | Data Assets | `DA_GuideDialogue` |
 | `DT_` | Data Tables | `DT_InventoryItems` |
 | `WBP_` | Widget Blueprints | `WBP_InteractionPrompt` |
 | `SS_` | Subsystems | `SS_FacilitySystems` |
@@ -187,14 +187,14 @@ Every C++ base class must have a header comment block documenting:
 | `MI_` | Material Instances | `MI_ConcreteFloor_Dirty` |
 | `T_` | Textures | `T_ConcreteFloor_BC` |
 | `SM_` | Static Meshes | `SM_LabDesk` |
-| `SK_` | Skeletal Meshes | `SK_Grace` |
+| `SK_` | Skeletal Meshes | `SK_Marcus` |
 | `SFX_` | Sound Effects | `SFX_DoorSlam` |
-| `MS_` | MetaSound Sources | `MS_RenVoiceProcessor` |
+| `MS_` | MetaSound Sources | `MS_GuideVoiceProcessor` |
 | `SQ_` | Level Sequences | `SQ_IntroEvent` |
 | `MAP_` | Maps/Levels | `MAP_ProtoCorridor` |
 | `GI_` | Game Instance | `GI_TheSignal` |
 | `GM_` | Game Mode | `GM_TheSignal` |
-| `PC_` | Player Controller | `PC_Grace` |
+| `PC_` | Player Controller | `PC_Marcus` |
 | `DEP_` | Deprecated Assets | Moved to `_DEPRECATED/` folder |
 
 ---
@@ -203,14 +203,14 @@ Every C++ base class must have a header comment block documenting:
 
 | System | Status | Description |
 |--------|--------|-------------|
-| `PlayerCharacter` | done | Grace's first-person controller, movement, interaction, Kinemation integration |
+| `PlayerCharacter` | done | Marcus's first-person controller, movement, interaction, Kinemation integration |
 | `InteractionSystem` | done | Object interaction, pickup, examine, use (BPI_Interactable) |
 | `NarrativeTriggerSystem` | planned | Story beat triggers, found narrative activation, progression gates |
-| `RenCommunicationSystem` | planned | Ren's voice delivery, earpiece simulation, dialogue management, environmental audio manipulation |
+| `GuideCommunicationSystem` | planned | The Guide's voice delivery (earbud interference tracker), dialogue management, void audio manipulation |
 | `InventorySystem` | done | Weapons, key items, found documents (Moonville + C++ bridge) |
-| `LightingMoodSystem` | planned | Dynamic lighting states, Ren's influence on facility lighting, mood transitions per zone |
-| `AudioStateSystem` | planned | MetaSounds ambient layers, Ren's audio signature, radio-as-instrument processing, spatial audio |
-| `FacilitySystemsManager` | planned | Doors, power routing, security terminals, electronics Ren can manipulate |
+| `LightingMoodSystem` | planned | Dynamic lighting states, the void's influence on facility lighting, mood transitions per zone |
+| `AudioStateSystem` | planned | MetaSounds ambient layers, the void's audio signature, radio-as-instrument processing, spatial audio |
+| `FacilitySystemsManager` | planned | Doors, power routing, security terminals, electronics the void can manipulate |
 | `SaveSystem` | done | Save/load with 5 slots, save point actors, screenshot capture |
 | `LadderClimbing` | done | Ladder mount/climb/dismount (ZP_Ladder + ZP_GraceCharacter, hold-to-climb, position-aware exit) |
 | `DebugOverlay` | planned | On-screen system status, validation errors, telemetry |
@@ -224,12 +224,12 @@ Every C++ base class must have a header comment block documenting:
 **Now building the actual campaign:**
 - Level design across the full game structure
 - NPC design and implementation
-- Narrative implementation (Ren dialogue, story beats, found narrative)
+- Narrative implementation (Guide dialogue, story beats, found narrative)
 - Additional creature types beyond Crawler
 - Full game pacing and progression
 
 ### Character Creation
-- **Character Customizer (mlindborg)** + **Modern Clothes Pack** — purchased for all human character creation (Grace, NPCs, extras, corpses)
+- **Character Customizer (mlindborg)** + **Modern Clothes Pack** — purchased for all human character creation (Marcus, NPCs, extras, corpses)
 - 44 base clothing meshes + 171 expansion items. Tintable. Random NPC generation. MetaHuman UV-compatible.
 - Purely cosmetic — AI/behavior handled by separate systems.
 
@@ -406,6 +406,8 @@ Document every failed approach here so no session re-attempts them.
 | 2026-06-12 | Lowering PlayerMesh relative Z to drop arms off screen (weapon swap dip) | The FP camera is socketed to PlayerMesh (FPCamera) — moving the mesh moves the VIEW; player sees a forced crouch. NEVER translate PlayerMesh for transitions. Arm motion must come from animation (ToggleReadyPose, montages) or bone hiding. |
 | 2026-06-24 | Persisting enemy death via `Destroy()` + EGUI `RegisterDestruction` | Permanent and one-way — EGUI has NO un-register API and never recreates a destroyed actor, so objective-driven revival is impossible. Persist STATE instead: keep the corpse actor, save `bIsDead`, restore via IZP_Revivable on load, revive by resetting to alive. RegisterDestruction MUST be false on enemy EGUI comps. See checkpoint 2026-06-24_enemy_death_persistence_and_objective_revival. |
 | 2026-06-24 | Reparenting a pack BP (root = `DefaultSceneRoot`) to a C++ class that has its OWN native root component (e.g. `BP_Elevator_1` → `AZP_Elevator`) to "make it the right class" | Reparent compiles/saves "successfully" but the BP's SCS mesh subtree under DefaultSceneRoot DOES NOT INSTANTIATE — spawned instance has only the inherited native components; `list_components` still lists the ghosts so it looks fine. The native root wins and the old SCS root's children are dropped. FIX: build a fresh BP child of the C++ class and ADD the meshes as components (set PlatformMesh + child SMCs via SubobjectDataSubsystem), copying mesh+relative-transform from the pack BP. Always spawn-verify a reparented BP. See checkpoint 2026-06-24_inner_map_elevator_transit_system. |
+| 2026-06-29 | Treating the Shambler `EXCEPTION_ACCESS_VIOLATION` on anim load (PIE/-game/level open) as a load-path bug — deferring `LoadAnimDefaults` to next tick, switching to `RequestAsyncLoad`, or re-saving the asset in a commandlet | None fixed it; all crash identically (`UnrealEd!… → CoreUObject load`). It's NOT sync-vs-async, timing, or position-8 — it's the ASSET. The retargeted `A_Shambler_Hit_Front/Back` carried orphan GASP curves (`DistanceToApex`/`DistanceCurve`/`blendOrient1`) the necromorph skeleton can't name-map, so `UAnimSequence::PostLoad`'s editor curve check null-derefs. Re-save round-trips the bad curves untouched. FIX = strip the orphan curves (`AnimationLibrary.remove_curve` per RCT_FLOAT name). See checkpoint 2026-06-29_shambler_anim_curve_postload_crash. |
+| 2026-06-29 | "Fixing" that same crash by hard-referencing the Shambler anim clips on `BP_Shambler` so they load with the level | Made it WORSE — moves the load into the level package, so the editor crashes on OPENING ResearchFacility (the EditorStartupMap), not just on play. Reverted. The real fix is cleaning the asset (strip curves), not changing where/when it loads. |
 
 ---
 

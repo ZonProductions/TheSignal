@@ -31,6 +31,12 @@ UZP_ShamblerBehaviorComponent::UZP_ShamblerBehaviorComponent()
 void UZP_ShamblerBehaviorComponent::LoadAnimDefaults()
 {
 	// Only fill slots the Blueprint hasn't overridden (serialized overrides are present before BeginPlay).
+	// NOTE: these clips must stay free of orphan skeleton curves. The retargeted Hit_Front/Hit_Back shipped
+	// with stale GASP distance-matching curves (DistanceToApex/DistanceCurve/blendOrient1) that the necromorph
+	// skeleton has no name mapping for; on editor load that tripped UAnimSequence::PostLoad's curve-name
+	// verification and hard-crashed (EXCEPTION_ACCESS_VIOLATION) on PIE / -game / level open. The curves were
+	// stripped 2026-06-29 (Shambler plays SingleNode clips, never used them). See checkpoint
+	// 2026-06-29_shambler_anim_curve_postload_crash. If you re-import these clips, strip stray curves again.
 	auto Fill = [](TObjectPtr<UAnimSequence>& Slot, const TCHAR* P)
 	{
 		if (!Slot) { Slot = LoadObject<UAnimSequence>(nullptr, P); }

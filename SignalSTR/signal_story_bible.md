@@ -18,7 +18,7 @@ Marcus, an eighteen-year-old running from the fallout of a single violent moment
 
 ## Setting
 
-- **The org — Polaris:** the epicenter of scientific research in the world. Prestigious, well-funded, secretive in the way all elite research orgs are without being cartoonishly evil. **Polaris knew.** They were studying and *containing* the rift — the shielded room and the breach protocols exist precisely because they knew this was possible.
+- **The org — Polaris:** the world's leading **biotech** company — and, in its back rooms, an inner circle chasing the impossible (**Shinra-shaped**, not Umbrella). **Private, no government.** Prestigious and secretive without being cartoonishly evil. **Polaris knew.** They didn't *make* the rift — they found it and held it shut; the shielded room and breach protocols exist precisely because they knew. Full org background, philosophy, and the front/secret gradient live in **`polaris_background.md`**.
 - **The campus:** Remotely located in a Pacific Northwest forest. Self-contained — not just labs, but a small *community*. Employees and their families live here. Housing, amenities, infrastructure. This matters: when it falls, real people fall with it, not just faceless staff.
 - **Time:** 2:00 AM. Night shift. The skeleton-crew hour. Most of the campus is asleep or winding down, which makes the breach hit a population that's unprepared and scattered.
 
@@ -55,6 +55,8 @@ POV discipline: **Marcus is the everyman, not the hero of the lore.** There's a 
 
 > ⚠️ Guard rail: the guide can be morally grey, agenda-driven, even Polaris-complicit — but must **not** turn out to be the secret villain. That quietly resurrects the Atlas/mastermind twist we cut. Humans can be *culpable* without being the *antagonist.* The big-bad stays the void.
 
+> ✅ Resolved (`campaign_structure.md`): the Guide is the void's **hidden victim** — infected before first contact, fully puppeted, no agency. Its mouthpiece, not a schemer. Honors the rail (the void stays the antagonist) and lands "trust as horror."
+
 The campus's **tram system + many stops** is the structural spine for these encounters — each stop is a chance to meet a survivor, find a piece of the bigger story, or get pulled one step further into containment.
 
 ---
@@ -79,7 +81,7 @@ Beat by beat:
 1. **The assignment.** Marcus is tasked with cleaning a specific research/testing room. It's protected/shielded — logs and signage establish this *early*, but framed so first-day Marcus doesn't grasp the implication (the player can piece it together later).
 2. **The breach happens while he's inside.** He's saved by the shielding and **completely unaware** — likely music blasting in his earbud. (Parked idea: sync the breach moment to a beat in the music. Strong, save for later.)
 3. **He steps out to keep cleaning.** Expecting normal. Instead, the coworker he *just spoke to* is now void-possessed. The personal gut-punch lands immediately — not a stranger, someone he had a conversation with minutes ago.
-4. **The earbud starts screaming interference** the moment he leaves the shielded room. This is the in-fiction birth of the HSO mechanic — and it explains *why he can track it* without any contrivance.
+4. **The earbud starts screaming interference** the moment he leaves the shielded room. This is the in-fiction birth of the interference tracker — and it explains *why he can track it* without any contrivance.
 
 ### Why this works (the unification)
 
@@ -98,19 +100,55 @@ Optional — take it or leave it — but it's the tightest version.
 The target blend:
 
 - **Dead Space** — body horror, necromorph-style corrupted enemies, isolation, the campus-as-derelict-ship feeling.
-- **Silent Hill 2** — psychological, oppressive dread over cheap jump scares; the sense that the place itself is wrong. Crucially, SH2's radio-static principle (sound as the player's early-warning sense) is the direct ancestor of Signal's **HSO audio interference tracker** (see below).
+- **Silent Hill 2** — psychological, oppressive dread over cheap jump scares; the sense that the place itself is wrong. Crucially, SH2's radio-static principle (sound as the player's early-warning sense) is the direct ancestor of Signal's **interference tracker** (see below).
 - **Alan Wake 1** (specifically *1*, not 2) — atmospheric primordial dread, the Dark Presence energy. *1* is the scope target; *2*'s ambition is acknowledged but out of reach for a solo dev, and that's a deliberate, healthy constraint.
 
 Tonal guardrail: AW1 had moments of cheese/corn that the game *earned back* over time. We want the atmospheric dread without leaning into the corny. Sincere, grounded horror.
 
-### HSO audio interference tracker
+### The interference tracker (earbud)
 
-**The HSO is diegetic: it's Marcus's bluetooth earbud.** No sci-fi gadget — the void's presence registers as interference in the earbud he already had in while cleaning. The radio-static principle without a radio. As the void gets closer, the interference rises; sound becomes the player's primary threat-detection sense.
+**Diegetic: it's Marcus's bluetooth earbud — a spectrum-analyzer read on the void.** No sci-fi gadget. The void's presence registers as interference in the earbud he already had in while cleaning; the closer/denser it is, the louder the interference. Sound becomes the player's primary threat-detection sense. The radio-static principle without a radio. *(Older drafts called this "HSO" — a phantom acronym, retired. There's no org program and no branded name, because it isn't one: nobody else knows he has it — see the secret-edge note below.)*
 
 Design notes:
 - **Proximity, not binary.** Interference should scale with distance/density (SH static), so it stays useful even once the void is everywhere — it reads as *how close*, not *present/absent*.
 - **Title payoff.** A game called *Signal*, where survival, detection, and the threat all run through literal signal interference. The thing you track and the thing hunting you are the same frequency.
 - **Open mechanical lever:** the earbud is a single point of detection. Losing it, removing it, or battery as a resource are all available tension knobs — park for later.
+- **It's Marcus's secret edge — coincidental, not strategic.** The tracker is a low-key advantage no one else knows he has. He clocks its *practical* value (he leans on it to stay alive) but never frames it as a *power* — to him it's a lucky quirk, not "the reason I keep slipping the noose." Contact with the Guide is **phone calls, not always-on comms**, so there's no channel for anyone to observe him using it: the secret holds **by default, not by effort** — true to a guy who doesn't think he's special enough to have an ace. The void/Guide **never clue in.** PARKED: maybe Marcus voices it once at the end — the first time he (and the player) realize the coincidence was the edge all along.
+
+---
+
+## The infection — how the void spreads, and how it reaches Marcus
+
+The void's corruption is **biological and airborne** — it reads as an infection, not a curse.
+On screen it's the **spore-like particle haze** (the black broken-mesh "void anomaly" cubes)
+drifting through corrupted spaces. TLOU-cordyceps energy: the thing in the air is the thing
+that takes you. (Pairs with Polaris being a **biotech** front — front, secret, and infection
+are all one domain; see `polaris_background.md`.)
+
+Two doses, and the difference is the whole point:
+- **The full breach corruption** — everyone caught in the breach got the instant version:
+  hollowed out, turned. The humanoid fodder and the spawn.
+- **Marcus's partial dose.** Shielded from the full breach blast, he caught only the **slow
+  airborne strain** — the lingering spores he breathes moving through the campus. It is **not
+  visible on his body** (deliberate, scope: no custom infected arms). Its only expression is
+  what it does to his **consciousness** — the in-fiction channel for the whispers and notes
+  (see `marcus_backstory.md`).
+
+**What it can reach (locked):** the slow strain dredges his **deep / old material** — buried
+guilt, the father, that night — but **not his live mind.** It's reading the bottom of a well,
+not watching his eyes. So the void can surface "you hurt your sister"; it **can't** see "he
+uses the earbud spike to dodge." That split is load-bearing: it's *why* the void never learns
+about the interference tracker.
+
+**Soft, spatial clock (locked model):** denser particle zones = deeper exposure = the whispers
+get worse. No UI, no timer, no art — the "race" is just where you walk. The void isn't
+*frustrated* or *desperate* (too human for a mindless thing) — it's a **persistent infection
+that keeps hitting the same spot.** Brute force fails on Marcus, so the pressure shifts inward;
+that relentlessness *is* the escalation.
+
+This also consistency-checks the shielded room and the scientist's suit: void-air is something
+you can be **exposed** to, so a sealed room protects you and a protective suit masks against it.
+One physics.
 
 ---
 
@@ -120,35 +158,36 @@ A conscious revision from the original "only sprawling, non-humanoid figures" ru
 
 - **Humanoid void-corrupted (fodder):** Necromorph-style. The former coworkers, residents, scientists — now hollowed out. These give you close, personal, *recognizable* horror. The "that used to be a person" gut-punch.
 - **Non-humanoid void spawn / monsters:** The sprawling, alien creature threats. The stuff that's clearly *not* from here.
+- **Plantmass void spawn (biotech origin):** the void grown out of Polaris's **biomass** — greenhouse plants, cultures, specimens. Vegetal body horror, distinct from both the humanoid fodder and the generic spawn. This is *why* Polaris being a biotech front matters mechanically (see `polaris_background.md`). Touchstones: TLOU cordyceps, *Annihilation*, RE's Plant 42.
 
-Having both gives you tonal range: the tragic-personal (humanoids) and the alien-unknowable (spawn).
+Three lanes give you tonal range: the tragic-personal (humanoids), the alien-unknowable (spawn), and the organic-wrong (plantmass).
 
 ---
 
 ## Locations / Progression
 
-Marcus fights outward and upward through the campus's systems:
+Marcus fights through the campus's systems. Five-chapter spine (full detail + the twist in `campaign_structure.md`):
 
-1. **(Start)** Wherever the night shift puts him — janitorial, low and unglamorous.
-2. **Water treatment facility** — utilities, industrial, claustrophobic.
-3. **Office spaces** — the human, lived-in administrative layer.
-4. **Tram system** — connective tissue between campus zones; transit set-pieces.
-5. **Research labs** — the epicenter. Likely where the *why* lives.
+1. **Research Facility** — 3 floors; starts on the shielded sub-floor. Restore aux power (3 fuses), unlock, exit to the tram.
+2. **Offices** — 5 floors; reach the HR computer so the Guide can grant tram override.
+3. **Water Treatment** — locked direct-lab door; rising/lowering-water levels.
+4. **Sewers** — no-map maze; ends in a boss.
+5. **Research Facility / Containment** — back in via the maintenance shaft to the containment zone, where the twist lands.
 
-Natural difficulty and revelation curve: you start in the basement of the world (literally and socially) and climb toward the source.
+The **tram** is the connective transit between zones (set-location autopilot). Natural difficulty/revelation curve: you start in the basement of the world and climb toward the source — which turns out to be where you started.
 
 ---
 
 ## THE OPEN GAP — where the next discussion starts
 
-Origin is now largely locked: **Polaris was containing an extra-dimensional rift; the breach is that containment failing; the void is what comes through.** The open questions have moved downstream:
+Origin is locked: **Polaris was containing an extra-dimensional rift; the breach is that containment failing; the void is what comes through.** The campaign spine, the Guide's nature, the twist, and the two endings are now drafted in `campaign_structure.md`. The **inversion is locked:** the rift was re-contained (a scientist trapped herself on the far side); the Guide — the void's puppet — steers Marcus to *destroy* the containment, which would **re-open** it.
 
-> **Who ropes Marcus in, and what does re-sealing actually require?**
+Remaining downstream questions (tracked under `campaign_structure.md` → Open knobs):
 
-- **The guide NPC.** Who pulls Marcus into containment, and what's their stake? (Grey is fine; secret-mastermind is not.)
-- **Containment objective.** What does re-sealing the rift actually require — and why does it fall to Marcus? Keep it circumstance, not destiny.
-- **What Marcus learns** as curiosity drags him off the escape route and into Polaris's secrets.
-- **The ending fork:** escape / sacrifice / containment — which, and what does it cost him?
+- **The scientist** on the far side — who she is, her tie to the containment program.
+- **The Guide's name** — none yet.
+- **Ch. 4 boss** and the no-map sewer navigation.
+- **Canonical ending** (B reads as "good") — confirm.
 
 ---
 

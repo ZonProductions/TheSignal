@@ -27,8 +27,8 @@ DataAssets ready to use or duplicate.
     Ammo Type:       9mm
     Mag Size:        12
     Notes:           Starting weapon. Found on a dead security guard or given
-                     by Ren. RE7 Albert-01 equivalent. Grace has never fired
-                     a gun — animations should reflect that.
+                     by the guide. RE7 Albert-01 equivalent. Marcus has never
+                     fired a gun — animations should reflect that.
 
   POLICE SHOTGUN — "Facility Security Shotgun"
     Kinemation BP:   BP_Herrington_11-87_Police
@@ -38,7 +38,7 @@ DataAssets ready to use or duplicate.
     Mag Size:        6 (tube fed)
     Notes:           Found in security office or armory. RE7 M21 equivalent.
                      Powerful but loud — alerts every crawler in the level.
-                     Pump-action feel. Grace fumbles the pump.
+                     Pump-action feel. Marcus fumbles the pump.
 
   ASSAULT RIFLE — "AK-105 Carbine"
     Kinemation BP:   BP_AK105
@@ -46,9 +46,9 @@ DataAssets ready to use or duplicate.
     Item Action:     BP_KinemationEquipAction (needs weapon class param — C++ work)
     Ammo Type:       5.56
     Mag Size:        30
-    Notes:           Late-game find. Maybe in a military crate Ren directs you
-                     to. "Why does a research facility have military weapons?"
-                     BioShock moment — Ren knows too much about this place.
+    Notes:           Late-game find. Maybe in a military crate the guide directs
+                     you to. "Why does a research facility have military weapons?"
+                     BioShock moment — the guide knows too much about this place.
 
   ALTERNATIVE RIFLE — "TR-15 Marksman Rifle"
     Kinemation BP:   BP_TR15
@@ -61,7 +61,7 @@ DataAssets ready to use or duplicate.
     Mesh:            SM_Pipe
     Notes:           Desperate melee option. TLOU iconic. No Kinemation
                      integration needed — could be a simple melee trace.
-                     Grace swings wildly, not trained.
+                     Marcus swings wildly, not trained.
 
 --- MEDICAL / SURVIVAL ---------------------------------------------------------
 
@@ -83,7 +83,7 @@ DataAssets ready to use or duplicate.
     Heal Amount:     Partial heal (~40 HP)
     Notes:           Small health restore. More common than medkits. Facility
                      chemical supplies repurposed. Green liquid in a vial.
-                     Ren: "There should be stimulants in the lab storage."
+                     The guide: "There should be stimulants in the lab storage."
 
   GREEN HERB LIQUID — rename to "Adrenaline Shot"
     Moonville DA:    DA_LiquidGreenHerb
@@ -156,8 +156,8 @@ DataAssets ready to use or duplicate.
   RED BOTTLE — "Sample R-7"
     Moonville DA:    DA_RedBottle
     Notes:           Story/narrative item. What was the facility researching?
-                     Ren: "Bring that with you. It might be useful later."
-                     (It's useful to Ren, not Grace.)
+                     The guide: "Bring that with you. It might be useful later."
+                     (It's useful to the guide, not Marcus.)
 
   GREEN BOTTLE — "Sample G-3"
     Moonville DA:    DA_GreenBottle
@@ -274,7 +274,7 @@ Kept here for reference — some may become useful in future development.
 --- ACTORS NOT NEEDED (v0.1) ---------------------------------------------------
 
   BP_ShopVendor / BP_ShopVendor_Horror / BP_ShopVendor_RPG
-    Why not: No merchants. Unless Ren becomes a "voice merchant" later
+    Why not: No merchants. Unless the guide becomes a "voice merchant" later
              ("I can unlock that door for you... if you bring me something").
 
   BP_Campfire / BP_Campfire_RPG

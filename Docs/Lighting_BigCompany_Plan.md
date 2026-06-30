@@ -27,8 +27,9 @@ ADDING a light layer, then re-tuning the ambient floor.
 ## RECOMMENDATION — "after-hours office under failing fluorescents"
 
 Concept fit: corporate tower at night, post-breach. Pools of sickly cool
-fluorescent light with real darkness between them. Ren controls electronics —
-flickering and dying tubes are diegetic AND narrative (Ren's presence).
+fluorescent light with real darkness between them. The void's presence corrupts
+electronics — flickering and dying tubes are diegetic AND narrative (the void
+bleeding into the facility).
 Warm flashlight (existing, 7000 warm) vs cold room light = the player's
 comfort color against the facility's.
 
@@ -59,8 +60,8 @@ comfort color against the facility's.
 - `Stable` (no flicker),
 - `Nervous` (2–5% intensity wobble, occasional 1-frame dips),
 - `Dying` (hard stutters, sputter-off-on cycles, audio hook for buzz SFX).
-Ren hook later: a function to drive flicker from narrative events
-(RenCommunicationSystem is planned — this is its lighting entry point).
+Narrative hook later: a function to drive flicker from story events (the void's
+presence / the planned comms system) — this is its lighting entry point.
 
 ### Grade pass (on PPV_GlobalDarkness, after lights exist)
 - Raise `indirect_lighting_intensity` 0.0025 → ~0.004–0.006 (tune by eye,

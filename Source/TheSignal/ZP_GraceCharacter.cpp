@@ -688,8 +688,21 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	{
 		GrabAllTicksRemaining--;
 		AActor* Pickup = GetClosestMoonvillePickupOwner();
-		if (Pickup && MoonvilleInteractionComp && !ShouldBlockPickupInteraction(Pickup))
+		if (!Pickup)
 		{
+			// Nothing pickup-like is closest — pile exhausted.
+			GrabAllTicksRemaining = 0;
+			GrabAllGrabbedActors.Reset();
+		}
+		else if (GrabAllGrabbedActors.Contains(Pickup))
+		{
+			// Same actor is still the closest because Moonville hasn't destroyed it yet.
+			// Do NOT re-grab it (that duplicated non-stacking items). Wait this tick for
+			// Moonville to advance ClosestInteractable to the next pile item.
+		}
+		else if (MoonvilleInteractionComp && !ShouldBlockPickupInteraction(Pickup))
+		{
+			GrabAllGrabbedActors.Add(Pickup);
 			if (UFunction* F = MoonvilleInteractionComp->FindFunction(FName("Interact")))
 			{
 				MoonvilleInteractionComp->ProcessEvent(F, nullptr);
@@ -697,7 +710,9 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
+			// Closest is a blocked pickup (owned weapon / capped ammo) — stop sweeping.
 			GrabAllTicksRemaining = 0;
+			GrabAllGrabbedActors.Reset();
 		}
 	}
 
@@ -1740,6 +1755,14 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 						// Pure pickup (not a container) → sweep the rest of the pile this press.
 						if (bMatchPickup && !bMatchContainer)
 						{
+							// Seed the sweep with the actor this press will grab so the first
+							// sweep tick doesn't re-grab it while it lingers (the x5 bug).
+							GrabAllGrabbedActors.Reset();
+							AActor* SeedFirst = GetClosestMoonvillePickupOwner();
+							if (SeedFirst)
+							{
+								GrabAllGrabbedActors.Add(SeedFirst);
+							}
 							GrabAllTicksRemaining = 20;
 						}
 
@@ -1910,8 +1933,12 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 		}
 
 		// If the closest thing is a pickup, sweep the rest of the pile this press.
-		if (GetClosestMoonvillePickupOwner())
+		if (AActor* FirstPickup = GetClosestMoonvillePickupOwner())
 		{
+			// Seed the sweep with the actor this press will grab so the first sweep tick
+			// doesn't re-grab it while it lingers (the x5 bug).
+			GrabAllGrabbedActors.Reset();
+			GrabAllGrabbedActors.Add(FirstPickup);
 			GrabAllTicksRemaining = 20;
 		}
 

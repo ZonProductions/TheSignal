@@ -24,7 +24,9 @@ This is the user's creative project. Your job is to hold the structure and write
 - `marcus_backstory.md` — Marcus's backstory + how the void picks at it. A **texture layer**,
   not the spine of the game. Keep the personal/psychological material in proportion — this is
   survival horror, not Silent Hill 2.
-- `campaign_structure.md` — campaign spine, chapter flow, the three endings, the guide NPC.
+- `campaign_structure.md` — campaign spine (5 chapters), chapter flow, the twist, the endings, the Guide.
+- `polaris_background.md` — the org: Shinra-shaped private biotech front + inner circle chasing
+  the impossible; contained-not-created; the front/secret document gradient; plantmass creatures.
 - `level_map_progression.md` — per-level template. Level 1 = research building,
   Level 2 = office building. Mostly blank by design.
 - `level_build1_floor3.md` — drafted vertical-slice / demo level (office building, Floor 3).
@@ -33,9 +35,24 @@ This is the user's creative project. Your job is to hold the structure and write
 ## Facts that are locked
 
 - **Marcus** — janitor protagonist; everyman, not a chosen one. Curiosity, not destiny.
-- **Polaris** — the org/campus name (an organization, not a person).
+- **Polaris** — the org/campus name (an organization, not a person). **Shinra-shaped**: a
+  private (no government) world-leading **biotech** front with an inner circle chasing the
+  impossible (the far side / beating death). **Contained, not created** — they found the rift
+  and held it shut. Not the antagonist. Full background: `polaris_background.md`.
 - **The void** — a primordial, mindless infection from a breached rift. Not a mastermind.
-  No secret-villain twist; the guide can be grey but is never the antagonist.
-- **HSO** — the void registers as interference in Marcus's bluetooth earbud (diegetic,
-  proximity-based). Survival, detection, and threat all run through "signal."
+  No secret-villain twist; the Guide can be grey but is never the antagonist.
+- **The infection** — biological/airborne, shown as the spore-like void-particle haze. Marcus
+  caught only the **slow airborne strain** (shielded from the full breach); it's **not visible
+  on his body**, it works on his **consciousness**. It reaches his **deep/old memory, never his
+  live mind** — which is why the void never learns about the tracker. Soft spatial clock
+  (denser particles = worse). Details in `signal_story_bible.md` → The infection.
+- **The Guide** — the void's **hidden victim**, not a villain: infected before first contact,
+  fully puppeted, no agency. The void's mouthpiece (and the in-fiction earbud voice that knows
+  too much about Marcus). The void stays the sole antagonist. Full twist + endings in
+  `campaign_structure.md`.
+- **Interference tracker** (term "HSO" retired — it was a phantom acronym) — the void registers
+  as interference in Marcus's bluetooth earbud, spectrum-analyzer style (diegetic,
+  proximity-based). Survival, detection, and threat all run through "signal." It's Marcus's
+  **secret edge**: coincidental, not strategic; Guide contact is phone-calls-only, so the void
+  never clues in. Don't reintroduce "HSO."
 - Avoid the term "Eleven" — it was dropped.

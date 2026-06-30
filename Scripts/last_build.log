@@ -1,35 +1,19 @@
-=== BUILD STARTED Sun 06/21/2026 15:02:00.49 === 
+=== BUILD STARTED Mon 06/29/2026 13:13:07.16 === 
 Using bundled DotNet SDK version: 10.0 win-x64
 Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" TheSignalEditor Win64 Development "C:\Users\Ommei\workspace\TheSignal\TheSignal.uproject" -WaitMutex
 Log file: C:\Users\Ommei\AppData\Local\UnrealBuildTool\Log.txt
-Determining max actions to execute in parallel (10 physical cores, 20 logical cores)
-  Executing up to 10 processes, one per physical core
-  Requested 1.5 GB memory per action, 14.37 GB available: limiting max parallel actions to 9
+Executing up to 6 actions based on MaxProcessorCount override
 Using 'git status' to determine working set for adaptive non-unity build (C:\Users\Ommei\workspace\TheSignal).
 UbaServer - Listening on 0.0.0.0:1345
 Warning: Plugin 'BlueprintMCP' does not list plugin 'IKRig' as a dependency, but module 'BlueprintMCP' depends on module 'IKRig'.
 Warning: Plugin 'BlueprintMCP' does not list plugin 'IKRig' as a dependency, but module 'BlueprintMCP' depends on module 'IKRigDeveloper'.
-Building TheSignalEditor...
-===== Toolchain Information =====
-Using ISPC compiler (C:\Program Files\Epic Games\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
-  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
-Using Visual Studio 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
-[Adaptive Build] Excluded from TheSignal unity file: ZP_GraceCharacter.cpp, ZP_GraceGameplayComponent.cpp, ZP_HUDWidget.cpp, ZP_InventoryTabWidget.cpp, ZP_KinemationComponent.cpp, ZP_PlayerController.cpp, ZP_SavePoint.cpp, ZP_ScytheerBase.cpp, ZP_ScytheerClimbPath.cpp, ZP_ShamblerBehaviorComponent.cpp
-=================================
-Using Unreal Build Accelerator local executor to run 4 action(s)
-  CPU 10 physical cores, 20 logical cores
-  Memory 31.92 GB physical, 28.48 GB/75.92 GB committed
-  UBA Storage capacity 40 GB
-[1/4] Compile [x64] ZP_GraceCharacter.cpp
-[2/4] Link [x64] UnrealEditor-TheSignal.lib
-[3/4] Link [x64] UnrealEditor-TheSignal.dll
-[4/4] WriteMetadata TheSignalEditor.target [NoUba]
-
-Total time in Unreal Build Accelerator local executor: 23.86 seconds
+Target is up to date
+Using Unreal Build Accelerator local executor to run 0 action(s)
+Total time in Unreal Build Accelerator local executor: 0.15 seconds
 Output binary: C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
 
 Result: Succeeded
-Total execution time: 25.58 seconds
-Trace written to file C:\Users\Ommei\AppData\Local\UnrealBuildTool\Trace.uba with size 7.1kb
-=== BUILD EXITED 0 AT Sun 06/21/2026 15:02:26.48 === 
+Total execution time: 2.16 seconds
+Trace written to file C:\Users\Ommei\AppData\Local\UnrealBuildTool\Trace.uba with size 2.8kb
+=== BUILD EXITED 0 AT Mon 06/29/2026 13:13:09.64 === 
 BUILD OK 

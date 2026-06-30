@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-26T23:15:19",
+  "created": "2026-06-30T09:45:45",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -12020,8 +12020,8 @@
       "size": 67415
     },
     "Content/Blueprints/Gameplay/BP_LootLocker.uasset": {
-      "hash": "sha256:b5d5b89d74a43cee7d74438afe2ce11061dd24e9932d2d91f426e1287f0d784f",
-      "size": 87824
+      "hash": "sha256:da2a0fbe101e4f128e0a61cff2b698e262dd204fb48da8c31a2668036d704caf",
+      "size": 91355
     },
     "Content/Blueprints/Gameplay/BP_SavePoint.uasset": {
       "hash": "sha256:7ba8f19e2acb24cde9c030fc0c82797be722691f6450fc257d3219a73576da69",
@@ -12068,8 +12068,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:a92f4e9bc7298db6b48aa4c77305b8ff70d02d063364477a6e80928938908a2a",
-      "size": 10397567
+      "hash": "sha256:ae043f08f6e7fe1e4f8191b32053749b0844f404680d097d0ebb798a4382997f",
+      "size": 10729481
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -22735,6 +22735,10 @@
       "hash": "sha256:9d70197889a4a0ad9b733fcca36a4756dd48923c8a8f6d6a3151699566cde7b6",
       "size": 25678
     },
+    "Content/Core/Actors/BP_ObjectiveContainer.uasset": {
+      "hash": "sha256:0b50e3f96c52776d4edf583ba2032683430016a951ee31cf42e0bbb1c103fd77",
+      "size": 62308
+    },
     "Content/Core/Blueprints/Interactables/BP_AirDuctDoor.uasset": {
       "hash": "sha256:6dc2f1825b125e2cfcc89629def1f24fb5c16a0538c6d07ce7993d243cd1fb34",
       "size": 34360
@@ -22935,9 +22939,17 @@
       "hash": "sha256:eebcd42763445e21d35800e8000a4beb6d67130ad1591ac277b6fbfe850e1dcd",
       "size": 6901
     },
+    "Content/Core/LootTables/DA_LootTable_Ammo.uasset": {
+      "hash": "sha256:905c6b393c4f32fae6657c620664e43a6967d44dd8006e85db1d2896eb1e5293",
+      "size": 2751
+    },
     "Content/Core/LootTables/DA_LootTable_Locker.uasset": {
       "hash": "sha256:b6341296749142cbc771f2956e735334d7bb3386953fa216e4db2d7831a9838a",
       "size": 4005
+    },
+    "Content/Core/LootTables/DA_LootTable_Wellness.uasset": {
+      "hash": "sha256:a1ec54f12f908d1ec326c2a610b73408ab93ffec6e1a5fbae6220ae392d6e047",
+      "size": 2944
     },
     "Content/Core/Maps/T_Map_F5.uasset": {
       "hash": "sha256:5bb2b6371a3341b39cf0069cd154582d218ee5c434d0d09ac30d7280ad7520c9",
@@ -25264,8 +25276,8 @@
       "size": 67913
     },
     "Content/Enemies/Shambler/BP_Shambler.uasset": {
-      "hash": "sha256:b1136acd9ee1d8c180e362db654eba25ef555381623f15ac1e6b405f7474d937",
-      "size": 61908
+      "hash": "sha256:d326a94c95a8e4a6f067665b45478d12f1ab825f4a67447212e969cd6b82983f",
+      "size": 61865
     },
     "Content/Enemies/Shambler/BS_Shambler.uasset": {
       "hash": "sha256:2e43ad9214ff2bacf9c4c6f4810ee9d4f510c0b61b7a017dbdd7e2e8fd41cc20",
@@ -25276,40 +25288,40 @@
       "size": 13186
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Attack_L.uasset": {
-      "hash": "sha256:44030963b05a487b2cd1abbe48dfec77f0dcce53d54d6314079d70e33d4af476",
-      "size": 239933
+      "hash": "sha256:8511036156925df2270b7912b8b89c42833c7b76888159adc7fbbd3caacf476d",
+      "size": 240068
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Attack_R.uasset": {
-      "hash": "sha256:32649f91c1ebb3298a058037d4e4100bf21a87c319f8da68757b1b17dc3116a4",
-      "size": 240091
+      "hash": "sha256:955cf043b64257023051c48779bf65d98b8a67921a2daff356e44394a08d84b9",
+      "size": 240226
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Death_Back.uasset": {
-      "hash": "sha256:b545deb7691178f80601430782b8927ac6669ce8990edc7acdccaae79c3d5928",
-      "size": 1713684
+      "hash": "sha256:5ea36765ccb577ea75ea25bd126de6721f3444a3b140dd1c26420f9c86989f36",
+      "size": 1713819
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Death_Front.uasset": {
-      "hash": "sha256:4fd7a0176069ce55529075f6b345c1fad2093f92591cfcde693da5a06387427f",
-      "size": 991919
+      "hash": "sha256:6924b0f2404e74cad30ce16fb1c449162c32c9ade0d9022d589a2586da6e229b",
+      "size": 992054
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Hit_Back.uasset": {
-      "hash": "sha256:769abf886b28f1973e37ed557ed9afe6e3f52b58b301a97a7d44a7ca837756a1",
-      "size": 119800
+      "hash": "sha256:e8ad66aeffba634dbb9e40d6c1cd406b155938b342caf6a8216c197ecb58f6cf",
+      "size": 111439
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Hit_Front.uasset": {
-      "hash": "sha256:8d8df07b6397dba4c3a1d96034d3afa9fb6611c857adf69dc28de703cbba128c",
-      "size": 120335
+      "hash": "sha256:e18c2ce5c69e39746d43888222d3f4f40c1f5ae9053e2ec96bdbade028b874a8",
+      "size": 111971
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Idle.uasset": {
-      "hash": "sha256:a9ee04e5c8aa1b987abe37a368284e455b61bac9b258d46e4b1570c56705ec50",
-      "size": 177004
+      "hash": "sha256:5cdc72df77bdb0dc420f1e9c749ff09ccac7aaa771f071184ce31e153d67e306",
+      "size": 177139
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Scream.uasset": {
-      "hash": "sha256:adf57da7e99dda01a2df378f192152345c06020e220774cdfc562eaa586c5c7b",
-      "size": 196555
+      "hash": "sha256:812b827681c48604e324d758f91d9bbee4bf2b7c9d099706af2c85d3ab36b840",
+      "size": 196690
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Walk.uasset": {
-      "hash": "sha256:ab7d90933fa976f8d50e674023f05514447bb12e943474884c4aeec90c690649",
-      "size": 370306
+      "hash": "sha256:97a7801739632830eaa974ca33a2d35393c931fb22fa2d5aaea828af9f73c2e0",
+      "size": 370441
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_WalkFast.uasset": {
       "hash": "sha256:fff8ab7fa682c1a5b0ca155fdcb171a16fd611e3c9862a3978eb86946e7b4236",
@@ -25370,6 +25382,26 @@
     "Content/Enemies/Shambler/Textures/zombie_monster_slasher_necromorph_texture_2.uasset": {
       "hash": "sha256:12a963159a782b6a272d9dc15c5bde40930c024019d01d583d3dddad75437cd0",
       "size": 31887806
+    },
+    "Content/Fab/Bolt_Cutter_Low-poly/bolt_cutter_low_poly/Materials/bolt_cutter.uasset": {
+      "hash": "sha256:0b2e803d3ee2f06f222aa198bef9b667b68314eca0012b05078e0bee0a80c9c6",
+      "size": 83898
+    },
+    "Content/Fab/Bolt_Cutter_Low-poly/bolt_cutter_low_poly/StaticMeshes/bolt_cutter_low_poly.uasset": {
+      "hash": "sha256:e8004df61221abb2e485ac407fcd14be4200f11a656338f3b6b99bae1d46bc0d",
+      "size": 174782
+    },
+    "Content/Fab/Bolt_Cutter_Low-poly/bolt_cutter_low_poly/Textures/bolt_cutter_low_poly_texture_0.uasset": {
+      "hash": "sha256:9d71f904e9812c62f9019dda8e78c2500fc2f8d8a378176a856bd7d026fca9f1",
+      "size": 16852690
+    },
+    "Content/Fab/Bolt_Cutter_Low-poly/bolt_cutter_low_poly/Textures/bolt_cutter_low_poly_texture_1.uasset": {
+      "hash": "sha256:8103e4ce45dd1306b6775af14ccfe9ad3c25bd6f0bc6c495f8d228ca85d78ca8",
+      "size": 16850564
+    },
+    "Content/Fab/Bolt_Cutter_Low-poly/bolt_cutter_low_poly/Textures/bolt_cutter_low_poly_texture_2.uasset": {
+      "hash": "sha256:918d3799daf4b9b87e458f0d465049bc21070c3701d5efa3d9c0bec8eb93f26b",
+      "size": 16842426
     },
     "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Materials/SF_decals.uasset": {
       "hash": "sha256:dddd2906296d54812d83051c486ce03ce8710496d2d6bcb51f763c63c9263ae6",

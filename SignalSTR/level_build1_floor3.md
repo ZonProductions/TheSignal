@@ -9,7 +9,7 @@ This is mid-game content presented as a standalone demo slice, NOT Chapter 1.*
 ## Why this is the demo level (even though it's Chapter ~3)
 
 - **Offices are legible.** Players instantly read the space, so the demo showcases the
-  core loop (HSO tracking → search → unlock → fight fodder) without environmental confusion.
+  core loop (interference tracking → search → unlock → fight fodder) without environmental confusion.
 - **Mid-game = representative.** Marcus's kit and the enemy roster are at a real state,
   not the bare tutorial state. The demo shows the game, not the prologue.
 - **Cold-open framing.** "Janitor, building's gone to hell, reach the tram." Stands alone,
@@ -61,7 +61,7 @@ MANAGER'S OFFICE  (L4 card inside)
          ├─ (A)  Grille is SCREWED shut → need the cordless driver
          │        └─ Driver lives in your missing coworker's maintenance cart,
          │           far corner of the cube farm, parked at an ACTIVE VOID BREACH
-         │           (spawn nest, enemy-dense, HSO screaming).
+         │           (spawn nest, enemy-dense, interference screaming).
          │           Lore: coworker was mid-way through sealing vents under
          │           breach protocol when he was taken. You finish his job.
          │
@@ -69,7 +69,7 @@ MANAGER'S OFFICE  (L4 card inside)
                   └─ Done at the Tech / mechanical room. While the fan runs,
                      the vent chase is pressurized AND it's the spawn highway
                      (void-spawn travels room-to-room through ducts — you hear it
-                     on the HSO). Cutting power makes the crawl survivable AND
+                     on the tracker). Cutting power makes the crawl survivable AND
                      freezes the highway. The room also has the LOCKDOWN PANEL
                      (exposition: why every door sealed, and that it was on purpose).
 
@@ -91,7 +91,7 @@ real branch to author.
 - **Open-plan cube farm** (central) — fodder at desks; far corner holds the void breach + cart.
 - **Perimeter private offices** — including the **Manager's corner office** (L4 card).
 - **Conference room** — search/resource, optional lore.
-- **Tech / IT / mechanical room** — HVAC fan control + lockdown panel; HSO interference spikes.
+- **Tech / IT / mechanical room** — HVAC fan control + lockdown panel; interference-tracker spikes.
 - **Stairwell** — bulkhead-sealed to 4F; releases on L4.
 
 ---
@@ -121,8 +121,8 @@ infection-as-airborne-signal idea without contrivance.
 
 ---
 
-## HSO levers parked on this floor
+## Interference-tracker levers parked on this floor
 
-- Tech/server room interference spike: option to make HSO read *infrastructure*, not only
+- Tech/server room interference spike: option to make the tracker read *infrastructure*, not only
   enemy proximity. Lever, not locked.
 - Vent crawl while fan runs = audio dread peak (you can't tell spawn distance over the roar).

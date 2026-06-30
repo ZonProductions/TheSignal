@@ -59,6 +59,17 @@ It doesn't need a full dark-place spiral or elaborate illusions. It uses:
 - **Ambiguity.** Is this real? Is the void showing him something, or is he going insane?
   The uncertainty is the weapon.
 
+**The mechanism (locked) — not magic notes, it's *inside him.*** Marcus's partial, slow
+infection (see `signal_story_bible.md` → The infection) is the channel: it dredges his
+**deep, settled memory** — the father, the family, that night — and feeds it back as
+whispers, notes, and the Guide's too-personal lines. It reaches the **old** material, **not
+his live thoughts** (so it never learns his in-the-moment tricks — e.g. the earbud edge).
+The cover story the player swallows first: Polaris keeps a **deep file** on him (see
+`polaris_background.md`), so early on "the voice knows things" reads as *he's got my HR
+file.* The reveal recasts it — a file could hold his record, never the exact words said that
+night. The gap between what a file could know and what the void *does* know is where the
+truth shows.
+
 ### What It Says
 
 - "Your father still suffers because of you."
