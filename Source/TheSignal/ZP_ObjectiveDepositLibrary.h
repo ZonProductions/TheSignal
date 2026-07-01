@@ -26,6 +26,8 @@
 #include "ZP_ObjectiveContainer.h" // FZP_RequiredItem
 #include "ZP_ObjectiveDepositLibrary.generated.h"
 
+class UUserWidget;
+
 UCLASS()
 class THESIGNAL_API UZP_ObjectiveDepositLibrary : public UBlueprintFunctionLibrary
 {
@@ -60,4 +62,38 @@ public:
 	 *  Container defaults to self when called from the container BP (no Self node needed). */
 	UFUNCTION(BlueprintCallable, Category = "TheSignal|ObjectiveDeposit", meta = (DefaultToSelf = "Container"))
 	static bool SubmitDeposit(AActor* Container, const TArray<FZP_RequiredItem>& RequiredItems, bool bConsume, FName ObjectiveFlag);
+
+	/** BeginPlay setup for an objective deposit container. Sizes the deposit grid, then EITHER
+	 *  (a) if ObjectiveFlag is already set (restored from a save) applies the COMPLETE state
+	 *  immediately — locks interaction, no status light — OR (b) spawns a dim white status light
+	 *  that stays lit until the deposit is complete. Call once from the container BP's BeginPlay.
+	 *  Container defaults to self when called from the container BP (no Self node needed). */
+	UFUNCTION(BlueprintCallable, Category = "TheSignal|ObjectiveDeposit", meta = (DefaultToSelf = "Container"))
+	static void SetupObjectiveContainer(AActor* Container, const TArray<FZP_RequiredItem>& RequiredItems, FName ObjectiveFlag);
+
+	/** Auto-complete check for a deposit container. Completes ONLY when the container holds EVERY
+	 *  RequiredItem in at least its Count (never on a partial deposit). On completion it sets
+	 *  ObjectiveFlag (persists), turns off the status light, and permanently disables interaction so
+	 *  the container can't be reopened — it's done. Deposited items are left in the locked container
+	 *  (no consume; the player never needs to think about them). Returns true the moment it completes;
+	 *  a safe no-op once already complete or while items are still missing. Call from OnCloseInventory.
+	 *  Container defaults to self when called from the container BP (no Self node needed). */
+	UFUNCTION(BlueprintCallable, Category = "TheSignal|ObjectiveDeposit", meta = (DefaultToSelf = "Container"))
+	static bool ProcessObjectiveDeposit(AActor* Container, const TArray<FZP_RequiredItem>& RequiredItems, FName ObjectiveFlag);
+
+	/** Reads the container BP's own RequiredItems + ObjectiveFlag (set per-instance in Details) via
+	 *  reflection and runs ProcessObjectiveDeposit on it. Lets the player's inventory watchdog
+	 *  auto-complete an OPEN deposit container the instant the right items are dropped in, without the
+	 *  caller having to supply the arrays. Returns true the moment it completes. */
+	UFUNCTION(BlueprintCallable, Category = "TheSignal|ObjectiveDeposit")
+	static bool TryAutoCompleteObjectiveContainer(AActor* Container);
+
+	/** Populate the container menu from the OPEN container's authored text (per-instance in Details):
+	 *  ContainerTitle REPLACES the "Item Container" header label above the transfer slots, and
+	 *  ContainerDescription fills the ObjectiveBodyText block directly below the slots (collapsed when
+	 *  empty). A plain loot container has no such fields, so the header keeps its default and no
+	 *  description shows. Widgets are resolved by name via GetWidgetFromName (no compile-time dep on the
+	 *  pack WBP). Call from the container menu's SetupMenu; Menu defaults to self (no Self node needed). */
+	UFUNCTION(BlueprintCallable, Category = "TheSignal|ObjectiveDeposit", meta = (DefaultToSelf = "Menu"))
+	static void ApplyObjectiveContainerMenu(UUserWidget* Menu, AActor* Container);
 };

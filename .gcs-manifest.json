@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-30T09:45:45",
+  "created": "2026-06-30T19:12:58",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -12068,8 +12068,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:ae043f08f6e7fe1e4f8191b32053749b0844f404680d097d0ebb798a4382997f",
-      "size": 10729481
+      "hash": "sha256:418fbf8313a3205ac917e5485f4d735285a8df8bb05458d89ac1a5b453d81a3f",
+      "size": 10750176
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -22736,8 +22736,8 @@
       "size": 25678
     },
     "Content/Core/Actors/BP_ObjectiveContainer.uasset": {
-      "hash": "sha256:0b50e3f96c52776d4edf583ba2032683430016a951ee31cf42e0bbb1c103fd77",
-      "size": 62308
+      "hash": "sha256:920077320d194fd0167cae41e8a09c48f40849b73729a8a50607c69ad62d01ff",
+      "size": 74708
     },
     "Content/Core/Blueprints/Interactables/BP_AirDuctDoor.uasset": {
       "hash": "sha256:6dc2f1825b125e2cfcc89629def1f24fb5c16a0538c6d07ce7993d243cd1fb34",
@@ -22858,6 +22858,10 @@
     "Content/Core/Items/DA_ExplosiveGrenade.uasset": {
       "hash": "sha256:f1fe52a3e3d5f418a454b70e2cdf1f660bb5435115d4f01d3dd2976ddc8674ac",
       "size": 5392
+    },
+    "Content/Core/Items/DA_Fuse.uasset": {
+      "hash": "sha256:894fac7da631b2d025c895bb03234bffca45783b640e7403018e9484642fb1a3",
+      "size": 2226
     },
     "Content/Core/Items/DA_Grace_Pistol.uasset": {
       "hash": "sha256:e26e0480a534f1f2bfc8234718684ecff14e688a5c5aba41c3f923a016fc85a8",
@@ -25402,6 +25406,42 @@
     "Content/Fab/Bolt_Cutter_Low-poly/bolt_cutter_low_poly/Textures/bolt_cutter_low_poly_texture_2.uasset": {
       "hash": "sha256:918d3799daf4b9b87e458f0d465049bc21070c3701d5efa3d9c0bec8eb93f26b",
       "size": 16842426
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Materials/FuseCasing.uasset": {
+      "hash": "sha256:39a252c39f83f29c25d5e1fc56bd559ae3ba927a8ccd86ce7131617fe878edd9",
+      "size": 76726
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Materials/FuseGlass.uasset": {
+      "hash": "sha256:de1b6ad5839129637e82d32944146de20fdae4f55e8b70c375c01b78b8fa9a73",
+      "size": 76153
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/StaticMeshes/electronic_fuse.uasset": {
+      "hash": "sha256:53ceb1fff7435544e2ea25dfa7bc94cba08e543c6ba907620da2991165abecbc",
+      "size": 528229
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Textures/electronic_fuse_texture_0.uasset": {
+      "hash": "sha256:d013b8d498625d18f8ebe3fe02abed8494022301b6e81458f7d8f52ff74bc584",
+      "size": 67176652
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Textures/electronic_fuse_texture_1.uasset": {
+      "hash": "sha256:086e859c9c432a9f08fc0afdd09a857f6c3604e66ee7cda6257bb543f77d53c3",
+      "size": 67177637
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Textures/electronic_fuse_texture_2.uasset": {
+      "hash": "sha256:2986920c3249cc4a0d34cbec4055a838c367e574f71c7ed127b86af931d9f4ee",
+      "size": 67171760
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Textures/electronic_fuse_texture_3.uasset": {
+      "hash": "sha256:a710b2e22b39c3eef17f7475bfe7d48dd209ff4deacb8baee3a090432d0d7029",
+      "size": 67172768
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Textures/electronic_fuse_texture_4.uasset": {
+      "hash": "sha256:d8804582cee40a1a8b27d3d9815f548b3aee9ed033088f74671d8876bc727689",
+      "size": 67173481
+    },
+    "Content/Fab/Electronic_Fuse/electronic_fuse/Textures/electronic_fuse_texture_5.uasset": {
+      "hash": "sha256:a5da8e9adade9b4be678bc521ca4880da4f0cf1c73179a4a309b6c0376caac47",
+      "size": 67172248
     },
     "Content/Fab/Science_Fiction_Tram___Train/tram_v2/Materials/SF_decals.uasset": {
       "hash": "sha256:dddd2906296d54812d83051c486ce03ce8710496d2d6bcb51f763c63c9263ae6",
@@ -34959,6 +34999,10 @@
       "hash": "sha256:45d954c0f57810d46ac7162aa078ebca8a21ef5c5d385e7b8e052f71e93e23ee",
       "size": 13110
     },
+    "Content/icons/DA_Fuse.uasset": {
+      "hash": "sha256:1534ad972c554b22054ca183ed1fc6b426c9d36ee2b1fbc65217d3effa9f1946",
+      "size": 25232081
+    },
     "Content/icons/da_letter.uasset": {
       "hash": "sha256:f31b25f7b05a00a52664e628f3cbb036b06abc039488c0a1f406125d4cb13013",
       "size": 59213
@@ -35680,8 +35724,8 @@
       "size": 822740
     },
     "Content/InventorySystemPro/Blueprints/UI/InventoryWidgets/WBP_ItemBase.uasset": {
-      "hash": "sha256:ae843228501943aaa905aba5f7d0334259f51d4f254b40f2f2be0b775a04229f",
-      "size": 1241963
+      "hash": "sha256:33f003b5e8e3210046d37bf34e8005c27af3166d2f1e20d32298be730ee4edd5",
+      "size": 1285971
     },
     "Content/InventorySystemPro/Blueprints/UI/InventoryWidgets/WBP_ShortcutItemBase.uasset": {
       "hash": "sha256:eab50734f122bbcffa7648aa35680cb609a730f181a19a9300ea46ad009f8eb2",
@@ -35704,8 +35748,8 @@
       "size": 154721
     },
     "Content/InventorySystemPro/Blueprints/UI/SubWidgets/WBP_FirstTimePickupNotificationBase.uasset": {
-      "hash": "sha256:9ed02ff73db7e96acbe984185bff420ca6e80569f9c99d4132fd45deb12778d6",
-      "size": 192095
+      "hash": "sha256:58ed7aa84e59fa9cac1a6a7fdb060e25543bc0e02bbf4cb249bbaffa7e9e315e",
+      "size": 216483
     },
     "Content/InventorySystemPro/Blueprints/UI/SubWidgets/WBP_GridContainerBase.uasset": {
       "hash": "sha256:555f358dec072c347d20ac06012a17c48317599910158c4e05fa64d5cf38c118",
@@ -43532,8 +43576,8 @@
       "size": 713995
     },
     "Content/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_ItemContainerMenu_Horror.uasset": {
-      "hash": "sha256:28e0856408cf15fda7baac10866e7c8891a49be32124a6e8ababba133303c822",
-      "size": 337005
+      "hash": "sha256:08be03f6a8f5f319acf0dd59ef451261684606d19b25931afd5ddfdfbb1fc30e",
+      "size": 375830
     },
     "Content/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_ShopVendorMenu_Horror.uasset": {
       "hash": "sha256:c90b4d63a19205b5eb8298da78f256d30cd9189f801c687f0ab3564d8209dc90",

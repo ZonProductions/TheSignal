@@ -108,5 +108,14 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "TheSignal|Editor")
 	static bool SetPickupDescriptionFontSize(int32 FontSize = 16);
+
+	/**
+	 * Reworks the objective-container additions on WBP_ItemContainerMenu_Horror after the mesh preview was
+	 * SCRAPPED: removes the preview + side-panel widgets, places ObjectiveBodyText directly BELOW the
+	 * transfer slots (last child of ItemContainerBox), and matches its font to the first-time-pickup
+	 * description. The container title is applied to the "Item Container" header at runtime. Idempotent.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "TheSignal|Editor")
+	static bool FixObjectiveContainerMenuLayout();
 #endif // WITH_EDITOR
 };

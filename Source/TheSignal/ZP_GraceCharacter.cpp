@@ -13,6 +13,7 @@
 #include "ZP_HUDWidget.h"
 #include "ZP_Interactable.h"
 #include "ZP_InteractDoor.h"
+#include "ZP_ObjectiveDepositLibrary.h"
 #include "ZP_MapComponent.h"
 #include "ZP_NoteComponent.h"
 #include "ZP_SignalSenseComponent.h"
@@ -4426,7 +4427,41 @@ void AZP_GraceCharacter::CheckContainerClosed()
 			}
 		}
 	}
-	if (bStillUsing && bMenuStillOpen) return; // Still open
+	if (bStillUsing && bMenuStillOpen)
+	{
+		// Instant objective-deposit autocomplete: the moment an OPEN objective/deposit container holds
+		// every required item, complete it (ProcessObjectiveDeposit sets the flag, kills the beacon
+		// light, and permanently locks interaction) and auto-close the menu — so the player sees it go
+		// dark + un-interactable = "done, no longer relevant". Otherwise it's still in use: leave open.
+		bool bOpenObjectiveContainer = false;
+		for (UClass* C = ContainerToCheck->GetClass(); C; C = C->GetSuperClass())
+		{
+			if (C->GetName().Contains(TEXT("ObjectiveContainer")))
+			{
+				bOpenObjectiveContainer = true;
+				break;
+			}
+		}
+		if (!(bOpenObjectiveContainer && UZP_ObjectiveDepositLibrary::TryAutoCompleteObjectiveContainer(ContainerToCheck)))
+		{
+			return; // still open, not complete yet
+		}
+
+		// Just auto-completed → close the Moonville menu (same client-side ToggleInventoryMenu the Tab
+		// key / loot-all uses — the only close path proven reliable in standalone), then fall through
+		// to the closed-handling below to reset watchdog state.
+		if (MoonvilleInventoryComp)
+		{
+			if (UFunction* ToggleFunc = MoonvilleInventoryComp->FindFunction(FName("ToggleInventoryMenu")))
+			{
+				struct { APlayerController* PlayerController; } CloseParams;
+				CloseParams.PlayerController = Cast<APlayerController>(GetController());
+				MoonvilleInventoryComp->ProcessEvent(ToggleFunc, &CloseParams);
+			}
+		}
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveContainer %s auto-completed on deposit — menu closed"),
+			*ContainerToCheck->GetName());
+	}
 
 	// Container is now closed. Clear a stuck in-use flag so it can reopen.
 	if (bStillUsing && UsingProp)
@@ -4452,7 +4487,26 @@ void AZP_GraceCharacter::CheckContainerClosed()
 			break;
 		}
 	}
-	if (!bClosedBriefcase && IsLockerInventoryEmpty(ContainerToCheck))
+	// NEVER an objective / deposit container (BP_ObjectiveContainer, child of
+	// BP_ItemContainer_Horror): it is empty BY DESIGN before the player deposits
+	// anything (the FIRST close, before any items go in, is the trap). The empty
+	// check below would call DisableLockerInteraction on that first close,
+	// permanently NoCollision-ing its interaction spheres (LootedEmptyLockers is
+	// never read back) — so it opens once and can never reopen. Deposited items
+	// are intentionally LEFT in the container (no consume), and the objective
+	// container does its OWN intentional lock on completion via
+	// UZP_ObjectiveDepositLibrary::ProcessObjectiveDeposit — so this watchdog must
+	// stay hands-off. Matched by class name like the briefcase.
+	bool bClosedObjectiveContainer = false;
+	for (UClass* C = ContainerToCheck->GetClass(); C; C = C->GetSuperClass())
+	{
+		if (C->GetName().Contains(TEXT("ObjectiveContainer")))
+		{
+			bClosedObjectiveContainer = true;
+			break;
+		}
+	}
+	if (!bClosedBriefcase && !bClosedObjectiveContainer && IsLockerInventoryEmpty(ContainerToCheck))
 	{
 		DisableLockerInteraction(ContainerToCheck);
 	}

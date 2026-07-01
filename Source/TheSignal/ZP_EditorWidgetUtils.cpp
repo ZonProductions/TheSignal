@@ -26,8 +26,12 @@
 #include "Components/SizeBoxSlot.h"
 #include "Components/Image.h"
 #include "Components/Border.h"
+#include "Components/RichTextBlock.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "UObject/SavePackage.h"
+
+#include "Engine/Blueprint.h"
+#include "Engine/StaticMesh.h"
 
 #include "ZP_NotesWidget.h"
 #include "ZP_NoteEntryWidget.h"
@@ -1491,6 +1495,125 @@ bool UZP_EditorWidgetUtils::SetPickupDescriptionFontSize(int32 FontSize)
 		*FPackageName::LongPackageNameToFilename(WBP->GetPackage()->GetName(), FPackageName::GetAssetPackageExtension()),
 		SaveArgs);
 
+	return true;
+}
+
+// ---------------------------------------------------------------------------
+// FixObjectiveContainerMenuLayout — the mesh preview was SCRAPPED. Remove the preview +
+// side-panel widgets, put the objective description directly BELOW the transfer slots,
+// and match its font to the first-time-pickup description. (The title goes into the
+// "Item Container" header label at runtime via ApplyObjectiveContainerMenu.)
+// ---------------------------------------------------------------------------
+
+bool UZP_EditorWidgetUtils::FixObjectiveContainerMenuLayout()
+{
+	UWidgetBlueprint* WBP = LoadObject<UWidgetBlueprint>(nullptr,
+		TEXT("/Game/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_ItemContainerMenu_Horror.WBP_ItemContainerMenu_Horror"));
+	if (!WBP || !WBP->WidgetTree)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] FixObjectiveContainerMenuLayout: Failed to load WBP/tree"));
+		return false;
+	}
+	UWidgetTree* Tree = WBP->WidgetTree;
+
+	UPanelWidget* ContainerBox = Cast<UPanelWidget>(Tree->FindWidget(TEXT("ItemContainerBox")));
+	if (!ContainerBox)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] FixObjectiveContainerMenuLayout: ItemContainerBox not found"));
+		return false;
+	}
+
+	WBP->Modify();
+
+	// --- 1. Description body: ensure it exists, reparent it directly BELOW the transfer grid. ---
+	//     (AddChild appends it as the LAST child of ItemContainerBox, i.e. under ItemContainerGridContainer.)
+	UTextBlock* BodyText = Cast<UTextBlock>(Tree->FindWidget(TEXT("ObjectiveBodyText")));
+	if (!BodyText)
+	{
+		BodyText = Tree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("ObjectiveBodyText"));
+	}
+	BodyText->bIsVariable = true;
+	if (UPanelWidget* OldParent = BodyText->GetParent())
+	{
+		OldParent->RemoveChild(BodyText);
+	}
+	ContainerBox->AddChild(BodyText);
+	BodyText->SetAutoWrapText(true);
+	if (UVerticalBoxSlot* VS = Cast<UVerticalBoxSlot>(BodyText->Slot))
+	{
+		VS->SetHorizontalAlignment(HAlign_Fill);
+		VS->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
+		VS->SetPadding(FMargin(0.0f, 12.0f, 0.0f, 0.0f)); // little spacer below the last slot row
+	}
+
+	// --- 1b. The transfer grid must size to its CONTENT, not Fill — otherwise it stretches to the full
+	//     panel height (matching the 5-row player side) and shoves the description far below the last row.
+	//     Automatic makes the grid only as tall as its actual rows, so the description sits right under them. ---
+	if (UWidget* Grid = Tree->FindWidget(TEXT("ItemContainerGridContainer")))
+	{
+		if (UVerticalBoxSlot* GS = Cast<UVerticalBoxSlot>(Grid->Slot))
+		{
+			GS->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
+			GS->SetVerticalAlignment(VAlign_Top);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] FixObjectiveContainerMenuLayout: container grid slot set to Automatic (size-to-content)"));
+		}
+	}
+
+	// --- 2. Match the first-time-pickup description font (FSlateFontInfo copy). ---
+	{
+		UWidgetBlueprint* PWBP = LoadObject<UWidgetBlueprint>(nullptr,
+			TEXT("/Game/InventorySystemPro/ExampleContent/Horror/UI/Widgets/WBP_FirstTimePickupNotification_Horror.WBP_FirstTimePickupNotification_Horror"));
+		if (PWBP && PWBP->WidgetTree)
+		{
+			if (URichTextBlock* PDesc = Cast<URichTextBlock>(PWBP->WidgetTree->FindWidget(TEXT("ItemDescriptionRichText"))))
+			{
+				FSlateFontInfo Font = PDesc->GetCurrentDefaultTextStyle().Font;     // resolved style (override or set)
+				if (!Font.FontObject)                                                // fall back to the override struct
+				{
+					if (FStructProperty* SP = CastField<FStructProperty>(PDesc->GetClass()->FindPropertyByName(TEXT("DefaultTextStyleOverride"))))
+					{
+						if (const FTextBlockStyle* St = SP->ContainerPtrToValuePtr<FTextBlockStyle>(PDesc))
+						{
+							Font = St->Font;
+						}
+					}
+				}
+				if (Font.FontObject)
+				{
+					BodyText->SetFont(Font);
+					UE_LOG(LogTemp, Log, TEXT("[TheSignal] FixObjectiveContainerMenuLayout: matched pickup font %s size %d"),
+						*GetNameSafe(Font.FontObject), (int32)Font.Size);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[TheSignal] FixObjectiveContainerMenuLayout: could not resolve pickup font — left default"));
+				}
+			}
+		}
+	}
+
+	// --- 3. Remove the scrapped mesh-preview + side-panel widgets (child-before-parent). ---
+	const TCHAR* ToRemove[] = { TEXT("ObjectiveMeshImage"), TEXT("ObjectiveMeshPreviewBox"),
+		TEXT("ObjectiveTitleText"), TEXT("ObjectiveDescBox"), TEXT("ObjectiveSidePanel") };
+	for (const TCHAR* N : ToRemove)
+	{
+		if (UWidget* W = Tree->FindWidget(N))
+		{
+			Tree->RemoveWidget(W);
+		}
+	}
+
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(WBP);
+	FKismetEditorUtilities::CompileBlueprint(WBP);
+
+	FSavePackageArgs SaveArgs;
+	SaveArgs.TopLevelFlags = RF_Standalone;
+	bool bSaved = UPackage::SavePackage(WBP->GetPackage(), WBP,
+		*FPackageName::LongPackageNameToFilename(WBP->GetPackage()->GetName(), FPackageName::GetAssetPackageExtension()),
+		SaveArgs);
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] FixObjectiveContainerMenuLayout: SUCCESS — description below slots, preview removed (saved=%s)"),
+		bSaved ? TEXT("true") : TEXT("false"));
 	return true;
 }
 
