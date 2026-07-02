@@ -182,6 +182,21 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	float MeleeSwingRate = 1.4f;
 
+	/** Fraction of the swing after which a HELD block may cancel the remaining follow-through.
+	 *  The strike and most of the follow-through always play (never reads as clipping); only the
+	 *  return-to-idle dead frames get replaced by the guard coming up (never reads as a pause).
+	 *  1.0 = block always waits for the full clip. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	float MeleeBlockCancelFraction = 0.75f;
+
+	/** Whoosh played at every swing start (own-body foley, 2D). Defaults to SFX_MELEE_SWING. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<USoundBase> MeleeSwingSound;
+
+	/** Volume of the swing whoosh. Knob lives on BP_GraceCharacter -> KinemationComp Details. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	float MeleeSwingVolume = 1.f;
+
 	/** Play-rate for the equip (raise) animation (1.93s source → ~1.0s at 2.0). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	float MeleeEquipRate = 2.0f;
@@ -561,11 +576,31 @@ private:
 
 	/** Timer for melee swing ADS return (strike → ready). */
 	FTimerHandle MeleeSwingReturnHandle;
+	/** Flips bMeleeSwingTailCancelable at MeleeBlockCancelFraction of the swing. */
+	FTimerHandle MeleeTailCancelHandle;
 	/** Timer for melee wind-up → strike transition. */
 	FTimerHandle MeleeWindupHandle;
 public:
 	/** True while melee swing ADS animation is in progress — blocks manual ADS. */
 	bool bMeleeSwingActive = false;
+
+	/** True once the swing has played past MeleeBlockCancelFraction: the strike + follow-through
+	 *  are visibly done and only return-to-idle frames remain — a held block may cancel into them. */
+	bool bMeleeSwingTailCancelable = false;
+
+	/** Block-cancel the swing's return-to-idle tail: kills the idle-return timer and clears the
+	 *  swing state WITHOUT touching the view anim — the caller (block start) takes over the hands
+	 *  the same frame. Only valid once bMeleeSwingTailCancelable is set. */
+	void CancelMeleeSwingRecovery()
+	{
+		if (UWorld* W = GetWorld())
+		{
+			W->GetTimerManager().ClearTimer(MeleeSwingReturnHandle);
+			W->GetTimerManager().ClearTimer(MeleeTailCancelHandle);
+		}
+		bMeleeSwingActive = false;
+		bMeleeSwingTailCancelable = false;
+	}
 
 	/** True while the melee view-model (Marcus arms) is up. The character reads this
 	 *  to hide the body's own arms so they don't double with the view-model arms. */

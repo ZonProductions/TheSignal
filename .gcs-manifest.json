@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-06-30T20:52:10",
+  "created": "2026-07-02T17:27:11",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -18,6 +18,14 @@
     "Content/NS_VoidMote2.uasset": {
       "hash": "sha256:264eb04631076f8063ca5b17d7b42b620649a37587874d7bc73709de093e9bf5",
       "size": 488306
+    },
+    "Content/SFX_ZOMBIE_DEATH.uasset": {
+      "hash": "sha256:4e77bef495e08018c3348959d2a7d8a2f5f151236e3f09136efdc1f1de27b76b",
+      "size": 193070
+    },
+    "Content/SFX_ZOMBIE_LURK.uasset": {
+      "hash": "sha256:ee0d1e552bf1fc88aa99bdb10157bc5b5b5ddedff14b52784ba30e52dbc99ae7",
+      "size": 193065
     },
     "Content/SM_HangedWire.uasset": {
       "hash": "sha256:ef9f1af146be7ab1b58c05a5b5914d4164a4f81a286075d78d1bae311fd773fb",
@@ -2812,8 +2820,12 @@
       "size": 77288
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_DEATH.uasset": {
-      "hash": "sha256:5da4294d36bed762d78648883aa3ff08b2ba467438f69893164aee2ecae38612",
-      "size": 396611
+      "hash": "sha256:6b4362812fd9e09cc9824f8ecb3cf9517ec8e2986a73929e6a8de17f7e898ccf",
+      "size": 193100
+    },
+    "Content/Audio/Shambler/SFX_ZOMBIE_IDLE.uasset": {
+      "hash": "sha256:e7403aea33be35763faa7eaeb5134ce41ce96880b3af27ec928d9e4eb583e5a6",
+      "size": 953335
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_LURK.uasset": {
       "hash": "sha256:e4c8ef22976fed38eb55e05892399bb8593da67413a204bfe2d0a798e1b6adb7",
@@ -2842,6 +2854,10 @@
     "Content/Audio/Weapons/SFX_MELEE_IMPACT2.uasset": {
       "hash": "sha256:d386e4485fa1ded7c8d0c4a4ffca165068074d23e37a8e0878643d7133fe4f5a",
       "size": 109613
+    },
+    "Content/Audio/Weapons/SFX_MELEE_SWING.uasset": {
+      "hash": "sha256:725185d9d36e2e61acbca8d97247de2d013d51c66796e0e4e760ed8b6a48d916",
+      "size": 90586
     },
     "Content/Audio/Weapons/SFX_PIPE_HIT.uasset": {
       "hash": "sha256:82ac5066278a18df344fc4e94a266d778f299f2221bfaed4bb71402eb5082890",
@@ -11939,6 +11955,1074 @@
       "hash": "sha256:7eb595a678f5cccc1e7c41cf56d3e69793edce602c7c1a20db3c9c5420594e38",
       "size": 15284
     },
+    "Content/Blood_VFX_Pack/Blueprints/BP_BleedingRibbonEx.uasset": {
+      "hash": "sha256:65eef68f3c412725c7950f50739d7ddc183ae6b8ba4c5be8c89899a5b1eeaf14",
+      "size": 216047
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_Character_Bleeding.uasset": {
+      "hash": "sha256:ce933040fe590e9bf8fbc43ed3c3185d1747c04cc7994167c497ebe6ccbdc0fa",
+      "size": 298188
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_Character_Splash.uasset": {
+      "hash": "sha256:061ccc532f80e75312a404de74577a2a08cf52385eb248d0b81f54b300c980be",
+      "size": 222348
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_Character_Splash_WithDecal.uasset": {
+      "hash": "sha256:b2ecac1af03a6866620a6fffb883d9ceb5290568112d69dc99984edc0ef49a1e",
+      "size": 235858
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_Character_Splash_WithDecal_02.uasset": {
+      "hash": "sha256:cfafa1a1213401234de0d570fd7767ede0ea6374e7c0e6902f11441fea95b54a",
+      "size": 303859
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_Decal.uasset": {
+      "hash": "sha256:64249f537b53715fad5e1c0434dd0d20703dd6c384ffcbfa6ad4b34dc9013a2b",
+      "size": 197510
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_DecalExample.uasset": {
+      "hash": "sha256:18147b649fc3a4389b1675b788bcbd5127e3cc72482b2a5e4466f63c3b18190a",
+      "size": 132435
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_DecalSKMesh.uasset": {
+      "hash": "sha256:ddabd0af2a29886f88b733a115f4d87322cb77cef593639d69c59a195fa5a901",
+      "size": 200585
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_RibbonEx.uasset": {
+      "hash": "sha256:3f5506586226767febc0432081bd19b6b29fdb4f1f3881c9eb60ae5f91f36a1d",
+      "size": 110191
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_SkeletalMesh_Splash.uasset": {
+      "hash": "sha256:44680698bf5531154eafaade2dda0804490aba2bcf33127fc29f670bed1770e9",
+      "size": 228074
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_SpawnEffect.uasset": {
+      "hash": "sha256:ffa7ea24fc05973b501d295b6f89d87ebd2a01bc2d56f468293906ec7ae5652a",
+      "size": 177758
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_SwordTrail.uasset": {
+      "hash": "sha256:76f5a8c6e136c2699485a6eac47f9f91f9212cad5801b6869a08350b8cebcea1",
+      "size": 141950
+    },
+    "Content/Blood_VFX_Pack/Blueprints/BP_SwordTrail_Decal.uasset": {
+      "hash": "sha256:248e7dff5036d1919fb2d37ddc5b92c5969728865a211302977183d8ba1e3d71",
+      "size": 271243
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/A_ThirdPersonIdle.uasset": {
+      "hash": "sha256:af8435dbed3aa0061f6bce19de545a8d4318611a09acb1cb621994d0145822e6",
+      "size": 240907
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/A_ThirdPersonRun.uasset": {
+      "hash": "sha256:8821260f71cd1351af19d089ce6fd8c86c7212a1474d508846c4fd86e06307a1",
+      "size": 135691
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/SK_Mannequin.uasset": {
+      "hash": "sha256:fff1e52d60c0d4bf8cd20068bc4f92bc2e2477f918d189a5730e0a6c9b1a973b",
+      "size": 4609961
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/SK_Mannequin_PhysicsAsset.uasset": {
+      "hash": "sha256:3e1a091fb6b1a20999dcef67b50b1dc6e84fbd0cf7e188305f18694eed1864fb",
+      "size": 189412
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/SK_Mannequin_Skeleton.uasset": {
+      "hash": "sha256:abfd334f863e58a64f37f9dcab5170df02224a368876d247cabfcbacf5ec16b0",
+      "size": 20982
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Materials/MF_GlossyBlack_Latex_UE4.uasset": {
+      "hash": "sha256:0ab96db70c5f07831f9192b1876bc068ee5d1fcdfe5909cb7825a6ac401a2efd",
+      "size": 96178
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Materials/MF_Plastic_Shiny_Beige.uasset": {
+      "hash": "sha256:e2d19983623b4f8d6d1cb54d908673fa2ea7e7cae67b2d180a1a2e4e69060e8b",
+      "size": 92227
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Materials/MF_Plastic_Shiny_Beige_LOGO.uasset": {
+      "hash": "sha256:0488fe09f2d5a76fe4df5cac8ceb62a7190646cf42fcd5722486b4bc3c81a31d",
+      "size": 92960
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Materials/MF_SoftMetal_UE4.uasset": {
+      "hash": "sha256:97cfbb25d7f87d24d0591a9785de707a5882df3386e9e16464d6b09cf3bc5e85",
+      "size": 97085
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Materials/MI_UE4Man_ChestLogo.uasset": {
+      "hash": "sha256:e279aea5c249f4259a8f0a52b4998d7043b95a74b6e5ed6077932ff898e808b8",
+      "size": 91882
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Materials/M_UE4Main_Body.uasset": {
+      "hash": "sha256:6857498d4bad65d44430b7ee972c609a88c14a2cfd4767e74af80a7fcb80afbe",
+      "size": 126813
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_ML_Aluminum01.uasset": {
+      "hash": "sha256:2d5652076a697f97aab17f775f0b154569a93add232f3b4dc413745ccf7b6965",
+      "size": 435061
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_ML_Aluminum01_N.uasset": {
+      "hash": "sha256:8c97526255c97bb8ba446de7fd6985d19e81a296899841d10d414fa4703ba84e",
+      "size": 406070
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_ML_Rubber_Blue_01_D.uasset": {
+      "hash": "sha256:20cc165bb12e032db9568a87ef97b1a6bf55287f54ef32bf86433961d4111c3a",
+      "size": 470534
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_ML_Rubber_Blue_01_N.uasset": {
+      "hash": "sha256:57139852d8c4f9c5bc77afcb18c5cc6710fbca7e216a3859715d9b72220d20db",
+      "size": 362931
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_UE4Man_Logo_N.uasset": {
+      "hash": "sha256:1a124057406bc66c8d7cd571479f7a0e68e56046657004162494d9ab0c22ceff",
+      "size": 162690
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_UE4_LOGO_CARD.uasset": {
+      "hash": "sha256:c5fc4f0bc5e4a7b9e388c551ee2a90c7303a2cda4368716b5e473dd825d1d0aa",
+      "size": 97919
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_UE4_Mannequin_MAT_MASKA.uasset": {
+      "hash": "sha256:67a9efe5f49badcb057d70c2a7adf2c6c62a9d0bdd848fd0baa6b694de29f98c",
+      "size": 270730
+    },
+    "Content/Blood_VFX_Pack/Demo/Character/Textures/T_UE4_Mannequin_N.uasset": {
+      "hash": "sha256:c36727f0633bd25f9f0266916c23b89f97d11df8e65ff659f5120496c59d1b8f",
+      "size": 5481977
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/M_FPGun.uasset": {
+      "hash": "sha256:1150b8f9542141929f3f8b571e71d1114f7ca08c63d4fba8522bb6327c14abb9",
+      "size": 130169
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset": {
+      "hash": "sha256:a1bc077ce91bfe106c656b603beec830961b8a09b7fa45433cca135fec707390",
+      "size": 107053
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset": {
+      "hash": "sha256:41c1f266a84859643f3f4d4e36d42788bbdb44469a32045b1dfc42c18196eeb6",
+      "size": 103405
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/ML_Screen.uasset": {
+      "hash": "sha256:5cbd8e01eb48dcb11e8488ef62f16b8eb167082a6e8b480ce6fd45442cee26bb",
+      "size": 101767
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/ML_SoftMetal_UE4.uasset": {
+      "hash": "sha256:060c2404c5c1315aa18ac29001be450f13106c434cf7c9ebf051d1602a29af38",
+      "size": 107724
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/T_ML_Aluminum01.uasset": {
+      "hash": "sha256:aa4d394d4eecc2b817c480855772e8792d854482d47d33ae85a9d15b2af47db6",
+      "size": 8701515
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/T_ML_Aluminum01_N.uasset": {
+      "hash": "sha256:8fdc406dfe8f2767167b073445f489ee50b388da5f374b47539fab34b194b187",
+      "size": 4397025
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset": {
+      "hash": "sha256:afdad4b58c69671a34fdcb440df990df87b50906750adfad4e1bbbfdf321480e",
+      "size": 5452855
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset": {
+      "hash": "sha256:5f4db22a87d256b8a14295f0b6c6b49f38c512364d12c81bcd2c3f0412d7e66c",
+      "size": 4852428
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Mesh/SK_FPGun.uasset": {
+      "hash": "sha256:449427d1432073655e890c35da90b56762663d8ed37d4c4bfb9eb85322a2b11f",
+      "size": 2191890
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Mesh/SK_FPGun_Skeleton.uasset": {
+      "hash": "sha256:d1376aa63a3af25eecfab9412aeca203c08f596f0e4da27445a923a730ba8067",
+      "size": 3717
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Textures/T_FPGun_M.uasset": {
+      "hash": "sha256:5ea9f321e83b601e2d7a8556612f2f3fc15c40e968ebdb00af27f2c0daeb27ca",
+      "size": 259343
+    },
+    "Content/Blood_VFX_Pack/Demo/FPWeapon/Textures/T_FPGun_N.uasset": {
+      "hash": "sha256:da3884fed67f3b6c8150208fb3a09cc6c60c25789390c71e973544eb4a3ae9b9",
+      "size": 2082831
+    },
+    "Content/Blood_VFX_Pack/MAP/Emitters_Overview_MAP.umap": {
+      "hash": "sha256:c87f8a0218664726b086afa71928996520a9a49e4cdbf118eee754d2c27abbf5",
+      "size": 638740
+    },
+    "Content/Blood_VFX_Pack/MAP/Emitters_Overview_MAP_BuiltData.uasset": {
+      "hash": "sha256:2934356fcaa59be2ddb69c81407193ccb54f8b5e3c9db02007f95c959d01e69f",
+      "size": 1843999
+    },
+    "Content/Blood_VFX_Pack/MAP/Pixelated_Systems_MAP.umap": {
+      "hash": "sha256:7d63f203a787db77b8d9379e7c695c613694f80dae453a5cc394893ed967e463",
+      "size": 598052
+    },
+    "Content/Blood_VFX_Pack/MAP/Pixelated_Systems_MAP_BuiltData.uasset": {
+      "hash": "sha256:a5151edb6c0cdf103164f9821b349fbc8af990c447cedf9a17748c7eadc0a86a",
+      "size": 1849535
+    },
+    "Content/Blood_VFX_Pack/MAP/Stylized_Systems_MAP.umap": {
+      "hash": "sha256:60211c0336c81af64fa6fbbff490c03f6dd6a9c25fc3091942ee535135ab0c3c",
+      "size": 575542
+    },
+    "Content/Blood_VFX_Pack/MAP/Stylized_Systems_MAP_BuiltData.uasset": {
+      "hash": "sha256:a89c7f4b2a0733ec54a1d71c6cc6b182ace2d6dfc4564756170f2cc96e5c69f7",
+      "size": 1922304
+    },
+    "Content/Blood_VFX_Pack/MAP/Systems_Overview_MAP.umap": {
+      "hash": "sha256:255b7c520082885bbefed59b06eeb684ee93b336f35e5885a20f7a8083038aba",
+      "size": 594641
+    },
+    "Content/Blood_VFX_Pack/MAP/Systems_Overview_MAP_BuiltData.uasset": {
+      "hash": "sha256:092efa5e9f7076e979d0194cc37d07557f98b4f06288a9016f3adf972ef4c63e",
+      "size": 1869042
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Materials/MI_Grey.uasset": {
+      "hash": "sha256:c5b072357442e41258cea8fa297b59820b3ffa6de79901513b1791c2aabbd232",
+      "size": 71498
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Materials/MI_Red.uasset": {
+      "hash": "sha256:b4a020fe38fc563e7627dbb854bd2df9bdaf8624f6981d5f806a6ad840a64528",
+      "size": 86460
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Materials/MI_Stand.uasset": {
+      "hash": "sha256:b33d6934fcd9727d06e46440e8b97305ab5a3285d83550b94f7cc5b22d4f7fc2",
+      "size": 82476
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Materials/M_Color.uasset": {
+      "hash": "sha256:30c11dba12d87556e77660c04130573f85a2dd206fa81b076bf14e7d5c65042b",
+      "size": 69929
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Materials/M_Grass.uasset": {
+      "hash": "sha256:a0b5d101a4750a5a5abd204b8f26778a49ed082bcfac72d4c6c56bbfeab753fe",
+      "size": 116629
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Materials/M_Stand.uasset": {
+      "hash": "sha256:f0980794bdba5367a0a391600526dfffa29190434f5fb7a18ca7d0d9876d293c",
+      "size": 91160
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Materials/M_Tiles_Opaque.uasset": {
+      "hash": "sha256:7432e75585cf12c545883536d098d78d812ec7ab473935e94e2ec451ea449dd8",
+      "size": 107531
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Meshes/SM_Cube.uasset": {
+      "hash": "sha256:950f5525221a5be72051050d9aac942d1138060b446ebba2913088dddbc4a218",
+      "size": 107534
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Meshes/SM_Stand_2.uasset": {
+      "hash": "sha256:824b06c2c727bdeb39bf03e6ed889c908b868d5df0fdca77d58eb077dbe54898",
+      "size": 110201
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Meshes/SM_Stand_3.uasset": {
+      "hash": "sha256:dafa04255bdb6982b6cf45bff646442f3db347ed9ec13c39dfe61443b9ab2a5d",
+      "size": 107688
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Meshes/SM_sword.uasset": {
+      "hash": "sha256:e76970095327c49cd579d1b63637b694b60f8ca89e7c2462ab35087f5d00e81a",
+      "size": 114154
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Textures/T_Grass.uasset": {
+      "hash": "sha256:29a00a6f98ca13d5510d90498b1afefa4df36b706d46f7aa2e0172da80ca0fbd",
+      "size": 2485031
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Textures/T_GrassNormalMap_N.uasset": {
+      "hash": "sha256:6e90561342b8db44862d398648323056abcb7540530755d80e1d31e42fe04410",
+      "size": 3016346
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Textures/T_Lab.uasset": {
+      "hash": "sha256:3c5953c022013e0d2cb7b23e03447cfbbf0000b37fc17ba3fc39fa48f08fa02b",
+      "size": 875720
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Textures/T_Tiles.uasset": {
+      "hash": "sha256:3f8774f60c4f522acec8b25bc22b8b42128f2bbd087b9bbe3244e740f8779a7c",
+      "size": 506570
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Textures/T_Tiles_AO.uasset": {
+      "hash": "sha256:9ef9c270f114f007c125df2133175305486a6c5fa2370644dd915355261af17e",
+      "size": 802801
+    },
+    "Content/Blood_VFX_Pack/MAP/MAP_Textures/T_Tiles_NormalMap_N.uasset": {
+      "hash": "sha256:e4e38506de6578c508a392125ab4bdc1cc26052076799b3ec30f380ec24afbce",
+      "size": 1460410
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_Bleeding_Ribbon.uasset": {
+      "hash": "sha256:19fd56a90367909a8fc8bc2ff6a1dedaadd259ce1cd04f115394d7ae34f4a828",
+      "size": 74814
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_BloodDecal.uasset": {
+      "hash": "sha256:f8179d469f4f19fc5a998904c0fac9db2fe75f144ac483d38bbbbec6da93a57b",
+      "size": 83065
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_Drops.uasset": {
+      "hash": "sha256:216f9b0f74a98facbce5dede547dfd3b81461ce6fef61ed98d224a746b53f0c7",
+      "size": 72103
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_HitAndSmoke.uasset": {
+      "hash": "sha256:68eaaf9f51dde19d103aba0ceec55cf412356364b6dd033ffa8db36f5f3ab456",
+      "size": 83991
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_Smoke.uasset": {
+      "hash": "sha256:92cc79dc754397e3e20bfd65a63b96fc829eedfbef1542d186e78b22c7186a41",
+      "size": 83179
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_Smoke_02.uasset": {
+      "hash": "sha256:9e878ca61f8df87f2a78e158fbb46a43af08874ac2160ebd6e0cddbccc84b6d9",
+      "size": 74242
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_Splash_01.uasset": {
+      "hash": "sha256:2b9627d65e451cae9c0d7e0e2ed7d1df6b85812c245c5b246d560af33c514a3d",
+      "size": 84569
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_Splash_02.uasset": {
+      "hash": "sha256:a9a72fa710f0a7f50f9cab9cbb52e913eaccd85a3879ad081e283087ea44891a",
+      "size": 97323
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_Splash_03.uasset": {
+      "hash": "sha256:3ba0f641db733a7907f74b5fb607f5aa79f7835c6ada1c1551ef99d30c49909b",
+      "size": 86322
+    },
+    "Content/Blood_VFX_Pack/Materials/MI_SwordTrail_Blood.uasset": {
+      "hash": "sha256:8de9f8a2a416be076af1070a7cdca3ffe55947f785c92db346b82dedd7b3cdda",
+      "size": 90996
+    },
+    "Content/Blood_VFX_Pack/Materials/M_Bleeding_Ribbon.uasset": {
+      "hash": "sha256:bb67684b7054e2cab4950c13173e64ce424e1a66419a194b22d7b4f416fd056f",
+      "size": 114248
+    },
+    "Content/Blood_VFX_Pack/Materials/M_BloodDecal_Master.uasset": {
+      "hash": "sha256:d25100d7a3f13798122f4c88e20a1573e5d58eeaa5c801e9b6da7f9f0c44679d",
+      "size": 125072
+    },
+    "Content/Blood_VFX_Pack/Materials/M_Drops.uasset": {
+      "hash": "sha256:f016fffa7a79a13fb3c23ed6c51475e350f656ee91e355abe9ffc42d7219514f",
+      "size": 93236
+    },
+    "Content/Blood_VFX_Pack/Materials/M_HitAndSmoke_Master.uasset": {
+      "hash": "sha256:68fde2d8b29cb66d4a0c9deebbc0a0d2475365f2f1a66a0cf4d7657409a45358",
+      "size": 141399
+    },
+    "Content/Blood_VFX_Pack/Materials/M_Smoke.uasset": {
+      "hash": "sha256:f0b6518ac77bbeaa9f92df83ef4ea21333aa640f05cfeda29214ca0b6b4ca7b5",
+      "size": 100803
+    },
+    "Content/Blood_VFX_Pack/Materials/M_Sparks.uasset": {
+      "hash": "sha256:94af9a08bb5e109535677640a6efd8027a2d74f89e6b1acf252efd7ccd989891",
+      "size": 75804
+    },
+    "Content/Blood_VFX_Pack/Materials/M_Splash_Master.uasset": {
+      "hash": "sha256:6aae6b5fc8eec8f627778cfbcff6bc346df4e53f6813e4f6624231fda2b18eaf",
+      "size": 134236
+    },
+    "Content/Blood_VFX_Pack/Materials/M_Splash_Transl_Master.uasset": {
+      "hash": "sha256:0955874d8d6ba08e87d229d7994f06f7e0e713942ac74f7a47c237f29325be65",
+      "size": 128892
+    },
+    "Content/Blood_VFX_Pack/Materials/M_SwordTrail_Blood.uasset": {
+      "hash": "sha256:d03d57c2f2721810d17a70ef30df5ff0260439275ede83d8f36ff79ce78efcf0",
+      "size": 132344
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_Bleeding_Ribbon_Pix.uasset": {
+      "hash": "sha256:adf82a85b45345f614702e28439b6229a3b91080d72601d0e8396857557bee91",
+      "size": 76798
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_BloodDecal_Pix.uasset": {
+      "hash": "sha256:92afbd7ca52b4b1e82ed572b4ad19f0c04770c4116e07f99742738e72c05e25f",
+      "size": 85518
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_Drops_Pix.uasset": {
+      "hash": "sha256:f352e58ab2b1a2e04ee068352eee6cfdc862cecc359c22e4cdf93807f6702d1d",
+      "size": 66828
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_Drops_Pix_02.uasset": {
+      "hash": "sha256:f84f913ad3372f55620a67d0c06f3e78c325d746c63e35cf946dda6cdbbf1d1e",
+      "size": 78164
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_Hit_Stylized_Pix.uasset": {
+      "hash": "sha256:6c93130366920203cc08cefd098ba31c6b5fcc5749bcc8b7a08fe509fd96d219",
+      "size": 74051
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_Splash_Pix_01.uasset": {
+      "hash": "sha256:5f4fe59e5ada30225ef07df0a0b819c56fb2b048227229c0eb7a24c80e6d2404",
+      "size": 88701
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_Splash_Pix_03.uasset": {
+      "hash": "sha256:41650532b469a7ab5d978ef433bbfb418ba6957ef992635743e90fecfe9a46f4",
+      "size": 86018
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/MI_SwordTrail_Blood_Pix.uasset": {
+      "hash": "sha256:d1bc3901a9d25a66e1d0686bc2fd9f6a531cc02927f1c8c476132f7af296e197",
+      "size": 79434
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/M_Blood_Pix.uasset": {
+      "hash": "sha256:2d66dfab28eb30ae4b4ac7d7c1d9c00d6c51d3c3ca9c65473983698ed444859a",
+      "size": 111057
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/M_Blood_Pix_Sty.uasset": {
+      "hash": "sha256:4914e7259cbe0d2c5da3a0e87d18fa85ff1be9f2a24f58e9f7ed85c8f9e2f7af",
+      "size": 93907
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/M_Drops_Pix.uasset": {
+      "hash": "sha256:bb1c3a6b4737749ed33b61d20b0fca0c3cf1b9495515e3d51d1c0c627fce5d9f",
+      "size": 104967
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/M_Drops_Pix_Sty.uasset": {
+      "hash": "sha256:69b7ebece76fd6643a55efc2db51cbc0e7352e9e155e8e99a36a564926962980",
+      "size": 94244
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/M_Hit_Pixalated.uasset": {
+      "hash": "sha256:00c3bc50bf32444133411fe985b2e36892a337e490cea93a28f50afb70e25a1d",
+      "size": 93434
+    },
+    "Content/Blood_VFX_Pack/Materials/pixelated/M_Sparks_Pix.uasset": {
+      "hash": "sha256:9ad5b1407d1a75a0b29c504ba663ef248f6e2e8671ee2a575b4a9a39736bf0d4",
+      "size": 85744
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/MI_Bleeding_Ribbon_Stylized.uasset": {
+      "hash": "sha256:58a3932e6c6876d4cf1f6b6dc7ed5d6cfc5130d581d8e624848f21723cc7e1fe",
+      "size": 72919
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/MI_BloodDecal_Stylized.uasset": {
+      "hash": "sha256:223310301271e77e1349c0150c23ffa4ae2151b436437a5ed5b6aef6beb17425",
+      "size": 83266
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/MI_Drops_Stylized.uasset": {
+      "hash": "sha256:26f9397b57a1c20a6c90a9e99398e3679bb78388aaebeb67d115d774f42168e3",
+      "size": 68385
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/MI_Hit_Stylized.uasset": {
+      "hash": "sha256:f120dc1e61625a3d0eb1396a4b476c7e1d1083b83cea15a8737f966db44268a2",
+      "size": 67778
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/MI_Splash_Stylized_01.uasset": {
+      "hash": "sha256:54378a74a603344293654ec26f5c381ffe86b6bc161924042f0971960efbde68",
+      "size": 80470
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/MI_Splash_Stylized_03.uasset": {
+      "hash": "sha256:375302d6c50ebd09839418e77179333448f5aab6b2b8355c3a43cface809882a",
+      "size": 81841
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/MI_SwordTrail_Blood_Stylized.uasset": {
+      "hash": "sha256:8851281531598e81ef7c5d11a6c341ce76d1c4b40424fd798e85eac8e1eb204f",
+      "size": 91253
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/M_Bleeding_Ribbon_Stylized.uasset": {
+      "hash": "sha256:0f5b786e03dd8602905c88ed9381b3b4c4cb2c2e644369bbaeb474d43ae1c4cf",
+      "size": 107046
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/M_BloodDecal_Stylized_Master.uasset": {
+      "hash": "sha256:de3122ef9c3e683f29b2978702daaa141d18bd2b8a1c494f1da2aeafdbbf7fb3",
+      "size": 111899
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/M_Drops_Stylized.uasset": {
+      "hash": "sha256:376b5aa47adbb6579a81855e79c64719ef8d286129993a2e7cfb2e2738a2af5f",
+      "size": 83088
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/M_Hit_Stylized.uasset": {
+      "hash": "sha256:f8a9ad75e42f21174189ca773aa2f1c64190f07bf8ec2694241ca8f9996a47fd",
+      "size": 82814
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/M_Splash_Stylized_Master.uasset": {
+      "hash": "sha256:50fa60a872a964f1e8dfc6e67ddb696854ae62b2771a89e187a97f10239c5e9b",
+      "size": 116670
+    },
+    "Content/Blood_VFX_Pack/Materials/Stylized/M_SwordTrail_Blood_Stylized.uasset": {
+      "hash": "sha256:26458df97f0f47fee88d2eadce0fcb2f43d728d935282e3505984b9565a67335",
+      "size": 117162
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/HitAndSmoke.uasset": {
+      "hash": "sha256:5501bbf357ee4fa10a91832e897f0f293320b22b4d248433862f34c19317357a",
+      "size": 501656
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_Bleeding.uasset": {
+      "hash": "sha256:9e5672576c325d5d83d1f86b3714b7efbc5a93c7cee40b97d9b71907fc5befd2",
+      "size": 457889
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_BloodBurst.uasset": {
+      "hash": "sha256:151a0df469598403ef6d4ee4cbfe36c8dbc84feed2c6e11c9b9a1e81cb6b0caa",
+      "size": 471877
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_BloodRibbon.uasset": {
+      "hash": "sha256:c3f94edd5fcd5bef43ea921abaac693437f7c556ec1a960cc8c0be06e2e7e2a3",
+      "size": 805250
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_BloodSplash.uasset": {
+      "hash": "sha256:ae22bf59a68184fce1d7be44693246cb42e6e05a73582290a7fd0b2be143ee75",
+      "size": 456932
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_Drops.uasset": {
+      "hash": "sha256:f7b24512476b9951034f0525ef72eba4dc555f74bb01ffd617b6405b953258f2",
+      "size": 371639
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_Hit.uasset": {
+      "hash": "sha256:9a987516d7f8523100720ab1b5725f5aacee5109eda4b4d63ccf70a6b08e842b",
+      "size": 504521
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_Hit_Stylized.uasset": {
+      "hash": "sha256:d9833230561b69d2e1499abdf6e82ede4d2efa26a14fde9e32d5d75615424dcc",
+      "size": 298461
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_Smoke.uasset": {
+      "hash": "sha256:49572ec97eac759a3fbd1c332e34525fbeee1be3942f51a9f13cbcc8267f09a7",
+      "size": 501436
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_SmokeDroplets.uasset": {
+      "hash": "sha256:30f470c5da5e36a266d0af96b6e49cca9e5f475ea42d17257cb75159c1f83eb4",
+      "size": 399934
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_Sparks.uasset": {
+      "hash": "sha256:8761db11138292539166808df316eaed85cc2a78291bd688a93bc88e34f83b15",
+      "size": 458664
+    },
+    "Content/Blood_VFX_Pack/Particles/Emitters/NE_SwordTrail.uasset": {
+      "hash": "sha256:e654ded85b81918212f6ad3335bcc8a31582b3116b8eeb37d72e1a55074d8b37",
+      "size": 415060
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Artery_Bleeding.uasset": {
+      "hash": "sha256:4d085f9d498eea8274431790057e89329981161914c385003e43113c8848fa42",
+      "size": 1163297
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Artery_Bleeding_Decal.uasset": {
+      "hash": "sha256:fe4040bdd01ae84a31bc7d60893890dce486c8f942501ae25bcdda6911f4c0d5",
+      "size": 1728694
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Bleeding_Continous.uasset": {
+      "hash": "sha256:be2d517f2ec461fa4cb56e89e70e3e48845858adc117525e7a5b6ac71f878294",
+      "size": 1386079
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Bleeding_Continous_02.uasset": {
+      "hash": "sha256:f096f27574bd9c6c06f3594266b30b8effaa4fe33d31cd53d49b4de02e821dd6",
+      "size": 1386279
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Bleeding_Duration.uasset": {
+      "hash": "sha256:ceb43d32f3cb0147cbbc957e3f8a0ce9c8fdac18dee25e96c383ccd7f21ac608",
+      "size": 1375594
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Bleeding_Duration_02.uasset": {
+      "hash": "sha256:55c0166207f81d4aa576f1dc4015d18721bdb8898338920c99f6eb6761973028",
+      "size": 1375750
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_BloodSplash.uasset": {
+      "hash": "sha256:ea39455a1faadb423e1d4ab1b2aec9097655a6d039581b3b57f915ebb55a4219",
+      "size": 1408380
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_BloodSplash_02.uasset": {
+      "hash": "sha256:70932682398e154c11286fcab65acb256a0bce465aeab08a7901c939b8ab80c7",
+      "size": 1384541
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_BloodSplash_Decal_01.uasset": {
+      "hash": "sha256:48f3d30c97044695478ca89eea23132c201edfc0e171ff1d547420ddcd52967b",
+      "size": 1869607
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_BloodSplash_Decal_02.uasset": {
+      "hash": "sha256:95491f1dd774a2e0b8b2e90049cdab3c300a724157d5096a1d3a5c194b39d8ef",
+      "size": 1851396
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_BloodSplash_Decal_03.uasset": {
+      "hash": "sha256:4b23f6dc78d4799c5793f37039d0274dc7e5731f35109b483d03c77ddf0bcac8",
+      "size": 3060223
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Blood_Hit.uasset": {
+      "hash": "sha256:6a74a525751f72de5305fc8c9665f01c1d69d2b78795de1c1600e08134217107",
+      "size": 1458547
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Blood_HitAndSmoke.uasset": {
+      "hash": "sha256:a7cb446a2ef0699ddc14985558bcde17106b0fc8257d10a73d432a20458961d1",
+      "size": 1488217
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Blood_HitAndSmoke_02.uasset": {
+      "hash": "sha256:6c58d277f423f6410ea8f04db6a6889c4cfe4d5c564b48e02987067e8f4dd874",
+      "size": 1490480
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Blood_Smoke.uasset": {
+      "hash": "sha256:0639239f396a9feaf1527751e17832d4e1d582d465b1e217de35931552c04aa4",
+      "size": 1461751
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Blood_SmokeDroplets.uasset": {
+      "hash": "sha256:20b84c5f8a4c5731c8b663dab8d33cbda47ea526c77ad700561a8fbfe2801a17",
+      "size": 1394712
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Blood_SmokeDroplets_02.uasset": {
+      "hash": "sha256:530fe3d31ca1d860c3208a6c584ab59de9120d88d70e4c3f70126fe6508c6f5c",
+      "size": 1416477
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Blood_Smoke_02.uasset": {
+      "hash": "sha256:eddca4511c822d2d90f31247c4f45d3a7848dc64e3409737c41cc58b5d0413af",
+      "size": 1426424
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Burst_BloodSplash.uasset": {
+      "hash": "sha256:138a0ebb470fa5a87d156b37429ca2820cafa2f109ece221070e6bdcdc8e061b",
+      "size": 1349097
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Burst_BloodSplash_02.uasset": {
+      "hash": "sha256:a0e81a49f7632dca3176bd0516b179f3b5b4db80e37d5cfd0d728c8b6681320f",
+      "size": 1349532
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Decal_Example.uasset": {
+      "hash": "sha256:33492e1bbebfabe8f392386005268b95bd2db5712ea48af4739fae33813b2eb2",
+      "size": 3236346
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_DropsSplash.uasset": {
+      "hash": "sha256:c903cfe2aadc84549ca04eea81f2bab638c29d9da573c0a1c577c3c74e762d78",
+      "size": 1132033
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Drops_Bleeding_Continous.uasset": {
+      "hash": "sha256:448ef3eb04d38242615c46aaeaed83d904f4064735332acf287ee36197d85f26",
+      "size": 1098491
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Drops_Bleeding_Duration.uasset": {
+      "hash": "sha256:f36225cc0361e7c79516aaa8f7822232ef3ec9f4008ea06763b34b9c10db9a74",
+      "size": 1105504
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Drops_Burst.uasset": {
+      "hash": "sha256:2b4a8a96937541e12662ba36819c517f98066370cdd4d0c36904e5da7264a774",
+      "size": 1137116
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Explosion_Splash.uasset": {
+      "hash": "sha256:671aa012c029e3358b54e89747c93cdc08c4defab04cb172a729a6094c545a98",
+      "size": 1436708
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Explosion_Splash_02.uasset": {
+      "hash": "sha256:8fb067cdb480f241df531ccc173c199491059b27c17806e745d5aaf89c2a05b5",
+      "size": 1536738
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Explosion_Splash_03.uasset": {
+      "hash": "sha256:4bca073bc1c10dfb8f57e715a164addc69ce8090baf6a6aff67a7a8e0eaa7b39",
+      "size": 1544637
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Hit_Stylized.uasset": {
+      "hash": "sha256:b107f98176b09431975548107e3437a35d56de8aacbc8209d88f9c5294706677",
+      "size": 961039
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Ribbon.uasset": {
+      "hash": "sha256:2c531755f5137ce512ce2034aa6019dd9f89ff4425bc9fe7deaca622df5d69bc",
+      "size": 2027896
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Sparks_01.uasset": {
+      "hash": "sha256:7fd2836ace4438b1d0c8b56c2e3e5575811b1165021002fad42b1bb8a324ad71",
+      "size": 1314331
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_Sparks_02.uasset": {
+      "hash": "sha256:790d074a2de141cca703ea565cfd04797d6885d3369c6e1b95287c945bb7898b",
+      "size": 1312961
+    },
+    "Content/Blood_VFX_Pack/Particles/Parts/P_E_SwordTrail.uasset": {
+      "hash": "sha256:50268b5e00f061ab8f83f0c947c7beceb1d15971874a2090f1f7403ad5ee3894",
+      "size": 1284487
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Artery_Bleeding_01.uasset": {
+      "hash": "sha256:82ba044cee627609179bb5b52d50ed5f0893184280c67b7f26d665e2e6999438",
+      "size": 2195658
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Artery_Bleeding_02.uasset": {
+      "hash": "sha256:aa81a80599be9757144fa613d8d5b717474d0f721fdb3222e64c46dd8f8c387a",
+      "size": 3025892
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Artery_Bleeding_Decal.uasset": {
+      "hash": "sha256:9276cc4af8d14624ea98cbe1ee21064b10961b8f49cc5c805b6f0578f13c604c",
+      "size": 3590503
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_BigSplash.uasset": {
+      "hash": "sha256:45752f759e1c71780c4dc0edd69b47018a39a79f7bb6375ccc379efac42648b4",
+      "size": 3459754
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_BigSplash_Hit.uasset": {
+      "hash": "sha256:a43393d14a80bce436c44f9d6b3d79b6883f7e1b9772f755cd80ae5d18acc9d7",
+      "size": 5499113
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_BigSplash_HitWithMetal.uasset": {
+      "hash": "sha256:ac4f6dc63955a219122487acdc8a58815deddd1406d01a03193bb20ad52b1af6",
+      "size": 8260924
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Bleeding_01.uasset": {
+      "hash": "sha256:1aaea163ea6cffeb848f31b28a9b21dbb094797564c45bf5cb38e52b9ff1391f",
+      "size": 3097084
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Bleeding_02.uasset": {
+      "hash": "sha256:8beedfad2d6d8ec1b635b23a6b891144e43ae0fac6f459a72e0f94b9c035f495",
+      "size": 3106809
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Bleeding_Ribbon.uasset": {
+      "hash": "sha256:b6cf0885e68b36c912b9c94ec947d6eabc3fad5b9aaf49df1487b6b3c4bfe679",
+      "size": 4581364
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Ground_Splash_01.uasset": {
+      "hash": "sha256:96ea8284b9b36b814ff78f048b65f94c0b01ef5f785264ed1276f7eddb3d7254",
+      "size": 3223971
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Ground_Splash_02.uasset": {
+      "hash": "sha256:c9aedd0d0f12d621459a301548cabb6d3be5d0607c40f8ceade447853c76203c",
+      "size": 4288619
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Ground_Splash_Decal.uasset": {
+      "hash": "sha256:e37ec35442799fbea126455bc83b55326aa095afa6026261d3622847aa0b209f",
+      "size": 5939688
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_01.uasset": {
+      "hash": "sha256:bc4d9f321cf955aaf53139e0dcbe9236ef906e4c3ad31bfc49fa8f53fca30b85",
+      "size": 3192827
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_02.uasset": {
+      "hash": "sha256:c81bcbccd62bce25f9c7345fc95617739c2b1befc73bb4fa1a7f1b7407781dbe",
+      "size": 4073115
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_03.uasset": {
+      "hash": "sha256:09cc64c30335d7995a28b02ef7addae765c550d9a0cc0f3aaaa66662c4eb09fb",
+      "size": 4273747
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_Decal.uasset": {
+      "hash": "sha256:183ad816e464002074dde949e58f32cdc4610e38c702f94fc34b1e5512a12a8d",
+      "size": 5682537
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_Hit_01.uasset": {
+      "hash": "sha256:8a727b010a58a3f12262eeb816c9dfa0898041110c0e7031acab5d29be7283ff",
+      "size": 4199774
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_Hit_02.uasset": {
+      "hash": "sha256:da239ed0bf88af15df6c58014525024283ff377cc9b1b0a3aa1834553030585c",
+      "size": 5102705
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_Hit_03.uasset": {
+      "hash": "sha256:3a8e0eb85aa549924a4d79745a68a762b52869b082c3cf6be922972b11958b73",
+      "size": 5273464
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_01.uasset": {
+      "hash": "sha256:48b5d924dc9f93e6c7b6e05ad3fc53e7988c85f1b90e5ad5be2ea96840d20b27",
+      "size": 2186697
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_02.uasset": {
+      "hash": "sha256:b083feb560289b7873430ea36740de667ed63e92852bb132a7fe4d6f3e5654d9",
+      "size": 3029629
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_03.uasset": {
+      "hash": "sha256:87e8c627cd762974c5855003b22d5dbbf761865bc0106c3c0e7f428a60521e36",
+      "size": 3219369
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_Burst_SkMesh.uasset": {
+      "hash": "sha256:f1d5b6ce2ca443c6f01c7c85cc1966970bf3a959813aa6d05a936b77aa05090d",
+      "size": 7849611
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_Decal.uasset": {
+      "hash": "sha256:1ce72ebafcc158775b7842b3f84e2475c8189d92a91efb383007fefb2bde3ca1",
+      "size": 3570647
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_HitWithMetal_01.uasset": {
+      "hash": "sha256:c5a91dbfa3e19cf431bf1f31f3b1e86ceabe796176659655f7842ef4458b0a50",
+      "size": 4210178
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_HitWithMetal_02.uasset": {
+      "hash": "sha256:15ad16dd9afa7ade73444cf11868a6ed2dfc3a5ef80eae1403632722d36727fa",
+      "size": 6039916
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_HitWithMetal_03.uasset": {
+      "hash": "sha256:14bae01f1ec8bb45367e85249cbf7c31bd65431f3ada6a63e73cb7c00f620869",
+      "size": 6148554
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_Hit_01.uasset": {
+      "hash": "sha256:bc44d1c03edac52455beae925a46e21ca7e3d0a07a8badb5d53adfe4222eefcb",
+      "size": 3235733
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_Hit_02.uasset": {
+      "hash": "sha256:2b10c7063029cab7676b880d502812b86bb3f6e07ea618c3a084b1673bacfc25",
+      "size": 4071718
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_Hit_03.uasset": {
+      "hash": "sha256:a9c45432a300f47949d53d53eae50de0e1fd72f1905704a51bc0d72c805a63f5",
+      "size": 4262950
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_Hit_Decal.uasset": {
+      "hash": "sha256:c68fda80a019dfe623746aa173b40165bffb5ba840663acf493473e35738c58b",
+      "size": 4606384
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_Splash_SkMesh.uasset": {
+      "hash": "sha256:05568baff7f571a2d3be08ad88f485116d2327cffa373e2cf437cda05f98f678",
+      "size": 4829469
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SwordTrail_Decal.uasset": {
+      "hash": "sha256:e88bcafb2a52ac559a690157749de32c57ecb42eb6d34c875c0d47b97b5aa951",
+      "size": 3046030
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/P_SwordTrail_Splash_Decal.uasset": {
+      "hash": "sha256:0a6c3e853a22729bf97b924cd5727127829c54345154597917063872a3d2d906",
+      "size": 7861374
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Artery_Bleeding_Decal_Pix.uasset": {
+      "hash": "sha256:5b3d2560a25875ffb7e0b4b7011e309ea8fba9affe300ba82c4392234fb2effd",
+      "size": 3503542
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Artery_Bleeding_Pix.uasset": {
+      "hash": "sha256:5f926aec563ef628b1df6ada8ae59681702fb04f1a85766d7e0f1536991fe4a8",
+      "size": 3006111
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_BigSplash_Hit_Pix.uasset": {
+      "hash": "sha256:0756fcb126eafbe553ac7db27c8dcbf6f52d34f265b071e56145842e4f5862ad",
+      "size": 7576832
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_BigSplash_Pix.uasset": {
+      "hash": "sha256:e85c6cd7d0703cbc4c9eef251b1fa64b2efe0e383f01a060b2976be31edc5a15",
+      "size": 4961300
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Bleeding_Pix.uasset": {
+      "hash": "sha256:79a3e08ebbaa6389dedb49061de3ebba2a92d4b7943b71a49f04e3d2c1fa3ba7",
+      "size": 3097050
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Bleeding_Ribbon_Pix.uasset": {
+      "hash": "sha256:9edd0fadfb7bed0fc8322e34ebac10ca0c560314bf24701a9992923eba913da9",
+      "size": 4555955
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Ground_Splash_Pix_01.uasset": {
+      "hash": "sha256:e983bb931497a01c7cd22320fe5073bbff5a126dc6ca19030e23d49b09df3ab5",
+      "size": 2226991
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Ground_Splash_Pix_02.uasset": {
+      "hash": "sha256:718a44fd040b57bf46eccd2f06317fbdc40a11aa7be3a2f10d366b1fb9d56521",
+      "size": 3162188
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Ground_Splash_Pix_Decal.uasset": {
+      "hash": "sha256:a85ce8178b97053d43e2634f867edcda2c0f7f1416b9cf0742c6b199d5203765",
+      "size": 4814083
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_SplashBurst_Decal_Hit_Pix.uasset": {
+      "hash": "sha256:c9f7d45f4cba015793048112add3494aec7966454a050a2587c4cef776b3fb31",
+      "size": 5372195
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_SplashBurst_Decal_Pix.uasset": {
+      "hash": "sha256:cfdc0ffa7174056dfadd35289cb51033834c0381772f6383d6d2e2dffb2d0e91",
+      "size": 4718416
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Burst_SkMesh_Pix.uasset": {
+      "hash": "sha256:271af74582a3cf3aa0b8a724bfdbde2bfc560ed2deff0c51ad935e2680e9915d",
+      "size": 6580105
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Decal_Pix.uasset": {
+      "hash": "sha256:e0b5d12760c5aa4fedcdbd340552d9d015f01ca8d34cdae35cbfd61a0e3b2558",
+      "size": 2646095
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Hit_Pix.uasset": {
+      "hash": "sha256:8673c2dacc811017ac5414c2afad80b674c2ba7c3e20f314d8ce8c07e840a619",
+      "size": 4494165
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Hit_Pix_02.uasset": {
+      "hash": "sha256:ec7e03860adc105178a5166a283cc1d7dcfbf2333a013686af887c9b047436c3",
+      "size": 4474823
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Hit_Pix_03.uasset": {
+      "hash": "sha256:b2f2280110e85c3aabe644e3bc47d3b01579acf1efe386894751e4ac83ccf895",
+      "size": 5492504
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Pix.uasset": {
+      "hash": "sha256:b41f54cbd93368ac17c1690290a4e0942b3e299154b35991dc13edff5e94be0a",
+      "size": 3834759
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Pix_02.uasset": {
+      "hash": "sha256:556cc995c0020fdcd46405407afc68a7a8f7717630f5d0ca2268caa4e4a5479f",
+      "size": 3817606
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_Splash_Pix_03.uasset": {
+      "hash": "sha256:48700634c78687f384053654001759e121cad9e6243228278374c16c8f581bad",
+      "size": 4825032
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_SwordTrail_Decal_Pix.uasset": {
+      "hash": "sha256:e356f7f33660bf76077536a665f375dfc91642919c4b177f96306d92068574b4",
+      "size": 3032534
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Pixelated/P_SwordTrail_Splash_Decal_Pix.uasset": {
+      "hash": "sha256:3c2f740c2d89704045cc63fee64b5d66fbff21fcaf966832c63e5a9069053d11",
+      "size": 5870232
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Artery_Bleeding_Decal_Stylized.uasset": {
+      "hash": "sha256:04e308d12a9da0ec8febc9b40ac0dd2f6bde6c42f8e0211598b39e009cec3372",
+      "size": 3573109
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Artery_Bleeding_Stylized_01.uasset": {
+      "hash": "sha256:2aa7ae0a7a67b086df682bfa2a2bf5d26a7a21d20ee0d294c1f8325b9d5d69bb",
+      "size": 2178299
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Artery_Bleeding_Stylized_02.uasset": {
+      "hash": "sha256:40d54aaa835e24905f070554aa0d2ffaea7bb0f379ea7dab82e999d709a70a87",
+      "size": 3018041
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_BigSplash_Hit_Metal_Stylized.uasset": {
+      "hash": "sha256:742b3ca5dc6f05dc9afd038fd7543765b4dce17e1db2a72f0d2f42fce0667b71",
+      "size": 5846040
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_BigSplash_Stylized.uasset": {
+      "hash": "sha256:654e165d68dcc4c49eb72cfa4441f807e1050096f457deff963eec50837caa86",
+      "size": 3219822
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Bleeding_Ribbon_Stylized.uasset": {
+      "hash": "sha256:314036019df05213c559859f3fdc3cc8b14f233f9afb911b2c96f4c8dc64f259",
+      "size": 4572348
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Bleeding_Stylized_01.uasset": {
+      "hash": "sha256:02f5535930ebd188cb9216e182039c2aee002e67b8f1b37b3d53d47a4d21a46e",
+      "size": 3112522
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Bleeding_Stylized_02.uasset": {
+      "hash": "sha256:5e2a583c1d4c46bd7bec7e6c927d606a03e5bac60385c737663ff71cdc7612c5",
+      "size": 3122235
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Ground_Splash_Stylized_01.uasset": {
+      "hash": "sha256:a5a631e6fa57e1c110242a350326c41c92e2fd41b4654fd4dc77dde66060eb30",
+      "size": 2256983
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Ground_Splash_Stylized_02.uasset": {
+      "hash": "sha256:e33e1be7e5828d2bff847747d2d072dc950dc6ed98fa37941d26f1ab0ddd6a27",
+      "size": 3148450
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Ground_Splash_Sty_Decal.uasset": {
+      "hash": "sha256:3f715d193823ab057ca471622f751be7ca666d9902143976417b4dd4172ef4ba",
+      "size": 4803606
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_SplashBurst_Decal_Stylized.uasset": {
+      "hash": "sha256:dfc6cd82079898bdd2814ced3fa25fb287e9cd2197ee6b179f9f4a760b670b9c",
+      "size": 4721388
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_SplashBurst_Hit_Metal_Stylized.uasset": {
+      "hash": "sha256:42ba773ba0a633ce6919c4bff98596c85922b1c1732edb55309c200eb611ff90",
+      "size": 5737467
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_SplashWithBurst_Hit_Stylized.uasset": {
+      "hash": "sha256:853e2680974f7162483dc7975cd98cb1a4dcf6eccfe099aec72b226de1762d8e",
+      "size": 3798323
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_SplashWithBurst_Stylized.uasset": {
+      "hash": "sha256:8e3f22a5463bc28c648322fc929ca21a36cdc8ce1fcc6e7433f6ef4ef411c9ec",
+      "size": 3148057
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Splash_Burst_SkMesh_Stylized.uasset": {
+      "hash": "sha256:968227bd6a152d3a5880979ec87acf9f83dcd1518148ea40dae4bf6d5575f558",
+      "size": 6581089
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Splash_Decal_Stylized.uasset": {
+      "hash": "sha256:9222905aeca87dc78e731a1c6f65438866bd1ca3a7c7434b70f9032b3c6b60ab",
+      "size": 2634750
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Splash_Hit_Decal_Stylized.uasset": {
+      "hash": "sha256:04f61359f2c299df9228d9c1c76a766b3b8c8ffb2054b7bbdd04c95841c6253c",
+      "size": 3311103
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Splash_Hit_Metal_Stylized.uasset": {
+      "hash": "sha256:a5239f2997b51f57101416fa6554ff9594afb8f5f80f821922acf123d957a9b2",
+      "size": 3738479
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Splash_Hit_Stylized.uasset": {
+      "hash": "sha256:92d70ef3e791afe003480dca450a8a5205edf5307b3faa6ebfc0f6dc9eb84888",
+      "size": 2769058
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Splash_SkMesh_Stylized.uasset": {
+      "hash": "sha256:f9e23c65104a7f785d0b1b4be64c00cd20468895f33004f405200a25a06dd92c",
+      "size": 3524017
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_Splash_Stylized.uasset": {
+      "hash": "sha256:ab23606b3fa20b84064d9f99dfad5fc00541d726a7c6056924b49b5a1e577bd8",
+      "size": 2125371
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_SwordTrail_Decal_Stylized.uasset": {
+      "hash": "sha256:2952ec362d50dff62358b69a89b9f79cd7be860c3399618b82b63eac79b8ee3c",
+      "size": 3047297
+    },
+    "Content/Blood_VFX_Pack/Particles/Systems/Stylized/P_SwordTrail_Splash_Decal_Stylized.uasset": {
+      "hash": "sha256:5b1770120fdf090e87eb2fc54d1481be3da69020af71c454c25e4b999f918707",
+      "size": 5874460
+    },
+    "Content/Blood_VFX_Pack/Textures/T_BloodDecal.uasset": {
+      "hash": "sha256:6b028cfe4a6c991889cfaa56361f436019890657f87ce2be635aa782486e0f04",
+      "size": 471785
+    },
+    "Content/Blood_VFX_Pack/Textures/T_BloodDecal_N.uasset": {
+      "hash": "sha256:9ba3280c01474fef81c1d8e0d0159497c664a8bba62f03b26d4e582cf09809c0",
+      "size": 637076
+    },
+    "Content/Blood_VFX_Pack/Textures/T_BloodExplosion.uasset": {
+      "hash": "sha256:6f295e2b4ccfbf0905ce8d90ebf0a94dcaaa3e44d46825b4941f2f6cbd5bc9c9",
+      "size": 731424
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Blood_Erosion.uasset": {
+      "hash": "sha256:dd1c690aefa3a52f3ecd2b0b7671425b2b6e9e57e769f7bfac31e067be08dff9",
+      "size": 665055
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Blood_Erosion_N.uasset": {
+      "hash": "sha256:a724838b3d3fe807025fb1d8ee45ddafe87a3ddc7e0eacc5bd35f620578ff0e0",
+      "size": 1207932
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Blood_N.uasset": {
+      "hash": "sha256:98cb7a3828f45e9be1b674483ae61406fcd86d9d115f81e1c8a203efd97dec93",
+      "size": 2095650
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Clouds_01.uasset": {
+      "hash": "sha256:1959608bf753fea8c5269b2025637860056795a2bd61c9e2f260f77b3f86d8e5",
+      "size": 170233
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Clouds_02.uasset": {
+      "hash": "sha256:1745a4744e9ce2bcfe0ead8fd290025c9db3ee0c31a8141e68a5e101ac68e507",
+      "size": 437387
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Clouds_03.uasset": {
+      "hash": "sha256:c745ee98ddf2b177d9d440df071e407f0508b253f9dd202703498ab188fa3897",
+      "size": 2142635
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Drop.uasset": {
+      "hash": "sha256:cb5afc8de3cbf14507e7b25ecbddb7fa8402a58b13ccb83be1083f59208b05dc",
+      "size": 29596
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Drops.uasset": {
+      "hash": "sha256:302d0f12ba2e6af6cb48b629af3a1f58bcd7566d82974e3b7aacb691fe912574",
+      "size": 858156
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Drop_N.uasset": {
+      "hash": "sha256:5a0ceb0d1fa88f96338ab8230839b22c86f3a4742166032e94441824930ac0c5",
+      "size": 31379
+    },
+    "Content/Blood_VFX_Pack/Textures/T_ExplosionBurst.uasset": {
+      "hash": "sha256:a9ff6b3f1d969d052819f245b94c6efda7371169309eec46dfac12fafbc28ff6",
+      "size": 26855
+    },
+    "Content/Blood_VFX_Pack/Textures/T_ExpShape_02.uasset": {
+      "hash": "sha256:cff00aeb540305d3426c3edbc79c41c785c5b3823edc100d1fc5d7023c6fa6ab",
+      "size": 487270
+    },
+    "Content/Blood_VFX_Pack/Textures/T_ExpShape_03.uasset": {
+      "hash": "sha256:93d94cb35179cfd2c232169f5f9781ae82b4c46b4af76aeb474af9c73ab27e74",
+      "size": 591260
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Pixel_BloodErosion.uasset": {
+      "hash": "sha256:7a2ba5e9caf02e2af6415c1d91678e2b694c8d4c87e4c96268d338997829f431",
+      "size": 15305
+    },
+    "Content/Blood_VFX_Pack/Textures/T_Pixel_BloodErosion_N.uasset": {
+      "hash": "sha256:0fab6e02d675e974828cff2e5e77a8e6cfe5e9a94c6c6a60187a102f4a63d2b9",
+      "size": 26187
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_BloodDecal_Pix.uasset": {
+      "hash": "sha256:2aa0840d6279ec641fef7c1ed0afc9bfc61b8080cb3765047333f1eff3857991",
+      "size": 427715
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_BloodDecal_Pix_N.uasset": {
+      "hash": "sha256:fb7be42ac85789436c7014b866461c8bb06d67673c8408ddde49ad0778b3456e",
+      "size": 607701
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_Blood_Erosion_Pix.uasset": {
+      "hash": "sha256:0e30a1f001543dc1243b312d2d434969c07c6704a9f8c2480e9225968d9b5439",
+      "size": 608611
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_Blood_Erosion_Pix_N.uasset": {
+      "hash": "sha256:b44714b00e0d1bd1ba13d8bcf415ba48829b67204d4ffe08c9ac81af6a88d937",
+      "size": 1139563
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_Clouds_Pix_01.uasset": {
+      "hash": "sha256:05d1ad620bd779b602961c53263cc2260e86b5ca967de0c8a16ae918e7c2d4de",
+      "size": 134091
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_ExplosionBurst_Pix.uasset": {
+      "hash": "sha256:2dda58d43844bf02e3c6fa057bb066c6e355e7522964bbc71d2dc94741b880bd",
+      "size": 20526
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_RandomPix.uasset": {
+      "hash": "sha256:040e35de007068f27cf7b0fd99681378f9c0d4e2503980589bcdd22d1aaafb8b",
+      "size": 3592
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_RandomPix_N.uasset": {
+      "hash": "sha256:8c10a20ded6967cd004debff7f3091a027b269c994a9bf93c9cd5bda4286999d",
+      "size": 4158
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_Splash_Shape.uasset": {
+      "hash": "sha256:98624b6c7a7b974009300a3c6e3f1bf7b62131b7b8529ea42866d081effb610f",
+      "size": 87253
+    },
+    "Content/Blood_VFX_Pack/Textures/pixelated/T_Square_N.uasset": {
+      "hash": "sha256:037f722f4fb8e309cf153e5b1ca273b0f8b42d916e0fdce022d8a3b509c745e9",
+      "size": 13412
+    },
     "Content/Blueprints/ABP_SandboxCharacter.uasset": {
       "hash": "sha256:f1148003532420711470efde1a6f839cda0111d27c1de1b4841ab311f9537d0a",
       "size": 1507464
@@ -12059,6 +13143,282 @@
       "hash": "sha256:f5b8f2810c54515b232775120ac957fdb827d93ecfb4f0561e100ed674449249",
       "size": 23887
     },
+    "Content/BSP_ZombieAnims/Animations/Crawl/AS_NAAT_Zombie_Crawl_Idle.uasset": {
+      "hash": "sha256:e9ca56e084e89c02459ed1b6328540adbd3e93c9f54fc09c35786c3aae02970a",
+      "size": 265399
+    },
+    "Content/BSP_ZombieAnims/Animations/Crawl/AS_NAAT_Zombie_Crawl_Slow.uasset": {
+      "hash": "sha256:45526c7e84773199b8517783efd739d4cc7417288a33f8ea7a0203c912726b6a",
+      "size": 344593
+    },
+    "Content/BSP_ZombieAnims/Animations/Crawl/AS_NAAT_Zombie_FastCrawl.uasset": {
+      "hash": "sha256:96882e9910ca79dbb74070f465e2951550e53429488c3bbe0f963e94864a006c",
+      "size": 118201
+    },
+    "Content/BSP_ZombieAnims/Animations/Crawl/BS_Zombie_NL_Crawl.uasset": {
+      "hash": "sha256:aeb42e07576ecc2b9366d89921abbefb54bda79d1cbadf9682cd5e2f87d999fd",
+      "size": 96976
+    },
+    "Content/BSP_ZombieAnims/Animations/Crawl/Attack/AS_NAAT_Zombie_Attack_LH_Crawl.uasset": {
+      "hash": "sha256:423a6fe66d0e51e1f08698d8ebfc3c551bfa6fb116e104489c7e20eeaa7eaae4",
+      "size": 194675
+    },
+    "Content/BSP_ZombieAnims/Animations/Crawl/Attack/AS_NAAT_Zombie_Attack_RH_Crawl.uasset": {
+      "hash": "sha256:300787923ef616aa37258125ae155714277b1ac3e62e7e009f42fb14877f8ed6",
+      "size": 245530
+    },
+    "Content/BSP_ZombieAnims/Animations/GetUp/AM_NAAT_Human_ZombieGetUpToScream.uasset": {
+      "hash": "sha256:a43cae7853a1d394e0a9cd62b99630f247cf85a1a4637a9b0f5dc2a864966d4a",
+      "size": 98461
+    },
+    "Content/BSP_ZombieAnims/Animations/GetUp/AS_NAAT_Zombie_LieProne_To_Idle_Stand.uasset": {
+      "hash": "sha256:493cf93c505f620a973ad7fa68ccc7244e3fcb65656bc07f4a94b8fbfa539988",
+      "size": 652162
+    },
+    "Content/BSP_ZombieAnims/Animations/GetUp/AS_NAAT_Zombie_SlumpToStand.uasset": {
+      "hash": "sha256:0a16ee4153cfd1f8718a47d5945365247a967f4ab835a0e0d26c991cd844bce4",
+      "size": 352398
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/LeftLeg/AS_NAAT_Zombie_LL_HopFast_Forward.uasset": {
+      "hash": "sha256:0a4315e54b852570f2d153e08a40128d1310ede633f3b3c4ee985945f6964630",
+      "size": 162707
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/LeftLeg/AS_NAAT_Zombie_LL_HopSlow_Forward.uasset": {
+      "hash": "sha256:fd66447ed4f5a8f7d5e46396e1cdf0b968cf31d14af5ab2e62e0fec0ce4ff1c0",
+      "size": 173929
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/LeftLeg/AS_NAAT_Zombie_LL_Idle.uasset": {
+      "hash": "sha256:c6cb0a6958e94b45856016ea26490b8b22b25f77e98a369f7a61ef6fb3006943",
+      "size": 565060
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/LeftLeg/BS_Zombie_LL_Hop.uasset": {
+      "hash": "sha256:1e0a5eae118e546a2919e54097d04d30d19f17b281e388ff10cff68b729f3599",
+      "size": 98825
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/RightLeg/AS_NAAT_Zombie_RL_HopFast_Forward.uasset": {
+      "hash": "sha256:faa5dcd9f3918d5ec72fa1fcdc707e14bf09b78c8f8d23213d39891c5ae58dba",
+      "size": 160620
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/RightLeg/AS_NAAT_Zombie_RL_HopSlow_Forward.uasset": {
+      "hash": "sha256:c1603eecd43e1cdf471026562c855b9f45fd83d9d7e45cea175bcad3afdc6bc4",
+      "size": 172956
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/RightLeg/AS_NAAT_Zombie_RL_Idle.uasset": {
+      "hash": "sha256:1b8bbf7b707dcb61589bb5b19aaddafed985a5cfd5f0537c1d95f2f596eb5f16",
+      "size": 576039
+    },
+    "Content/BSP_ZombieAnims/Animations/Hop/RightLeg/BS_Zombie_RL_Hop.uasset": {
+      "hash": "sha256:73140975de5a76caf2327df50011ad4408faaba775cdd3c43daa397880eeaa10",
+      "size": 100023
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AM_NAAT_Human.uasset": {
+      "hash": "sha256:28f4fc8e558c9eb1fdfb54192c919fd529453a8f3e12e547e817d4d1ae1babd4",
+      "size": 99463
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AS_NAAT_Human_Grab_To_Kick.uasset": {
+      "hash": "sha256:9bafec9b96cb44095521583f3f740d4a1bae26b09dd3bf05d0c4a0624173d1c2",
+      "size": 223752
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AS_NAAT_Human_Grab_To_Munching.uasset": {
+      "hash": "sha256:2369401ce7fb33532ab6a478d48b7a4129eb4c33c56f1dbaafb178b30d696fdc",
+      "size": 225262
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AS_NAAT_Human_Grab_To_Push.uasset": {
+      "hash": "sha256:1a7fa4670b7c8e37d73d75adfa264ca750938d424eb9b7d7e7e1db1f99dd6da6",
+      "size": 224475
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AS_NAAT_Human_Grab_To_TakeDown.uasset": {
+      "hash": "sha256:20f8ca0952be3b2e69a5a01ddcbb39a8d0acccd711decfa2a1650349bef25873",
+      "size": 219827
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AS_NAAT_Human_Grab_To_Wrestle.uasset": {
+      "hash": "sha256:d9a7df1eb70cdf0d8d09bb2ee8b0ebc73888152ef1650464cebfc0fa4e455eaf",
+      "size": 167749
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AS_NAAT_Human_Idle_To_Grab.uasset": {
+      "hash": "sha256:71cda492768d45ddd6c50819add4ef0e95467a0e9dcf730b767de7da3651888f",
+      "size": 136342
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Human/AS_NAAT_Human_TakeDown_To_Munching.uasset": {
+      "hash": "sha256:a1519fea9848ca9149fadf608d30e33f475c7aedc2026c3e9a9c611f87686a14",
+      "size": 214802
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AM_NAAT_Zombie.uasset": {
+      "hash": "sha256:c15421316ac814dd70623451021b0a0f5cdd292c72d77c8cc1de6ece1bf7b9ca",
+      "size": 98708
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AS_NAAT_Zombie_Grab_To_Kicked.uasset": {
+      "hash": "sha256:b0b6a7cf1a048bd53a7b70ba9424d29dc6a665d833910ca5d01932bb34c30205",
+      "size": 228270
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AS_NAAT_Zombie_Grab_To_Munching.uasset": {
+      "hash": "sha256:37c3e23865df9416680a91e8c47f6f97b6c373430b66cca163d9123c7a86cdc1",
+      "size": 224574
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AS_NAAT_Zombie_Grab_To_Pushed.uasset": {
+      "hash": "sha256:66d9967d6ef4bf8f353bfa28188dbccb55665f3e8e4b95b8952357418ced32b0",
+      "size": 227644
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AS_NAAT_Zombie_Grab_To_TakeDown.uasset": {
+      "hash": "sha256:29bc2e1ec4bfc98574dfbb51c6c78d91003aa399096ac2d786d3673a4e19d5cd",
+      "size": 220403
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AS_NAAT_Zombie_Grab_To_Wrestle.uasset": {
+      "hash": "sha256:2e62437a6e3143b1c4c2c1e518d1a477937dc6e1ff87434a72bfde99fe4082aa",
+      "size": 168680
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AS_NAAT_Zombie_Idle_To_Grab.uasset": {
+      "hash": "sha256:80c1f495709b5b2e16512f52c79c442a50e11784307989bb084e4da578fa6f57",
+      "size": 137878
+    },
+    "Content/BSP_ZombieAnims/Animations/Interactive/Zombie/AS_NAAT_Zombie_TakeDown_To_Munching.uasset": {
+      "hash": "sha256:98f12decd53602e674ead4cc924c5c4311e77615f3500bae213f82a6f57c6ddf",
+      "size": 219539
+    },
+    "Content/BSP_ZombieAnims/Animations/Standing/AS_NAAT_Zombie_BL_Idle.uasset": {
+      "hash": "sha256:59e65e47087db78aa8edc134b74358cf7110f42a4181d6aaf32067b71f4619e7",
+      "size": 341120
+    },
+    "Content/BSP_ZombieAnims/Animations/Standing/AS_NAAT_Zombie_BL_Run.uasset": {
+      "hash": "sha256:519d1276297ee6d2becf5e33ec2772f859f4187658578a10d71e728bae54a8d7",
+      "size": 128625
+    },
+    "Content/BSP_ZombieAnims/Animations/Standing/AS_NAAT_Zombie_BL_Walk.uasset": {
+      "hash": "sha256:73e74a22f2c238d10ba535ed2d604e83b5a0dea730be5041015724def0be9fff",
+      "size": 138963
+    },
+    "Content/BSP_ZombieAnims/Animations/Standing/BS_Zombie_BL_Walk.uasset": {
+      "hash": "sha256:4ef095a3708dd52fef4244a8aabe589f98301773e51a0894bf7d230dbe629cea",
+      "size": 101934
+    },
+    "Content/BSP_ZombieAnims/Animations/Standing/Attack/AS_NAAT_Zombie_Attack_BH_Stand.uasset": {
+      "hash": "sha256:c219ad24590a70092607552f90a5a3927d45c52cf7906610d928475ba64689b7",
+      "size": 205479
+    },
+    "Content/BSP_ZombieAnims/Animations/Standing/Attack/AS_NAAT_Zombie_Attack_LH_Stand.uasset": {
+      "hash": "sha256:6db4bc778af8f2bfc54bcc4ccc49ee0598e2f73c5fc11c3afe6fd8bef0844a2a",
+      "size": 132978
+    },
+    "Content/BSP_ZombieAnims/Animations/Standing/Attack/AS_NAAT_Zombie_Attack_RH_Stand.uasset": {
+      "hash": "sha256:8bc5ed66c3e8a33c8262f8d97fc1fe33fd204752e566c717f7d62cd544f392fe",
+      "size": 180978
+    },
+    "Content/BSP_ZombieAnims/Animations/Taunt/AS_NAAT_Zombie_Roar.uasset": {
+      "hash": "sha256:3ccc40cf933e33adbf5c0eb024b64bdc69aa8fdd6f2ed6ddef66c9eae8b35ae9",
+      "size": 418419
+    },
+    "Content/BSP_ZombieAnims/Blueprints/ABP_MontagePlay.uasset": {
+      "hash": "sha256:9eeff34e1ffb70660445add42df2b7ccf1cf1c5f421f6a3f64a1385526961305",
+      "size": 139825
+    },
+    "Content/BSP_ZombieAnims/Blueprints/BP_Showcase.uasset": {
+      "hash": "sha256:18fbbf6c4414a87da1d5384cfa2bb0caad34e196fc1cb574a5c94089491551b2",
+      "size": 129294
+    },
+    "Content/BSP_ZombieAnims/Blueprints/BP_Showcase_Cinimatic.uasset": {
+      "hash": "sha256:ad642a399d929efbe8c0ba956ea91f4bbcf0901997707869b502432c271b0c3a",
+      "size": 128568
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/MI_UE4Man_ChestLogo.uasset": {
+      "hash": "sha256:144a0549534ccfcb520b78e72c55e1560160505844e96f1d3245f0a6ca9e8c6e",
+      "size": 108169
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/MI_UE4Man_ChestLogo_2.uasset": {
+      "hash": "sha256:c3fade124058797496f695f8ac6efdb6cbfd7c2b782cf43237e93f305769b0b0",
+      "size": 108173
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/M_Male_Body.uasset": {
+      "hash": "sha256:60ddaf8d783eaf7675cee84c2a2eb96118274a6d71abb9a90a5b299fcf362fc2",
+      "size": 141234
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/M_Male_Body_2.uasset": {
+      "hash": "sha256:3aa7461812071dde781f79a3edfbaf361052bf8ed4c7892d32adca304957be68",
+      "size": 129758
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/MaterialLayers/MF_GlossyBlack_Latex_UE4.uasset": {
+      "hash": "sha256:e33b03f2c54d2e5516912006d7c70a64865f16c746b315afc934a9c306410e94",
+      "size": 91187
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/MaterialLayers/MF_Plastic_Shiny_Beige.uasset": {
+      "hash": "sha256:ad536db4c81a17d972547617686426b7a624033698f668a886305d887529e888",
+      "size": 87884
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/MaterialLayers/MF_Plastic_Shiny_Beige_LOGO.uasset": {
+      "hash": "sha256:fc402e9ee2880a4b64d424bc4c398133a42496120fdb7cf5f3568655b0d4ddfe",
+      "size": 88709
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Materials/MaterialLayers/MF_SoftMetal_UE4.uasset": {
+      "hash": "sha256:1ded613281728152bbeca62342ac5d996bfced90ec80cd626175231836f13cc5",
+      "size": 92225
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Mesh/PHYS_Mannequin.uasset": {
+      "hash": "sha256:74f9142075174370ee444c17982ac2a629a4eb5dfd72007ea2e94cf1a4f6a9da",
+      "size": 138892
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Mesh/SKEL_UE4_Manaquin_Skeleton.uasset": {
+      "hash": "sha256:2926c07fb538a5469bfc829c362ec7e48774c412e0193a26a88b38325704adfa",
+      "size": 12320
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Mesh/SK_Mannequin.uasset": {
+      "hash": "sha256:f5a2699de56bce5e0516b20c4c978c7997a1cb6c1833c1a4755582757795959e",
+      "size": 5668220
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Textures/T_Male_Mask.uasset": {
+      "hash": "sha256:4d95edb3d1c690bf38223eedcd0377b86f9bb596363c7665e86781200014eadc",
+      "size": 225169
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Textures/T_Male_N.uasset": {
+      "hash": "sha256:04d7a79e0bc628222f48ddb9d8367b1d939243cc4083a5edc54c8e88849aef64",
+      "size": 5532884
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Textures/T_UE4Logo_Mask.uasset": {
+      "hash": "sha256:221da6e9d8b6784b1ef493f5e954312dc74a44e2fdd00c3f104ad6d4c7ca732f",
+      "size": 88043
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Mannequin/Character/Textures/T_UE4Logo_N.uasset": {
+      "hash": "sha256:51839cab81f3af79ffd427f0ad21bc8b496d0a74bf3305cacce9c5fc6c7c738b",
+      "size": 147635
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Material/M_CubeMaterial.uasset": {
+      "hash": "sha256:e1ea8e2625910ff3db172e5aac12ca27eb5892112feaa0e91c360b47598843f3",
+      "size": 89005
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Material/M_CycRooM_01.uasset": {
+      "hash": "sha256:c863ad21e849733f052eb751fdd1bd387717bc4ab621a3afb11ecd48663182cf",
+      "size": 109743
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/StaticMesh/SM_1M_Cube.uasset": {
+      "hash": "sha256:54cd3c28b28fdadc09a74320a6a25518daa68105b24c32241695f7319ef8dce5",
+      "size": 85993
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Textures/T_MeterGrid_01_M.uasset": {
+      "hash": "sha256:5cff2ab470e76165a4b1cb01d18e06c2de1f66ad343006b384e0adeef32068b7",
+      "size": 71336
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Textures/T_ML_Aluminum01.uasset": {
+      "hash": "sha256:af3799ebe9414ae47da2c632e45df94fb9099b3d04ed78837f6e2aee7b97cc1f",
+      "size": 457648
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Textures/T_ML_Aluminum01_N.uasset": {
+      "hash": "sha256:134ebcd8f3dc61ebd80aa2939547f2b842ca55a79cef7f1f713197b1ab496f40",
+      "size": 406020
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Textures/T_ML_Rubber_Blue_01_D.uasset": {
+      "hash": "sha256:72fbabb599da1b76204fe6d1227d76c8dc8f6b6983cbc90411d408ca01aaab7c",
+      "size": 502388
+    },
+    "Content/BSP_ZombieAnims/EpicAssets/Textures/T_ML_Rubber_Blue_01_N.uasset": {
+      "hash": "sha256:317a066b6cbea084125a2c1659b0a4606bdd94ae2d230483e20d3e9a64b195f1",
+      "size": 362881
+    },
+    "Content/BSP_ZombieAnims/Maps/Animation_Showcase.umap": {
+      "hash": "sha256:f98da506546fe495edf5214c91720c7747d9bea92b33d9621daa7940377572ea",
+      "size": 8640937
+    },
+    "Content/BSP_ZombieAnims/Maps/Animation_Showcase_BuiltData.uasset": {
+      "hash": "sha256:902388aeb4b0403974f36f79d2320899f6e92cb73a9bfc1d6eea4e59abec378a",
+      "size": 4185387
+    },
     "Content/Campaign/Building1_3rdFloor.umap": {
       "hash": "sha256:a1278cf9d68b11cf3b213e7ee2eba9fe5d655208e02bdcb616a3821f29c845c7",
       "size": 6688403
@@ -12068,8 +13428,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:aaf6b18b3469b3eee7cd1d2f9bd11bc782f9c5a0bcc9d2a69d321dfd4acb445d",
-      "size": 10782082
+      "hash": "sha256:3bd517f390b75f592b9af84eb5dd7035e9a6f0944a15fc2977724907322c3eb5",
+      "size": 10779463
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -22759,6 +24119,10 @@
       "hash": "sha256:99520ac60c3926d884cefb64603766e355146bb2fd5025c5f9dca234c1a09cbf",
       "size": 2560
     },
+    "Content/Core/Data/DA_Footsteps.uasset": {
+      "hash": "sha256:6beae54dbf60de606c1c27113c6e0a0f9e6d878b7d5335959f785bdc7751358f",
+      "size": 4299
+    },
     "Content/Core/Data/DA_GraceMovement_Default.uasset": {
       "hash": "sha256:0a733f12f130d5292710278eee80247b93358f85f27c367dbf8b9b2717b85bef",
       "size": 1510
@@ -23012,8 +24376,8 @@
       "size": 68476
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:3d4dba7bfba9d9a41b26c63bc8925329d7b2b24835b95f50a5d2f624c2338bf8",
-      "size": 135615
+      "hash": "sha256:3a65fd919aa60d24bc695e0e744f91ae1ef1a2e98640c9b2ef1d3de506650947",
+      "size": 136286
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -25271,21 +26635,33 @@
       "hash": "sha256:30a79ee4802a17bb6f25bfef2e91fd8fc353c77e6f2f5cee8e75cc9f73e2a835",
       "size": 12213
     },
+    "Content/Enemies/Materials/M_ZP_CreatureSkin.uasset": {
+      "hash": "sha256:0fbb6f440fe12c298b3b75ce89c6b29ef9a97921c3cb572cb420623be74bcc89",
+      "size": 67020
+    },
     "Content/Enemies/Scytheer/BP_Scytheer.uasset": {
-      "hash": "sha256:16d6940551a46843b7c18823ba0fb2afd820f87ce333699610bffce0097d18be",
-      "size": 37430
+      "hash": "sha256:9d4abdc72500a412aaac3af92db9da67ef43e2660ab73930d4ebc03db96d115f",
+      "size": 38551
+    },
+    "Content/Enemies/Scytheer/MI_ZP_ScytheerSkin.uasset": {
+      "hash": "sha256:db32d84e276d48af40db5dd42785b791151ac9bc057e54c346555754ddc4b77e",
+      "size": 9792
     },
     "Content/Enemies/Shambler/ABP_Shambler.uasset": {
       "hash": "sha256:7a3d9ee2015e0c354c792ab0f4f122a506e05bd1c740a22e91d937262198bd97",
       "size": 67913
     },
     "Content/Enemies/Shambler/BP_Shambler.uasset": {
-      "hash": "sha256:d326a94c95a8e4a6f067665b45478d12f1ab825f4a67447212e969cd6b82983f",
-      "size": 61865
+      "hash": "sha256:02b00e6fb4fd9aa6a25807498294dbe9d62d1de3aba933dfc1c7452af4676352",
+      "size": 62291
     },
     "Content/Enemies/Shambler/BS_Shambler.uasset": {
       "hash": "sha256:2e43ad9214ff2bacf9c4c6f4810ee9d4f510c0b61b7a017dbdd7e2e8fd41cc20",
       "size": 9929
+    },
+    "Content/Enemies/Shambler/MI_ZP_ShamblerSkin.uasset": {
+      "hash": "sha256:fc1187a614953ff3f30e4a166230ec3035c0f5c3d12ed54ada1766f523e66e9e",
+      "size": 9835
     },
     "Content/Enemies/Shambler/M_Shambler.uasset": {
       "hash": "sha256:93a99561c392e0a1ca2831ca56a3f6e2fc14ea799b9e24448c1b333be8284cb5",

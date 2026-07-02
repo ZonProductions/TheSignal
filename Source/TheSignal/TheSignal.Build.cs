@@ -26,6 +26,10 @@ public class TheSignal : ModuleRules
 			"GameplayTags", // Notes bridge — FGameplayTag::RequestGameplayTag for Item.Note tag
 			"Json",          // ZP_ObjectiveSubsystem (M2) — objective defs loaded from Content/Data/Objectives.json
 			"JsonUtilities", // ZP_ObjectiveSubsystem (M2) — FJsonObjectConverter
+			// FLAGGED FOR REVIEW (2026-07-02): PhysicsCore = ENGINE runtime module (not a plugin),
+			// needed for UPhysicalMaterial/SurfaceType in the footstep surface system
+			// (ZP_FootstepData). The NightShadow "no plugin modules" rule does not apply.
+			"PhysicsCore",   // ZP_FootstepData — floor UPhysicalMaterial->SurfaceType resolution
 			// FLAGGED FOR REVIEW (UE 5.7 upgrade): FReply is in our PUBLIC header
 			// (ZP_InventoryTabWidget::NativeOnKeyDown). 5.7 made FReply(bool) an
 			// out-of-line SLATECORE_API ctor and Engine pulls SlateCore privately,

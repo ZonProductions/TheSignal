@@ -3,8 +3,9 @@ Set ALL CDO properties on BP_GraceCharacter, PC_Grace, GM_TheSignal.
 Run this via MCP Python endpoint after every C++ rebuild:
   exec(open('C:/Users/Ommei/workspace/TheSignal/Scripts/set_all_cdo.py').read())
 
-Sets: MovementConfig, ALL input actions (15+), StartingWeaponItem,
-      bAutoSpawnWeapon, BulletDecalMaterials, IMC, GameMode classes.
+Sets: MovementConfig, ALL input actions (15+), bAutoSpawnWeapon,
+      BulletDecalMaterials, IMC, GameMode classes.
+      (StartingWeaponItem: read-only log — inherited from the C++ ctor, never set here.)
 """
 import unreal
 
@@ -30,7 +31,10 @@ bp_gm    = load('/Game/Core/Framework/GM_TheSignal')
 
 # Data Assets
 da_movement = load('/Game/Core/Data/DA_GraceMovement_Default')
-da_pistol   = load('/Game/Core/Items/DA_Grace_Pistol')
+# NOTE: StartingWeaponItem is deliberately NOT set here. The C++ ctor (ZP_GraceCharacter.cpp)
+# is its single source of truth and BP_GraceCharacter INHERITS it. Setting it from this script
+# serializes a BP override that shadows future C++ changes — that's how the pistol regression
+# happened (this script held DA_Grace_Pistol long after the design moved to a pipe start).
 
 # Input Mapping Context
 imc_grace = load('/Game/Core/Input/IMC_Grace')
@@ -130,13 +134,12 @@ for prop_name, action in inv_action_map.items():
     else:
         unreal.log_error(f'  {prop_name} = NOT FOUND!')
 
-# Starting weapon item (soft reference)
-if da_pistol:
-    try:
-        cdo.set_editor_property('StartingWeaponItem', da_pistol)
-        unreal.log(f'  StartingWeaponItem = {da_pistol.get_name()}')
-    except Exception as e:
-        unreal.log_error(f'  StartingWeaponItem FAILED: {e}')
+# Starting weapon item: NOT set here (inherited from the C++ ctor default — see note at the top).
+# Log the effective value so the post-rebuild output still surfaces a wrong ctor line at a glance.
+try:
+    unreal.log(f"  StartingWeaponItem (inherited from C++) = {cdo.get_editor_property('StartingWeaponItem')}")
+except Exception as e:
+    unreal.log_error(f'  StartingWeaponItem read FAILED: {e}')
 
 # Auto-spawn weapon = false (inventory manages weapon lifecycle)
 try:

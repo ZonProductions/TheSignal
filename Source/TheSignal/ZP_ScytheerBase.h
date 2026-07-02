@@ -188,9 +188,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> LurkSound;
 
-	/** Spatial attenuation (distance falloff + occlusion). Defaults to SA_EnemyVoice so wall
-	 *  occlusion mutes Scytheer SFX from the next room. Without this, PlaySoundAtLocation plays
-	 *  unspatialized 2D audio audible everywhere. */
+	/** LEGACY — no longer used. Voice SFX route through UZP_SFXStatics (Far carry, ~120 m natural
+	 *  falloff, C++-owned) so carry can't silently drift in a .uasset; the old SA_EnemyVoice asset
+	 *  fell silent at ~15 m (inner 350 + falloff 1200, linear). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundAttenuation> AudioAttenuation;
 
@@ -241,6 +241,7 @@ protected:
 private:
 	bool bDead = false;
 	bool bAggro = false;
+	bool bRestoringDeadState = false; // true only while ApplyDeadStateInstant runs -> Die entry stays silent (no death cry replay on load)
 	float LostSightTimer = 0.f;
 	float PauseTimer = 0.f;
 	bool bWanderMoving = false;

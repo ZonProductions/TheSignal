@@ -4,6 +4,9 @@
 #include "ZP_CrawlerBehaviorComponent.h"
 #include "ZP_GraceCharacter.h"
 #include "ZP_GrenadeProjectile.h"
+#include "ZP_MeleeDamageType.h"
+#include "ZP_SFXStatics.h"
+#include "ZP_BloodFXComponent.h"
 #include "KinemationBridge.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -62,6 +65,10 @@ UZP_KinemationComponent::UZP_KinemationComponent()
 	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeFlesh2Finder(
 		TEXT("/Game/Audio/Weapons/SFX_MELEE_IMPACT2.SFX_MELEE_IMPACT2"));
 	if (MeleeFlesh2Finder.Succeeded()) { MeleeFleshImpactSounds.Add(MeleeFlesh2Finder.Object); }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeSwingFinder(
+		TEXT("/Game/Audio/Weapons/SFX_MELEE_SWING.SFX_MELEE_SWING"));
+	if (MeleeSwingFinder.Succeeded()) { MeleeSwingSound = MeleeSwingFinder.Object; }
 }
 
 // NEVER move PlayerMesh to animate weapon transitions — the first-person
@@ -788,6 +795,7 @@ void UZP_KinemationComponent::UnequipWeapon()
 		GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeCooldownHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeSwingReturnHandle);
+		GetWorld()->GetTimerManager().ClearTimer(MeleeTailCancelHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeWindupHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeReadyStanceHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeEquipIdleHandle);
@@ -800,6 +808,7 @@ void UZP_KinemationComponent::UnequipWeapon()
 	bIsReloading = false;
 	bMeleeCooldown = false;
 	bMeleeSwingActive = false;
+	bMeleeSwingTailCancelable = false;
 
 	bWeaponSwitching = false;
 	SetCameraBonePinned(false);
@@ -997,10 +1006,12 @@ void UZP_KinemationComponent::PerformHitscan()
 			continue; // pellet missed — next pellet
 		}
 
-		// First connecting round plays the bullet-impact sound at the surface.
+		// First connecting round plays the bullet-impact sound at the surface. Far carry — the
+		// hitscan reaches 100 m and the shooter must hear the impact at any hit distance (bare
+		// PlaySoundAtLocation inherited UE5's default attenuation = silent past 40 m).
 		if (!bPlayedImpactSound && ImpactSound)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, Hit.ImpactPoint);
+			UZP_SFXStatics::PlaySFXAtLocation(this, ImpactSound, Hit.ImpactPoint, EZP_SFXCarry::Far);
 			bPlayedImpactSound = true;
 		}
 
@@ -1024,6 +1035,13 @@ void UZP_KinemationComponent::PerformHitscan()
 
 			UGameplayStatics::ApplyPointDamage(
 				Hit.GetActor(), Damage, Dir, Hit, PC, GetOwner(), nullptr);
+
+			// Blood on pawn hits: ranged trio "Splash + Hit + Metal" (bullet impact/ricochet) at the
+			// enemy's BloodIntensity + traced splatter decals. Per-enemy via UZP_BloodFXComponent.
+			if (Cast<APawn>(Hit.GetActor()))
+			{
+				UZP_BloodFXComponent::PlayHitBloodFor(Hit.GetActor(), Hit.ImpactPoint, Dir, /*bMeleeHit=*/false, Hit.ImpactNormal);
+			}
 		}
 	}
 }
@@ -1103,6 +1121,12 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 		++MeleeLightAnimIndex;
 	}
 
+	// Swing whoosh — own-body foley, fires with the swing regardless of view-model state.
+	if (MeleeSwingSound)
+	{
+		UGameplayStatics::PlaySound2D(GetOwner(), MeleeSwingSound, MeleeSwingVolume);
+	}
+
 	// --- Animation: retargeted Kubold swing on the view model (TICKET-054) ---
 	float SwingDuration = 0.7f; // fallback if anim missing
 	if (bMeleeViewModelActive && MeleeViewMeshComponent && SwingAnim)
@@ -1111,6 +1135,7 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 		SwingDuration = SwingAnim->GetPlayLength() / FMath::Max(MeleeSwingRate, 0.1f);
 
 		bMeleeSwingActive = true;
+		bMeleeSwingTailCancelable = false;
 		GetWorld()->GetTimerManager().SetTimer(MeleeSwingReturnHandle, [this]()
 		{
 			if (bMeleeViewModelActive && MeleeIdleAnim)
@@ -1118,7 +1143,15 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
 			}
 			bMeleeSwingActive = false;
+			bMeleeSwingTailCancelable = false;
 		}, SwingDuration, false);
+		// Past this point the strike + follow-through have visibly completed; only the
+		// return-to-idle dead frames remain — a HELD block may cancel into them (no perceived
+		// clipping, no perceived pause).
+		GetWorld()->GetTimerManager().SetTimer(MeleeTailCancelHandle, [this]()
+		{
+			bMeleeSwingTailCancelable = true;
+		}, SwingDuration * FMath::Clamp(MeleeBlockCancelFraction, 0.1f, 1.0f), false);
 	}
 	else
 	{
@@ -1192,28 +1225,31 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 			if (bHitEnemy)
 			{
 				// Pipe is metal — the metal sound always plays — and a flesh impact
-				// layers on top (dev: "impact + hit at the same time").
-				if (PipeMetalSound)
-				{
-					UGameplayStatics::PlaySoundAtLocation(this, PipeMetalSound, ImpactLoc);
-				}
+				// layers on top (dev: "impact + hit at the same time"). Close carry: own-melee
+				// foley, always within ~2 m of the listener.
+				UZP_SFXStatics::PlaySFXAtLocation(this, PipeMetalSound, ImpactLoc, EZP_SFXCarry::Close);
 				if (MeleeFleshImpactSounds.Num() > 0)
 				{
 					USoundBase* Flesh = MeleeFleshImpactSounds[FMath::RandRange(0, MeleeFleshImpactSounds.Num() - 1)];
-					if (Flesh)
-					{
-						UGameplayStatics::PlaySoundAtLocation(this, Flesh, ImpactLoc);
-					}
+					UZP_SFXStatics::PlaySFXAtLocation(this, Flesh, ImpactLoc, EZP_SFXCarry::Close);
 				}
+
+				// Blood: melee trio "Splash with Burst + Hit" at the enemy's BloodIntensity +
+				// traced persistent splatter decals + delayed floor pool. Per-enemy via UZP_BloodFXComponent.
+				// ImpactNormal lays the body-residual stains flat on the skin.
+				const FVector SwingDir = (Hit.TraceEnd - Hit.TraceStart).GetSafeNormal();
+				UZP_BloodFXComponent::PlayHitBloodFor(Hit.GetActor(), Hit.ImpactPoint, SwingDir, /*bMeleeHit=*/true, Hit.ImpactNormal);
 			}
-			else if (PipeWallImpactSound)
+			else
 			{
 				// Pipe struck a wall / hard surface.
-				UGameplayStatics::PlaySoundAtLocation(this, PipeWallImpactSound, ImpactLoc);
+				UZP_SFXStatics::PlaySFXAtLocation(this, PipeWallImpactSound, ImpactLoc, EZP_SFXCarry::Close);
 			}
 
 			if (Hit.GetActor())
 			{
+				// Tag the hit as MELEE so height-headshot enemies (Shambler/Scytheer) treat it as a
+				// flat body strike (MeleeDamage), never a headshot.
 				UGameplayStatics::ApplyPointDamage(
 					Hit.GetActor(),
 					MeleeDamage,
@@ -1221,7 +1257,7 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 					Hit,
 					PC,
 					GetOwner(),
-					nullptr
+					UZP_MeleeDamageType::StaticClass()
 				);
 
 				UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee hit %s — %.0f dmg"),
@@ -1480,7 +1516,9 @@ void UZP_KinemationComponent::DeactivateMeleeViewModel(bool bPlayUnequip)
 	GetWorld()->GetTimerManager().ClearTimer(MeleeEquipIdleHandle);
 	GetWorld()->GetTimerManager().ClearTimer(MeleeDamageHandle);
 	GetWorld()->GetTimerManager().ClearTimer(MeleeSwingReturnHandle);
+	GetWorld()->GetTimerManager().ClearTimer(MeleeTailCancelHandle);
 	bMeleeSwingActive = false;
+	bMeleeSwingTailCancelable = false;
 
 	if (MeleeViewMeshComponent && bPlayUnequip && MeleeUnequipAnim)
 	{

@@ -1,6 +1,7 @@
 // Copyright The Signal. All Rights Reserved.
 
 #include "ZP_GrenadeProjectile.h"
+#include "ZP_SFXStatics.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -114,11 +115,9 @@ void AZP_GrenadeProjectile::Explode()
 			FVector(1.f), true, true, ENCPoolMethod::None);
 	}
 
-	// Play explosion sound
-	if (ExplosionSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, Location);
-	}
+	// Play explosion sound — Far carry (loudest world event in the game; a bare PlaySoundAtLocation
+	// was at the mercy of the pack cue's internal attenuation, or silent past 40 m without one).
+	UZP_SFXStatics::PlaySFXAtLocation(GetWorld(), ExplosionSound, Location, EZP_SFXCarry::Far);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] GrenadeProjectile EXPLODED at %s — Inner: %.0f dmg/%.0f UU, Outer: %.0f dmg/%.0f UU"),
 		*Location.ToString(), InnerDamage, InnerRadius, OuterDamage, OuterRadius);

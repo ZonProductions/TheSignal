@@ -3,6 +3,8 @@
 #include "ZP_GraceCharacter.h"
 #include "ZP_GraceGameplayComponent.h"
 #include "ZP_KinemationComponent.h"
+#include "ZP_FootstepData.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ZP_WeaponTypes.h"
 #include "ZP_HealthComponent.h"
 #include "ZP_ShamblerBehaviorComponent.h"
@@ -266,10 +268,14 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	FlashlightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashlightComp"));
 	FlashlightComp->SetupAttachment(FirstPersonCamera);
 	FlashlightComp->SetRelativeLocation(FVector(5.0f, -25.0f, 15.0f)); // above left shoulder
-	FlashlightComp->SetIntensity(8000.0f);        // bright enough to read surfaces down hallways
-	FlashlightComp->SetInnerConeAngle(20.0f);      // wide hotspot so walls are illuminated up close
-	FlashlightComp->SetOuterConeAngle(45.0f);      // broad flood — walnut-size at close range fixed
-	FlashlightComp->SetAttenuationRadius(2800.0f); // longer reach for corridors
+	// iPhone-torch profile (dev direction): a phone LED is a strong, fairly tight hotspot with a
+	// wide soft spill. Concentrated inner cone + high intensity = real THROW down a corridor
+	// (clear read ~20-30 m, visible reach to ~50 m under the pinned horror exposure); the wide
+	// outer cone keeps close quarters covered like a phone's flood.
+	FlashlightComp->SetIntensity(25000.0f);        // throw — reads surfaces far down the hallway
+	FlashlightComp->SetInnerConeAngle(16.0f);      // concentrated hotspot = distance punch
+	FlashlightComp->SetOuterConeAngle(40.0f);      // wide phone-LED spill for close range
+	FlashlightComp->SetAttenuationRadius(5000.0f); // 50 m potential reach; inverse-square shapes it
 	FlashlightComp->SetLightColor(FLinearColor(1.0f, 0.93f, 0.82f)); // slightly warmer/dingier
 	FlashlightComp->SetSourceRadius(0.5f);         // sharp shadow edges
 	FlashlightComp->CastShadows = true;
@@ -295,6 +301,21 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	{
 		FlashlightClickSound = FlashlightClickFinder.Object;
 	}
+
+	// Footstep variations — Moonville hard-surface set (6 clips, randomized per step). The player's
+	// SingleNode locomotion has no anim-notify tracks, so steps are DISTANCE-based (UpdateFootsteps).
+	for (int32 StepIdx = 1; StepIdx <= 6; ++StepIdx)
+	{
+		ConstructorHelpers::FObjectFinder<USoundBase> StepFinder(*FString::Printf(
+			TEXT("/Game/InventorySystemPro/ExampleContent/Common/Sounds/Footsteps/SW_Footstep_%d.SW_Footstep_%d"),
+			StepIdx, StepIdx));
+		if (StepFinder.Succeeded())
+		{
+			FootstepSounds.Add(StepFinder.Object);
+		}
+	}
+	// Surface-specific sounds live in DA_Footsteps (UZP_FootstepData), lazily loaded in
+	// UpdateFootsteps — the dev-authored table, not code.
 
 	// --- Baked CDO defaults (replaces set_all_cdo.py) ---
 
@@ -850,6 +871,13 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		LogBoneClipProbe();
 		--CameraProbeFramesLeft;
 	}
+
+	// Buffered block engage: RMB held through a swing raises the guard the instant the swing
+	// allows (post-contact recovery cancel) — the press is never discarded.
+	TryEngageBufferedBlock();
+
+	// Distance-based footsteps (the SingleNode locomotion has no anim notifies to fire them).
+	UpdateFootsteps(DeltaTime);
 
 	// Block animation state machine — counts down BlockImpact lock, then
 	// keeps BlockLoop/BlockWalk in sync with movement state on the view mesh.
@@ -2012,50 +2040,13 @@ void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 
 	CancelSprintFromAction(); // aiming / blocking breaks a sprint
 
-	// Pipe equipped → RMB blocks instead of ADS-ing.
+	// Pipe equipped → RMB blocks instead of ADS-ing. The press is remembered (bBlockWanted) and
+	// the guard raises the INSTANT context allows — mid-swing presses buffer and engage the frame
+	// the swing's contact passes (recovery block-cancel), no release-and-re-press needed.
 	if (KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee)
 	{
-		if (!KinemationComp->bMeleeSwingActive)
-		{
-			bIsBlocking = true;
-			bBlockResolving = false;
-			bBlockWalkActive = false;
-			BlockImpactLockRemaining = 0.f;
-			BlockStartLockRemaining = 0.f;
-			BlockClearanceRemaining = BlockClearanceWindow; // transient camera nudge over the lean-in
-
-			// Probe: dump camera state for 30 frames so we see when block shifts the view.
-			CameraProbeTag = TEXT("BLOCK");
-			CameraProbeFramesLeft = 180;
-			LogCameraProbe(TEXT("RMB-DOWN"));
-
-			// Play BlockStart (non-loop) first — the in-motion clip. UpdateBlockAnimation
-			// is gated by BlockStartLockRemaining so it can't yank Start out and snap
-			// to BlockLoop early. When the lock decays, UpdateBlockAnimation takes
-			// over and swaps to BlockLoop / BlockWalk based on motion.
-			UAnimSequenceBase* StartAnim = BlockStartAnim.LoadSynchronous();
-			if (MeleeViewMesh && StartAnim)
-			{
-				if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
-				{
-					SNI->SetAnimationAsset(StartAnim, /*bLoop*/ false, 1.0f);
-					SNI->SetPlaying(true);
-					BlockStartLockRemaining = StartAnim->GetPlayLength();
-				}
-			}
-			else if (MeleeViewMesh)
-			{
-				// Fallback if Start asset is missing — go straight to loop.
-				if (UAnimSequenceBase* LoopAnim = BlockLoopAnim.LoadSynchronous())
-				{
-					if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
-					{
-						SNI->SetAnimationAsset(LoopAnim, /*bLoop*/ true, 1.0f);
-						SNI->SetPlaying(true);
-					}
-				}
-			}
-		}
+		bBlockWanted = true;
+		TryEngageBufferedBlock();
 		return;
 	}
 
@@ -2070,65 +2061,13 @@ void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 {
+	bBlockWanted = false; // RMB physically released — kill any buffered block intent
+
 	if (bInventoryMenuOpen || bMapOpen) return;
 
 	if (bIsBlocking)
 	{
-		bIsBlocking = false;
-		bBlockResolving = true; // keep block offsets alive until BlockStop finishes
-		bBlockWalkActive = false;
-		BlockImpactLockRemaining = 0.f;
-		BlockStartLockRemaining = 0.f;
-		// Mirror the block-START forward nudge so the BlockStop lean-OUT doesn't
-		// swing the body through the lens. Without this the unblock pose-out clips
-		// the camera (dev report: "body swings into my camera, looks messy").
-		BlockClearanceRemaining = BlockClearanceWindow;
-
-		// Play BlockStop (non-loop) first — the pose-out motion. Schedule a
-		// timer to settle into MeleeIdle when Stop finishes so the pose doesn't
-		// snap back to neutral. Same pattern as the dodge return at line ~2654.
-		UAnimSequenceBase* StopAnim = BlockStopAnim.LoadSynchronous();
-		if (MeleeViewMesh && StopAnim)
-		{
-			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
-			{
-				SNI->SetAnimationAsset(StopAnim, /*bLoop*/ false, 1.0f);
-				SNI->SetPlaying(true);
-			}
-
-			const float StopLen = StopAnim->GetPlayLength();
-			FTimerHandle StopReturnHandle;
-			GetWorldTimerManager().SetTimer(StopReturnHandle, [this]()
-			{
-				bBlockResolving = false; // BlockStop finished — offsets may ease out now
-				if (bIsBlocking) return; // re-pressed before stop finished
-				if (!KinemationComp
-					|| KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee)
-				{
-					return;
-				}
-				UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous();
-				if (!IdleAnim || !MeleeViewMesh) return;
-				if (UAnimSingleNodeInstance* IdleSNI = MeleeViewMesh->GetSingleNodeInstance())
-				{
-					IdleSNI->SetAnimationAsset(IdleAnim, /*bLoop*/ true, 1.0f);
-					IdleSNI->SetPlaying(true);
-				}
-			}, StopLen, false);
-		}
-		else if (MeleeViewMesh && MeleeIdleHoldAnim.IsValid())
-		{
-			bBlockResolving = false; // no stop clip — nothing to cover
-			// Fallback if Stop asset is missing — go straight to idle.
-			if (UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous())
-			{
-				if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
-				{
-					SNI->SetAnimationAsset(IdleAnim, /*bLoop*/ true, 1.0f);
-					SNI->SetPlaying(true);
-				}
-			}
-		}
+		ReleaseBlock();
 		return;
 	}
 
@@ -2141,11 +2080,240 @@ void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 	if (KinemationComp) KinemationComp->SetAiming(false);
 }
 
+void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
+{
+	UCharacterMovementComponent* Move = GetCharacterMovement();
+	if (!Move || !Move->IsMovingOnGround() || bOnLadder)
+	{
+		FootstepDistanceAccum = 0.f;
+		return;
+	}
+	const float Speed = GetVelocity().Size2D();
+	if (Speed < 60.f) // standing / drifting — no steps
+	{
+		FootstepDistanceAccum = 0.f;
+		return;
+	}
+
+	const bool bCrouched = Move->IsCrouching();
+	const bool bSprint = GameplayComp && GameplayComp->bIsSprinting;
+	const float Stride = bSprint ? FootstepSprintStride
+	                             : (bCrouched ? FootstepWalkStride * 0.85f : FootstepWalkStride);
+
+	FootstepDistanceAccum += Speed * DeltaTime;
+	if (FootstepDistanceAccum >= Stride)
+	{
+		FootstepDistanceAccum = 0.f;
+
+		if (!FootstepData)
+		{
+			FootstepData = LoadObject<UZP_FootstepData>(nullptr, TEXT("/Game/Core/Data/DA_Footsteps.DA_Footsteps"));
+		}
+
+		// Resolve the FLOOR under our feet against the surface table: authored PhysMat SurfaceType
+		// first (exact), else material-name keywords (works on unauthored pack floors).
+		const FZP_FootstepSurface* Surface = nullptr;
+		FHitResult Floor;
+		FCollisionQueryParams Q(FName(TEXT("ZPFootstepSurface")), false);
+		Q.AddIgnoredActor(this);
+		Q.bReturnPhysicalMaterial = true;
+		if (FootstepData && GetWorld()->LineTraceSingleByChannel(Floor, GetActorLocation(),
+			GetActorLocation() - FVector(0.f, 0.f, 160.f), ECC_WorldStatic, Q))
+		{
+			EPhysicalSurface FloorSurface = SurfaceType_Default;
+			if (const UPhysicalMaterial* PhysMat = Floor.PhysMaterial.Get())
+			{
+				FloorSurface = PhysMat->SurfaceType;
+			}
+			FString MatName;
+			if (UPrimitiveComponent* FloorComp = Floor.GetComponent())
+			{
+				if (UMaterialInterface* FloorMat = FloorComp->GetMaterial(0))
+				{
+					MatName = FloorMat->GetName().ToLower();
+				}
+			}
+			Surface = FootstepData->Resolve(FloorSurface, MatName);
+		}
+
+		// Sound pool priority: matched surface row -> table default set -> hard C++ fallback.
+		const TArray<TObjectPtr<USoundBase>>* Set = &FootstepSounds;
+		float SurfaceVolMul = 1.f, PitchMin = 0.92f, PitchMax = 1.08f;
+		if (Surface)
+		{
+			Set = &Surface->Sounds;
+			SurfaceVolMul = Surface->VolumeMul;
+			PitchMin = Surface->PitchMin;
+			PitchMax = Surface->PitchMax;
+		}
+		else if (FootstepData && FootstepData->DefaultSounds.Num() > 0)
+		{
+			Set = &FootstepData->DefaultSounds;
+		}
+
+		if (Set->Num() > 0)
+		{
+			if (USoundBase* Step = (*Set)[FMath::RandRange(0, Set->Num() - 1)])
+			{
+				// Own-body foley: 2D, quiet, slight pitch jitter so repeats don't machine-gun.
+				// Sprint steps land heavier.
+				const float Vol = FootstepVolume * SurfaceVolMul
+					* (bCrouched ? 0.5f : 1.f) * (bSprint ? SprintFootstepVolumeMul : 1.f);
+				UGameplayStatics::PlaySound2D(this, Step, Vol, FMath::FRandRange(PitchMin, PitchMax));
+			}
+		}
+	}
+}
+
+void AZP_GraceCharacter::TryEngageBufferedBlock()
+{
+	if (!bBlockWanted || bIsBlocking) { return; }
+	if (bInventoryMenuOpen || bMapOpen || bOnLadder) { return; }
+	if (!KinemationComp || KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee) { return; }
+	// The strike + follow-through always play in full; once the swing passes
+	// MeleeBlockCancelFraction only return-to-idle dead frames remain, and the held guard cancels
+	// into them — no perceived clipping AND no perceived pause between swing and block.
+	if (KinemationComp->bMeleeSwingActive && !KinemationComp->bMeleeSwingTailCancelable) { return; }
+	// You can't raise a guard you can't pay for — needs one blocked hit's worth of stamina.
+	if (GameplayComp && GameplayComp->GetStaminaFraction() < BlockMinStaminaFractionToStart) { return; }
+
+	if (KinemationComp->bMeleeSwingActive)
+	{
+		KinemationComp->CancelMeleeSwingRecovery(); // tail only — StartBlockNow owns the hands now
+	}
+	StartBlockNow();
+}
+
+void AZP_GraceCharacter::InterruptBlockForSwing()
+{
+	if (!bIsBlocking) { return; }
+	// Attack outranks block: drop the guard with NO BlockStop pose-out — the swing clip takes the
+	// view mesh this same frame. bBlockWanted is untouched, so the buffered engage re-raises the
+	// guard automatically the moment the swing animation ends.
+	bIsBlocking = false;
+	bBlockResolving = false;
+	bBlockWalkActive = false;
+	BlockImpactLockRemaining = 0.f;
+	BlockStartLockRemaining = 0.f;
+}
+
+void AZP_GraceCharacter::StartBlockNow()
+{
+	CancelSprintFromAction(); // blocking breaks a sprint
+
+	bIsBlocking = true;
+	bBlockResolving = false;
+	bBlockWalkActive = false;
+	BlockImpactLockRemaining = 0.f;
+	BlockStartLockRemaining = 0.f;
+	BlockClearanceRemaining = BlockClearanceWindow; // transient camera nudge over the lean-in
+
+	// Probe: dump camera state for 30 frames so we see when block shifts the view.
+	CameraProbeTag = TEXT("BLOCK");
+	CameraProbeFramesLeft = 180;
+	LogCameraProbe(TEXT("BLOCK-ENGAGE"));
+
+	// Play BlockStart (non-loop) first — the in-motion clip. UpdateBlockAnimation
+	// is gated by BlockStartLockRemaining so it can't yank Start out and snap
+	// to BlockLoop early. When the lock decays, UpdateBlockAnimation takes
+	// over and swaps to BlockLoop / BlockWalk based on motion.
+	UAnimSequenceBase* StartAnim = BlockStartAnim.LoadSynchronous();
+	if (MeleeViewMesh && StartAnim)
+	{
+		if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+		{
+			SNI->SetAnimationAsset(StartAnim, /*bLoop*/ false, 1.0f);
+			SNI->SetPlaying(true);
+			BlockStartLockRemaining = StartAnim->GetPlayLength();
+		}
+	}
+	else if (MeleeViewMesh)
+	{
+		// Fallback if Start asset is missing — go straight to loop.
+		if (UAnimSequenceBase* LoopAnim = BlockLoopAnim.LoadSynchronous())
+		{
+			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+			{
+				SNI->SetAnimationAsset(LoopAnim, /*bLoop*/ true, 1.0f);
+				SNI->SetPlaying(true);
+			}
+		}
+	}
+}
+
+void AZP_GraceCharacter::ReleaseBlock()
+{
+	if (!bIsBlocking) { return; }
+	bIsBlocking = false;
+	bBlockResolving = true; // keep block offsets alive until BlockStop finishes
+	bBlockWalkActive = false;
+	BlockImpactLockRemaining = 0.f;
+	BlockStartLockRemaining = 0.f;
+	// Mirror the block-START forward nudge so the BlockStop lean-OUT doesn't
+	// swing the body through the lens. Without this the unblock pose-out clips
+	// the camera (dev report: "body swings into my camera, looks messy").
+	BlockClearanceRemaining = BlockClearanceWindow;
+
+	// Play BlockStop (non-loop) first — the pose-out motion. Schedule a
+	// timer to settle into MeleeIdle when Stop finishes so the pose doesn't
+	// snap back to neutral. Same pattern as the dodge return at line ~2654.
+	UAnimSequenceBase* StopAnim = BlockStopAnim.LoadSynchronous();
+	if (MeleeViewMesh && StopAnim)
+	{
+		if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+		{
+			SNI->SetAnimationAsset(StopAnim, /*bLoop*/ false, 1.0f);
+			SNI->SetPlaying(true);
+		}
+
+		const float StopLen = StopAnim->GetPlayLength();
+		FTimerHandle StopReturnHandle;
+		GetWorldTimerManager().SetTimer(StopReturnHandle, [this]()
+		{
+			bBlockResolving = false; // BlockStop finished — offsets may ease out now
+			if (bIsBlocking) return; // re-raised before stop finished
+			if (!KinemationComp
+				|| KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee)
+			{
+				return;
+			}
+			UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous();
+			if (!IdleAnim || !MeleeViewMesh) return;
+			if (UAnimSingleNodeInstance* IdleSNI = MeleeViewMesh->GetSingleNodeInstance())
+			{
+				IdleSNI->SetAnimationAsset(IdleAnim, /*bLoop*/ true, 1.0f);
+				IdleSNI->SetPlaying(true);
+			}
+		}, StopLen, false);
+	}
+	else if (MeleeViewMesh && MeleeIdleHoldAnim.IsValid())
+	{
+		bBlockResolving = false; // no stop clip — nothing to cover
+		// Fallback if Stop asset is missing — go straight to idle.
+		if (UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous())
+		{
+			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
+			{
+				SNI->SetAnimationAsset(IdleAnim, /*bLoop*/ true, 1.0f);
+				SNI->SetPlaying(true);
+			}
+		}
+	}
+}
+
 void AZP_GraceCharacter::Input_FireStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
 	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
 	CancelSprintFromAction(); // firing / melee swinging breaks a sprint
+
+	// Attack > Block > Idle: swinging while the guard is up drops the guard for the swing;
+	// the held RMB re-raises it the instant the swing animation ends (buffered engage).
+	if (bIsBlocking && KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee)
+	{
+		InterruptBlockForSwing();
+	}
+
 	KinemationComp->FirePressed();
 }
 
@@ -3516,28 +3684,40 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	float IncomingDamage = DamageAmount;
 	if (bIsBlocking && DamageAmount > 0.f)
 	{
-		IncomingDamage *= BlockDamageReductionMul;
-
-		// Probe: capture camera state through the impact reaction.
-		CameraProbeTag = TEXT("BLOCK-HIT");
-		CameraProbeFramesLeft = 180;
-		LogCameraProbe(TEXT("HIT-RECEIVED"));
-
-		// Random FPP_Longs_BlockImpact 1/2/3 plays on the view mesh.
-		PlayBlockImpactAnim();
-
-		// Stagger the attacker on a successful block — rate-limited by BlockStaggerCooldown so
-		// blocking can't permanently stun-lock an enemy. Routed through IZP_Staggerable so it
-		// works for any enemy (Shambler, Scytheer, and future types) with no per-enemy code.
-		const double NowBlock = GetWorld()->GetTimeSeconds();
-		if ((NowBlock - LastBlockStaggerTime) >= BlockStaggerCooldown)
+		// A blocked hit COSTS stamina (~1/3 of max). Not enough left = GUARD BREAK: the guard
+		// drops, this hit lands at FULL damage, no counter-stagger — blocking is a resource,
+		// not a free wall. (With RMB still held, the guard re-raises once stamina recovers past
+		// BlockMinStaminaFractionToStart.)
+		if (GameplayComp && !GameplayComp->TryConsumeStaminaPercent(BlockHitStaminaPercent))
 		{
-			LastBlockStaggerTime = NowBlock;
-			if (EventInstigator)
+			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] GUARD BREAK — blocked hit with insufficient stamina, full damage taken"));
+			ReleaseBlock();
+		}
+		else
+		{
+			IncomingDamage *= BlockDamageReductionMul;
+
+			// Probe: capture camera state through the impact reaction.
+			CameraProbeTag = TEXT("BLOCK-HIT");
+			CameraProbeFramesLeft = 180;
+			LogCameraProbe(TEXT("HIT-RECEIVED"));
+
+			// Random FPP_Longs_BlockImpact 1/2/3 plays on the view mesh.
+			PlayBlockImpactAnim();
+
+			// Stagger the attacker on a successful block — rate-limited by BlockStaggerCooldown so
+			// blocking can't permanently stun-lock an enemy. Routed through IZP_Staggerable so it
+			// works for any enemy (Shambler, Scytheer, and future types) with no per-enemy code.
+			const double NowBlock = GetWorld()->GetTimeSeconds();
+			if ((NowBlock - LastBlockStaggerTime) >= BlockStaggerCooldown)
 			{
-				if (APawn* AttackerPawn = EventInstigator->GetPawn())
+				LastBlockStaggerTime = NowBlock;
+				if (EventInstigator)
 				{
-					StaggerEnemy(AttackerPawn, BlockStaggerDuration);
+					if (APawn* AttackerPawn = EventInstigator->GetPawn())
+					{
+						StaggerEnemy(AttackerPawn, BlockStaggerDuration);
+					}
 				}
 			}
 		}

@@ -3,13 +3,16 @@
 #include "ZP_ShamblerBehaviorComponent.h"
 #include "ZP_EnemyAudioComponent.h"
 #include "ZP_HealthComponent.h"
+#include "ZP_MeleeDamageType.h"
+#include "ZP_SFXStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/ShapeComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Sound/SoundAttenuation.h"
 #include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 #include "Animation/AnimSequence.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
@@ -71,14 +74,22 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 	}
 
 	// Spatial voice (lurk/alert/attack) — reuse the enemy audio component, point it at the zombie SFX.
+	// Carry/attenuation is C++-owned (UZP_SFXStatics Far profile, ~120 m) — no SA asset to assign.
 	Audio = NewObject<UZP_EnemyAudioComponent>(Owner, TEXT("ShamblerAudio"));
 	if (Audio)
 	{
 		Audio->RegisterComponent();
-		// Room-scale spatialization + occlusion so growls/alerts don't carry through walls into other rooms.
-		Audio->Attenuation = LoadObject<USoundAttenuation>(nullptr, TEXT("/Game/Audio/SA_EnemyVoice.SA_EnemyVoice"));
 		Audio->AlertSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_ALERT.SFX_ZOMBIE_ALERT"));
-		Audio->LurkingLoop = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_LURK1.SFX_ZOMBIE_LURK1"));
+		// Hit vocal for the flinch. Overrides the component's Crawler default (wrong creature); stays
+		// null (= silent flinch) until the dev imports a zombie pain grunt to this exact path.
+		Audio->HitSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_HIT.SFX_ZOMBIE_HIT"));
+		if (!Audio->HitSound)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[Shambler] hit vocal missing — import /Game/Audio/Shambler/SFX_ZOMBIE_HIT to voice the flinch."));
+		}
+		// The imported lurk growl is SFX_ZOMBIE_LURK (there is no LURK1/LURK2). Import SFX_ZOMBIE_LURK2
+		// and restore the two-growl RandBool pick in UpdateLurk if you want variety.
+		Audio->LurkingLoop = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_LURK.SFX_ZOMBIE_LURK"));
 		// Two strikes, alternated with the swing side (L=Attack1, R=Attack2). Attack2 is optional —
 		// until SFX_ZOMBIE_ATTACK2 is imported, both swings fall back to Attack1.
 		Audio->AttackSounds.Empty();
@@ -90,6 +101,12 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 		{
 			Audio->AttackSounds.Add(Atk2);
 		}
+	}
+
+	// Idle groan — fires exactly when the wander idle ANIMATION starts (see Evaluate WALK→IDLE).
+	if (!IdleSound)
+	{
+		IdleSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_IDLE.SFX_ZOMBIE_IDLE"));
 	}
 
 	// Health — create one if the BP doesn't already have it, so the Shambler can take damage + die.
@@ -111,6 +128,7 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 	if (USkeletalMeshComponent* M0 = Owner->GetMesh())
 	{
 		MeshBaseRelZ = M0->GetRelativeLocation().Z;
+		MeshBaseRelXY = FVector2D(M0->GetRelativeLocation().X, M0->GetRelativeLocation().Y);
 		M0->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore); // capsule takes the bullet instead
 	}
 
@@ -138,6 +156,8 @@ void UZP_ShamblerBehaviorComponent::EndPlay(const EEndPlayReason::Type EndPlayRe
 	{
 		W->GetTimerManager().ClearTimer(EvalTimer);
 		W->GetTimerManager().ClearTimer(AttackHitTimer);
+		W->GetTimerManager().ClearTimer(WindupReleaseTimer);
+		W->GetTimerManager().ClearTimer(HitchRestoreTimer);
 		W->GetTimerManager().ClearTimer(ProbeTimer);
 		W->GetTimerManager().ClearTimer(IdleLockTimer);
 	}
@@ -166,9 +186,25 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		}
 		return;
 	}
-	// Only hand-face the player while STOPPED (scream / attack) — otherwise the walk anim points at you
-	// while the body slides along the nav path. Chase faces its movement direction (natural walk).
-	if (State == EShamblerState::Scream || State == EShamblerState::Attack)
+	// Hit-jolt spring-back: the punch set in OnPointDamage decays to rest here every frame. XY only —
+	// the state logic owns the mesh Z (idle/scream offsets). Every landed hit visibly shoves the body.
+	if (!MeshPunch.IsNearlyZero(0.05f))
+	{
+		MeshPunch = FMath::Vector2DInterpTo(MeshPunch, FVector2D::ZeroVector, DeltaTime, HitPunchRecovery);
+		if (MeshPunch.IsNearlyZero(0.05f)) { MeshPunch = FVector2D::ZeroVector; }
+		if (USkeletalMeshComponent* M = Owner->GetMesh())
+		{
+			FVector RL = M->GetRelativeLocation();
+			RL.X = MeshBaseRelXY.X + MeshPunch.X;
+			RL.Y = MeshBaseRelXY.Y + MeshPunch.Y;
+			M->SetRelativeLocation(RL);
+		}
+	}
+
+	// Only hand-face the player while mid-ATTACK (tracks a circling player through the swing).
+	// Scream does NOT track: it snap-faces ONCE at entry and then HOLDS — continuous tracking read
+	// as a "little twist" when the player strafed mid-scream (dev report). Chase faces movement.
+	if (State == EShamblerState::Attack)
 	{
 		FaceTargetSmooth(DeltaTime);
 	}
@@ -241,9 +277,28 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			const bool bClose = DistToPlayer <= 350.f; // right next to it -> senses you regardless of facing
 			if (bLOS && (bClose || Facing >= FacingThreshold))
 			{
-				Target = Player;
-				SetState(EShamblerState::Scream);
-				break;
+				// VETO: cross-check with the audio propagation model. If the acoustic path CONFIDENTLY
+				// says "through a wall" (a valid nav route exists and it's a huge detour), HasLOS
+				// slipped through geometry it shouldn't have — seeing through a wall is nonsense, and
+				// the muffled through-wall alert is exactly the reported bug. Never vetoes point-blank
+				// (bClose), and never vetoes on mere route-UNKNOWN (player off-navmesh, nav gaps) —
+				// a nav hiccup must not blind the enemy in open air.
+				bool bTransmitConfident = false;
+				float PropVol = 1.f, PropLPF = 0.f;
+				UZP_SFXStatics::ComputePropagation(GetWorld(), Owner->GetActorLocation(), Owner, PropVol, PropLPF, &bTransmitConfident);
+				if (!bClose && bTransmitConfident)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[Shambler] sight-aggro VETOED (confident through-wall): dist=%.0f facing=%.2f — HasLOS passed but the only route is a huge detour"),
+						DistToPlayer, Facing);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[Shambler] SIGHT AGGRO: dist=%.0f facing=%.2f close=%d propVol=%.2f"),
+						DistToPlayer, Facing, bClose ? 1 : 0, PropVol);
+					Target = Player;
+					SetState(EShamblerState::Scream);
+					break;
+				}
 			}
 		}
 
@@ -270,6 +325,8 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 				if (IdleAnim)
 				{
 					PlaySlotLoop(IdleAnim);
+					// Idle groan — tied verbatim to the idle ANIMATION starting (one-shot per idle phase).
+					UZP_SFXStatics::PlaySFXAttached(IdleSound, Owner->GetRootComponent(), EZP_SFXCarry::Far);
 					if (USkeletalMeshComponent* SM = Owner->GetMesh())
 					{
 						FVector RL = SM->GetRelativeLocation();
@@ -335,8 +392,10 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 
 	case EShamblerState::Scream:
 	{
-		// Hold the scream a fixed beat, then break into the fast walk.
-		if (StateTimer >= ScreamHoldTime)
+		// Hold the scream, then break into the fast walk. CurrentScreamHold is per-aggro: the full
+		// cinematic ScreamHoldTime on sight, the short HurtScreamHoldTime when damage caused (or
+		// interrupts) the scream — a point-blank attacker doesn't get a free stationary target.
+		if (StateTimer >= CurrentScreamHold)
 		{
 			SetState(EShamblerState::Chase);
 		}
@@ -376,7 +435,10 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 
 	case EShamblerState::Attack:
 	{
-		if (StateTimer >= AttackDuration)
+		// Swing length is computed per-swing in BeginAttack (clip length remapped through the
+		// wind-up/strike play rates); AttackDuration is only the fallback for a missing clip.
+		const float SwingLen = (CurrentSwingTotalTime > 0.f) ? CurrentSwingTotalTime : AttackDuration;
+		if (StateTimer >= SwingLen)
 		{
 			// Still on top of the player when the swing ends -> immediately swing again (other side,
 			// other strike sound). No cooldown gap: it flurries L/R/L/R until you die or break away.
@@ -436,8 +498,25 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 	case EShamblerState::Scream:
 		SetSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
+		// Face the player ONCE, instantly, and hold that orientation for the whole scream. The old
+		// per-frame tracking swiveled the body 30-45° when the player strafed mid-scream and then
+		// "returned" as the chase re-oriented — the twist the dev reported.
+		if (Owner)
+		{
+			AActor* FaceTarget = Target ? Target.Get() : Cast<AActor>(GetPlayer());
+			if (FaceTarget)
+			{
+				FVector To = FaceTarget->GetActorLocation() - Owner->GetActorLocation();
+				To.Z = 0.f;
+				if (!To.IsNearlyZero())
+				{
+					Owner->SetActorRotation(FRotator(0.f, To.Rotation().Yaw, 0.f));
+				}
+			}
+		}
 		if (Audio) { Audio->PlayAlert(); }
 		PlayOneShot(ScreamAnim);
+		CurrentScreamHold = ScreamHoldTime; // sight-aggro default; damage paths shorten it after
 		break;
 
 	case EShamblerState::Chase:
@@ -461,15 +540,79 @@ void UZP_ShamblerBehaviorComponent::BeginAttack()
 	SetState(EShamblerState::Attack);
 	// Alternate the strike sound with the swing side: Left -> Attack1, Right -> Attack2.
 	if (Audio) { Audio->PlayAttack(/*bLunge=*/!bAttackIsLeft); }
-	PlayOneShot(bAttackIsLeft ? AttackLAnim : AttackRAnim);
-	GetWorld()->GetTimerManager().SetTimer(AttackHitTimer, this, &UZP_ShamblerBehaviorComponent::ApplyAttackDamage, AttackHitTime, false);
+
+	// Two-phase swing: the clip's rear-back plays SLOWED (WindupPlayRate) up to WindupEndTime — the
+	// readable "block now" telegraph — then ReleaseSwing snaps it to StrikePlayRate so the strike
+	// lands fast. All timers below are in REAL seconds, remapped through the two rates.
+	UAnimSequence* Swing = bAttackIsLeft ? AttackLAnim : AttackRAnim;
+	ActiveSwingMontage = PlayOneShot(Swing, WindupPlayRate);
+	bSwingReleased = false;
+	bHitchedThisSwing = false;
+
+	const float ClipLen     = Swing ? Swing->GetPlayLength() : AttackDuration;
+	const float WindupClip  = FMath::Clamp(WindupEndTime, 0.f, ClipLen);
+	const float HitClip     = FMath::Clamp(AttackHitTime, WindupClip, ClipLen);
+	const float WindupRate  = FMath::Max(WindupPlayRate, 0.05f);
+	const float StrikeRate  = FMath::Max(StrikePlayRate, 0.05f);
+	const float WindupReal  = WindupClip / WindupRate;
+	const float HitReal     = WindupReal + (HitClip - WindupClip) / StrikeRate;
+	CurrentSwingTotalTime   = WindupReal + (ClipLen - WindupClip) / StrikeRate;
+
+	FTimerManager& TM = GetWorld()->GetTimerManager();
+	TM.SetTimer(WindupReleaseTimer, this, &UZP_ShamblerBehaviorComponent::ReleaseSwing, WindupReal, false);
+	TM.SetTimer(AttackHitTimer, this, &UZP_ShamblerBehaviorComponent::ApplyAttackDamage, HitReal, false);
+}
+
+void UZP_ShamblerBehaviorComponent::ReleaseSwing()
+{
+	// Wind-up over — the strike launches at full speed. If the swing montage was cut (stagger/death
+	// flinch replaced it on the slot), there's nothing to retime.
+	bSwingReleased = true; // even if the montage is gone: RestoreSwingRate must pick the strike rate
+	if (bDead || !Owner || !ActiveSwingMontage.IsValid()) { return; }
+	if (USkeletalMeshComponent* M = Owner->GetMesh())
+	{
+		if (UAnimInstance* AI = M->GetAnimInstance())
+		{
+			if (AI->Montage_IsPlaying(ActiveSwingMontage.Get()))
+			{
+				AI->Montage_SetPlayRate(ActiveSwingMontage.Get(), StrikePlayRate);
+			}
+		}
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::CancelPendingSwing()
+{
+	if (UWorld* W = GetWorld())
+	{
+		W->GetTimerManager().ClearTimer(AttackHitTimer);
+		W->GetTimerManager().ClearTimer(WindupReleaseTimer);
+		W->GetTimerManager().ClearTimer(HitchRestoreTimer);
+	}
+	// Stop the montage itself — with the restore timer cleared, a mid-hitch swing would otherwise
+	// stay frozen at SwingHitchRate on the slot forever if no follow-up clip replaces it.
+	if (ActiveSwingMontage.IsValid() && Owner)
+	{
+		if (USkeletalMeshComponent* M = Owner->GetMesh())
+		{
+			if (UAnimInstance* AI = M->GetAnimInstance())
+			{
+				if (AI->Montage_IsPlaying(ActiveSwingMontage.Get()))
+				{
+					AI->Montage_Stop(0.1f, ActiveSwingMontage.Get());
+				}
+			}
+		}
+	}
+	ActiveSwingMontage = nullptr;
 }
 
 void UZP_ShamblerBehaviorComponent::ApplyAttackDamage()
 {
 	if (bDead || !Owner || !Target) { return; }
-	// Must still be close and visible at the moment of impact (no hitting through walls / after the player ran).
-	if (FVector::Dist(Owner->GetActorLocation(), Target->GetActorLocation()) > AttackRange * 1.3f) { return; }
+	// Must still be close and visible at the moment of impact — back-stepping out of AttackHitRange
+	// during the wind-up makes the swing whiff (no hitting through walls / after the player ran).
+	if (FVector::Dist(Owner->GetActorLocation(), Target->GetActorLocation()) > AttackHitRange) { return; }
 	if (!HasLOS(Target)) { return; }
 
 	AController* Inst = Owner->GetController();
@@ -506,25 +649,33 @@ bool UZP_ShamblerBehaviorComponent::HasLOS(const AActor* InTarget) const
 	// re-tracing past each one until we hit SOLID geometry. A single multi-trace can't do this — it
 	// stops dead at the first blocker, and a door's InteractionVolume BLOCKS WorldStatic right where
 	// the zombie stands (@0), so the trace would die on the trigger and never reach the wall behind it.
-	bool bClear = true;
-	for (int32 Iter = 0; Iter < 8; ++Iter)
+	auto DirClear = [this](FVector A, FVector B, FCollisionQueryParams Params) -> bool
 	{
-		FHitResult Hit;
-		if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_WorldStatic, P))
+		for (int32 Iter = 0; Iter < 8; ++Iter)
 		{
-			break; // nothing solid left on the line -> clear sight
+			FHitResult Hit;
+			if (!GetWorld()->LineTraceSingleByChannel(Hit, A, B, ECC_WorldStatic, Params))
+			{
+				return true; // nothing solid left on the line -> clear this direction
+			}
+			UPrimitiveComponent* Comp = Hit.GetComponent();
+			// Only SKIP genuine trigger/interaction volumes — query-only SHAPE components. A wall
+			// or (query-only) DOOR MESH is a UStaticMeshComponent, so it correctly BLOCKS.
+			if (Comp && Comp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly && Comp->IsA<UShapeComponent>())
+			{
+				Params.AddIgnoredComponent(Comp); // trigger volume -> see through it, re-trace
+				continue;
+			}
+			return false;
 		}
-		UPrimitiveComponent* Comp = Hit.GetComponent();
-		if (Comp && Comp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
-		{
-			P.AddIgnoredComponent(Comp); // trigger -> see through it, re-trace ignoring it
-			continue;
-		}
-		bClear = false;
-		break;
-	}
+		return false;
+	};
 
-	return bClear;
+	// BOTH directions must be clear. Complex-as-simple meshes (this project's wall collision) do
+	// NOT hit BACKFACES: a body embedded near/inside a wall traces outward through the wall's back
+	// faces without a hit — "sees" and ATTACKS through the wall (dev report: BP_Shambler3 spawned
+	// against a wall). The reverse trace hits the wall's front face and correctly blocks.
+	return DirClear(Start, End, P) && DirClear(End, Start, P);
 }
 
 bool UZP_ShamblerBehaviorComponent::PickNewWanderPoint()
@@ -587,11 +738,11 @@ void UZP_ShamblerBehaviorComponent::SetSpeed(float Speed)
 	}
 }
 
-void UZP_ShamblerBehaviorComponent::PlayOneShot(UAnimSequence* Anim)
+UAnimMontage* UZP_ShamblerBehaviorComponent::PlayOneShot(UAnimSequence* Anim, float PlayRate)
 {
-	if (!Owner || !Anim) { return; }
+	if (!Owner || !Anim) { return nullptr; }
 	USkeletalMeshComponent* M = Owner->GetMesh();
-	if (!M) { return; }
+	if (!M) { return nullptr; }
 	// Slot-based playback: ABP_Shambler's AnimGraph now wires BS_Shambler -> Slot 'DefaultSlot' ->
 	// Output Pose. PlaySlotAnimationAsDynamicMontage layers Anim on top of the locomotion via the
 	// slot, with a short blend-in/blend-out. No mesh mode swap, no pose snap — the visible "jiggle"
@@ -599,8 +750,10 @@ void UZP_ShamblerBehaviorComponent::PlayOneShot(UAnimSequence* Anim)
 	if (UAnimInstance* AI = M->GetAnimInstance())
 	{
 		AI->StopSlotAnimation(0.f, FName(TEXT("DefaultSlot"))); // hard-cut any prior one-shot first
-		AI->PlaySlotAnimationAsDynamicMontage(Anim, FName(TEXT("DefaultSlot")), /*BlendIn=*/0.1f, /*BlendOut=*/0.15f);
+		return AI->PlaySlotAnimationAsDynamicMontage(Anim, FName(TEXT("DefaultSlot")),
+			/*BlendIn=*/0.1f, /*BlendOut=*/0.15f, PlayRate);
 	}
+	return nullptr;
 }
 
 void UZP_ShamblerBehaviorComponent::PlaySlotLoop(UAnimSequence* Anim)
@@ -677,13 +830,10 @@ void UZP_ShamblerBehaviorComponent::UpdateLurk(float DistToPlayer)
 	LurkTimer += EvalInterval;
 	if (!bWasInLurkRange || LurkTimer >= LurkInterval)
 	{
-		// Randomly pick one of the two lurk growls each time.
+		// Play the lurk growl set on the audio comp at BeginPlay (SFX_ZOMBIE_LURK). If you import a
+		// second growl (SFX_ZOMBIE_LURK2), restore a RandBool LoadObject pick here for variety.
 		if (Audio)
 		{
-			const TCHAR* P = FMath::RandBool()
-				? TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_LURK1.SFX_ZOMBIE_LURK1")
-				: TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_LURK2.SFX_ZOMBIE_LURK2");
-			Audio->LurkingLoop = LoadObject<USoundBase>(nullptr, P);
 			Audio->PlayLurk();
 		}
 		LurkTimer = 0.f;
@@ -742,25 +892,103 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 	// Remember which side took the (possibly lethal) hit so the death animation falls the right way:
 	// a shot travelling AGAINST the zombie's forward came at its FRONT.
 	bLastHitFront = FVector::DotProduct(ShotDir.GetSafeNormal(), Owner->GetActorForwardVector()) < 0.f;
-	// Capsule hits carry no bone, so judge a headshot by how high up the body it landed.
+	// MELEE (pipe) never headshots — it's a blunt body strike, tagged with UZP_MeleeDamageType, and
+	// deals its own passed-in damage. Only ranged fire is judged head-vs-body by hit HEIGHT (capsule
+	// hits carry no bone, so headshots go by how high up the body the shot landed).
+	const bool bMelee = DamageType && DamageType->IsA(UZP_MeleeDamageType::StaticClass());
 	const float HitZAboveCentre = HitLocation.Z - Owner->GetActorLocation().Z;
-	const bool bHead = HitZAboveCentre >= HeadshotMinZ;
-	const float Dmg = bHead ? HeadShotDamage : BodyShotDamage;
+	const bool bHead = !bMelee && (HitZAboveCentre >= HeadshotMinZ);
+	const float Dmg = bMelee ? Damage : (bHead ? HeadShotDamage : BodyShotDamage);
 	UE_LOG(LogTemp, Warning, TEXT("[Shambler] HIT z+%.0f -> %s, %.0f dmg (was %.0f HP)"),
-		HitZAboveCentre, bHead ? TEXT("HEADSHOT") : TEXT("body"), Dmg, Health->CurrentHealth);
+		HitZAboveCentre, bMelee ? TEXT("melee/body") : (bHead ? TEXT("HEADSHOT") : TEXT("body")), Dmg, Health->CurrentHealth);
 	Health->ApplyDamage(Dmg);
 
-	// Hit flinch: only if the shot didn't kill, and we're not in the middle of a swipe (mid-attack
-	// hits don't interrupt — same rule the Scytheer uses; otherwise the player can stunlock by
-	// shooting through every swing). Cooldown gates retriggering so the Shambler can still walk + fight.
-	if (!Health->bIsDead && State != EShamblerState::Attack)
+	// FIGHT BACK: taking damage aggros it regardless of facing/LOS (it got HIT — it knows), with the
+	// SHORT hurt-scream so a point-blank melee spammer gets a swing back inside their combo instead
+	// of farming a 2 s stationary wail. Damage mid-scream also cuts the wail short. Previously it
+	// died to 4 spam hits before its sight-aggro -> scream -> chase -> swing chain ever landed.
+	if (!Health->bIsDead)
 	{
-		const double Now = GetWorld()->GetTimeSeconds();
-		if ((Now - LastHitReactTime) >= HitReactCooldown)
+		if (State == EShamblerState::Wander)
 		{
-			LastHitReactTime = Now;
-			UAnimSequence* HitAnim = bLastHitFront ? HitFrontAnim : HitBackAnim;
-			if (HitAnim) { PlayOneShot(HitAnim); }
+			Target = GetPlayer();
+			SetState(EShamblerState::Scream);
+			CurrentScreamHold = HurtScreamHoldTime;
+		}
+		else if (State == EShamblerState::Scream)
+		{
+			CurrentScreamHold = FMath::Min(CurrentScreamHold, HurtScreamHoldTime);
+		}
+	}
+
+	// Visible hit feedback — three always-cosmetic layers (never pauses the AI, never cancels a
+	// swing; gameplay stagger stays block-only):
+	//  1. Mesh punch: EVERY hit, EVERY state, ungated — the body visibly shoves along the hit
+	//     direction and springs back (decay in TickComponent). This is the guarantee that no
+	//     landed hit ever reads as ignored.
+	//  2. Mid-swing: absorb-hitch — near-freeze hit-stop on the swing, then it powers through.
+	//  3. Otherwise (not screaming): directional flinch clip + hit vocal (once imported).
+	if (!Health->bIsDead)
+	{
+		// (1) punch — horizontal shove along the shot direction, in actor-local space.
+		FVector PunchDir = ShotDir;
+		PunchDir.Z = 0.f;
+		if (PunchDir.Normalize() && HitPunchStrength > 0.f)
+		{
+			const FVector Local = Owner->GetActorTransform().InverseTransformVectorNoScale(PunchDir);
+			MeshPunch += FVector2D(Local.X, Local.Y) * HitPunchStrength;
+			MeshPunch = MeshPunch.GetSafeNormal() * FMath::Min(MeshPunch.Size(), HitPunchStrength * 2.f);
+		}
+
+		const double Now = GetWorld()->GetTimeSeconds();
+		if ((Now - LastHitReactTime) >= FlinchCooldown)
+		{
+			// Only CONSUME the cooldown when a reaction actually fires — a no-op hitch (already
+			// hitched this swing) or a missing clip must not eat the window and starve the next
+			// real reaction (that starvation was "I still don't see it flinch at all").
+			if (State == EShamblerState::Attack)
+			{
+				if (DoSwingHitch()) { LastHitReactTime = Now; } // (2)
+			}
+			else if (State != EShamblerState::Scream)
+			{
+				UAnimSequence* HitAnim = bLastHitFront ? HitFrontAnim : HitBackAnim;
+				if (HitAnim)
+				{
+					LastHitReactTime = Now;
+					PlayOneShot(HitAnim); // (3)
+					if (Audio) { Audio->PlayHit(); } // silent until SFX_ZOMBIE_HIT is imported
+				}
+			}
+		}
+	}
+}
+
+bool UZP_ShamblerBehaviorComponent::DoSwingHitch()
+{
+	if (bHitchedThisSwing || !Owner || !ActiveSwingMontage.IsValid()) { return false; }
+	USkeletalMeshComponent* M = Owner->GetMesh();
+	UAnimInstance* AI = M ? M->GetAnimInstance() : nullptr;
+	if (!AI || !AI->Montage_IsPlaying(ActiveSwingMontage.Get())) { return false; }
+
+	bHitchedThisSwing = true; // one per swing — repeated hitches would visibly desync the contact frame
+	AI->Montage_SetPlayRate(ActiveSwingMontage.Get(), SwingHitchRate);
+	GetWorld()->GetTimerManager().SetTimer(HitchRestoreTimer, this,
+		&UZP_ShamblerBehaviorComponent::RestoreSwingRate, SwingHitchTime, false);
+	return true;
+}
+
+void UZP_ShamblerBehaviorComponent::RestoreSwingRate()
+{
+	if (bDead || !Owner || !ActiveSwingMontage.IsValid()) { return; }
+	if (USkeletalMeshComponent* M = Owner->GetMesh())
+	{
+		if (UAnimInstance* AI = M->GetAnimInstance())
+		{
+			if (AI->Montage_IsPlaying(ActiveSwingMontage.Get()))
+			{
+				AI->Montage_SetPlayRate(ActiveSwingMontage.Get(), bSwingReleased ? StrikePlayRate : WindupPlayRate);
+			}
 		}
 	}
 }
@@ -769,8 +997,31 @@ void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration)
 {
 	if (bDead || !Owner) { return; }
 
-	// Bypass HitReact cooldown — block stagger must always read visibly.
-	LastHitReactTime = -1000.0;
+	// NO internal cooldown here — this is the BLOCK reward and it must ALWAYS read (design: spam
+	// hits never stagger — the player passes Duration 0 for those — so this only fires when one of
+	// our own swings lands on a blocking player, which its swing cadence already rate-limits, plus
+	// the player-side BlockStaggerCooldown). Refresh the flinch gate so the cosmetic OnPointDamage
+	// twitch doesn't double-play on top of this full stagger.
+	const double Now = GetWorld()->GetTimeSeconds();
+	LastHitReactTime = Now;
+
+	// A stagger is contact — aggro even if it hadn't noticed the player yet (short hurt-scream,
+	// same as damage-aggro; the stagger pause below overlays it).
+	if (State == EShamblerState::Wander)
+	{
+		Target = GetPlayer();
+		SetState(EShamblerState::Scream);
+		CurrentScreamHold = HurtScreamHoldTime;
+	}
+
+	// Staggered mid-swing (a landed block/melee hit during the wind-up or strike): the flinch clip
+	// replaces the swing on the slot, so the queued damage/release timers MUST die with it — a
+	// staggered swing invisibly landing its hit would break the block flow the stagger rewards.
+	if (State == EShamblerState::Attack)
+	{
+		CancelPendingSwing();
+	}
+
 	if (UAnimSequence* Anim = HitFrontAnim ? HitFrontAnim : HitBackAnim)
 	{
 		PlayOneShot(Anim);
@@ -817,6 +1068,8 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 	{
 		W->GetTimerManager().ClearTimer(EvalTimer);
 		W->GetTimerManager().ClearTimer(AttackHitTimer);
+		W->GetTimerManager().ClearTimer(WindupReleaseTimer);
+		W->GetTimerManager().ClearTimer(HitchRestoreTimer);
 	}
 	if (AICon) { AICon->StopMovement(); }
 	SetSpeed(0.f);
@@ -824,8 +1077,17 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 	// Death cry — reuses the alert path with the (dev-swappable) death SFX.
 	if (Audio)
 	{
-		Audio->AlertSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_DEATH.SFX_ZOMBIE_DEATH"));
-		Audio->PlayAlert();
+		USoundBase* DeathSfx = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_DEATH.SFX_ZOMBIE_DEATH"));
+		if (DeathSfx)
+		{
+			Audio->AlertSound = DeathSfx;
+			Audio->PlayAlert();
+		}
+		else
+		{
+			// Asset not imported yet -> no death cry. Import a death growl to this exact path.
+			UE_LOG(LogTemp, Warning, TEXT("[Shambler] death SFX missing — import /Game/Audio/Shambler/SFX_ZOMBIE_DEATH to hear the death cry."));
+		}
 	}
 
 	// Play the directional death animation and HOLD the final (corpse) frame. NOT ragdoll — physics
@@ -838,6 +1100,13 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 		if (USkeletalMeshComponent* M = Owner->GetMesh())
 		{
 			if (DeathAnim) { M->PlayAnimation(DeathAnim, /*bLooping=*/false); } // single clip, holds last frame = corpse
+			// Clear any in-flight hit punch — the dead branch of Tick never decays it, so a punch
+			// from the killing blow would leave the corpse laterally offset from the capsule.
+			MeshPunch = FVector2D::ZeroVector;
+			FVector RL = M->GetRelativeLocation();
+			RL.X = MeshBaseRelXY.X;
+			RL.Y = MeshBaseRelXY.Y;
+			M->SetRelativeLocation(RL);
 		}
 		DeathStartTime = GetWorld()->GetTimeSeconds();
 		DeathAnimLen = DeathAnim ? DeathAnim->GetPlayLength() : 0.f;
@@ -859,6 +1128,8 @@ void UZP_ShamblerBehaviorComponent::ApplyDeadStateInstant_Implementation()
 	{
 		W->GetTimerManager().ClearTimer(EvalTimer);
 		W->GetTimerManager().ClearTimer(AttackHitTimer);
+		W->GetTimerManager().ClearTimer(WindupReleaseTimer);
+		W->GetTimerManager().ClearTimer(HitchRestoreTimer);
 	}
 	if (AICon) { AICon->StopMovement(); }
 	SetSpeed(0.f);
@@ -875,9 +1146,12 @@ void UZP_ShamblerBehaviorComponent::ApplyDeadStateInstant_Implementation()
 			M->SetPosition(DeathAnim->GetPlayLength(), /*bFireNotifies=*/false); // hold the final (corpse) frame
 		}
 		FVector RL = M->GetRelativeLocation();
+		RL.X = MeshBaseRelXY.X; // also clear any stale hit-punch offset
+		RL.Y = MeshBaseRelXY.Y;
 		RL.Z = MeshBaseRelZ - DeathDropZ; // apply the full grounding drop instantly
 		M->SetRelativeLocation(RL);
 	}
+	MeshPunch = FVector2D::ZeroVector;
 	UE_LOG(LogTemp, Log, TEXT("[Shambler] dead-state restored on load: %s"), *Owner->GetName());
 }
 
@@ -888,6 +1162,7 @@ void UZP_ShamblerBehaviorComponent::ReviveEnemy_Implementation()
 	bDead = false;
 	bDropping = false;
 	bStaggered = false;
+	MeshPunch = FVector2D::ZeroVector; // no stale death-frame jolt on the first alive frames
 	Target = nullptr;
 	LostSightTimer = 0.f;
 

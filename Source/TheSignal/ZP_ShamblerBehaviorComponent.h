@@ -29,6 +29,8 @@
 #include "ZP_ShamblerBehaviorComponent.generated.h"
 
 class UAnimSequence;
+class UAnimMontage;
+class USoundBase;
 class UZP_EnemyAudioComponent;
 class UZP_HealthComponent;
 class UDamageType;
@@ -92,28 +94,61 @@ public:
 	float HeadshotMinZ = 55.f;
 
 	// --- Attack ---
+	/** Distance (UU) at which it COMMITS to a swing. Larger than the contact radius on purpose — it
+	 *  starts swinging while you still have space, so you see swings often and get a window to block
+	 *  or back-step. (Was 160: it had to park on your toes before ever swinging, so swings were rare.) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
-	float AttackRange = 160.f;
+	float AttackRange = 230.f;
+
+	/** Distance (UU) the player must still be within AT THE MOMENT the hit lands. Decoupled from
+	 *  AttackRange: back-stepping during the wind-up makes the swing whiff — that's the defensive
+	 *  counterplay. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
+	float AttackHitRange = 220.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float AttackCooldown = 0.4f;
 
+	/** 25 = two eaten swings cost half the player's health. Spam-trading must hurt — the design
+	 *  forces block (x0.25 damage + counter-stagger) or the back-step whiff instead. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
-	float AttackDamage = 20.f;
+	float AttackDamage = 25.f;
 
-	/** Seconds into the swipe the hit lands (damage + your vignette). The clip is a wind-up then a
-	 *  strike near the END, so this is late by default — nudge it to the exact contact frame. Must be < AttackDuration. */
+	/** CLIP time (s) of the contact frame in the swipe animation. Real-world hit timing is remapped
+	 *  through WindupPlayRate/StrikePlayRate at swing start. Must be < the clip length. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float AttackHitTime = 1.3f;
 
-	/** How long one swing lasts before the next chains (or it recovers to chase). Long enough to let the
-	 *  full swing play; shorten for a faster (but clipped) flurry. */
+	/** FALLBACK swing length (s) if a swing clip is missing. When the clip exists, the real duration
+	 *  is computed per-swing from the clip length + the two play rates. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float AttackDuration = 1.7f;
 
-	/** Seconds it holds the scream (stationary, plays the alert) before breaking into the chase. */
+	/** CLIP time (s) where the rear-back (wind-up) ends and the strike launches. The clip plays at
+	 *  WindupPlayRate up to here, then snaps to StrikePlayRate — slow telegraph, fast release. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
+	float WindupEndTime = 1.0f;
+
+	/** Play rate of the wind-up portion. Below 1 = slower, more readable rear-back (the "block now"
+	 *  telegraph). 0.8 gives ~1.25 s of visible wind-up before the strike releases. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
+	float WindupPlayRate = 0.8f;
+
+	/** Play rate of the strike + recovery portion. Above 1 = the swing snaps once released and the
+	 *  next swing chains sooner. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
+	float StrikePlayRate = 1.6f;
+
+	/** Seconds it holds the scream (stationary, plays the alert) before breaking into the chase.
+	 *  Applies to SIGHT aggro — the cinematic beat when it spots you across a room. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float ScreamHoldTime = 2.0f;
+
+	/** Scream hold when aggro came from TAKING DAMAGE (or damage lands mid-scream). Short — a
+	 *  point-blank attacker must not get a free 2 s wail to wale on; it snaps into the fight.
+	 *  This is what makes melee spam trade instead of farming a stationary target. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
+	float HurtScreamHoldTime = 0.5f;
 
 	// --- Speeds (set on the owner's CharacterMovement) ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
@@ -202,6 +237,11 @@ public:
 	float StumbleMax = 0.8f;
 
 	// --- Audio ---
+	/** Groan played exactly when the wander IDLE animation starts (one-shot per idle phase).
+	 *  Lazily defaulted to /Game/Audio/Shambler/SFX_ZOMBIE_IDLE in BeginPlay. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
+	TObjectPtr<USoundBase> IdleSound;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
 	float LurkRange = 1800.f;
 
@@ -263,10 +303,36 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler")
 	float EvalInterval = 0.25f;
 
-	/** Min seconds between hit-react plays so consecutive shots don't constantly retrigger the
-	 *  flinch (which would lock the Shambler in a perpetual loop and let the player kite for free). */
+	/** LEGACY — no longer read (BP_Shambler carries a stale serialized override of it, which is why
+	 *  the replacement got a NEW name). See FlinchCooldown. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
-	float HitReactCooldown = 1.0f;
+	float HitReactCooldown = 5.0f;
+
+	/** Min seconds between flinch-CLIP plays (out of combat states) / swing hitches. The mesh
+	 *  punch below is NOT gated — every single hit visibly jolts the body regardless. Purely
+	 *  cosmetic: never pauses the AI, never cancels a swing; gameplay stagger stays block-only. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float FlinchCooldown = 0.5f;
+
+	/** Play-rate the in-flight swing drops to for SwingHitchTime when a hit lands mid-swing — a
+	 *  near-freeze hit-stop ("absorbed the blow"). The swing still completes (hyper-armor holds);
+	 *  it just visibly FEELS the hit. One hitch per swing. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float SwingHitchRate = 0.05f;
+
+	/** Seconds the hitch lasts before the swing snaps back to its phase rate (wind-up or strike). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float SwingHitchTime = 0.16f;
+
+	/** Mesh jolt (UU) applied along the hit direction on EVERY landed hit, spring-decaying over
+	 *  ~0.2 s. The always-on layer of hit feedback — reads in any state, even mid-swing, without
+	 *  touching the AI or the playing animation. 0 disables. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float HitPunchStrength = 9.f;
+
+	/** Punch spring-back speed (per second). Higher = snappier recovery. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float HitPunchRecovery = 12.f;
 
 	/** Yaw deg/sec the body uses to pre-rotate toward the next wander dest during a pause. Picking
 	 *  the next dest BEFORE the pause and turning during it means the next leg starts already
@@ -277,14 +343,16 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Shambler|State")
 	EShamblerState State = EShamblerState::Wander;
 
-	/** Play the hit reaction and pause AI movement for Duration. Called by the
-	 *  player when blocking a melee swing — bypasses HitReactCooldown so the
-	 *  block always reads visibly even right after a bullet flinch. */
+	/** Play the flinch, cancel any in-flight swing, and pause AI for Duration. In the current design
+	 *  this is the BLOCK reward path (player melee hits pass Duration 0 = no stagger — see
+	 *  AZP_GraceCharacter HitStaggerDuration): it always reads, with no internal cooldown, because
+	 *  it can only fire when one of the Shambler's own swings lands on a blocking player (~its swing
+	 *  cadence) and the player-side BlockStaggerCooldown is the rate limit. */
 	UFUNCTION(BlueprintCallable, Category = "Shambler|Combat")
 	void ReceiveStaggerHit(float Duration);
 
 	// IZP_Staggerable — forwards to ReceiveStaggerHit so the player can stagger this enemy
-	// generically (melee hit / block) without knowing it's a Shambler.
+	// generically (block, and melee hits if HitStaggerDuration is ever raised above 0).
 	virtual void ReceiveStagger_Implementation(float Duration) override { ReceiveStaggerHit(Duration); }
 
 	// IZP_Revivable — death-state persistence + objective-driven revival (UZP_DeathSaveComponent).
@@ -303,9 +371,10 @@ private:
 	void Evaluate();
 	void SetState(EShamblerState NewState);
 	void SetSpeed(float Speed);
-	/** Play a stationary full-body one-shot (scream/swipe) by briefly swapping the mesh to single-clip
-	 *  mode; locomotion (the AnimBP) is restored on the next Wander/Chase state. No AnimGraph slot needed. */
-	void PlayOneShot(UAnimSequence* Anim);
+	/** Play a stationary full-body one-shot (scream/swipe/flinch) on the AnimBP's DefaultSlot as a
+	 *  dynamic montage. Returns the montage so callers can retime it mid-play (the swing wind-up
+	 *  release). PlayRate < 1 slows the whole clip (used for the swing's telegraphed rear-back). */
+	UAnimMontage* PlayOneShot(UAnimSequence* Anim, float PlayRate = 1.f);
 	/** Play a clip on the AnimBP's DefaultSlot looped indefinitely (until StopSlotLoop). Used to
 	 *  hold a real Idle pose during wander pauses — without it the BS_Shambler BlendSpace shows
 	 *  walk-at-speed-0 while stopped, which reads as "marching in place" not "idle". */
@@ -327,6 +396,23 @@ private:
 	void FaceTargetSmooth(float DeltaTime);
 	void BeginAttack();
 	void ApplyAttackDamage();
+
+	/** Wind-up over — snap the in-flight swing montage from WindupPlayRate to StrikePlayRate. */
+	UFUNCTION()
+	void ReleaseSwing();
+
+	/** A block/stagger landed mid-swing: kill the queued hit + release timers so a staggered swing
+	 *  never invisibly deals its damage. */
+	void CancelPendingSwing();
+
+	/** Absorb-hitch: briefly drop the in-flight swing to SwingHitchRate so a mid-swing hit visibly
+	 *  registers without cancelling the swing. Capped at one per swing. Returns true only if the
+	 *  hitch actually fired (callers only consume the flinch cooldown on a real reaction). */
+	bool DoSwingHitch();
+
+	/** Hitch over — restore the swing to the rate of its current phase (wind-up or strike). */
+	UFUNCTION()
+	void RestoreSwingRate();
 
 	UFUNCTION()
 	void OnOwnerDied();
@@ -363,10 +449,14 @@ private:
 	UPROPERTY() TObjectPtr<UZP_HealthComponent> Health;
 	UPROPERTY() TObjectPtr<AActor> Target;
 	float MeshBaseRelZ = 0.f;
+	FVector2D MeshBaseRelXY = FVector2D::ZeroVector; // rest XY of the mesh — punch offsets from here
+	FVector2D MeshPunch = FVector2D::ZeroVector;     // live hit-jolt offset (actor-local XY), decays in Tick
 	FVector SpawnLocation = FVector::ZeroVector; // cached at BeginPlay; wander stays tethered around this
 
 	FTimerHandle EvalTimer;
 	FTimerHandle AttackHitTimer;
+	FTimerHandle WindupReleaseTimer; // fires at the end of the slowed rear-back -> StrikePlayRate
+	FTimerHandle HitchRestoreTimer;  // ends the absorb-hitch -> phase play rate
 	FTimerHandle ProbeTimer;
 	FTimerHandle IdleLockTimer; // delays MOVE_None until braking deceleration finishes (smooth WALK→IDLE)
 	FTimerHandle StaggerHandle;
@@ -382,7 +472,12 @@ private:
 	FVector WanderDest = FVector::ZeroVector;
 	double LastAttackTime = -1000.0;
 	bool bAttackIsLeft = false;
+	float CurrentSwingTotalTime = 0.f;                 // real seconds this swing lasts (rate-remapped)
+	TWeakObjectPtr<UAnimMontage> ActiveSwingMontage;   // in-flight swing, retimed at wind-up release
+	bool bSwingReleased = false;                       // strike phase reached (RestoreSwingRate picks the right rate)
+	bool bHitchedThisSwing = false;                    // absorb-hitch fired for the current swing
 	bool bLastHitFront = true; // which side the last damage came from -> death-fall direction
+	float CurrentScreamHold = 2.f; // per-aggro scream hold: ScreamHoldTime on sight, HurtScreamHoldTime on damage
 	double DeathStartTime = 0.0;
 	float DeathAnimLen = 0.f;
 	bool bDropping = false;

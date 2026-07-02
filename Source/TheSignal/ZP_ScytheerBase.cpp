@@ -3,6 +3,7 @@
 #include "ZP_ScytheerBase.h"
 #include "ZP_ScytheerClimbPath.h"
 #include "ZP_HealthComponent.h"
+#include "ZP_SFXStatics.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -93,13 +94,9 @@ void AZP_ScytheerBase::LoadSFXDefaults()
 	FillSnd(DeathSound,  TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Death.SFX_Scytheer_Death"));
 	FillSnd(LurkSound,   TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Lurk.SFX_Scytheer_Lurk"));
 
-	// Spatial attenuation default — SA_EnemyVoice is the same room-scale attenuation the Shambler
-	// uses, so the Scytheer's SFX gets distance falloff + wall occlusion (the dev's "I'm hearing it
-	// through walls" complaint). Per-instance BP overrides win via the if (!Slot) guard.
-	if (!AudioAttenuation)
-	{
-		AudioAttenuation = LoadObject<USoundAttenuation>(nullptr, TEXT("/Game/Audio/SA_EnemyVoice.SA_EnemyVoice"));
-	}
+	// Carry/attenuation is C++-owned (UZP_SFXStatics Far profile, ~120 m natural falloff) — the old
+	// SA_EnemyVoice asset silently fell silent at ~15 m, which killed alert/hit/death audibility.
+	// AudioAttenuation is legacy and no longer loaded or passed anywhere.
 }
 
 void AZP_ScytheerBase::BeginPlay()
@@ -546,7 +543,7 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 		StartSegment(IdleStartFrame, IdleEndFrame, true);
 		SetMaxWalkSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
-		if (AlertSound) { UGameplayStatics::PlaySoundAtLocation(this, AlertSound, GetActorLocation(), FRotator::ZeroRotator, 1.f, 1.f, 0.f, AudioAttenuation, nullptr, this); }
+		UZP_SFXStatics::PlaySFXAttached(AlertSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 
 	case EScytheerState::WallDescent:
@@ -558,7 +555,7 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 		StartSegment(RunStartFrame, RunEndFrame, true);
 		SetMaxWalkSpeed(0.f); // movement is driven by SetActorLocation, not CMC, during descent
 		if (AICon) { AICon->StopMovement(); }
-		if (AlertSound) { UGameplayStatics::PlaySoundAtLocation(this, AlertSound, GetActorLocation(), FRotator::ZeroRotator, 1.f, 1.f, 0.f, AudioAttenuation, nullptr, this); }
+		UZP_SFXStatics::PlaySFXAttached(AlertSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 
 	case EScytheerState::Chase:
@@ -576,20 +573,27 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 		StartSegment(SF, EF, false);
 		SetMaxWalkSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
-		if (AttackSound) { UGameplayStatics::PlaySoundAtLocation(this, AttackSound, GetActorLocation(), FRotator::ZeroRotator, 1.f, 1.f, 0.f, AudioAttenuation, nullptr, this); }
+		UZP_SFXStatics::PlaySFXAttached(AttackSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 	}
 
 	case EScytheerState::Hit:
 		StartSegment(HitStartFrame, HitEndFrame, false);
-		if (HitSound) { UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation(), FRotator::ZeroRotator, 1.f, 1.f, 0.f, AudioAttenuation, nullptr, this); }
+		// Far carry matters here: the player can hitscan-snipe from well past room scale and needs
+		// the hit-confirm to be audible at the shot distance.
+		UZP_SFXStatics::PlaySFXAttached(HitSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 
 	case EScytheerState::Die:
 		StartSegment(DieStartFrame, DieEndFrame, false);
 		SetMaxWalkSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
-		if (DeathSound) { UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), FRotator::ZeroRotator, 1.f, 1.f, 0.f, AudioAttenuation, nullptr, this); }
+		// Silent when a LOAD restores a corpse (ApplyDeadStateInstant re-enters Die for the pose) —
+		// with Far carry, replaying the cry would make every dead Scytheer audibly "die" on load.
+		if (!bRestoringDeadState)
+		{
+			UZP_SFXStatics::PlaySFXAttached(DeathSound, GetRootComponent(), EZP_SFXCarry::Far);
+		}
 		break;
 
 	case EScytheerState::ReturnToPatrol:
@@ -707,22 +711,29 @@ bool AZP_ScytheerBase::HasLOS(const AActor* Target) const
 	for (AActor* A : Att) { P.AddIgnoredActor(A); }
 
 	// Walk the line, skipping QueryOnly trigger volumes (door interaction boxes, overlap zones).
-	for (int32 Iter = 0; Iter < 8; ++Iter)
+	// BOTH directions must be clear — complex-as-simple wall collision has no BACKFACES, so a body
+	// hugging a wall can trace out through it unblocked; the reverse trace catches the front face
+	// (same fix as the Shambler's through-wall aggro).
+	auto DirClear = [this](FVector A, FVector B, FCollisionQueryParams Params) -> bool
 	{
-		FHitResult Hit;
-		if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_WorldStatic, P))
+		for (int32 Iter = 0; Iter < 8; ++Iter)
 		{
-			return true;
-		}
-		UPrimitiveComponent* Comp = Hit.GetComponent();
-		if (Comp && Comp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
-		{
-			P.AddIgnoredComponent(Comp);
-			continue;
+			FHitResult Hit;
+			if (!GetWorld()->LineTraceSingleByChannel(Hit, A, B, ECC_WorldStatic, Params))
+			{
+				return true;
+			}
+			UPrimitiveComponent* Comp = Hit.GetComponent();
+			if (Comp && Comp->GetCollisionEnabled() == ECollisionEnabled::QueryOnly)
+			{
+				Params.AddIgnoredComponent(Comp);
+				continue;
+			}
+			return false;
 		}
 		return false;
-	}
-	return false;
+	};
+	return DirClear(Start, End, P) && DirClear(End, Start, P);
 }
 
 bool AZP_ScytheerBase::IsPlayerReachable(const AActor* Target) const
@@ -878,7 +889,9 @@ void AZP_ScytheerBase::ApplyDeadStateInstant_Implementation()
 	bAggro = false;
 	if (UCapsuleComponent* Cap = GetCapsuleComponent()) { Cap->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
 	if (UCharacterMovementComponent* CM = GetCharacterMovement()) { CM->StopMovementImmediately(); CM->DisableMovement(); }
+	bRestoringDeadState = true; // suppress the death-cry replay inside EnterState(Die)
 	EnterState(EScytheerState::Die); // sets the Die anim segment (SegStartT..SegEndT)
+	bRestoringDeadState = false;
 	if (USkeletalMeshComponent* M = GetMesh()) { M->SetPosition(SegEndT, /*bFireNotifies=*/false); } // hold final frame
 	UE_LOG(LogTemp, Log, TEXT("[Scytheer] dead-state restored on load: %s"), *GetName());
 }

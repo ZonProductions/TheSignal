@@ -7,8 +7,9 @@
  *
  * Purpose: Reusable spatialized voice for any enemy. Intermittent "lurking" growls (one-shots
  *          at a low, jittered volume) while unnoticed, plus alert + attack one-shots, all routed
- *          through a shared SoundAttenuation asset (room-scale falloff + occlusion). Mono sources
- *          required to spatialize. Add to any enemy actor; drive from its behavior.
+ *          through UZP_SFXStatics with Far carry (~120 m natural falloff + trace-based occlusion
+ *          muffle) so a scream is audible down a hallway. Mono sources required to spatialize.
+ *          Add to any enemy actor; drive from its behavior.
  *
  * Owner Subsystem: EnemyAI / Audio
  */
@@ -44,7 +45,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
 	TArray<TObjectPtr<USoundBase>> AttackSounds;
 
-	/** Shared room-scale attenuation (SA_EnemyVoice) with occlusion. */
+	/** LEGACY — no longer used. Carry/attenuation is C++-owned in UZP_SFXStatics (Far profile) so
+	 *  it can't silently drift in a .uasset; the old SA_EnemyVoice asset fell silent at ~40 m. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
 	TObjectPtr<USoundAttenuation> Attenuation;
 
@@ -77,7 +79,8 @@ public:
 	void PlayAttack(bool bLunge = false);
 
 private:
-	/** bAllowMuffle: if true, a wall between the listener and the enemy lowpass+halves the sound
-	 *  (used for the ambient lurk). Combat events (alert/attack/hit) pass false — always clear. */
+	/** bAllowMuffle: if true, a wall between the listener and the enemy muffles the sound (volume
+	 *  cut + low-pass, values in UZP_SFXStatics). ALL voice one-shots pass true now — with ~80 m
+	 *  carry, an unmuffled alert cut clean through walls ("always clear" was pre-carry design). */
 	void PlayOneShot(USoundBase* Sound, float Vol, bool bAllowMuffle, float ForceLowPassHz = 0.f);
 };

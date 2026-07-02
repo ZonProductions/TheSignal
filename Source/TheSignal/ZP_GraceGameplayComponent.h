@@ -161,6 +161,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool TryConsumeStaminaPercent(float Percent);
 
+	/** Drain Percent (of max) unconditionally, clamped at 0, resetting the regen delay. Unlike
+	 *  TryConsumeStaminaPercent this is for continuous costs (holding a block pose) — it always
+	 *  spends whatever is left. Returns false once stamina has hit 0 (caller drops the guard). */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	bool DrainStaminaPercent(float Percent);
+
+	/** Current stamina as 0..1 of max (0 if no config). */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	float GetStaminaFraction() const;
+
 	/** Forward-axis move input (W=+1, S=-1). Set every Input_Move tick; reset to 0 on Completed. */
 	void SetForwardInput(float Value) { CurrentForwardInput = Value; }
 

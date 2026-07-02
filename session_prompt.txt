@@ -80,12 +80,14 @@
 7. TICKET-054 (melee swing feel): REBUILT session 62 — Kubold FPP view model replaces ADS hack. Pipe grip refit session 63 (straight-line channel fit, Scripts/Python/fit_pipe_grip_channel_offline.py). NEEDS PIE VALIDATION: grip alignment visual, equip/unequip transitions, swing visual, damage timing (MeleeDamageDelay=0.35s), view-model offset tuning (MeleeViewMesh relative transform Z=-155/yaw=-90).
 8. ~~FIX: Grenade swap animation~~ DONE session 63 — grenade lives on the Kubold view-model right fist with the rise-from-below equip; full stack flow (stay equipped, rearm, hotkey, stacking to 5) working and dev-verified.
 
-### Post-Rebuild Reminder
-After every C++ rebuild, run ALL CDO properties via MCP Python:
-```
-exec(open('C:/Users/Ommei/workspace/TheSignal/Scripts/set_all_cdo.py').read())
-```
-This sets: InventoryMenuAction, InventorySlot0-3Action, StartingWeaponItem, bAutoSpawnWeapon=true, BulletDecalMaterials.
+### Post-Rebuild Rule (REWRITTEN 2026-07-02 — dev directive: no scripts after builds)
+Do NOT run set_all_cdo.py (or any script) after rebuilds. Every value it sets is SERIALIZED into the
+saved BP assets (last full run + save: 2026-07-02) and rebuilds never touch content files — the old
+"run after every rebuild" protocol was obsolete noise and was the mechanism behind the starting-weapon
+regression. The rebuild cycle is now ONLY: kill editor -> Build.bat -> reopen editor.
+Run set_all_cdo.py ONE TIME only when a NEW CDO property is introduced that it must stamp, or when a
+specific value is OBSERVED wrong in PIE — and investigate why before re-stamping.
+(StartingWeaponItem is not stamped at all anymore — it inherits the C++ ctor default, DA_Pipe.)
 
 ## TICKET STATUS RULES
 # Status: DONE | IN PROGRESS | PLANNED | BLOCKED (no qualifiers, no parentheticals)

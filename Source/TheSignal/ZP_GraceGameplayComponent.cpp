@@ -214,6 +214,29 @@ bool UZP_GraceGameplayComponent::TryConsumeStaminaPercent(float Percent)
 	return true;
 }
 
+bool UZP_GraceGameplayComponent::DrainStaminaPercent(float Percent)
+{
+	if (!MovementConfig || Percent <= 0.0f) { return CurrentStamina > 0.0f; }
+
+	const float MaxStam = MovementConfig->MaxStamina;
+	CurrentStamina = FMath::Max(0.0f, CurrentStamina - MaxStam * (Percent / 100.0f));
+
+	// Continuous costs (holding block) also hold off auto-regen — no regen while the pose is held.
+	StaminaRegenTimer = MovementConfig->StaminaRegenDelay;
+
+	if (EventBroadcaster && MaxStam > 0.0f)
+	{
+		EventBroadcaster->BroadcastStaminaChanged(CurrentStamina / MaxStam);
+	}
+	return CurrentStamina > 0.0f;
+}
+
+float UZP_GraceGameplayComponent::GetStaminaFraction() const
+{
+	if (!MovementConfig || MovementConfig->MaxStamina <= 0.0f) { return 0.0f; }
+	return CurrentStamina / MovementConfig->MaxStamina;
+}
+
 // --- Head Bob ---
 
 void UZP_GraceGameplayComponent::UpdateHeadBob(float DeltaTime)

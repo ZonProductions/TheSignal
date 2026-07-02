@@ -43,6 +43,7 @@ class UMaterialInterface;
 class UZP_GraceMovementConfig;
 class UZP_GraceGameplayComponent;
 class UZP_KinemationComponent;
+class UZP_FootstepData;
 class UPostProcessComponent;
 class UZP_HealthComponent;
 class UZP_MapComponent;
@@ -311,6 +312,37 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
 	TObjectPtr<USoundBase> FlashlightClickSound;
 
+	// --- Footsteps (own-body foley; distance-based — the SingleNode locomotion has no anim notifies) ---
+
+	/** THE footstep surface table (DA_Footsteps): one row per surface with sounds + volume/pitch +
+	 *  matching (PhysMat SurfaceType, or material-name keywords for unauthored pack floors).
+	 *  Author it ONCE in the editor and extend forever — no code, no rebuilds. Lazily defaults to
+	 *  /Game/Core/Data/DA_Footsteps. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	TObjectPtr<UZP_FootstepData> FootstepData;
+
+	/** Hard fallback set used only when FootstepData is missing/unmatched AND its DefaultSounds
+	 *  are empty. Defaults to the Moonville hard-surface set (SW_Footstep_1..6). */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Footsteps")
+	TArray<TObjectPtr<USoundBase>> FootstepSounds;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float FootstepVolume = 0.4f;
+
+	/** Extra volume on sprint steps (heavier footfalls). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float SprintFootstepVolumeMul = 1.25f;
+
+	/** Distance (UU) between steps while walking. Crouch steps at 0.85x this, half volume. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float FootstepWalkStride = 170.f;
+
+	/** Distance (UU) between steps while sprinting. MUST be well under WalkStride x (Sprint/Walk
+	 *  speed ratio) or sprint cadence sounds identical to walking — at 260 walk / 390 sprint,
+	 *  150 gives ~2.6 steps/s vs ~1.5 walking (clearly a run). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float FootstepSprintStride = 150.f;
+
 	/** How quickly the flashlight tracks the camera (higher = snappier, lower = more chest lag). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
 	float FlashlightInterpSpeed = 8.0f;
@@ -468,25 +500,48 @@ public:
 	 *  the lens during the resolve. */
 	bool bBlockResolving = false;
 
+	/** True while RMB is physically held with the pipe (the INTENT to block). Decoupled from
+	 *  bIsBlocking so a press during a swing is BUFFERED: Tick engages the guard the instant the
+	 *  swing allows (post-contact recovery cancel) instead of discarding the press. */
+	bool bBlockWanted = false;
+
 	/** Incoming damage is multiplied by this while blocking (0.25 = 75% off). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
 	float BlockDamageReductionMul = 0.25f;
 
+	// ── Block stamina (blocking is a resource, not a free wall) ─────────
+	/** Percent of max stamina a BLOCKED HIT costs (~1/3 per dev direction). The ONLY stamina cost
+	 *  of blocking — holding the pose is free. Not enough left = GUARD BREAK: the hit lands at
+	 *  full damage and the guard drops. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
+	float BlockHitStaminaPercent = 33.3f;
+
+	/** Minimum stamina fraction (0..1) required to RAISE (or re-raise) the guard — you cannot put
+	 *  up a guard you can't pay for (default = one blocked hit's worth). Guard comes back as
+	 *  stamina recovers past this while RMB is still held. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
+	float BlockMinStaminaFractionToStart = 0.334f;
+
 	// ── Stagger (exposed knobs) ──────────────────────────────────────
-	/** Seconds the attacker is staggered after a successful BLOCK. */
+	// MELEE DESIGN (RE/SH2R-style): your swings do damage but do NOT stop the enemy — staggering
+	// is the BLOCK reward. Spam-trading loses (enemies swing into your combo); block/dodge wins.
+	/** Seconds the attacker is staggered after a successful BLOCK — the counter window (1-2 free hits). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
-	float BlockStaggerDuration = 1.0f;
+	float BlockStaggerDuration = 1.2f;
 
-	/** Minimum seconds between block-staggers so blocking can't permanently stun-lock an enemy. */
+	/** Minimum seconds between block-staggers. Kept BELOW enemy swing cadence (~1.9s) so every
+	 *  well-executed block rewards; it only exists as a safety floor against stagger spam. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
-	float BlockStaggerCooldown = 5.0f;
+	float BlockStaggerCooldown = 1.5f;
 
-	/** Seconds the enemy is staggered by a landed melee (pipe) HIT. */
+	/** Seconds the enemy is staggered by a landed melee (pipe) HIT. 0 = hits NEVER stagger — that
+	 *  is the intended design (0.5 let the player stun-lock enemies by spamming; they died without
+	 *  ever swinging back). Raise above 0 only to deliberately re-enable hit-staggers. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
-	float HitStaggerDuration = 0.5f;
+	float HitStaggerDuration = 0.f;
 
-	/** Minimum seconds between melee-hit staggers on the SAME enemy chain. 0 = every hit staggers
-	 *  (melee swing cooldown already paces it). Raise it if you want the stagger to be occasional. */
+	/** Minimum seconds between melee-hit staggers on the SAME enemy chain. Irrelevant while
+	 *  HitStaggerDuration = 0 (hits never stagger). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
 	float HitStaggerCooldown = 0.0f;
 
@@ -818,6 +873,30 @@ private:
 
 	/** Switch MeleeViewMesh between BlockLoop / BlockWalk based on motion. */
 	void UpdateBlockAnimation();
+
+	/** Distance-accumulating footstep player (called every Tick). */
+	void UpdateFootsteps(float DeltaTime);
+
+	/** Ground distance travelled since the last footstep. */
+	float FootstepDistanceAccum = 0.f;
+
+	/** Raise the guard NOW (anims, offsets, camera nudge). Callers must have validated context. */
+	void StartBlockNow();
+
+	/** Drop the guard (BlockStop pose-out → melee idle). Shared by RMB release, guard break
+	 *  (blocked hit with insufficient stamina), and hold-drain exhaustion. */
+	void ReleaseBlock();
+
+	/** If RMB is held (bBlockWanted) and the guard isn't up, raise it the moment context allows:
+	 *  melee equipped, no menu/ladder, stamina above the raise floor, and the swing animation fully
+	 *  finished (the swing is NEVER clipped). Called from input AND Tick — this is the buffering
+	 *  that makes swing→block seamless without re-pressing. */
+	void TryEngageBufferedBlock();
+
+	/** Attack > Block > Idle: a swing pressed while the guard is up drops the guard INSTANTLY with
+	 *  no BlockStop pose-out (the swing clip owns the view mesh the same frame). bBlockWanted stays
+	 *  set, so the guard re-raises by itself the moment the swing animation ends. */
+	void InterruptBlockForSwing();
 
 	/** Assemble the Marcus CCMH body as the visible shell: load meshes, set the
 	 *  retarget AnimBP (source = PlayerMesh) on MarcusBody, leader-pose apparel,
