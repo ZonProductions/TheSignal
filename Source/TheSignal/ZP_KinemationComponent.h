@@ -617,6 +617,20 @@ public:
 	bool IsReloadingState()  const { return bIsReloading; }
 	bool IsSwingingState()   const { return bMeleeSwingActive; }
 	bool IsSwitchingState()  const { return bWeaponSwitching; }
+
+	/** [LatchProbe] — is the impact-frame damage sweep still queued? Read at the grab latch so the
+	 *  trace shows whether a swing's damage was in flight at that exact moment. */
+	bool IsMeleeSweepPending() const
+	{
+		const UWorld* W = GetWorld();
+		return W && W->GetTimerManager().IsTimerActive(MeleeDamageHandle);
+	}
+	/** Seconds until the queued sweep fires (-1 = none). Same probe family. */
+	float MeleeSweepRemaining() const
+	{
+		const UWorld* W = GetWorld();
+		return W ? W->GetTimerManager().GetTimerRemaining(MeleeDamageHandle) : -1.f;
+	}
 private:
 
 	/** Releases the fire lock after the weapon Draw montage lands. */

@@ -625,6 +625,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
 	float MashGainPerPress = 0.12f;
 
+	/** MINIMUM bite beat (s, from Munch starting) before a mash press may flip the pair to the
+	 *  Wrestle clips. ROOT-CAUSED 2026-07-03 ([LatchProbe]): a player who ran in fighting is
+	 *  still clicking at the latch, the first press landed 0.02-0.07s into the bite, and Marcus
+	 *  took two hard single-node pose cuts within ~3 frames while the shambler was 0.3s of
+	 *  blend behind — the "latch glitch". Presses inside this window still count their meter
+	 *  gain; only the visual pair-switch waits. 0 = old instant behavior. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
+	float GrabMinMunchTime = 0.5f;
+
 	/** Escape meter drain per second (framerate-independent — presses are counted, not polled). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
 	float MashDecayPerSecond = 0.25f;
@@ -1235,8 +1244,17 @@ private:
 	/** Countdown to the next once-per-second damage tick while held. */
 	float GrabNextTickIn = 1.f;
 
+	/** [LatchProbe] 2s post-latch window ticker — logs what each body/camera is doing every 0.1s. */
+	FTimerHandle GrabLatchProbeTimer;
+	FVector GrabLatchProbeOrigin = FVector::ZeroVector;
+	double GrabLatchProbeStart = 0.0;
+
 	/** True while attack is physically held (drives Hold accessibility fill). */
 	bool bGrabEscapeHeld = false;
+
+	/** A mash press landed during the GrabMinMunchTime window — the Wrestle switch is buffered
+	 *  and fires from UpdateGrab the moment the minimum bite beat has played. */
+	bool bWrestleQueued = false;
 
 	/** Device the currently-shown grab prompt glyph was picked for — re-shown on change. */
 	bool bGrabPromptGamepad = false;

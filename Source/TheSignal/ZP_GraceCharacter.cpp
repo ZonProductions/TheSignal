@@ -5230,12 +5230,49 @@ void AZP_GraceCharacter::LoadGrabAnims()
 
 EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 {
-	if (!Grabber || GrabPhase != EZP_GrabPhase::None) { return EZP_GrabAttemptResult::Unavailable; }
-	if (HealthComp && HealthComp->bIsDead) { return EZP_GrabAttemptResult::Unavailable; }
-	if (bOnLadder || bInventoryMenuOpen || bMapOpen || IsModalMenuOpen()) { return EZP_GrabAttemptResult::Unavailable; }
-	if (GrabImmunityRemaining > 0.f) { return EZP_GrabAttemptResult::Unavailable; }
-	if (DodgeLockRemaining > 0.f) { return EZP_GrabAttemptResult::Unavailable; } // mid-dodge = the dodge evaded the latch
-	if (bIsBlocking) { return EZP_GrabAttemptResult::Deflected; } // the guard turns the grab away
+	// [LatchProbe] full player-side snapshot at the exact latch attempt. THE line to read when a
+	// latch glitches while swinging / after hitting the shambler.
+	const double TLatch = GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0;
+	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f TryBeginGrab by %s: phase=%d blocking=%d immunity=%.2f dodgeLock=%.2f weapon=%s swingActive=%d sweepPending=%d(+%.2fs) vel=%.0f"),
+		TLatch,
+		Grabber ? *Grabber->GetName() : TEXT("?"),
+		(int32)GrabPhase, bIsBlocking ? 1 : 0, GrabImmunityRemaining, DodgeLockRemaining,
+		(KinemationComp && KinemationComp->ActiveWeapon) ? *KinemationComp->ActiveWeapon->GetName() : TEXT("none"),
+		(KinemationComp && KinemationComp->bMeleeSwingActive) ? 1 : 0,
+		(KinemationComp && KinemationComp->IsMeleeSweepPending()) ? 1 : 0,
+		KinemationComp ? KinemationComp->MeleeSweepRemaining() : -1.f,
+		GetVelocity().Size());
+
+	if (!Grabber || GrabPhase != EZP_GrabPhase::None)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] -> UNAVAILABLE (no grabber / already in phase %d)"), (int32)GrabPhase);
+		return EZP_GrabAttemptResult::Unavailable;
+	}
+	if (HealthComp && HealthComp->bIsDead)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] -> UNAVAILABLE (dead)"));
+		return EZP_GrabAttemptResult::Unavailable;
+	}
+	if (bOnLadder || bInventoryMenuOpen || bMapOpen || IsModalMenuOpen())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] -> UNAVAILABLE (ladder/menu)"));
+		return EZP_GrabAttemptResult::Unavailable;
+	}
+	if (GrabImmunityRemaining > 0.f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] -> UNAVAILABLE (grab immunity %.2fs left)"), GrabImmunityRemaining);
+		return EZP_GrabAttemptResult::Unavailable;
+	}
+	if (DodgeLockRemaining > 0.f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] -> UNAVAILABLE (mid-dodge %.2fs left)"), DodgeLockRemaining);
+		return EZP_GrabAttemptResult::Unavailable; // mid-dodge = the dodge evaded the latch
+	}
+	if (bIsBlocking)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] -> DEFLECTED (blocking)"));
+		return EZP_GrabAttemptResult::Deflected; // the guard turns the grab away
+	}
 
 	LoadGrabAnims();
 
@@ -5261,6 +5298,9 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 	{
 		KinemationComp->CancelPendingMeleeSwing();
 	}
+	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] weapon stow done: preGrab=%s viewModelActive=%d"),
+		PreGrabWeaponClass ? *PreGrabWeaponClass->GetName() : TEXT("none"),
+		(KinemationComp && KinemationComp->IsMeleeViewModelActive()) ? 1 : 0);
 
 	// Freeze + snap to face the grabber. Control rotation is set ONCE and never moves during the
 	// grab (look input is gated), so the FP view direction on return has no snap.
@@ -5322,8 +5362,39 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 	GrabHeldTime = 0.f;
 	GrabNextTickIn = 1.f;
 	bGrabEscapeHeld = false;
+	bWrestleQueued = false;
 	SetGrabPhase(EZP_GrabPhase::Entry);
 	UE_LOG(LogTemp, Warning, TEXT("[Grab] LATCHED by %s"), *Grabber->GetName());
+
+	// [LatchProbe] PWIN — 2s post-latch window, 0.1s samples: what the PLAYER side is actually
+	// doing/showing. 'body' = the asset on MarcusBody's SingleNode (the 3P grab body) — if it isn't
+	// the grab clip, or flips back to a locomotion clip, that IS the wrong-animation glitch.
+	GrabLatchProbeOrigin = GetActorLocation();
+	GrabLatchProbeStart = GetWorld()->GetTimeSeconds();
+	GetWorld()->GetTimerManager().ClearTimer(GrabLatchProbeTimer);
+	GetWorld()->GetTimerManager().SetTimer(GrabLatchProbeTimer,
+		FTimerDelegate::CreateWeakLambda(this, [this]()
+	{
+		const double Dt = GetWorld()->GetTimeSeconds() - GrabLatchProbeStart;
+		if (Dt > 2.0)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(GrabLatchProbeTimer);
+			return;
+		}
+		UAnimSingleNodeInstance* SNI = MarcusBody ? MarcusBody->GetSingleNodeInstance() : nullptr;
+		const UCharacterMovementComponent* CM = GetCharacterMovement();
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] PWIN dt=%.1f phase=%d drift=%.0f vel=%.0f mode=%d camW=%.2f body='%s' playing=%d bodyVis=%d meleeVM=%d"),
+			Dt, (int32)GrabPhase,
+			FVector::Dist2D(GetActorLocation(), GrabLatchProbeOrigin),
+			GetVelocity().Size(),
+			CM ? (int32)CM->MovementMode.GetValue() : -1,
+			GrabCamWeight,
+			(SNI && SNI->CurrentAsset) ? *SNI->CurrentAsset->GetName() : TEXT("NO-SNI/none"),
+			(SNI && SNI->IsPlaying()) ? 1 : 0,
+			MarcusBody ? (MarcusBody->IsVisible() ? 1 : 0) : -1,
+			(KinemationComp && KinemationComp->IsMeleeViewModelActive()) ? 1 : 0);
+	}), 0.1f, /*bLoop*/true);
+
 	return EZP_GrabAttemptResult::Grabbed;
 }
 
@@ -5334,6 +5405,9 @@ void AZP_GraceCharacter::AbortGrab()
 
 void AZP_GraceCharacter::SetGrabPhase(EZP_GrabPhase NewPhase)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f PLAYER phase %d -> %d (held=%.2fs camW=%.2f)"),
+		GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0,
+		(int32)GrabPhase, (int32)NewPhase, GrabHeldTime, GrabCamWeight);
 	GrabPhase = NewPhase;
 	switch (NewPhase)
 	{
@@ -5464,6 +5538,16 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 		StruggleTimeRemaining -= DeltaTime;
 		GrabHeldTime += DeltaTime;
 
+		// Buffered wrestle switch: a press (or a Hold-mode hold) that landed inside the
+		// GrabMinMunchTime window engages the struggle the moment the bite beat has played.
+		if (GrabPhase == EZP_GrabPhase::Munch && GrabHeldTime >= GrabMinMunchTime
+			&& (bWrestleQueued || (bEscapeHoldMode && bGrabEscapeHeld)))
+		{
+			bWrestleQueued = false;
+			UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] buffered wrestle FIRING (bite %.2fs done)"), GrabHeldTime);
+			SetGrabPhase(EZP_GrabPhase::Wrestle);
+		}
+
 		// The prompt glyph follows the device the player is actually using (KBM <-> pad).
 		if (bGrabPromptGamepad != bLastInputGamepad)
 		{
@@ -5589,7 +5673,18 @@ void AZP_GraceCharacter::GrabMashPressed()
 	if (GrabPhase == EZP_GrabPhase::Munch)
 	{
 		// First press: the struggle engages — both bodies switch to the wrestle pair.
+		// The press ALWAYS counts its meter gain; the visual pair-switch waits out
+		// GrabMinMunchTime — a press 0.02s into the bite double-cut Marcus's single-node body
+		// within ~3 frames and left the shambler 0.3s of blend behind: THE latch glitch
+		// ([LatchProbe] root cause, 2026-07-03). UpdateGrab fires the buffered switch.
 		if (!bEscapeHoldMode) { EscapeProgress += MashGainPerPress; }
+		if (GrabHeldTime < GrabMinMunchTime)
+		{
+			bWrestleQueued = true;
+			UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] mash press BUFFERED (bite %.2f/%.2fs) — wrestle queued"),
+				GrabHeldTime, GrabMinMunchTime);
+			return;
+		}
 		SetGrabPhase(EZP_GrabPhase::Wrestle);
 	}
 	else if (GrabPhase == EZP_GrabPhase::Wrestle && !bEscapeHoldMode)
@@ -5601,8 +5696,14 @@ void AZP_GraceCharacter::GrabMashPressed()
 void AZP_GraceCharacter::EndGrab(bool bAborted)
 {
 	if (GrabPhase == EZP_GrabPhase::None) { return; }
+	// [LatchProbe] aborted=1 + a tiny 'held' value = the grab was broken within frames of the
+	// latch — then look one line up in the log for WHO (sweep? stagger? point damage?).
+	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f PLAYER EndGrab aborted=%d fromPhase=%d held=%.2fs"),
+		GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0,
+		bAborted ? 1 : 0, (int32)GrabPhase, GrabHeldTime);
 	GrabPhase = EZP_GrabPhase::None;
 	bGrabEscapeHeld = false;
+	bWrestleQueued = false;
 
 	// Aborts (grabber died / grab broken by damage / player died) must tell the grabber —
 	// clean exits already notified it via their outcome phase.
@@ -5708,11 +5809,26 @@ void AZP_GraceCharacter::EndGrab(bool bAborted)
 
 void AZP_GraceCharacter::PlayGrabClipOnBody(UAnimSequenceBase* Clip, bool bLoop)
 {
-	if (!Clip || !MarcusBody) { return; }
+	if (!Clip || !MarcusBody)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[LatchProbe] PlayGrabClipOnBody NO-OP: clip=%s body=%s"),
+			Clip ? TEXT("ok") : TEXT("NULL"), MarcusBody ? TEXT("ok") : TEXT("NULL"));
+		return;
+	}
 	if (UAnimSingleNodeInstance* SNI = MarcusBody->GetSingleNodeInstance())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f BODY clip -> '%s' (loop=%d, was '%s')"),
+			GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0, *Clip->GetName(), bLoop ? 1 : 0,
+			SNI->CurrentAsset ? *SNI->CurrentAsset->GetName() : TEXT("none"));
 		SNI->SetAnimationAsset(Clip, bLoop, 1.0f);
 		SNI->SetPlaying(true);
+	}
+	else
+	{
+		// SILENT FAILURE MODE — MarcusBody not in SingleNode mode = the grab clip NEVER PLAYS and
+		// the 3P camera shows whatever the body was doing before ("wrong animation" at the latch).
+		UE_LOG(LogTemp, Error, TEXT("[LatchProbe] t=%.2f BODY clip '%s' FAILED — MarcusBody has NO SingleNodeInstance (mode=%d)"),
+			GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0, *Clip->GetName(), (int32)MarcusBody->GetAnimationMode());
 	}
 }
 
@@ -5721,8 +5837,16 @@ void AZP_GraceCharacter::PlayGrabClipOnFPRig(UAnimSequenceBase* Clip)
 	if (!Clip) { return; }
 	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f FPRIG clip -> '%s' (was '%s')"),
+			GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0, *Clip->GetName(),
+			SNI->CurrentAsset ? *SNI->CurrentAsset->GetName() : TEXT("none"));
 		SNI->SetAnimationAsset(Clip, /*bLoop*/false, 1.0f);
 		SNI->SetPlaying(true);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[LatchProbe] t=%.2f FPRIG clip '%s' FAILED — hidden Mesh not in SingleNode mode"),
+			GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0, *Clip->GetName());
 	}
 }
 

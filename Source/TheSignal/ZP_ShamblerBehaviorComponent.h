@@ -150,11 +150,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
 	float GrabRange = 230.f;
 
-	/** Seconds after a grab (landed OR deflected) before THIS zombie may grab again — the
-	 *  anti-chain-grab rule (Condemned's instant re-grab is the documented anti-pattern).
-	 *  This is the window in which it melees instead. */
+	/** Seconds after a LANDED grab before THIS zombie may grab again — the anti-chain-grab rule
+	 *  (Condemned's instant re-grab is the documented anti-pattern). This is the window in which
+	 *  it melees instead. Failed attempts use GrabFailCooldown instead (dev 2026-07-03). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
 	float GrabCooldown = 30.f;
+
+	/** Seconds after a FAILED grab attempt (deflected by the block, or evaded via dodge/immunity/
+	 *  menus) before the next try. Kept short so a read block doesn't buy a 30s grab-free fight.
+	 *  Clamped to GrabCooldown at use. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float GrabFailCooldown = 6.f;
 
 	/** Vertical counterpart to GrabPairDistance: nudges the zombie MESH up/down (UU) for the
 	 *  duration of the grab so the paired bodies line up in height (Marcus runs at 0.869 scale).
@@ -250,6 +256,17 @@ public:
 	 *  the walk/attack flow — the gap between the two is the hysteresis band (no flapping). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
 	float RunTriggerDistance = 450.f;
+
+	/** Seconds of each RUN burst inside the sprint-chase. The sprint OPENS with a burst, then
+	 *  alternates burst -> fast walk -> burst... for as long as the sprint band holds
+	 *  (dev 2026-07-03: interspersed run/fast-walk, ~1:2). Min 0.25 (one eval tick). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
+	float RunBurstDuration = 2.0f;
+
+	/** Seconds of fast walk (ChaseSpeed on the walk BlendSpace) between run bursts.
+	 *  0 = no walk phase, continuous running (the pre-2026-07-03 sprint behavior). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
+	float RunWalkDuration = 4.0f;
 
 	/** Speed (UU/s) at which the run clip's stride looks natural — the loop plays at
 	 *  RunSpeed / this. Tune until foot skate is gone (same pattern as AnimWalkRefSpeed). */
@@ -556,11 +573,10 @@ private:
 	void PauseAIWithoutFlinch(float Duration);
 
 	/** Queue the idle slot loop for the moment a one-shot clip blends out while the AI is still
-	 *  paused — BS_Shambler at speed 0 otherwise shows junk in the gap until the AI moves again
-	 *  (post-takedown "swimming"; the post-block-flinch "frozen in T position", dev 2026-07-03).
-	 *  Used by the grab reactions (Takedown/Kicked/Pushed) AND the stagger flinch; the matching
-	 *  stagger-end release stops the loop as locomotion resumes. Only engages if still bStaggered
-	 *  when the clip ends. */
+	 *  paused. NOW LOOM-ONLY (FailKnockdown — dev spec 2026-07-03: "it LOOMS: idle in place until
+	 *  they're back up"): every other combat gap uses the Tick pose-hold instead, because the
+	 *  docile idle is banned in combat (dev 2026-07-03). Only engages if still bStaggered when
+	 *  the clip ends; the wait-for-victim-up release stops the loop as locomotion resumes. */
 	void ScheduleGrabIdleFill(float ReactionClipLen);
 
 	/** Knocked the victim down: hold in place (idle loop) until IZP_Grabbable::IsGrabRecovering
@@ -650,6 +666,8 @@ private:
 	FTimerHandle VictimUpWaitTimer; // holds the AI idle until the knocked-down victim is back up
 	FTimerHandle CollisionRestoreTimer; // restores pawn-vs-pawn collision once the capsules are clear
 	FTimerHandle GrabSlideProbeTimer;   // continuous post-release motion trace ([GrabSlideProbe])
+	FTimerHandle LatchWindowProbeTimer; // [LatchProbe] 2s post-LATCH window ticker (0.1s samples)
+	FVector LatchWindowOrigin = FVector::ZeroVector; // shambler position at the latch
 	FTimerHandle EscapePushbackDelayTimer; // holds the pair spacing through the push-contact beat
 	FVector SlideProbeOrigin = FVector::ZeroVector; // shambler position at the moment of release
 	double SlideProbeStart = 0.0;
@@ -675,6 +693,7 @@ private:
 	FVector WanderDest = FVector::ZeroVector;
 	double LastAttackTime = -1000.0;
 	double LastGrabTime = -1000.0;   // grab cooldown anchor (set on landed AND deflected grabs)
+	double LastLatchTime = -1000.0;  // [LatchProbe] moment the last grab actually LATCHED — probes log dt vs this
 	bool bAttackIsLeft = false;
 	float CurrentSwingTotalTime = 0.f;                 // real seconds this swing lasts (rate-remapped)
 	TWeakObjectPtr<UAnimMontage> ActiveSwingMontage;   // in-flight swing, retimed at wind-up release
@@ -682,6 +701,8 @@ private:
 	TWeakObjectPtr<UAnimMontage> CombatPoseHold;       // combat clip paused at its final pose to cover a gap
 	TWeakObjectPtr<UAnimMontage> RunLoopMontage;       // sprint-chase run cycle (slot loop)
 	bool bRunningChase = false;                        // Chase is in the sprint band (> RunTriggerDistance)
+	bool bRunBurstNow = false;                         // sprint sub-phase: true = run burst, false = fast walk
+	double RunPhaseStart = 0.0;                        // when the current burst/walk sub-phase began
 	bool bSwingReleased = false;                       // strike phase reached (RestoreSwingRate picks the right rate)
 	bool bHitchedThisSwing = false;                    // absorb-hitch fired for the current swing
 	bool bLastHitFront = true; // which side the last damage came from -> death-fall direction

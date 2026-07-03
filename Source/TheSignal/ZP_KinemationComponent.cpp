@@ -791,6 +791,14 @@ void UZP_KinemationComponent::UnequipWeapon()
 	// Cancel pending timers
 	if (GetWorld())
 	{
+		// [LatchProbe] the grab latch stows the weapon through here — if a swing's damage sweep is
+		// still queued at this instant, THIS is what kills it. If this line never shows on a
+		// glitched latch, the sweep either already fired (see SWEEP FIRED timing) or was never queued.
+		if (GetWorld()->GetTimerManager().IsTimerActive(MeleeDamageHandle))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f UnequipWeapon: PENDING melee sweep killed (was %.2fs from firing)"),
+				GetWorld()->GetTimeSeconds(), GetWorld()->GetTimerManager().GetTimerRemaining(MeleeDamageHandle));
+		}
 		GetWorld()->GetTimerManager().ClearTimer(FireCooldownHandle);
 		GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeCooldownHandle);
@@ -1161,6 +1169,8 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 	}
 
 	// --- Damage: sweep on the impact frame, not at click time ---
+	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f SWING click — damage sweep queued to fire at t=%.2f (+%.2fs)"),
+		GetWorld()->GetTimeSeconds(), GetWorld()->GetTimeSeconds() + MeleeDamageDelay, MeleeDamageDelay);
 	GetWorld()->GetTimerManager().SetTimer(MeleeDamageHandle, [this]()
 	{
 		DoMeleeDamageSweep();
@@ -1176,6 +1186,8 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 
 void UZP_KinemationComponent::DoMeleeDamageSweep()
 {
+	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f SWEEP FIRED — applying melee damage now"),
+		GetWorld() ? GetWorld()->GetTimeSeconds() : -1.0);
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	AController* PC = OwnerPawn ? OwnerPawn->GetController() : nullptr;
 	if (PC && CameraComponent)
