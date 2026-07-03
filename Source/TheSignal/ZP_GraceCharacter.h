@@ -290,6 +290,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	TObjectPtr<UZP_HealthComponent> HealthComp;
 
+	/** Marcus's blood identity — NORMAL red (the enemies' components run the dark-purple class
+	 *  defaults). Drives the grab-bite spurts; anything that ever calls PlayHitBloodFor on the
+	 *  player resolves this too. Colors/sizes are knobs on the component. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	TObjectPtr<class UZP_BloodFXComponent> BloodFXComp;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Map")
 	TObjectPtr<UZP_MapComponent> MapComp;
 
@@ -453,6 +459,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> JumpAction;
 
+	// --- Movement feel ---
+
+	/** Backpedal speed multiplier — backward input is scaled by this, and the CMC reduces max
+	 *  speed proportionally to input magnitude, so walking backwards moves at this fraction of
+	 *  forward speed. Deliberately harsh (dev 2026-07-03: backing away from the Shambler sprint
+	 *  must not be a free escape — turn and run, or dodge). Was a hardcoded 0.55. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float BackpedalSpeedMul = 0.4f;
+
 	// --- Dodge (replaces Jump on space bar) ---
 
 	/** Horizontal launch velocity (cm/s) applied on dodge. With ground braking
@@ -601,6 +616,10 @@ public:
 	// IZP_Grabbable — an enemy asks to latch on / releases us.
 	virtual EZP_GrabAttemptResult TryBeginGrab(AActor* Grabber) override;
 	virtual void AbortGrab() override;
+	virtual bool IsGrabRecovering() const override
+	{
+		return GrabPhase == EZP_GrabPhase::FailKnockdown || GrabPhase == EZP_GrabPhase::GetUp;
+	}
 
 	/** Each LMB press adds this to the escape meter (threshold 1.0 wins). ~9 clean presses. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
@@ -672,6 +691,14 @@ public:
 	 *  grapple). 1 = unchanged, 0 = off. Restored on release. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Flashlight")
 	float GrabFlashlightDimMul = 0.35f;
+
+	/** Additive BONE-LOCAL rotations on Marcus's upper arms during the 3P grapple — dial out
+	 *  arm clipping against the Shambler. Applied by the MarcusBody post-process layer on top
+	 *  of the paired clips; live-tunable in PIE, zero = off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Pose")
+	FRotator GrabArmLRotation = FRotator::ZeroRotator;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Pose")
+	FRotator GrabArmRRotation = FRotator::ZeroRotator;
 
 	/** Player-facing mash prompt shown while grabbed — PLACEHOLDER: author the real wording in
 	 *  BP_GraceCharacter → Details → Grab|HUD. */
@@ -1230,6 +1257,10 @@ private:
 
 	/** Weapon stowed at grab start — re-equipped at the end (the ladder recipe). */
 	TSubclassOf<UObject> PreGrabWeaponClass;
+
+	/** Defers restoring pawn-vs-pawn collision after a grab until the capsules are clear —
+	 *  restoring while interpenetrated depenetrates them (random shove/slide at release). */
+	FTimerHandle GrabCollisionRestoreTimer;
 
 	// Retargeted grab clips, lazily loaded on first grab (LoadAnimDefaults pattern).
 	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimEntry;      // CCMH, MarcusBody

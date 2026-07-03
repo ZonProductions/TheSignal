@@ -1285,6 +1285,23 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 	);
 }
 
+void UZP_KinemationComponent::CancelPendingMeleeSwing()
+{
+	// UnequipWeapon already clears MeleeDamageHandle when a weapon is equipped; this covers the
+	// grab latch's no-ActiveWeapon path and stands alone as an explicit "no queued damage" call.
+	if (UWorld* W = GetWorld())
+	{
+		const bool bWasPending = W->GetTimerManager().IsTimerActive(MeleeDamageHandle);
+		W->GetTimerManager().ClearTimer(MeleeDamageHandle);
+		if (bWasPending)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] CancelPendingMeleeSwing — queued melee sweep KILLED (grab latched mid-swing)"));
+		}
+	}
+	bMeleeSwingActive = false;
+	bMeleeSwingTailCancelable = false;
+}
+
 // --- Melee view model (TICKET-054) ---
 
 void UZP_KinemationComponent::SetMeleeWeaponBlockGrip(bool bBlocking)

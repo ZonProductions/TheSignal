@@ -32,6 +32,7 @@
 class UAnimSequence;
 class UAnimMontage;
 class USoundBase;
+class UAudioComponent;
 class UZP_EnemyAudioComponent;
 class UZP_HealthComponent;
 class UDamageType;
@@ -167,10 +168,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
 	float GrabPairDistance = 70.f;
 
-	/** LaunchCharacter speed (UU/s) of the backward shove when the player kicks/pushes free — the
-	 *  clips have no root motion, so the knockback is programmatic. */
+	/** Escape stumble-back — a SMALL, contact-timed step, not a launch and not a cross-room slide
+	 *  (dev sequence 2026-07-02: camera is already back in 1P; the push reads, THEN the zombie
+	 *  stumbles back ~half a meter and is ready to attack). The zombie HOLDS the grapple spacing
+	 *  for EscapePushbackDelay seconds — dial this until the movement starts exactly at Marcus's
+	 *  push/kick CONTACT in the 1P view — then steps back EscapePushbackDistance over
+	 *  EscapePushbackDuration with an ease-out, synced to the stumble clip's back-steps. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
-	float EscapeShoveSpeed = 450.f;
+	float EscapePushbackDelay = 0.9f;
+
+	/** DISPLACEMENT (UU) of the stumble-back — how far the body actually moves. Dev spec: half a
+	 *  meter or less (50 = 0.5m). From the 70uu grapple spacing this lands ~115uu from the player
+	 *  — past the capsule-clear point (~100) so the deferred collision restore still completes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float EscapePushbackDistance = 45.f;
+
+	/** Seconds the eased step-back takes. Stumble-paced, not shove-paced. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float EscapePushbackDuration = 0.45f;
 
 	/** MINIMUM stun after being kicked/pushed off (the escape-reward punish window). The real pause
 	 *  is max(this, the Kicked/Pushed clip length ~2.3s) so it never resumes mid-reaction. */
@@ -180,6 +195,31 @@ public:
 	/** Stagger applied when a BLOCKING player deflects the grab attempt (mirrors the block reward). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
 	float DeflectStaggerDuration = 1.2f;
+
+	/** Additive BONE-LOCAL rotations on the Shambler's upper arms during the grapple — dial out
+	 *  arm clipping against Marcus, live in PIE. Applied by ABP_Shambler's C++ parent
+	 *  (UZP_ShamblerGrabPoseAnimInstance); inert outside the Grab state. Zero = off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FRotator GrabArmLRotation = FRotator::ZeroRotator;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FRotator GrabArmRRotation = FRotator::ZeroRotator;
+
+	/** Additive BONE-LOCAL rotation on the Shambler's HEAD during the grapple — angle the mouth
+	 *  INTO Marcus's neck (the pack pose reads "more like a hug than a bite", dev 2026-07-03).
+	 *  Same mechanism/knob behavior as the arm rotations; dial live in PIE. Zero = off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FRotator GrabHeadRotation = FRotator::ZeroRotator;
+
+	/** Pair spacing (UU) the zombie re-snaps to the instant a kick/push ESCAPE begins, so the
+	 *  push contact reads (Marcus's arms reach the chest) before the knockback launches.
+	 *  0 = off (keep the wrestle spacing). Dial live in PIE. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float GrabEscapeSnapDistance = 0.f;
+
+	/** Looping snarl for the whole grapple — starts at the latch, hard-cut the instant the grab
+	 *  ends on ANY path. Lazily defaults to /Game/Audio/Shambler/SFX_SHAMBLER_GRAB (looping). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<USoundBase> GrabLoopSound;
 
 	/** Seconds it holds the scream (stationary, plays the alert) before breaking into the chase.
 	 *  Applies to SIGHT aggro — the cinematic beat when it spots you across a room. */
@@ -198,6 +238,30 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
 	float ChaseSpeed = 250.f;
+
+	/** SPRINT-CHASE (dev 2026-07-03: "I don't even need to dodge to get out of the way"). When the
+	 *  visible chase target is farther than RunTriggerDistance, the Shambler breaks into the NAAT
+	 *  run cycle at this speed until it's back on top of the player (inside AttackRange) or loses
+	 *  sight. CMC MaxWalkSpeed while sprinting — dial live in PIE. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
+	float RunSpeed = 420.f;
+
+	/** Distance (UU) at which the chase breaks into the run. Inside AttackRange it drops back to
+	 *  the walk/attack flow — the gap between the two is the hysteresis band (no flapping). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
+	float RunTriggerDistance = 450.f;
+
+	/** Speed (UU/s) at which the run clip's stride looks natural — the loop plays at
+	 *  RunSpeed / this. Tune until foot skate is gone (same pattern as AnimWalkRefSpeed). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float RunAnimRefSpeed = 350.f;
+
+	/** Run cycle, played as a slot loop over the walk BlendSpace for the whole sprint. Default =
+	 *  A_Shambler_RunStiffArms: the NAAT run body with the arms FROZEN at the AS_NAAT_Zombie_LL_Idle
+	 *  pose (bake_shambler_run_arms.py — necromorphs don't pump their arms). Swap to plain
+	 *  A_Shambler_Run for the original swinging-arm cycle. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	TObjectPtr<UAnimSequence> RunAnim;
 
 	/** Degrees/sec it pivots to FACE the player during combat (scream / chase / attack). Fast enough to
 	 *  track you circling it, but not instant. Wander still turns via movement orientation. */
@@ -437,10 +501,29 @@ private:
 	UAnimMontage* PlayOneShot(UAnimSequence* Anim, float PlayRate = 1.f);
 	/** Play a clip on the AnimBP's DefaultSlot looped indefinitely (until StopSlotLoop). Used to
 	 *  hold a real Idle pose during wander pauses — without it the BS_Shambler BlendSpace shows
-	 *  walk-at-speed-0 while stopped, which reads as "marching in place" not "idle". */
-	void PlaySlotLoop(UAnimSequence* Anim);
+	 *  walk-at-speed-0 while stopped, which reads as "marching in place" not "idle". Returns the
+	 *  montage so callers (Tick vacuum-filler, sprint-chase) can track and release their own loop.
+	 *  PlayRate: stride matching for moving loops (run = RunSpeed / RunAnimRefSpeed). */
+	UAnimMontage* PlaySlotLoop(UAnimSequence* Anim, float PlayRate = 1.f);
+
+	/** Exit the sprint (back to ChaseSpeed + walk BlendSpace). Safe to call when not running. */
+	void StopRunChase();
 	/** Stop whatever is currently on the DefaultSlot so locomotion takes back over. */
 	void StopSlotLoop();
+
+	/** COMBAT gap cover (dev 2026-07-03: "in combat, idle shouldn't happen at all"): instead of
+	 *  vacuum-filling combat gaps with the docile wander idle, HOLD the final pose of whatever
+	 *  combat clip just played — TickComponent pauses the active slot montage just before its
+	 *  blend-out when the body is stationary in Scream/Chase/Attack. The next clip crossfades
+	 *  over the held pose; movement or a state release resumes+ends it. No new animation content. */
+	void ReleaseCombatPoseHold();
+
+	/** [ShamAnim] trace — every montage that stops on this mesh logs its name + whether a new clip
+	 *  interrupted it. Play-side logging lives in PlayOneShot/PlaySlotLoop. */
+	UFUNCTION()
+	void OnAnyMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION()
+	void OnAnyMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	/** Re-activate the locomotion AnimBP if a one-shot left the mesh in single-clip mode. */
 	void EnsureLocomotion();
 
@@ -471,6 +554,33 @@ private:
 	/** Pause the AI (bStaggered) for Duration WITHOUT playing the flinch clip — used after grab
 	 *  outcomes where a paired reaction clip already owns the slot. */
 	void PauseAIWithoutFlinch(float Duration);
+
+	/** Queue the idle slot loop for the moment a one-shot clip blends out while the AI is still
+	 *  paused — BS_Shambler at speed 0 otherwise shows junk in the gap until the AI moves again
+	 *  (post-takedown "swimming"; the post-block-flinch "frozen in T position", dev 2026-07-03).
+	 *  Used by the grab reactions (Takedown/Kicked/Pushed) AND the stagger flinch; the matching
+	 *  stagger-end release stops the loop as locomotion resumes. Only engages if still bStaggered
+	 *  when the clip ends. */
+	void ScheduleGrabIdleFill(float ReactionClipLen);
+
+	/** Knocked the victim down: hold in place (idle loop) until IZP_Grabbable::IsGrabRecovering
+	 *  goes false — no pathing circles around a downed body — then resume the chase. MinWait
+	 *  protects the swipe reaction; a hard failsafe releases after ~12s no matter what. */
+	void BeginWaitForVictimUp(float MinWait);
+
+	/** After a grab ends, the two capsules may still INTERPENETRATE (GrabPairDistance < the sum
+	 *  of their radii) — restoring collision immediately makes the engine depenetrate them: the
+	 *  random shove/slide/orbit the dev reported. Keep ignoring the victim until the capsules
+	 *  are actually clear (polled). NEVER force-restores while overlapped short of the 15s
+	 *  abandon point (the old 4s failsafe fired MID-LOOM and shoved the zombie away). */
+	void DeferCollisionRestore();
+
+	/** Continuous 6s post-release motion trace, 0.1s samples ([GrabSlideProbe] log lines). */
+	void StartGrabSlideProbe();
+
+	/** Fires EscapePushbackDelay seconds into a kick/push escape: captures the from/to points and
+	 *  arms the TickComponent slide-to-stop (bEscapePushback). */
+	void StartEscapePushback();
 
 	/** Wind-up over — snap the in-flight swing montage from WindupPlayRate to StrikePlayRate. */
 	UFUNCTION()
@@ -520,6 +630,7 @@ private:
 
 	UPROPERTY() TObjectPtr<ACharacter> Owner;
 	UPROPERTY() TObjectPtr<AAIController> AICon;
+	UPROPERTY() TObjectPtr<UAudioComponent> GrabLoopAudio; // live grapple snarl loop (stopped on grab end)
 	UPROPERTY() TObjectPtr<UZP_EnemyAudioComponent> Audio;
 	UPROPERTY() TObjectPtr<UZP_HealthComponent> Health;
 	UPROPERTY() TObjectPtr<AActor> Target;
@@ -535,6 +646,23 @@ private:
 	FTimerHandle ProbeTimer;
 	FTimerHandle IdleLockTimer; // delays MOVE_None until braking deceleration finishes (smooth WALK→IDLE)
 	FTimerHandle StaggerHandle;
+	FTimerHandle GrabIdleFillTimer; // fills the post-grab-reaction gap with the idle loop (anti "swim")
+	FTimerHandle VictimUpWaitTimer; // holds the AI idle until the knocked-down victim is back up
+	FTimerHandle CollisionRestoreTimer; // restores pawn-vs-pawn collision once the capsules are clear
+	FTimerHandle GrabSlideProbeTimer;   // continuous post-release motion trace ([GrabSlideProbe])
+	FTimerHandle EscapePushbackDelayTimer; // holds the pair spacing through the push-contact beat
+	FVector SlideProbeOrigin = FVector::ZeroVector; // shambler position at the moment of release
+	double SlideProbeStart = 0.0;
+
+	// live escape pushback (driven in TickComponent — see StartEscapePushback)
+	bool bEscapePushback = false;
+	double EscapePushbackStart = 0.0;
+	FVector EscapePushbackFrom = FVector::ZeroVector;
+	FVector EscapePushbackTo = FVector::ZeroVector;
+
+	/** True while Chase is holding position inside AttackRange (stand ready, face the player —
+	 *  no MoveToActor re-paths orbiting the target). */
+	bool bChaseHoldingInRange = false;
 	bool bStaggered = false;
 
 	float LostSightTimer = 0.f;
@@ -550,6 +678,10 @@ private:
 	bool bAttackIsLeft = false;
 	float CurrentSwingTotalTime = 0.f;                 // real seconds this swing lasts (rate-remapped)
 	TWeakObjectPtr<UAnimMontage> ActiveSwingMontage;   // in-flight swing, retimed at wind-up release
+	TWeakObjectPtr<UAnimMontage> SlotVacuumFill;       // Tick-spawned idle fill (WANDER ONLY — never in combat)
+	TWeakObjectPtr<UAnimMontage> CombatPoseHold;       // combat clip paused at its final pose to cover a gap
+	TWeakObjectPtr<UAnimMontage> RunLoopMontage;       // sprint-chase run cycle (slot loop)
+	bool bRunningChase = false;                        // Chase is in the sprint band (> RunTriggerDistance)
 	bool bSwingReleased = false;                       // strike phase reached (RestoreSwingRate picks the right rate)
 	bool bHitchedThisSwing = false;                    // absorb-hitch fired for the current swing
 	bool bLastHitFront = true; // which side the last damage came from -> death-fall direction

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-02T21:50:04",
+  "created": "2026-07-03T02:16:36",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -2806,6 +2806,10 @@
     "Content/Audio/Scytheer/SFX_Scytheer_Lurk.uasset": {
       "hash": "sha256:e22db6254ec2dd01dcff7e270170d2f0346d976af75d37d72aedfc6adb197cd3",
       "size": 155525
+    },
+    "Content/Audio/Shambler/SFX_SHAMBLER_GRAB.uasset": {
+      "hash": "sha256:0d59246e3c7c01818b725502445edb4f3b9d8dff10d31695e0e3bb8279a4ea2c",
+      "size": 424559
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_ALERT.uasset": {
       "hash": "sha256:3a01c8f7828f337124ea6a2dfef0a21cc99b9305ad6f5bc489af8edb7352badc",
@@ -23811,6 +23815,42 @@
       "hash": "sha256:c372b76c16d6a31589387037b3c4bfd72b09cdb39d920529dfda828ff009387c",
       "size": 8083
     },
+    "Content/checkpoints/2026-07-02aa_grab_arm_knobs_only.md": {
+      "hash": "sha256:8f6aeed2ef554c3c7afb255d213eb677509a534596aacde52180a08bc27c232b",
+      "size": 2976
+    },
+    "Content/checkpoints/2026-07-02ab_grab_swim_idle_fill.md": {
+      "hash": "sha256:dfd936fd696389bcefcb4b5c2d9e0e08725167bfba94af0301304526207ed947",
+      "size": 2291
+    },
+    "Content/checkpoints/2026-07-02ac_swim_rootcause_takedown_dive.md": {
+      "hash": "sha256:c74a8681b2e39d177e7584edb9b144e61a96002f4ea92a50f5aa23f0d0682cc7",
+      "size": 2497
+    },
+    "Content/checkpoints/2026-07-02ad_shambler_looms_over_downed_player.md": {
+      "hash": "sha256:38c9e1e1ba3ed3dd7150af9e80512c8584b23b2e0c37f17fce9d155ff1ca7983",
+      "size": 2447
+    },
+    "Content/checkpoints/2026-07-02ae_grab_probes_collision_defer.md": {
+      "hash": "sha256:40bb84a0cfe0f2ca41872f9f7f0d4849f75e95418b7de3d866354399e883d04f",
+      "size": 3369
+    },
+    "Content/checkpoints/2026-07-02af_grab_sfx_orient_lock.md": {
+      "hash": "sha256:f3d11efcc661cb6b11079e768fc185e385805e372e7e330e5a68d7ed063a2bcd",
+      "size": 3300
+    },
+    "Content/checkpoints/2026-07-02ag_slide_probe_failsafe_fix.md": {
+      "hash": "sha256:1cb4df637a282515210e242f5e5683163c7f9706ffa3f0461bc8f71920145e6c",
+      "size": 2805
+    },
+    "Content/checkpoints/2026-07-02ah_slide_rootcause_bp_wander.md": {
+      "hash": "sha256:48dfa9fb787a9e39eabcb515f6c3367b1b8614ad9fcc312e12ef05419d0b3182",
+      "size": 2900
+    },
+    "Content/checkpoints/2026-07-02ai_wander_restored_escape_pushback.md": {
+      "hash": "sha256:86187121790b436332b2fd679d8091ec4f4edea843d1adf98e3677b88570b59e",
+      "size": 7169
+    },
     "Content/checkpoints/2026-07-02t_grab_session_consolidated.md": {
       "hash": "sha256:bafbaa29b1b6e65f4cf29e8827b5c997be1ff78fec02afeaa781691467c9d13f",
       "size": 3496
@@ -23838,6 +23878,30 @@
     "Content/checkpoints/2026-07-02z_full_revert_to_pre_round4.md": {
       "hash": "sha256:19016f8baf228f91518f4f2ebc38cd4ab5ef8bdef252ed01ebce7b139501910b",
       "size": 3179
+    },
+    "Content/checkpoints/2026-07-03b_block_stagger_tpose_gap_fill.md": {
+      "hash": "sha256:8851dff2c94bc6bd0ac03f88a7137e6437b1c9e6e2d45235fecc7477a1c9f540",
+      "size": 3174
+    },
+    "Content/checkpoints/2026-07-03c_slot_vacuum_crossfade_takedown_scream.md": {
+      "hash": "sha256:8a84085231b68b002a83a5a3ad4acc9d7773899288ad3d7a4f5945bb5d494d91",
+      "size": 4171
+    },
+    "Content/checkpoints/2026-07-03d_shambler_sprint_chase.md": {
+      "hash": "sha256:76a48b65c60a0dcd4b6947cc842d33a61503f3ab4f24cb09970d0ea9106a4e91",
+      "size": 3508
+    },
+    "Content/checkpoints/2026-07-03e_stiff_arm_run_backpedal_knob.md": {
+      "hash": "sha256:30e7b2a0d5a36df4e6bcef53b64004acddc960596b8f63f038ad342212cb4acc",
+      "size": 3556
+    },
+    "Content/checkpoints/2026-07-03f_latch_clean_slate.md": {
+      "hash": "sha256:beb927ea327ef31187e4d24b622e92e8d29fab7d384b70e069768682877939b4",
+      "size": 2563
+    },
+    "Content/checkpoints/2026-07-03_grab_polish_getup_headknob_biteblood.md": {
+      "hash": "sha256:4546ed23d49429cdfbc153c7c475965ba3d7443be805aba8b691a09010bbf2c7",
+      "size": 4613
     },
     "Content/Container_Yard/Materials/Decals/DE_Container_Branding_01.uasset": {
       "hash": "sha256:45d95b0faa964d5213d6a8f55533dfe2923e78a73883caba80fda2d8bdc4d7a3",
@@ -24404,8 +24468,8 @@
       "size": 68476
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:8a8c7f7c4629748cf5e1b2379659948588e1571e22dcc8fc087ab77bd7f9caee",
-      "size": 136585
+      "hash": "sha256:f9707d50ba3d258a14a2ff8ab63921c67d58709475cb422a0b96ab5ddaf7a07b",
+      "size": 137751
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -26676,12 +26740,12 @@
       "size": 9792
     },
     "Content/Enemies/Shambler/ABP_Shambler.uasset": {
-      "hash": "sha256:670614bf2003ed570cb7626947f2a5968e1ffad52f49b932a3b16b19253a13ca",
-      "size": 76624
+      "hash": "sha256:b07ee66c48543de750b3b8f4e0c2f4bdb51097c9501292518dfe12cfdcd69a4c",
+      "size": 76877
     },
     "Content/Enemies/Shambler/BP_Shambler.uasset": {
-      "hash": "sha256:98e093145ce63e213fb5865c1bd82c3f1e0d287c44bfa6899ef74a1ef7993721",
-      "size": 63514
+      "hash": "sha256:632754cc686fd0f2623dd1302b2113787b131b2c35b22c024a329154f42c6b61",
+      "size": 59902
     },
     "Content/Enemies/Shambler/BS_Shambler.uasset": {
       "hash": "sha256:2e43ad9214ff2bacf9c4c6f4810ee9d4f510c0b61b7a017dbdd7e2e8fd41cc20",
@@ -26746,6 +26810,18 @@
     "Content/Enemies/Shambler/Anims/A_Shambler_Idle.uasset": {
       "hash": "sha256:5cdc72df77bdb0dc420f1e9c749ff09ccac7aaa771f071184ce31e153d67e306",
       "size": 177139
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_IdleLL.uasset": {
+      "hash": "sha256:3fcbe16ca30dc5756e746df61b7d0adb2bb4dc6cd7c645f32d862b6ced534cce",
+      "size": 1760422
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Run.uasset": {
+      "hash": "sha256:8cecd7c2243cefbe0372a3683cbdf319fe4cee5322891c5eeb24cd5c95c742e2",
+      "size": 143368
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_RunStiffArms.uasset": {
+      "hash": "sha256:0afc973190575cc3dd8344d59d3b61d0b175d988c1e68048a2e9b01cead36a55",
+      "size": 101148
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Scream.uasset": {
       "hash": "sha256:812b827681c48604e324d758f91d9bbee4bf2b7c9d099706af2c85d3ab36b840",

@@ -7,6 +7,7 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ZP_WeaponTypes.h"
 #include "ZP_HealthComponent.h"
+#include "ZP_BloodFXComponent.h"
 #include "ZP_ShamblerBehaviorComponent.h"
 #include "ZP_Staggerable.h"
 #include "ZP_GraceMovementConfig.h"
@@ -238,6 +239,22 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 
 	// Health component — player HP tracking, damage → HUD wiring
 	HealthComp = CreateDefaultSubobject<UZP_HealthComponent>(TEXT("HealthComp"));
+
+	// Blood identity — NORMAL red human blood (enemy components default to the dark purple).
+	// Toned down for the repeating grab-bite spurts: intensity 1, one wall + one floor splat per
+	// burst, no aftermath pool, and no body wounds (Marcus's meshes don't run M_ZP_CreatureSkin).
+	BloodFXComp = CreateDefaultSubobject<UZP_BloodFXComponent>(TEXT("BloodFXComp"));
+	BloodFXComp->BloodIntensity = 1;
+	BloodFXComp->BloodColor = FLinearColor(0.32f, 0.012f, 0.012f, 1.f);
+	BloodFXComp->SmokeColor = FLinearColor(0.10f, 0.015f, 0.015f, 1.f);
+	BloodFXComp->DecalColor = FLinearColor(0.14f, 0.005f, 0.006f, 1.f);
+	BloodFXComp->BloodScale = 1.0f;
+	BloodFXComp->NumWallSplats = 1;
+	BloodFXComp->NumFloorSplats = 1;
+	BloodFXComp->DecalSizeMin = 14.f;
+	BloodFXComp->DecalSizeMax = 30.f;
+	BloodFXComp->bDelayedFloorPool = false;
+	BloodFXComp->bBodyWounds = false;
 
 	// Map component — tracks discovered maps and current area
 	MapComp = CreateDefaultSubobject<UZP_MapComponent>(TEXT("MapComp"));
@@ -1610,12 +1627,12 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 		const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector RightDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// Backward penalty: scale backward input to 55%.
+		// Backward penalty: scale backward input by BackpedalSpeedMul (knob, was hardcoded 0.55).
 		// CMC's AnalogInputModifier reads input magnitude → reduces MaxSpeed proportionally.
 		float ForwardScale = MoveInput.Y;
 		if (ForwardScale < 0.f)
 		{
-			ForwardScale *= 0.55f;
+			ForwardScale *= FMath::Clamp(BackpedalSpeedMul, 0.05f, 1.f);
 		}
 		AddMovementInput(ForwardDir, ForwardScale);
 		AddMovementInput(RightDir, MoveInput.X);
@@ -5237,6 +5254,13 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 	{
 		PreGrabWeaponClass = nullptr;
 	}
+	// KILL any queued melee impact — the sweep fires on a timer after the click, and landing it
+	// a frame AFTER this latch deals damage mid-grab, which by design BREAKS the grab instantly
+	// (the "latch glitches when I'm swinging", dev 2026-07-03).
+	if (KinemationComp)
+	{
+		KinemationComp->CancelPendingMeleeSwing();
+	}
 
 	// Freeze + snap to face the grabber. Control rotation is set ONCE and never moves during the
 	// grab (look input is gated), so the FP view direction on return has no snap.
@@ -5336,6 +5360,12 @@ void AZP_GraceCharacter::SetGrabPhase(EZP_GrabPhase NewPhase)
 		GrabPhaseTimeRemaining = Clip ? Clip->GetPlayLength() : 2.3f;
 		GrabImmunityRemaining = PostEscapeGrabImmunity; // anti-chain-grab window
 		NotifyGrabberPhase(NewPhase); // grabber: paired reaction + knockback + stun
+		// The camera returns to 1P NOW (UpdateGrab's bWants3P excludes the escape phases), so the
+		// head meshes — which sit exactly at the FP camera — must go back to hidden immediately or
+		// they fill the screen for the whole push. Body stays visible: its clip IS the 1P push.
+		if (MarcusHead) { MarcusHead->SetVisibility(false); }
+		if (MarcusHair) { MarcusHair->SetVisibility(false); }
+		if (MarcusBrows) { MarcusBrows->SetVisibility(false); }
 		if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
 		{
 			if (PC->HUDWidget)
@@ -5382,6 +5412,10 @@ void AZP_GraceCharacter::SetGrabPhase(EZP_GrabPhase NewPhase)
 	}
 
 	case EZP_GrabPhase::GetUp:
+		// DEAD PHASE (2026-07-03): never entered — FPP_Dag_Knockdown already contains the rise,
+		// so FailKnockdown ends straight into EndGrab. Re-wiring this back in reintroduces the
+		// "two separate get up animations" bug. Kept only in case a knockdown clip WITHOUT a
+		// built-in rise ever replaces the current one.
 		PlayGrabClipOnFPRig(GrabAnimGetUpBack);
 		GrabPhaseTimeRemaining = GrabAnimGetUpBack ? GrabAnimGetUpBack->GetPlayLength() : 1.5f;
 		break;
@@ -5399,15 +5433,14 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 		GrabImmunityRemaining = FMath::Max(0.f, GrabImmunityRemaining - DeltaTime);
 	}
 
-	// Camera blend weight: 1 = full over-the-shoulder frame. Blends out over the tail of the
-	// escape reaction, or immediately at knockdown/abort — CalcCamera consumes it every frame,
-	// so every exit path returns to FP smoothly.
+	// Camera blend weight: 1 = full over-the-shoulder frame. The 3P frame covers ONLY the held
+	// grapple — the moment the escape fires the camera blends straight back to 1P so the push is
+	// SEEN first-person (dev sequence 2026-07-02: "go back into 1p, push, it stumbles back").
+	// Knockdown/abort also blend out immediately. CalcCamera consumes the weight every frame.
 	const bool bWants3P =
 		GrabPhase == EZP_GrabPhase::Entry ||
 		GrabPhase == EZP_GrabPhase::Munch ||
-		GrabPhase == EZP_GrabPhase::Wrestle ||
-		((GrabPhase == EZP_GrabPhase::EscapeKick || GrabPhase == EZP_GrabPhase::EscapePush)
-			&& GrabPhaseTimeRemaining > GrabCamBlendOut);
+		GrabPhase == EZP_GrabPhase::Wrestle;
 	const float TargetW = bWants3P ? 1.f : 0.f;
 	const float BlendTime = (TargetW > GrabCamWeight) ? GrabCamBlendIn : GrabCamBlendOut;
 	GrabCamWeight = FMath::FInterpConstantTo(GrabCamWeight, TargetW, DeltaTime,
@@ -5459,6 +5492,35 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 		if (GrabNextTickIn <= 0.f)
 		{
 			GrabNextTickIn += 1.f;
+			// Bite blood — each damage tick IS a bite: a red spurt from the neck toward the
+			// grabber (that's the wound side), full BloodFX composite (burst + traced splatter).
+			// Our own BloodFXComp makes it NORMAL red — enemies keep their dark palette.
+			{
+				FVector BiteLoc = GetActorLocation() + FVector(0.f, 0.f, 55.f);
+				if (MarcusBody)
+				{
+					if (MarcusBody->DoesSocketExist(TEXT("neck_01")))
+					{
+						BiteLoc = MarcusBody->GetSocketLocation(TEXT("neck_01"));
+					}
+					else if (MarcusBody->DoesSocketExist(TEXT("CC_Base_NeckTwist01")))
+					{
+						BiteLoc = MarcusBody->GetSocketLocation(TEXT("CC_Base_NeckTwist01"));
+					}
+				}
+				FVector SprayDir = GetActorForwardVector();
+				if (AActor* G = GrabberActor.Get())
+				{
+					FVector ToGrabber = G->GetActorLocation() - GetActorLocation();
+					ToGrabber.Z = 0.f;
+					if (!ToGrabber.IsNearlyZero()) { SprayDir = ToGrabber.GetSafeNormal(); }
+				}
+				SprayDir = (SprayDir + FVector(0.f, 0.f, 0.35f)).GetSafeNormal(); // arc up out of the bite
+				// Grabber passed as the extra trace-ignore: its capsule sits 70uu away ON the spray
+				// line and blocks WorldStatic line traces (the movement-only pair ignore doesn't
+				// cover traces) — without this every wall splat would die on the capsule.
+				UZP_BloodFXComponent::PlayHitBloodFor(this, BiteLoc, SprayDir, /*bMeleeHit*/true, SprayDir, GrabberActor.Get());
+			}
 			if (HealthComp)
 			{
 				HealthComp->ApplyDamage(GrabTickDamagePerSecond);
@@ -5498,7 +5560,14 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 		GrabPhaseTimeRemaining -= DeltaTime;
 		if (GrabPhaseTimeRemaining <= 0.f)
 		{
-			SetGrabPhase(EZP_GrabPhase::GetUp);
+			// NO GetUp phase: FPP_Dag_Knockdown is a complete fall+RISE cycle (pelvis 92->14->92)
+			// — the clip already stands the player back up. Chaining Get_Up_Back on top dropped
+			// them flat a second time and rose AGAIN ("two separate get up animations", dev
+			// 2026-07-03). The knockdown clip's own rise IS the get-up. NEVER re-enter GetUp.
+			// Re-arm the anti-chain-grab window HERE (at stand-up) — armed at knockdown entry it
+			// decays away during the 3.9s clip while GrabPhase!=None already blocks grabs.
+			GrabImmunityRemaining = PostEscapeGrabImmunity;
+			EndGrab(/*bAborted*/false);
 		}
 		break;
 
@@ -5542,15 +5611,48 @@ void AZP_GraceCharacter::EndGrab(bool bAborted)
 		NotifyGrabberPhase(EZP_GrabPhase::None);
 	}
 
-	// Movement + collision + rotation back (the ladder-exit recipe).
+	// Movement + rotation back (the ladder-exit recipe).
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{
 		if (CMC->MovementMode == MOVE_None) { CMC->SetMovementMode(MOVE_Walking); }
 	}
 	bUseControllerRotationYaw = true;
-	if (UCapsuleComponent* Cap = GetCapsuleComponent())
+
+	// Collision restore is DEFERRED until the capsules are actually clear of each other —
+	// the grapple spacing can leave them interpenetrated, and restoring immediately makes
+	// the engine depenetrate them (the random shove/slide at release). Polls every 0.2s,
+	// 4s failsafe. The grabber's side does the same for its own capsule.
+	if (TWeakObjectPtr<AActor> WeakGrabber = GrabberActor; WeakGrabber.IsValid())
 	{
-		if (AActor* G = GrabberActor.Get()) { Cap->IgnoreActorWhenMoving(G, false); }
+		GetWorldTimerManager().ClearTimer(GrabCollisionRestoreTimer);
+		const double RestoreStart = GetWorld()->GetTimeSeconds();
+		GetWorldTimerManager().SetTimer(GrabCollisionRestoreTimer,
+			FTimerDelegate::CreateWeakLambda(this, [this, WeakGrabber, RestoreStart]()
+		{
+			AActor* G = WeakGrabber.Get();
+			UCapsuleComponent* Cap = GetCapsuleComponent();
+			if (!G || !Cap)
+			{
+				GetWorldTimerManager().ClearTimer(GrabCollisionRestoreTimer);
+				return;
+			}
+			float SumR = Cap->GetScaledCapsuleRadius();
+			if (const ACharacter* GC = Cast<ACharacter>(G))
+			{
+				if (const UCapsuleComponent* GCap = GC->GetCapsuleComponent()) { SumR += GCap->GetScaledCapsuleRadius(); }
+			}
+			const float Dist = FVector::Dist2D(GetActorLocation(), G->GetActorLocation());
+			const double Elapsed = GetWorld()->GetTimeSeconds() - RestoreStart;
+			// Restore ONLY once actually clear — a short failsafe once fired mid-knockdown and
+			// restored while still overlapped -> depenetration shove. (With the GetUp phase gone
+			// the downed beat is ~3.9s and this timer now starts at stand-up, but the only safe
+			// restore condition is still ACTUALLY CLEAR, never a clock.)
+			if (Dist > SumR + 10.f || Elapsed > 15.0)
+			{
+				Cap->IgnoreActorWhenMoving(G, false);
+				GetWorldTimerManager().ClearTimer(GrabCollisionRestoreTimer);
+			}
+		}), 0.2f, /*bLoop*/true);
 	}
 
 	// Meshes back to FP configuration: body visible, head re-hidden (it sits at the FP

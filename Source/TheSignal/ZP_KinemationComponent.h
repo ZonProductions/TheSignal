@@ -483,6 +483,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Weapon")
 	void UnequipWeapon();
 
+	/** Kill the queued impact-frame melee sweep (and the swing-active flag). Called when a grab
+	 *  latches mid-swing: the sweep landing a frame after the latch deals damage mid-grab, which
+	 *  by design BREAKS the grab — the "latch glitch" (dev 2026-07-03). Visual timers stay. */
+	void CancelPendingMeleeSwing();
+
 	/** Rearm the equipped throwable (inventory still has supply after a throw). */
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Weapon")
 	void RestockThrowable();

@@ -44,6 +44,10 @@ public:
 	/** Grabber died / the grab was broken externally mid-grab: release immediately,
 	 *  restore all state, play no outcome anims. */
 	virtual void AbortGrab() = 0;
+
+	/** True while the victim is knocked down / getting up after a failed struggle — grabbers
+	 *  wait this out (idle in place) instead of pathing circles around the downed body. */
+	virtual bool IsGrabRecovering() const = 0;
 };
 
 UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))

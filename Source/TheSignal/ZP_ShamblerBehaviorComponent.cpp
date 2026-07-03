@@ -3,6 +3,7 @@
 #include "ZP_ShamblerBehaviorComponent.h"
 #include "ZP_EnemyAudioComponent.h"
 #include "ZP_HealthComponent.h"
+#include "Components/AudioComponent.h"
 #include "ZP_MeleeDamageType.h"
 #include "ZP_SFXStatics.h"
 #include "GameFramework/Character.h"
@@ -53,6 +54,10 @@ void UZP_ShamblerBehaviorComponent::LoadAnimDefaults()
 	Fill(DeathBackAnim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Back.A_Shambler_Death_Back"));
 	Fill(HitFrontAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Front.A_Shambler_Hit_Front"));
 	Fill(HitBackAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Back.A_Shambler_Hit_Back"));
+	// RunStiffArms = the NAAT run body with the arms FROZEN at the LL_Idle pose (necromorphs
+	// don't pump their arms — dev 2026-07-03). Baked by Scripts/Python/bake_shambler_run_arms.py;
+	// plain A_Shambler_Run still exists if the swinging arms are ever wanted back.
+	Fill(RunAnim,        TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_RunStiffArms.A_Shambler_RunStiffArms"));
 	// NAAT grab pair, attacker side (retargeted 2026-07-02, curve-audited — see retarget_grab_anims.py).
 	Fill(GrabEntryAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabEntry.A_Shambler_GrabEntry"));
 	Fill(GrabMunchAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabMunch.A_Shambler_GrabMunch"));
@@ -116,6 +121,12 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 		IdleSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_IDLE.SFX_ZOMBIE_IDLE"));
 	}
 
+	// Grapple snarl loop — the wave asset is set to Looping; started at latch, hard-cut on release.
+	if (!GrabLoopSound)
+	{
+		GrabLoopSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_SHAMBLER_GRAB.SFX_SHAMBLER_GRAB"));
+	}
+
 	// Health — create one if the BP doesn't already have it, so the Shambler can take damage + die.
 	Health = Owner->FindComponentByClass<UZP_HealthComponent>();
 	if (!Health)
@@ -137,6 +148,18 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 		MeshBaseRelZ = M0->GetRelativeLocation().Z;
 		MeshBaseRelXY = FVector2D(M0->GetRelativeLocation().X, M0->GetRelativeLocation().Y);
 		M0->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore); // capsule takes the bullet instead
+
+		// [ShamAnim] trace: log every montage stop on this mesh (start-side logs are in
+		// PlayOneShot/PlaySlotLoop). "interrupted=1" = a new clip crossfaded over it.
+		if (UAnimInstance* AI0 = M0->GetAnimInstance())
+		{
+			AI0->OnMontageBlendingOut.AddDynamic(this, &UZP_ShamblerBehaviorComponent::OnAnyMontageBlendingOut);
+			AI0->OnMontageEnded.AddDynamic(this, &UZP_ShamblerBehaviorComponent::OnAnyMontageEnded);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ShamAnim] %s: no AnimInstance at BeginPlay — end-of-clip trace lines unavailable"), *Owner->GetName());
+		}
 	}
 
 	// Tether: every wander pick is anchored around the spawn point so the Shambler doesn't
@@ -167,6 +190,11 @@ void UZP_ShamblerBehaviorComponent::EndPlay(const EEndPlayReason::Type EndPlayRe
 		W->GetTimerManager().ClearTimer(HitchRestoreTimer);
 		W->GetTimerManager().ClearTimer(ProbeTimer);
 		W->GetTimerManager().ClearTimer(IdleLockTimer);
+		W->GetTimerManager().ClearTimer(GrabIdleFillTimer);
+		W->GetTimerManager().ClearTimer(VictimUpWaitTimer);
+		W->GetTimerManager().ClearTimer(CollisionRestoreTimer);
+		W->GetTimerManager().ClearTimer(GrabSlideProbeTimer);
+		W->GetTimerManager().ClearTimer(EscapePushbackDelayTimer);
 	}
 	Super::EndPlay(EndPlayReason);
 }
@@ -208,10 +236,80 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		}
 	}
 
+	// Escape pushback: short eased slide-to-stop (replaces the old LaunchCharacter glide — see
+	// OnVictimGrabPhase EscapeKick/Push). Absolute lerp between the captured from/to points; the
+	// victim is still collision-ignored, and the sweep lets walls stop it naturally. KNOWN LIMIT:
+	// the raw sweep has no step-up/slide-along — a stair nosing or threshold lip behind the body
+	// dead-stops the shove early (log shows the truncated end distance). Accepted; if a "kick did
+	// nothing on stairs" report lands, this is why — not the wander or depenetration.
+	if (bEscapePushback)
+	{
+		const float Dur = FMath::Max(0.05f, EscapePushbackDuration);
+		const float Alpha = FMath::Clamp((float)(GetWorld()->GetTimeSeconds() - EscapePushbackStart) / Dur, 0.f, 1.f);
+		const float Eased = 1.f - FMath::Square(1.f - Alpha); // ease-out: hits hard, settles
+		FVector NewLoc = FMath::Lerp(EscapePushbackFrom, EscapePushbackTo, Eased);
+		NewLoc.Z = Owner->GetActorLocation().Z; // Z stays the CMC's (floor snap / steps)
+		Owner->SetActorLocation(NewLoc, /*bSweep*/true);
+		if (Alpha >= 1.f)
+		{
+			bEscapePushback = false;
+			UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] pushback END distToPlayer=%.0f vel=%.0f"),
+				Target ? FVector::Dist2D(Owner->GetActorLocation(), Target->GetActorLocation()) : -1.f,
+				Owner->GetVelocity().Size());
+		}
+	}
+
+	// SLOT VACUUM FILL — the systemic fix for the empty-slot gap (4th sighting: wander-pause
+	// marching, post-takedown swim, post-flinch freeze, and now "frozen in T position between
+	// attacks — ALL attacks", dev 2026-07-03). The swing chain re-triggers on the 0.25s eval
+	// timer, so EVERY swing ends with up to ~0.5s of nothing on the DefaultSlot while stationary
+	// -> naked BS_Shambler@speed-0. Invariant instead of per-call-site patches: a stationary,
+	// alive, non-grabbing body with NO montage on the slot gets the idle pose; it releases the
+	// moment the body moves (states hard-cut it themselves when they play their own clips).
+	if (!bDead && State != EShamblerState::Grab && IdleAnim)
+	{
+		if (USkeletalMeshComponent* M = Owner->GetMesh())
+		{
+			if (UAnimInstance* AI = M->GetAnimInstance())
+			{
+				const bool bStationary = Owner->GetVelocity().SizeSquared2D() < 400.f; // < 20 uu/s
+				if (bStationary && !AI->Montage_IsActive(nullptr))
+				{
+					SlotVacuumFill = PlaySlotLoop(IdleAnim);
+				}
+				else if (!bStationary && SlotVacuumFill.IsValid()
+					&& AI->Montage_IsPlaying(SlotVacuumFill.Get()))
+				{
+					StopSlotLoop();
+					SlotVacuumFill = nullptr;
+				}
+			}
+		}
+	}
+
+	// GUARD for the BP EventGraph wander (dev-built: BeginPlay → 3s looping timer → move to a
+	// random reachable point). It stays fully alive in normal play — but in the windows where
+	// this component deliberately freezes movement (the grab hold, grab-reaction staggers, the
+	// loom over a downed player) any path it starts must be stopped, or it drives the body
+	// mid-reaction (the [GrabSlideProbe] moveStatus=Moving orbit/slide, root-caused 2026-07-02).
+	const bool bMovementFrozen = (State == EShamblerState::Grab) || bStaggered
+		|| GetWorld()->GetTimerManager().IsTimerActive(VictimUpWaitTimer)
+		// the escape pushback (pending or live) is also a frozen window — if the knobs are ever
+		// dialed past the stun length, the lerp must not fight a live AI path (review finding)
+		|| bEscapePushback
+		|| GetWorld()->GetTimerManager().IsTimerActive(EscapePushbackDelayTimer);
+	if (bMovementFrozen && AICon && AICon->GetMoveStatus() == EPathFollowingStatus::Moving)
+	{
+		AICon->StopMovement();
+		UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] stopped external AI move during frozen window (state=%d staggered=%d)"),
+			(int32)State, bStaggered ? 1 : 0);
+	}
+
 	// Only hand-face the player while mid-ATTACK (tracks a circling player through the swing).
 	// Scream does NOT track: it snap-faces ONCE at entry and then HOLDS — continuous tracking read
-	// as a "little twist" when the player strafed mid-scream (dev report). Chase faces movement.
-	if (State == EShamblerState::Attack)
+	// as a "little twist" when the player strafed mid-scream (dev report). Chase faces movement —
+	// EXCEPT while standing ready inside AttackRange (no movement to orient to).
+	if (State == EShamblerState::Attack || (State == EShamblerState::Chase && bChaseHoldingInRange))
 	{
 		FaceTargetSmooth(DeltaTime);
 	}
@@ -447,7 +545,56 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 		// Keep closing — re-path to the (possibly moving) player each eval so it tracks instead of
 		// running a stale path past you. Stop WELL inside AttackRange (not at its edge) so it reliably
 		// crosses the attack threshold and swings instead of parking just out of reach.
-		if (AICon) { AICon->MoveToActor(Target, FMath::Max(AttackRange - 70.f, 40.f)); }
+		// ALREADY in striking distance but the swing isn't available this eval (cooldown/LOS
+		// blip)? STAND READY instead of re-pathing — the per-eval MoveToActor at point-blank
+		// walks orbits around the target ("full walking circle", dev report 2026-07-02).
+		// Face-tracking runs per-frame in TickComponent while holding.
+		if (DistToPlayer <= AttackRange && bSee)
+		{
+			StopRunChase(); // arrived on top of the player — sprint over, attack flow owns it
+			if (!bChaseHoldingInRange)
+			{
+				bChaseHoldingInRange = true;
+				if (AICon) { AICon->StopMovement(); }
+				UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] chase HOLD in range (dist=%.0f) — standing ready"), DistToPlayer);
+			}
+		}
+		else
+		{
+			if (bChaseHoldingInRange)
+			{
+				bChaseHoldingInRange = false;
+				UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] chase hold RELEASED (dist=%.0f see=%d) — pathing"), DistToPlayer, bSee ? 1 : 0);
+			}
+
+			// SPRINT-CHASE: outside RunTriggerDistance (and visible) the shamble breaks into the
+			// run — the walk gave the player the whole room for free ("I don't even need to
+			// dodge", dev 2026-07-03). Losing sight drops back to the walk; arriving inside
+			// AttackRange exits via the hold branch above. Sight/leash logic above unchanged.
+			if (!bRunningChase && bSee && DistToPlayer > RunTriggerDistance)
+			{
+				bRunningChase = true;
+				SetSpeed(RunSpeed);
+				UE_LOG(LogTemp, Warning, TEXT("[Shambler] RUN start (dist=%.0f > %.0f)"), DistToPlayer, RunTriggerDistance);
+			}
+			else if (bRunningChase && !bSee)
+			{
+				StopRunChase();
+			}
+			if (bRunningChase && RunAnim)
+			{
+				// (Re-)assert the run loop — a flinch crossfading over it mid-sprint ends on the
+				// slot, so after each interruption the loop must be re-seated. Stride-matched:
+				// play rate = RunSpeed / RunAnimRefSpeed.
+				UAnimInstance* RunAI = (Owner && Owner->GetMesh()) ? Owner->GetMesh()->GetAnimInstance() : nullptr;
+				if (RunAI && (!RunLoopMontage.IsValid() || !RunAI->Montage_IsPlaying(RunLoopMontage.Get())))
+				{
+					RunLoopMontage = PlaySlotLoop(RunAnim,
+						FMath::Max(0.1f, RunSpeed / FMath::Max(RunAnimRefSpeed, 1.f)));
+				}
+			}
+			if (AICon) { AICon->MoveToActor(Target, FMath::Max(AttackRange - 70.f, 40.f)); }
+		}
 		break;
 	}
 
@@ -496,6 +643,9 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 {
 	State = NewState;
 	StateTimer = 0.f;
+	bChaseHoldingInRange = false; // every state entry re-decides hold-vs-path
+	bRunningChase = false;        // sprint is Chase-internal; re-triggers on the next Chase eval
+	RunLoopMontage = nullptr;     // the new state's clips crossfade over the loop (Wander stops it)
 
 	// Wander faces its movement direction; combat states are hand-faced toward the player (no shimmy,
 	// fast pivots even while stopped to attack).
@@ -694,6 +844,8 @@ void UZP_ShamblerBehaviorComponent::TryStartGrab()
 	// phase machine drives everything from here via OnVictimGrabPhase.
 	LastGrabTime = Now;
 	CancelPendingSwing();
+	bEscapePushback = false; // a stale pushback lerp would fight the grab hold
+	GetWorld()->GetTimerManager().ClearTimer(EscapePushbackDelayTimer);
 
 	FVector ToVictim = Target->GetActorLocation() - Owner->GetActorLocation();
 	ToVictim.Z = 0.f;
@@ -716,7 +868,30 @@ void UZP_ShamblerBehaviorComponent::TryStartGrab()
 		CM->StopMovementImmediately();
 		CM->SetMovementMode(MOVE_None); // AFTER SetState (SetState restores Walking from MOVE_None)
 	}
-	if (Audio) { Audio->PlayAttack(/*bLunge=*/false); }
+	// Grapple snarl: looping wave attached to the body for the whole hold — hard-cut on any
+	// release path (EndGrabOnShambler / death). Replaces the one-shot attack bark here.
+	if (GrabLoopSound)
+	{
+		GrabLoopAudio = UZP_SFXStatics::PlaySFXAttached(GrabLoopSound, Owner->GetMesh(), EZP_SFXCarry::Close);
+	}
+	// CLEAN SLATE at latch: a pipe hit landing just before the grab leaves its cosmetic layers on
+	// the body — the flinch clip blending out UNDER the entry and the mesh hit-punch offset still
+	// decaying — and the paired entry then reads with the arm/head knobs off ("only the grabs that
+	// happened when not swinging looked correct", dev 2026-07-03). The grab owns the body from
+	// here: zero the punch, reset the mesh XY, and stop ALL in-flight montages with the entry's
+	// own blend so every latch starts from the same base pose.
+	MeshPunch = FVector2D::ZeroVector;
+	if (USkeletalMeshComponent* GrabMesh = Owner->GetMesh())
+	{
+		FVector RL = GrabMesh->GetRelativeLocation();
+		RL.X = MeshBaseRelXY.X;
+		RL.Y = MeshBaseRelXY.Y;
+		GrabMesh->SetRelativeLocation(RL);
+		if (UAnimInstance* GrabAI = GrabMesh->GetAnimInstance())
+		{
+			GrabAI->Montage_Stop(0.1f); // blend-out matches the entry's 0.1 blend-in — no snap
+		}
+	}
 	PlayOneShot(GrabEntryAnim);
 	UE_LOG(LogTemp, Warning, TEXT("[Shambler] GRAB latched"));
 }
@@ -726,9 +901,10 @@ void UZP_ShamblerBehaviorComponent::OnVictimGrabPhase(EZP_GrabPhase NewPhase)
 	if (!Owner) { return; }
 
 	// Dead grabber (grenade etc. mid-grab): the death path owns the body — only drop the pair
-	// collision ignore, never touch movement/state.
+	// collision ignore and cut the snarl loop, never touch movement/state.
 	if (bDead)
 	{
+		if (GrabLoopAudio) { GrabLoopAudio->Stop(); GrabLoopAudio = nullptr; }
 		if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
 		{
 			if (Target) { Cap->IgnoreActorWhenMoving(Target.Get(), false); }
@@ -753,24 +929,77 @@ void UZP_ShamblerBehaviorComponent::OnVictimGrabPhase(EZP_GrabPhase NewPhase)
 		// pack) + the escape-reward stun window. Punish window = max(stun, clip) so the zombie
 		// never resumes acting mid-reaction.
 		StopSlotLoop();
+		// Contact knob: re-snap the pair spacing the instant the escape begins so the push/kick
+		// arms actually reach the body (dev report: "too far away from arms to physically push").
+		// Runs while collision is still mutually ignored — safe to slide the capsule in.
+		if (GrabEscapeSnapDistance > 0.f && Target)
+		{
+			FVector ToVictim = Target->GetActorLocation() - Owner->GetActorLocation();
+			ToVictim.Z = 0.f;
+			const FVector SnapDir = ToVictim.GetSafeNormal();
+			if (!SnapDir.IsNearlyZero())
+			{
+				FVector SnapLoc = Target->GetActorLocation() - SnapDir * GrabEscapeSnapDistance;
+				SnapLoc.Z = Owner->GetActorLocation().Z;
+				Owner->SetActorLocation(SnapLoc, /*bSweep*/false);
+			}
+		}
 		EndGrabOnShambler(/*bResumeChase*/true);
+		// SetState(Chase) just re-enabled bOrientRotationToMovement — with the backward launch
+		// the CMC then ROTATES the body to face its slide direction (the "rotating/sliding
+		// around", dev report). Keep facing locked through the reaction; the stagger-end
+		// release restores per-state orientation.
+		if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+		{
+			CM->bOrientRotationToMovement = false;
+		}
 		UAnimSequence* Reaction = (NewPhase == EZP_GrabPhase::EscapeKick) ? GrabKickedAnim : GrabPushedAnim;
 		PlayOneShot(Reaction);
-		const FVector Back = -Owner->GetActorForwardVector();
-		Owner->LaunchCharacter(Back * EscapeShoveSpeed + FVector(0.f, 0.f, 50.f), true, false);
+		// Knockback REBUILT (dev report: "the push removes the offset placed for the grab, so the
+		// shambler slides unnaturally away"). The old LaunchCharacter(450) glide started the same
+		// frame as the reaction clip — the pair spacing broke before the contact even read, then
+		// the body coasted on CMC friction. Now: zero residual velocity, HOLD the grapple spacing
+		// through the contact beat (EscapePushbackDelay), then a short eased slide-to-stop to
+		// EscapePushbackDistance (TickComponent drives it) — deterministic, ends planted.
+		if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+		{
+			CM->StopMovementImmediately();
+		}
+		GetWorld()->GetTimerManager().ClearTimer(EscapePushbackDelayTimer);
+		GetWorld()->GetTimerManager().SetTimer(EscapePushbackDelayTimer,
+			FTimerDelegate::CreateWeakLambda(this, [this]() { StartEscapePushback(); }),
+			FMath::Max(0.01f, EscapePushbackDelay), false);
+		UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] escape (%s): holding pair spacing %.2fs, then pushback to %.0fuu over %.2fs (distToVictim now %.0f)"),
+			NewPhase == EZP_GrabPhase::EscapeKick ? TEXT("kick") : TEXT("push"),
+			EscapePushbackDelay, EscapePushbackDistance, EscapePushbackDuration,
+			Target ? FVector::Dist(Owner->GetActorLocation(), Target->GetActorLocation()) : -1.f);
 		const float ClipLen = Reaction ? Reaction->GetPlayLength() : 2.3f;
+		ScheduleGrabIdleFill(ClipLen);
 		PauseAIWithoutFlinch(FMath::Max(EscapeStunDuration, ClipLen));
 		break;
 	}
 
 	case EZP_GrabPhase::FailKnockdown:
 	{
-		// The victim failed the struggle: play the authored shove-down, hold through it, then the
-		// Chase resumes (the downed player has brief i-frames on its side).
+		// The victim failed the struggle — the zombie stands over the downed player and does the
+		// FULL aggro alert (scream SFX + scream clip), dev spec 2026-07-03. SetState(Scream) IS
+		// that combo verbatim: snap-face the (downed) target, PlayAlert, scream clip, scream
+		// mesh-Z nudge, speed 0 + StopMovement, orientation locked (non-Chase state). It replaces
+		// the earlier swipe read. (The pack's paired Zombie_Grab_To_TakeDown stays unused — its
+		// dive carries no pelvis translation through the necromorph retarget and floats in air,
+		// see DEAD ENDS 2026-07-02.) Visual only — no damage timers.
 		StopSlotLoop();
 		EndGrabOnShambler(/*bResumeChase*/true);
-		PlayOneShot(GrabTakedownAnim);
-		PauseAIWithoutFlinch(GrabTakedownAnim ? GrabTakedownAnim->GetPlayLength() : 2.2f);
+		SetState(EShamblerState::Scream);
+		// Post-loom the scream state must not hold an EXTRA ScreamHoldTime: Evaluate is frozen
+		// through the whole loom (bStaggered), so StateTimer only starts once the player is back
+		// up — exit to Chase on the first eval after release.
+		CurrentScreamHold = 0.1f;
+		const float ScreamLen = ScreamAnim ? ScreamAnim->GetPlayLength() : 2.f;
+		ScheduleGrabIdleFill(ScreamLen);
+		// It knocked the victim down — it LOOMS: idle in place until they're back on their
+		// feet (no pathing circles around the downed body), then the chase resumes.
+		BeginWaitForVictimUp(ScreamLen);
 		break;
 	}
 
@@ -786,15 +1015,156 @@ void UZP_ShamblerBehaviorComponent::OnVictimGrabPhase(EZP_GrabPhase NewPhase)
 void UZP_ShamblerBehaviorComponent::EndGrabOnShambler(bool bResumeChase)
 {
 	if (!Owner) { return; }
-	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
-	{
-		if (Target) { Cap->IgnoreActorWhenMoving(Target.Get(), false); }
-	}
+	// Hard-cut the grapple snarl the instant the grab ends (dev spec: no fade, no tail).
+	if (GrabLoopAudio) { GrabLoopAudio->Stop(); GrabLoopAudio = nullptr; }
+	// Collision restore is DEFERRED until the capsules are clear of each other — restoring while
+	// interpenetrated (GrabPairDistance < sum of radii) makes the engine depenetrate: the random
+	// shove/slide/orbit at release (dev report 2026-07-02).
+	DeferCollisionRestore();
 	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
 	{
 		if (CM->MovementMode == MOVE_None) { CM->SetMovementMode(MOVE_Walking); }
 	}
+	// PROBE: geometry at the moment of release — overlap depth is the depenetration budget.
+	if (Target)
+	{
+		const float Dist = FVector::Dist2D(Owner->GetActorLocation(), Target->GetActorLocation());
+		float SumR = 0.f;
+		if (UCapsuleComponent* MyCap = Owner->GetCapsuleComponent()) { SumR += MyCap->GetScaledCapsuleRadius(); }
+		if (const ACharacter* TC = Cast<ACharacter>(Target.Get()))
+		{
+			if (const UCapsuleComponent* VC = TC->GetCapsuleComponent()) { SumR += VC->GetScaledCapsuleRadius(); }
+		}
+		UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] release: dist2D=%.0f sumRadii=%.0f overlap=%.0f vel=%.0f"),
+			Dist, SumR, FMath::Max(0.f, SumR - Dist), Owner->GetVelocity().Size());
+	}
+	StartGrabSlideProbe();
 	SetState((bResumeChase && Target) ? EShamblerState::Chase : EShamblerState::Wander);
+}
+
+void UZP_ShamblerBehaviorComponent::StartGrabSlideProbe()
+{
+	// CONTINUOUS post-release motion trace (dev request): every 0.1s for 6s, log how far the
+	// body has moved from the release spot and everything that could be moving it. Any slide
+	// shows as growing drift with the culprit named on the same line.
+	SlideProbeOrigin = Owner->GetActorLocation();
+	SlideProbeStart = GetWorld()->GetTimeSeconds();
+	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[GrabSlideProbe] START origin=(%.0f,%.0f) RVO=%d orient=%d"),
+			SlideProbeOrigin.X, SlideProbeOrigin.Y,
+			CM->bUseRVOAvoidance ? 1 : 0, CM->bOrientRotationToMovement ? 1 : 0);
+	}
+	GetWorld()->GetTimerManager().ClearTimer(GrabSlideProbeTimer);
+	GetWorld()->GetTimerManager().SetTimer(GrabSlideProbeTimer,
+		FTimerDelegate::CreateWeakLambda(this, [this]()
+	{
+		if (!Owner || bDead)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(GrabSlideProbeTimer);
+			return;
+		}
+		const double Elapsed = GetWorld()->GetTimeSeconds() - SlideProbeStart;
+		if (Elapsed > 6.0)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(GrabSlideProbeTimer);
+			UE_LOG(LogTemp, Warning, TEXT("[GrabSlideProbe] END total drift=%.0fuu"),
+				FVector::Dist2D(Owner->GetActorLocation(), SlideProbeOrigin));
+			return;
+		}
+		UCharacterMovementComponent* CM = Owner->GetCharacterMovement();
+		UCapsuleComponent* Cap = Owner->GetCapsuleComponent();
+		const bool bIgnoring = (Cap && Target)
+			? Cap->GetMoveIgnoreActors().Contains(Target.Get()) : false;
+		UE_LOG(LogTemp, Warning,
+			TEXT("[GrabSlideProbe] t=%.1f drift=%.0f vel=%.0f mode=%d yaw=%.0f staggered=%d moveStatus=%d distToPlayer=%.0f ignoringPlayer=%d"),
+			Elapsed,
+			FVector::Dist2D(Owner->GetActorLocation(), SlideProbeOrigin),
+			Owner->GetVelocity().Size(),
+			CM ? (int32)CM->MovementMode.GetValue() : -1,
+			Owner->GetActorRotation().Yaw,
+			bStaggered ? 1 : 0,
+			AICon ? (int32)AICon->GetMoveStatus() : -1,
+			Target ? FVector::Dist2D(Owner->GetActorLocation(), Target->GetActorLocation()) : -1.f,
+			bIgnoring ? 1 : 0);
+	}), 0.1f, /*bLoop*/true);
+}
+
+void UZP_ShamblerBehaviorComponent::StartEscapePushback()
+{
+	if (!Owner || bDead) { return; }
+	EscapePushbackFrom = Owner->GetActorLocation();
+	// Push direction: straight away from the victim (facing is locked on them through the
+	// reaction, so this is the reaction clip's backward axis). Falls back to actor-back if the
+	// victim is gone mid-escape.
+	FVector Away = -Owner->GetActorForwardVector();
+	if (Target)
+	{
+		FVector FromVictim = EscapePushbackFrom - Target->GetActorLocation();
+		FromVictim.Z = 0.f;
+		if (!FromVictim.IsNearlyZero()) { Away = FromVictim.GetSafeNormal(); }
+	}
+	Away.Z = 0.f;
+	Away = Away.GetSafeNormal();
+	// PURE DISPLACEMENT, relative to our own position — always backward, never anchored on the
+	// player (an end-spacing target could pull the body TOWARD a retreating player, and a large
+	// travel is exactly the "slides across the room" the dev rejected). ~45uu = the stumble step.
+	EscapePushbackTo = EscapePushbackFrom + Away * FMath::Max(0.f, EscapePushbackDistance);
+	EscapePushbackTo.Z = EscapePushbackFrom.Z;
+	EscapePushbackStart = GetWorld()->GetTimeSeconds();
+	bEscapePushback = true;
+	UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] pushback START from=(%.0f,%.0f) to=(%.0f,%.0f) dist=%.0f"),
+		EscapePushbackFrom.X, EscapePushbackFrom.Y, EscapePushbackTo.X, EscapePushbackTo.Y,
+		FVector::Dist2D(EscapePushbackFrom, EscapePushbackTo));
+}
+
+void UZP_ShamblerBehaviorComponent::DeferCollisionRestore()
+{
+	TWeakObjectPtr<AActor> Victim = Target;
+	if (!Victim.IsValid())
+	{
+		return;
+	}
+	GetWorld()->GetTimerManager().ClearTimer(CollisionRestoreTimer);
+	const double StartTime = GetWorld()->GetTimeSeconds();
+	GetWorld()->GetTimerManager().SetTimer(CollisionRestoreTimer,
+		FTimerDelegate::CreateWeakLambda(this, [this, Victim, StartTime]()
+	{
+		AActor* V = Victim.Get();
+		UCapsuleComponent* MyCap = Owner ? Owner->GetCapsuleComponent() : nullptr;
+		if (!V || !MyCap)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(CollisionRestoreTimer);
+			return;
+		}
+		float SumR = MyCap->GetScaledCapsuleRadius();
+		if (const ACharacter* TC = Cast<ACharacter>(V))
+		{
+			if (const UCapsuleComponent* VC = TC->GetCapsuleComponent()) { SumR += VC->GetScaledCapsuleRadius(); }
+		}
+		const float Dist = FVector::Dist2D(Owner->GetActorLocation(), V->GetActorLocation());
+		const double Elapsed = GetWorld()->GetTimeSeconds() - StartTime;
+		// Restore ONLY once actually clear. The old 4s failsafe fired MID-LOOM (the wait over a
+		// downed player — ~3.9s since the GetUp phase was cut) and restored while overlapped — the engine then
+		// depenetrated the pair: the very slide this deferral exists to prevent. 15s = abandon
+		// point for genuinely wedged cases; logged loudly so it shows next to the slide probe.
+		const bool bClear = Dist > SumR + 10.f;
+		if (bClear || Elapsed > 15.0)
+		{
+			MyCap->IgnoreActorWhenMoving(V, false);
+			GetWorld()->GetTimerManager().ClearTimer(CollisionRestoreTimer);
+			if (bClear)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] collision restored CLEAR after %.2fs (dist2D=%.0f sumRadii=%.0f)"),
+					Elapsed, Dist, SumR);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("[GrabProbe] collision FORCE-restored still-overlapped at 15s (dist2D=%.0f sumRadii=%.0f) — expect a depenetration shove"),
+					Dist, SumR);
+			}
+		}
+	}), 0.2f, /*bLoop*/true);
 }
 
 void UZP_ShamblerBehaviorComponent::BreakGrabFromDamage()
@@ -819,8 +1189,73 @@ void UZP_ShamblerBehaviorComponent::PauseAIWithoutFlinch(float Duration)
 	GetWorld()->GetTimerManager().SetTimer(StaggerHandle, FTimerDelegate::CreateWeakLambda(this, [this]()
 	{
 		bStaggered = false;
-		if (!bDead) { EnsureLocomotion(); }
+		StopSlotLoop(); // release the grab idle-fill (if queued) so locomotion takes back over
+		if (!bDead)
+		{
+			EnsureLocomotion();
+			// Restore per-state orientation (the grab-reaction windows lock it off so the
+			// backward launch / depenetration can't rotate the body while it slides).
+			if (Owner)
+			{
+				if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+				{
+					CM->bOrientRotationToMovement = (State == EShamblerState::Wander || State == EShamblerState::Chase);
+				}
+			}
+		}
 	}), FMath::Max(0.1f, Duration), false);
+}
+
+void UZP_ShamblerBehaviorComponent::ScheduleGrabIdleFill(float ReactionClipLen)
+{
+	GetWorld()->GetTimerManager().ClearTimer(GrabIdleFillTimer);
+	GetWorld()->GetTimerManager().SetTimer(GrabIdleFillTimer,
+		FTimerDelegate::CreateWeakLambda(this, [this]()
+	{
+		if (!bDead && bStaggered && IdleAnim) { PlaySlotLoop(IdleAnim); }
+	}), FMath::Max(0.1f, ReactionClipLen - 0.15f), false);
+}
+
+void UZP_ShamblerBehaviorComponent::BeginWaitForVictimUp(float MinWait)
+{
+	bStaggered = true; // freezes Evaluate — the wait owns the release, not the fixed stagger timer
+	GetWorld()->GetTimerManager().ClearTimer(StaggerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(VictimUpWaitTimer);
+	const double StartTime = GetWorld()->GetTimeSeconds();
+	GetWorld()->GetTimerManager().SetTimer(VictimUpWaitTimer,
+		FTimerDelegate::CreateWeakLambda(this, [this, StartTime, MinWait]()
+	{
+		if (bDead)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(VictimUpWaitTimer);
+			return;
+		}
+		const double Elapsed = GetWorld()->GetTimeSeconds() - StartTime;
+		if (Elapsed < MinWait) { return; } // let the swipe reaction play out first
+
+		bool bVictimDown = false;
+		if (IZP_Grabbable* Victim = Cast<IZP_Grabbable>(Target.Get()))
+		{
+			bVictimDown = Victim->IsGrabRecovering();
+		}
+		// Release when they're up — or after a hard 12s failsafe (never wait forever on a
+		// stale/dead target).
+		if (!bVictimDown || Elapsed > 12.0)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(VictimUpWaitTimer);
+			bStaggered = false;
+			StopSlotLoop();
+			EnsureLocomotion();
+			// Restore per-state orientation (locked off through the loom).
+			if (Owner)
+			{
+				if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+				{
+					CM->bOrientRotationToMovement = (State == EShamblerState::Wander || State == EShamblerState::Chase);
+				}
+			}
+		}
+	}), 0.25f, /*bLoop*/true);
 }
 
 // ───────────────────────── helpers ─────────────────────────
@@ -953,27 +1388,53 @@ UAnimMontage* UZP_ShamblerBehaviorComponent::PlayOneShot(UAnimSequence* Anim, fl
 	// between Wander/Chase and Scream/Attack/Hit is gone.
 	if (UAnimInstance* AI = M->GetAnimInstance())
 	{
-		AI->StopSlotAnimation(0.f, FName(TEXT("DefaultSlot"))); // hard-cut any prior one-shot first
+		// NO hard StopSlotAnimation(0) first — montages in the same slot group auto-interrupt with
+		// the NEW montage's blend-in, a proper clip-to-clip crossfade. The old hard-cut zeroed the
+		// slot for the blend-in window, so every handoff SNAPPED through naked BS_Shambler@speed-0
+		// ("the arms shift, every time" on grab Entry->Munch, dev 2026-07-03).
 		return AI->PlaySlotAnimationAsDynamicMontage(Anim, FName(TEXT("DefaultSlot")),
 			/*BlendIn=*/0.1f, /*BlendOut=*/0.15f, PlayRate);
 	}
 	return nullptr;
 }
 
-void UZP_ShamblerBehaviorComponent::PlaySlotLoop(UAnimSequence* Anim)
+UAnimMontage* UZP_ShamblerBehaviorComponent::PlaySlotLoop(UAnimSequence* Anim, float PlayRate)
 {
-	if (!Owner || !Anim) { return; }
+	if (!Owner || !Anim) { return nullptr; }
 	USkeletalMeshComponent* M = Owner->GetMesh();
-	if (!M) { return; }
+	if (!M) { return nullptr; }
 	if (UAnimInstance* AI = M->GetAnimInstance())
 	{
-		AI->StopSlotAnimation(0.f, FName(TEXT("DefaultSlot")));
 		// IdleBlendInTime covers the CMC's natural braking ramp — long enough that velocity has
 		// dropped to ~0 by the time the slot is fully visible, so no walk pose leaks through.
-		AI->PlaySlotAnimationAsDynamicMontage(Anim, FName(TEXT("DefaultSlot")),
-			/*BlendInTime=*/IdleBlendInTime, /*BlendOutTime=*/IdleBlendOutTime, /*InPlayRate=*/1.f,
+		// No hard-cut of the prior montage: same-group montages crossfade via this blend-in
+		// (the old StopSlotAnimation(0) snapped every handoff through BS@0 — the grab arm shift).
+		return AI->PlaySlotAnimationAsDynamicMontage(Anim, FName(TEXT("DefaultSlot")),
+			/*BlendInTime=*/IdleBlendInTime, /*BlendOutTime=*/IdleBlendOutTime, PlayRate,
 			/*LoopCount=*/INT32_MAX, /*BlendOutTriggerTime=*/-1.f, /*InTimeToStartMontageAt=*/0.f);
 	}
+	return nullptr;
+}
+
+void UZP_ShamblerBehaviorComponent::StopRunChase()
+{
+	if (!bRunningChase) { return; }
+	bRunningChase = false;
+	SetSpeed(ChaseSpeed);
+	// Release the run loop back to the walk BlendSpace — but only if the run loop is what's
+	// actually on the slot (a flinch may have displaced it; never cut someone else's clip).
+	if (RunLoopMontage.IsValid() && Owner)
+	{
+		if (USkeletalMeshComponent* M = Owner->GetMesh())
+		{
+			if (UAnimInstance* AI = M->GetAnimInstance())
+			{
+				if (AI->Montage_IsPlaying(RunLoopMontage.Get())) { StopSlotLoop(); }
+			}
+		}
+	}
+	RunLoopMontage = nullptr;
+	UE_LOG(LogTemp, Warning, TEXT("[Shambler] RUN end -> walk"));
 }
 
 void UZP_ShamblerBehaviorComponent::StopSlotLoop()
@@ -1244,6 +1705,12 @@ void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration)
 	if (UAnimSequence* Anim = HitFrontAnim ? HitFrontAnim : HitBackAnim)
 	{
 		PlayOneShot(Anim);
+		// The flinch clip (0.8s) is SHORTER than the block stagger (1.2s): without a fill, the
+		// slot releases mid-stagger and BS_Shambler@speed-0 junk shows for the remaining ~0.4s
+		// ("frozen in T position for a beat", dev 2026-07-03) — the same gap class as the wander
+		// pauses and the grab reactions. Queue the idle pose for the flinch blend-out; the
+		// stagger release below stops it as locomotion resumes.
+		ScheduleGrabIdleFill(Anim->GetPlayLength());
 	}
 
 	bStaggered = true;
@@ -1261,6 +1728,7 @@ void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration)
 	GetWorld()->GetTimerManager().SetTimer(StaggerHandle, FTimerDelegate::CreateWeakLambda(this, [this]()
 	{
 		bStaggered = false;
+		StopSlotLoop(); // release the flinch-gap idle fill (if it engaged) so locomotion resumes
 		if (!bDead) { EnsureLocomotion(); }
 	}), FMath::Max(0.1f, Duration), false);
 }
@@ -1301,7 +1769,11 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 		W->GetTimerManager().ClearTimer(AttackHitTimer);
 		W->GetTimerManager().ClearTimer(WindupReleaseTimer);
 		W->GetTimerManager().ClearTimer(HitchRestoreTimer);
+		W->GetTimerManager().ClearTimer(EscapePushbackDelayTimer);
 	}
+	// Killed mid-escape: the pushback state must die with the body — Tick's bDead branch never
+	// reaches the alpha>=1 clear, and a stale To would sweep-teleport an objective-revived corpse.
+	bEscapePushback = false;
 	if (AICon) { AICon->StopMovement(); }
 	SetSpeed(0.f);
 
@@ -1361,7 +1833,9 @@ void UZP_ShamblerBehaviorComponent::ApplyDeadStateInstant_Implementation()
 		W->GetTimerManager().ClearTimer(AttackHitTimer);
 		W->GetTimerManager().ClearTimer(WindupReleaseTimer);
 		W->GetTimerManager().ClearTimer(HitchRestoreTimer);
+		W->GetTimerManager().ClearTimer(EscapePushbackDelayTimer);
 	}
+	bEscapePushback = false; // same reasoning as OnOwnerDied — no stale escape state on a corpse
 	if (AICon) { AICon->StopMovement(); }
 	SetSpeed(0.f);
 
@@ -1393,6 +1867,7 @@ void UZP_ShamblerBehaviorComponent::ReviveEnemy_Implementation()
 	bDead = false;
 	bDropping = false;
 	bStaggered = false;
+	bEscapePushback = false; // belt-and-braces — a stale escape lerp must never move a revived body
 	MeshPunch = FVector2D::ZeroVector; // no stale death-frame jolt on the first alive frames
 	Target = nullptr;
 	LostSightTimer = 0.f;

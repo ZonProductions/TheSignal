@@ -73,39 +73,72 @@ void UZP_MarcusBodySpineBendAnimInstance::NativePostEvaluateAnimation()
 
 	const float Dt = GetDeltaSeconds();
 	SpineBendCurrent = FMath::FInterpTo(SpineBendCurrent, TargetBend, Dt, Speed);
-	if (FMath::IsNearlyZero(SpineBendCurrent, 0.01f)) return;
+
+	// Grab arm-clipping knobs (AZP_GraceCharacter -> Grab|Pose) apply during the visible 3P
+	// grapple phases — dev dials out arm clipping against the Shambler live in PIE.
+	const EZP_GrabPhase GP = Grace->GrabPhase;
+	const bool b3PGrab =
+		GP == EZP_GrabPhase::Entry || GP == EZP_GrabPhase::Munch || GP == EZP_GrabPhase::Wrestle ||
+		GP == EZP_GrabPhase::EscapeKick || GP == EZP_GrabPhase::EscapePush;
+	const bool bGrabPose = b3PGrab &&
+		(!Grace->GrabArmLRotation.IsNearlyZero() || !Grace->GrabArmRRotation.IsNearlyZero());
+	const bool bBend = !FMath::IsNearlyZero(SpineBendCurrent, 0.01f);
+	if (!bBend && !bGrabPose) return;
 
 	TArray<FTransform>& CS = Mesh->GetEditableComponentSpaceTransforms();
 	if (CS.Num() == 0) return;
 	const FReferenceSkeleton& RefSkel = Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
 
-	// CCMH has a 5-vertebra spine (spine_01..spine_05). Distribute the total bend
-	// across them weighted toward the head so the chest closes to the camera faster
-	// than the waist - looks natural and shuts the gap quickly.
-	struct FSpineBend { const TCHAR* BoneName; float Weight; };
-	const FSpineBend Bends[] = {
-		{ TEXT("spine_01"), 0.10f },
-		{ TEXT("spine_02"), 0.15f },
-		{ TEXT("spine_03"), 0.20f },
-		{ TEXT("spine_04"), 0.25f },
-		{ TEXT("spine_05"), 0.30f },
-	};
-
-	const FVector LocalAxis = Grace->SpineBendBoneLocalAxis.GetSafeNormal();
-	if (LocalAxis.IsNearlyZero()) return;
-
-	for (const FSpineBend& B : Bends)
+	if (bBend)
 	{
-		const int32 Idx = Mesh->GetBoneIndex(FName(B.BoneName));
-		if (Idx == INDEX_NONE || Idx >= CS.Num()) continue;
-		const float Deg = SpineBendCurrent * B.Weight;
-		if (FMath::IsNearlyZero(Deg)) continue;
+		// CCMH has a 5-vertebra spine (spine_01..spine_05). Distribute the total bend
+		// across them weighted toward the head so the chest closes to the camera faster
+		// than the waist - looks natural and shuts the gap quickly.
+		struct FSpineBend { const TCHAR* BoneName; float Weight; };
+		const FSpineBend Bends[] = {
+			{ TEXT("spine_01"), 0.10f },
+			{ TEXT("spine_02"), 0.15f },
+			{ TEXT("spine_03"), 0.20f },
+			{ TEXT("spine_04"), 0.25f },
+			{ TEXT("spine_05"), 0.30f },
+		};
 
-		// Convert bone-LOCAL hinge axis to component space using this bone's CS
-		// rotation, so the bend pivots around the bone's intrinsic right vector
-		// regardless of where the body is rotated in the world.
-		const FVector AxisCS = CS[Idx].GetRotation().RotateVector(LocalAxis);
-		const FQuat Q(AxisCS, FMath::DegreesToRadians(Deg));
-		RotateBoneTreeCS(CS, RefSkel, Idx, Q);
+		const FVector LocalAxis = Grace->SpineBendBoneLocalAxis.GetSafeNormal();
+		if (!LocalAxis.IsNearlyZero())
+		{
+			for (const FSpineBend& B : Bends)
+			{
+				const int32 Idx = Mesh->GetBoneIndex(FName(B.BoneName));
+				if (Idx == INDEX_NONE || Idx >= CS.Num()) continue;
+				const float Deg = SpineBendCurrent * B.Weight;
+				if (FMath::IsNearlyZero(Deg)) continue;
+
+				// Convert bone-LOCAL hinge axis to component space using this bone's CS
+				// rotation, so the bend pivots around the bone's intrinsic right vector
+				// regardless of where the body is rotated in the world.
+				const FVector AxisCS = CS[Idx].GetRotation().RotateVector(LocalAxis);
+				const FQuat Q(AxisCS, FMath::DegreesToRadians(Deg));
+				RotateBoneTreeCS(CS, RefSkel, Idx, Q);
+			}
+		}
+	}
+
+	if (bGrabPose)
+	{
+		// Bone-LOCAL additive arm rotations: consistent knob behavior regardless of facing.
+		struct FPoseFix { const TCHAR* BoneName; const FRotator* Rot; };
+		const FPoseFix Fixes[] = {
+			{ TEXT("upperarm_l"), &Grace->GrabArmLRotation },
+			{ TEXT("upperarm_r"), &Grace->GrabArmRRotation },
+		};
+		for (const FPoseFix& F : Fixes)
+		{
+			if (F.Rot->IsNearlyZero()) continue;
+			const int32 Idx = Mesh->GetBoneIndex(FName(F.BoneName));
+			if (Idx == INDEX_NONE || Idx >= CS.Num()) continue;
+			const FQuat BoneCS = CS[Idx].GetRotation();
+			const FQuat DeltaCS = BoneCS * F.Rot->Quaternion() * BoneCS.Inverse();
+			RotateBoneTreeCS(CS, RefSkel, Idx, DeltaCS);
+		}
 	}
 }

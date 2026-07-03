@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 #include "TimerManager.h"
 
 // All values resolved for one composite spawn (instance overrides OR class defaults).
@@ -155,7 +156,7 @@ void UZP_BloodFXComponent::PrewarmWorldOnce(UWorld* World)
 }
 
 void UZP_BloodFXComponent::PlayHitBlood(const FVector& Location, const FVector& Direction, bool bMeleeHit,
-	FVector SurfaceNormal)
+	FVector SurfaceNormal, AActor* ExtraIgnoreActor)
 {
 	EnsureAssets();
 	FBloodSpawnParams P;
@@ -170,7 +171,7 @@ void UZP_BloodFXComponent::PlayHitBlood(const FVector& Location, const FVector& 
 	P.bFloorPool = bDelayedFloorPool; P.PoolDelaySec = PoolDelay; P.PoolMin = PoolSizeMin; P.PoolMax = PoolSizeMax;
 	P.bResidual = bBodyResidual; P.ResidualN = NumBodyResiduals; P.ResidualMin = BodyResidualSizeMin; P.ResidualMax = BodyResidualSizeMax;
 	P.ColorP = ColorParam; P.SmokeP = SmokeColorParam; P.ScaleP = ScaleParam; P.LifeP = LifeTimeParam; P.DecalColorP = DecalColorParam;
-	SpawnComposite(GetWorld(), GetOwner(), Location, Direction, bMeleeHit, SurfaceNormal, P);
+	SpawnComposite(GetWorld(), GetOwner(), Location, Direction, bMeleeHit, SurfaceNormal, P, ExtraIgnoreActor);
 
 	// Clinging body wound — the pack's human-painted decal art projected in pre-skinned space,
 	// the tech that survives animation where world decals never could. Instance path only.
@@ -260,13 +261,13 @@ void UZP_BloodFXComponent::ApplyBodyWound(AActor* HitActor, const FVector& World
 }
 
 void UZP_BloodFXComponent::PlayHitBloodFor(AActor* HitActor, const FVector& Location, const FVector& Direction,
-	bool bMeleeHit, FVector SurfaceNormal)
+	bool bMeleeHit, FVector SurfaceNormal, AActor* ExtraIgnoreActor)
 {
 	if (!HitActor) { return; }
 
 	if (UZP_BloodFXComponent* Comp = HitActor->FindComponentByClass<UZP_BloodFXComponent>())
 	{
-		Comp->PlayHitBlood(Location, Direction, bMeleeHit, SurfaceNormal);
+		Comp->PlayHitBlood(Location, Direction, bMeleeHit, SurfaceNormal, ExtraIgnoreActor);
 		return;
 	}
 
@@ -284,7 +285,7 @@ void UZP_BloodFXComponent::PlayHitBloodFor(AActor* HitActor, const FVector& Loca
 	P.bFloorPool = CDO->bDelayedFloorPool; P.PoolDelaySec = CDO->PoolDelay; P.PoolMin = CDO->PoolSizeMin; P.PoolMax = CDO->PoolSizeMax;
 	P.bResidual = CDO->bBodyResidual; P.ResidualN = CDO->NumBodyResiduals; P.ResidualMin = CDO->BodyResidualSizeMin; P.ResidualMax = CDO->BodyResidualSizeMax;
 	P.ColorP = CDO->ColorParam; P.SmokeP = CDO->SmokeColorParam; P.ScaleP = CDO->ScaleParam; P.LifeP = CDO->LifeTimeParam; P.DecalColorP = CDO->DecalColorParam;
-	SpawnComposite(HitActor->GetWorld(), HitActor, Location, Direction, bMeleeHit, SurfaceNormal, P);
+	SpawnComposite(HitActor->GetWorld(), HitActor, Location, Direction, bMeleeHit, SurfaceNormal, P, ExtraIgnoreActor);
 }
 
 void UZP_BloodFXComponent::SpawnTintedSystem(UWorld* World, UNiagaraSystem* System, const FVector& Location,
@@ -317,10 +318,18 @@ void UZP_BloodFXComponent::StampDecalAt(UWorld* World, const FHitResult& Hit, co
 			MID->SetVectorParameterValue(P.DecalColorP, P.Decal);
 		}
 	}
+	else
+	{
+		// PROBE (dev report 2026-07-02: ground decals missing) — decal component failed to spawn.
+		UE_LOG(LogTemp, Warning, TEXT("[BloodProbe] SpawnDecalAtLocation returned NULL (mat=%s at %.0f,%.0f,%.0f)"),
+			P.DecalMat ? *P.DecalMat->GetName() : TEXT("null"),
+			Hit.ImpactPoint.X, Hit.ImpactPoint.Y, Hit.ImpactPoint.Z);
+	}
 }
 
 void UZP_BloodFXComponent::SpawnComposite(UWorld* World, AActor* HitActor, const FVector& Location,
-	const FVector& Direction, bool bMeleeHit, const FVector& SurfaceNormal, const FBloodSpawnParams& P)
+	const FVector& Direction, bool bMeleeHit, const FVector& SurfaceNormal, const FBloodSpawnParams& P,
+	AActor* ExtraIgnoreActor)
 {
 	if (!World) { return; }
 	const FVector Dir = Direction.GetSafeNormal();
@@ -334,7 +343,7 @@ void UZP_BloodFXComponent::SpawnComposite(UWorld* World, AActor* HitActor, const
 	SpawnTintedSystem(World, P.HitSystem, Location, SprayRot, P);
 
 	// 2. GUARANTEED splatter — traced decals that always land and stay.
-	SpawnSplatterDecals(World, HitActor, Location, Dir, P);
+	SpawnSplatterDecals(World, HitActor, Location, Dir, P, ExtraIgnoreActor);
 
 	// 2b. Residual ON the body, attached to the nearest bone — follows animation and the death
 	//     fall (world-space stains just hang in the air once the body moves away).
@@ -438,15 +447,25 @@ void UZP_BloodFXComponent::SpawnBodyResidual(AActor* HitActor, const FVector& Lo
 }
 
 void UZP_BloodFXComponent::SpawnSplatterDecals(UWorld* World, AActor* HitActor, const FVector& Origin,
-	const FVector& Direction, const FBloodSpawnParams& P)
+	const FVector& Direction, const FBloodSpawnParams& P, AActor* ExtraIgnoreActor)
 {
-	if (!World || !P.DecalMat) { return; }
+	// PROBE (dev report 2026-07-02: ground decals missing/degraded) — every bail, trace, and
+	// result logs so the failing stage is visible in the output log. Strip once diagnosed.
+	if (!World || !P.DecalMat)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[BloodProbe] SpawnSplatterDecals BAIL: world=%d decalMat=%d"),
+			World != nullptr, P.DecalMat != nullptr);
+		return;
+	}
 
 	FCollisionQueryParams Q(FName(TEXT("ZPBloodSplatter")), /*bTraceComplex=*/false);
 	if (HitActor) { Q.AddIgnoredActor(HitActor); }
+	if (ExtraIgnoreActor) { Q.AddIgnoredActor(ExtraIgnoreActor); } // e.g. the GRABBER during a bite
 
 	// Wall/geometry splats: jittered rays along the spray — the through-spray hitting whatever is
 	// behind the enemy. Slight upward bias reads as arterial arc.
+	int32 WallHits = 0;
+	int32 FloorHits = 0;
 	for (int32 i = 0; i < P.WallSplats; ++i)
 	{
 		FVector JDir = Direction + FVector(FMath::FRandRange(-0.18f, 0.18f), FMath::FRandRange(-0.18f, 0.18f), FMath::FRandRange(-0.05f, 0.28f));
@@ -454,7 +473,12 @@ void UZP_BloodFXComponent::SpawnSplatterDecals(UWorld* World, AActor* HitActor, 
 		FHitResult Hit;
 		if (World->LineTraceSingleByChannel(Hit, Origin, Origin + JDir * P.WallDist, ECC_WorldStatic, Q))
 		{
+			// Never stamp on a Pawn: enemy/player meshes don't receive decals, so a capsule hit
+			// just parks an invisible decal component in mid-air that paints whatever decal-
+			// receiving prop later moves through it (the world-space float DEAD END).
+			if (Hit.GetActor() && Hit.GetActor()->IsA<APawn>()) { continue; }
 			StampDecalAt(World, Hit, P, P.SizeMin, P.SizeMax);
+			++WallHits;
 		}
 	}
 
@@ -467,7 +491,22 @@ void UZP_BloodFXComponent::SpawnSplatterDecals(UWorld* World, AActor* HitActor, 
 		FHitResult Hit;
 		if (World->LineTraceSingleByChannel(Hit, Start, Start - FVector(0.f, 0.f, 350.f), ECC_WorldStatic, Q))
 		{
+			if (Hit.GetActor() && Hit.GetActor()->IsA<APawn>()) { continue; } // same no-Pawn rule
 			StampDecalAt(World, Hit, P, P.SizeMin, P.SizeMax);
+			++FloorHits;
+			UE_LOG(LogTemp, Warning, TEXT("[BloodProbe] floor %d/%d HIT %s (%s) impactZ=%.0f startZ=%.0f"),
+				i + 1, P.FloorSplats,
+				Hit.GetActor() ? *Hit.GetActor()->GetName() : TEXT("?"),
+				Hit.GetComponent() ? *Hit.GetComponent()->GetName() : TEXT("?"),
+				Hit.ImpactPoint.Z, Start.Z);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[BloodProbe] floor %d/%d MISS — nothing WorldStatic within 350uu below (%.0f, %.0f, %.0f)"),
+				i + 1, P.FloorSplats, Start.X, Start.Y, Start.Z);
 		}
 	}
+	UE_LOG(LogTemp, Warning, TEXT("[BloodProbe] splatter done: wall %d/%d floor %d/%d origin=(%.0f,%.0f,%.0f) mat=%s"),
+		WallHits, P.WallSplats, FloorHits, P.FloorSplats, Origin.X, Origin.Y, Origin.Z,
+		*P.DecalMat->GetName());
 }

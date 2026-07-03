@@ -191,14 +191,17 @@ public:
 	/** Full composite at Location spraying along Direction. bMeleeHit selects the melee system trio
 	 *  (+ delayed floor pool); false = the ranged/bullet trio. SurfaceNormal (the wound's impact
 	 *  normal) orients the body-residual stains flat against the skin — pass Hit.ImpactNormal;
-	 *  ZeroVector falls back to the spray direction. */
+	 *  ZeroVector falls back to the spray direction. ExtraIgnoreActor: a second body the splatter
+	 *  traces must pass through — the GRABBER during the grab bite (its Pawn capsule blocks the
+	 *  WorldStatic trace 36uu out; the movement-only collision ignore does NOT cover line traces,
+	 *  so without this every wall splat stamps invisibly on the capsule). */
 	UFUNCTION(BlueprintCallable, Category = "Blood")
 	void PlayHitBlood(const FVector& Location, const FVector& Direction, bool bMeleeHit = true,
-		FVector SurfaceNormal = FVector::ZeroVector);
+		FVector SurfaceNormal = FVector::ZeroVector, AActor* ExtraIgnoreActor = nullptr);
 
 	/** Weapon-side entry point. Uses HitActor's component if present, else class defaults. */
 	static void PlayHitBloodFor(AActor* HitActor, const FVector& Location, const FVector& Direction,
-		bool bMeleeHit = true, FVector SurfaceNormal = FVector::ZeroVector);
+		bool bMeleeHit = true, FVector SurfaceNormal = FVector::ZeroVector, AActor* ExtraIgnoreActor = nullptr);
 
 protected:
 	/** Preloads assets, disables body decal reception, and prewarms shaders — the whole effect
@@ -209,11 +212,12 @@ protected:
 private:
 	struct FBloodSpawnParams; // all resolved values for one composite spawn
 	static void SpawnComposite(UWorld* World, AActor* HitActor, const FVector& Location,
-		const FVector& Direction, bool bMeleeHit, const FVector& SurfaceNormal, const FBloodSpawnParams& P);
+		const FVector& Direction, bool bMeleeHit, const FVector& SurfaceNormal, const FBloodSpawnParams& P,
+		AActor* ExtraIgnoreActor = nullptr);
 	static void SpawnTintedSystem(UWorld* World, UNiagaraSystem* System, const FVector& Location,
 		const FRotator& Rotation, const FBloodSpawnParams& P);
 	static void SpawnSplatterDecals(UWorld* World, AActor* HitActor, const FVector& Origin,
-		const FVector& Direction, const FBloodSpawnParams& P);
+		const FVector& Direction, const FBloodSpawnParams& P, AActor* ExtraIgnoreActor = nullptr);
 	static void StampDecalAt(UWorld* World, const FHitResult& Hit, const FBloodSpawnParams& P,
 		float SizeMin, float SizeMax);
 	static void SpawnBodyResidual(AActor* HitActor, const FVector& Location, const FVector& ProjectDir,
