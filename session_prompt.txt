@@ -20,7 +20,22 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session: Session 63 (a–e, see checkpoints grenade_*/swap_* 2026-06-11/12) — (1) Weapon swaps = traditional Kinemation (instant + Draw montage; 4-phase hack deleted; WeaponDrawLockTime=0.6s). (2) Grenade system rebuilt: held on the Kubold view-model RIGHT fist ("one half of the pipe animation"), equip = back half of Kubold Equip (rise only), no throw gesture, each mid-stack throw replays the rise; stacks to 5 (MaxStackAmount); stays equipped while supply remains (CountWeaponClassInInventory + RestockThrowable); hotkey = live count check (ConsumedWeaponClasses blocklist deleted); fuse 5s; grip baked (offset/rot/scale FVector 0.6,0.6,1.01). (3) Inventory item grid mouse fixed: restore Moonville-authored visibilities, never blanket Visible (ItemShortcutCross was an invisible click-eater). (4) Pipe: Attack_F stab dropped (R/L only). (5) SM_PoliceShotgun re-pointed at real Kinemation Police MI (was blank FBX dummy). (6) AK-105 0.47→0.15s. (7) NearClipPlane 10→2.5cm (ADS camera bled into gun meshes). DEAD END added: NEVER translate PlayerMesh for transitions — camera is socketed to it (forced-crouch incident). All dev-verified in PIE except near-clip ADS check. (8) Pipe grip straight-line refit (Scripts/Python/fit_pipe_grip_channel_offline.py, samples A_MeleePipe_Idle across the whole loop). KEY LESSON: wrist→knuckle interpolation lays the shaft against the BACK of the fist (metacarpals run under the back of the hand — dev caught it). Correct channel center = centroid of the curled finger-joint ring (12 finger joints + thumb_02/03) which physically wraps the shaft. MeleeGripOffset=(-24.49,5.10,22.47), MeleeGripRotation=(p-24.02,y119.26,r33.57) — baked in ZP_KinemationComponent.h + BP_GraceCharacter CDO, rebuilt, set_all_cdo run. NEEDS: PIE visual check (incl. elbow-end roll orientation — fit constrains the shaft line, not spin around it).
+- Last session (2026-07-03): SHAMBLER COMPLETE-FOR-NOW, all dev-verified in PIE — dev: "we went
+  from a simple lurker to ravenous zombie/shambler/necromorph thingy." Delivered (see the six
+  2026-07-03_* checkpoints): combat idle BANNED (wander-only; combat gaps hold the last clip's
+  final pose via Tick pose-hold), grab-latch glitch ROOT-CAUSED with [LatchProbe] (early mash
+  flipped Munch→Wrestle 0.02s in = double pose-cut; GrabMinMunchTime 0.5s buffered switch),
+  sprint-chase = run-burst/fast-walk intervals (RunBurstDuration 2s / RunWalkDuration 4s),
+  grab cooldown split (GrabCooldown 30s landed / GrabFailCooldown 6s failed), grab camera
+  "cutscene" feel (quintic blend, GrabFaceBlendTime 0.35s view swing replaces the control-rot
+  snap, GrabSnapInDuration 0.2s lunge replaces the 160uu latch teleport), distance-based
+  footsteps (16 one-shots sliced from the dev reel; FootstepVolume/Stride/PitchVar knobs),
+  scream lower body pinned (A_Shambler_ScreamPinned — feet planted), run head world-space
+  stabilized (RunHeadStabilize; the local track-freeze bake was insufficient), SFX_GRAB_ALERT
+  one-shot at latch, ALL shambler damage HALVED (AttackDamage 12.5, GrabTickDamagePerSecond
+  3.125 — both verified on the BPs post-rebuild).
+  NEXT-SESSION HOUSEKEEPING: strip/gate the [ShamAnim] + [LatchProbe] Warning log spam.
+- Previous session: Session 63 (a–e, see checkpoints grenade_*/swap_* 2026-06-11/12) — (1) Weapon swaps = traditional Kinemation (instant + Draw montage; 4-phase hack deleted; WeaponDrawLockTime=0.6s). (2) Grenade system rebuilt: held on the Kubold view-model RIGHT fist ("one half of the pipe animation"), equip = back half of Kubold Equip (rise only), no throw gesture, each mid-stack throw replays the rise; stacks to 5 (MaxStackAmount); stays equipped while supply remains (CountWeaponClassInInventory + RestockThrowable); hotkey = live count check (ConsumedWeaponClasses blocklist deleted); fuse 5s; grip baked (offset/rot/scale FVector 0.6,0.6,1.01). (3) Inventory item grid mouse fixed: restore Moonville-authored visibilities, never blanket Visible (ItemShortcutCross was an invisible click-eater). (4) Pipe: Attack_F stab dropped (R/L only). (5) SM_PoliceShotgun re-pointed at real Kinemation Police MI (was blank FBX dummy). (6) AK-105 0.47→0.15s. (7) NearClipPlane 10→2.5cm (ADS camera bled into gun meshes). DEAD END added: NEVER translate PlayerMesh for transitions — camera is socketed to it (forced-crouch incident). All dev-verified in PIE except near-clip ADS check. (8) Pipe grip straight-line refit (Scripts/Python/fit_pipe_grip_channel_offline.py, samples A_MeleePipe_Idle across the whole loop). KEY LESSON: wrist→knuckle interpolation lays the shaft against the BACK of the fist (metacarpals run under the back of the hand — dev caught it). Correct channel center = centroid of the curled finger-joint ring (12 finger joints + thumb_02/03) which physically wraps the shaft. MeleeGripOffset=(-24.49,5.10,22.47), MeleeGripRotation=(p-24.02,y119.26,r33.57) — baked in ZP_KinemationComponent.h + BP_GraceCharacter CDO, rebuilt, set_all_cdo run. NEEDS: PIE visual check (incl. elbow-end roll orientation — fit constrains the shaft line, not spin around it).
 - Session 62 — Melee view-model system (TICKET-054 fix): Kubold FPP Melee Animset on dedicated MeleeViewMesh (camera-child, SingleNode, UE4 skeleton native — no retarget). Replaces ADS-toggle swing hack AND ToggleReadyPose pipe swap hack. Equip/Unequip/Idle/Attack_F from Longsword set (two-handed, matches DA_Pipe). PlayerMesh clavicles hidden while melee held; Moonville pipe actor stays hidden for inventory bookkeeping; SM_Pipe attached to view-model hand_r. ALSO: bullet decals were silently broken (stale /Game/UniversalWallClutter paths in set_all_cdo.py) — fixed to /Game/UWC_Bullet_Holes Metal_Solid 1-5, set + saved on CDO. NEEDS: PIE validation + view-model offset tuning.
 - Date: 2026-06-11
 
@@ -62,12 +77,16 @@
 - **Alternate structure (under consideration):** Dual protagonist — Grace through B1-3, meet new character (MGS/AC playstyle), Treatment Facility, replay B1-3 as new character, Labs as both. Would require second character controller + animation set.
 
 ## CURRENT PRIORITIES
--1. GRAB/STRUGGLE SYSTEM (2026-07-02) — BUILT, compiled clean, NEEDS PIE TEST. Shambler grabs in
+-1. GRAB/STRUGGLE SYSTEM (2026-07-02) — DONE, DEV-VERIFIED IN PIE 2026-07-03 ("works for me",
+   shambler closed for now). Shambler grabs in
    melee range -> 3P over-shoulder camera + damage vignette -> mash LMB to escape (kick/push +
    zombie knockback/stun) or fail -> FP knockdown (camera rides the fall) + get-up. GRAB IS THE
-   OPENER (dev direction): first move in reach is the grab, melee is the fallback during its 8s
-   per-zombie cooldown; re-checked between chained swings (Attack-loop dead spot fixed). Blockable
+   OPENER (dev direction): first move in reach is the grab, melee is the fallback during the grab
+   cooldown (now split: 30s after a LANDED grab, GrabFailCooldown 6s after deflected/evaded);
+   re-checked between chained swings (Attack-loop dead spot fixed). Blockable
    (deflect = zombie stagger), dodge evades the latch, 3s post-escape immunity, downed i-frames.
+   2026-07-03 polish: GrabMinMunchTime buffered wrestle, view-swing + lunge-in latch camera,
+   quintic cam blend, SFX_GRAB_ALERT, halved grab tick damage.
    All C++ (NEW ZP_GrabTypes.h/ZP_Grabbable.h +
    GraceCharacter/ShamblerBehaviorComponent/HUDWidget); anims retargeted + curve-audited
    (/Game/Marcus/GrabAnims/*, /Game/Enemies/Shambler/Anims/A_Shambler_Grab*). DEV: PIE checklist in

@@ -1404,7 +1404,11 @@ void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult
 		}
 		const FRotator CamRot = (LookAt - CamPos).Rotation();
 
-		const float W = FMath::SmoothStep(0.f, 1.f, GrabCamWeight);
+		// Quintic smootherstep (6t^5-15t^4+10t^3): zero velocity AND zero acceleration at both
+		// ends — the cubic SmoothStep still carried acceleration into its endpoints, which read
+		// as the 1P<->3P "jerk in and out" (dev 2026-07-03). Same total duration, softer ends.
+		const float T = FMath::Clamp(GrabCamWeight, 0.f, 1.f);
+		const float W = T * T * T * (T * (T * 6.f - 15.f) + 10.f);
 		OutResult.Location = FMath::Lerp(FPView.Location, CamPos, W);
 		OutResult.Rotation = FQuat::Slerp(FPView.Rotation.Quaternion(), CamRot.Quaternion(), W).Rotator();
 		OutResult.FOV = FPView.FOV;
@@ -5302,14 +5306,23 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 		PreGrabWeaponClass ? *PreGrabWeaponClass->GetName() : TEXT("none"),
 		(KinemationComp && KinemationComp->IsMeleeViewModelActive()) ? 1 : 0);
 
-	// Freeze + snap to face the grabber. Control rotation is set ONCE and never moves during the
-	// grab (look input is gated), so the FP view direction on return has no snap.
+	// Freeze + face the grabber. The BODY snaps (the paired clips need exact alignment), but the
+	// VIEW swings on smoothly: the old one-frame SetControlRotation teleport was the residual
+	// "camera jerk" at the latch no blend curve could hide (dev 2026-07-03 — "cutscene-like").
+	// UpdateGrab eases the control rotation to the target over GrabFaceBlendTime; look input is
+	// gated for the whole grab, and by Munch it has settled — the 1P return stays snap-free.
 	FVector ToGrabber = Grabber->GetActorLocation() - GetActorLocation();
 	ToGrabber.Z = 0.f;
 	if (!ToGrabber.IsNearlyZero())
 	{
 		const float Yaw = ToGrabber.Rotation().Yaw;
-		if (Controller) { Controller->SetControlRotation(FRotator(0.f, Yaw, 0.f)); }
+		GrabFaceTargetRot = FRotator(0.f, Yaw, 0.f);
+		GrabFaceStartRot = Controller ? Controller->GetControlRotation() : GetActorRotation();
+		GrabFaceAlpha = (GrabFaceBlendTime > KINDA_SMALL_NUMBER) ? 0.f : 1.f;
+		if (GrabFaceAlpha >= 1.f && Controller)
+		{
+			Controller->SetControlRotation(GrabFaceTargetRot); // knob at 0 = old instant snap
+		}
 		SetActorRotation(FRotator(0.f, Yaw, 0.f));
 	}
 	bUseControllerRotationYaw = false;
@@ -5505,6 +5518,18 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 	if (GrabImmunityRemaining > 0.f)
 	{
 		GrabImmunityRemaining = FMath::Max(0.f, GrabImmunityRemaining - DeltaTime);
+	}
+
+	// Eased view swing onto the grabber (smootherstep) — replaces the latch-frame snap. Runs
+	// only while a grab holds the look input; a grab broken mid-swing just stops here (the view
+	// stays where it is — still no snap).
+	if (GrabFaceAlpha < 1.f && GrabPhase != EZP_GrabPhase::None && Controller)
+	{
+		GrabFaceAlpha = FMath::Min(1.f, GrabFaceAlpha + DeltaTime / FMath::Max(GrabFaceBlendTime, 0.05f));
+		const float T = GrabFaceAlpha;
+		const float S = T * T * T * (T * (T * 6.f - 15.f) + 10.f);
+		const FQuat Q = FQuat::Slerp(GrabFaceStartRot.Quaternion(), GrabFaceTargetRot.Quaternion(), S);
+		Controller->SetControlRotation(Q.Rotator());
 	}
 
 	// Camera blend weight: 1 = full over-the-shoulder frame. The 3P frame covers ONLY the held

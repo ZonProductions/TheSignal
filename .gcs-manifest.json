@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-03T03:23:57",
+  "created": "2026-07-03T11:04:56",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -2807,6 +2807,10 @@
       "hash": "sha256:e22db6254ec2dd01dcff7e270170d2f0346d976af75d37d72aedfc6adb197cd3",
       "size": 155525
     },
+    "Content/Audio/Shambler/SFX_GRAB_ALERT.uasset": {
+      "hash": "sha256:cd04553fe0eff5f1fe67486cae037f180d2ead9137d7662e34977ccfda10699d",
+      "size": 539452
+    },
     "Content/Audio/Shambler/SFX_SHAMBLER_GRAB.uasset": {
       "hash": "sha256:0d59246e3c7c01818b725502445edb4f3b9d8dff10d31695e0e3bb8279a4ea2c",
       "size": 424559
@@ -2834,6 +2838,70 @@
     "Content/Audio/Shambler/SFX_ZOMBIE_LURK.uasset": {
       "hash": "sha256:e4c8ef22976fed38eb55e05892399bb8593da67413a204bfe2d0a798e1b6adb7",
       "size": 193091
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_01.uasset": {
+      "hash": "sha256:20898cc7b46e88b6d48a7fb33f19c4019db4904362ffe1874aaeda124af95df6",
+      "size": 29412
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_02.uasset": {
+      "hash": "sha256:34766c322bb335d6f66e95de829939915b8649d4aa12a33b22147ab38dd1defb",
+      "size": 9310
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_03.uasset": {
+      "hash": "sha256:70af3289cba3cdd080521c3ff290da29581d72d7475f59b78d418fca50d1e18c",
+      "size": 30131
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_04.uasset": {
+      "hash": "sha256:56f02e3637a999aa08cabf1ae3c602f891dc71decdec989c792cb5b8a5debbc0",
+      "size": 13990
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_05.uasset": {
+      "hash": "sha256:90d280d6d977061bcd109547ab166f710e8c0f60b5f17747975f60c500e5ede4",
+      "size": 29427
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_06.uasset": {
+      "hash": "sha256:744c8b0460aafaef54ed592cd8b5eba35a6776242d24173f980456cccf1e73f7",
+      "size": 9075
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_07.uasset": {
+      "hash": "sha256:dd8f4518675ee0d9d1bf825ed806a360bf40f783255949e620fb256ceac39f6f",
+      "size": 31252
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_08.uasset": {
+      "hash": "sha256:a9f8a25a57d8145ec7539ac7a2240114ef0cf105db4ed73a01c119744876539b",
+      "size": 15388
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_09.uasset": {
+      "hash": "sha256:e53f88ecc276072b2f341a09ff2de2620df5ceaf1058e7844e3010f77215d0a5",
+      "size": 29772
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_10.uasset": {
+      "hash": "sha256:6b4bd9517c315ba638dbde3e17b975d244791c7cd89e211e75c873fb24892198",
+      "size": 11726
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_11.uasset": {
+      "hash": "sha256:1bda0b801960ad09cd58f3e234fccf6a2bbddc972197236d12792d2953baec5e",
+      "size": 30015
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_12.uasset": {
+      "hash": "sha256:2a971c20521c9e5966d26baad4f379c6651a4c5c8107a96023d87813b2650ced",
+      "size": 13956
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_13.uasset": {
+      "hash": "sha256:0216b07fd97a92d35c2e25217e99fa6519282ed84f86b5b7a4065d3471898c3e",
+      "size": 29575
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_14.uasset": {
+      "hash": "sha256:deabb11e4eea16563c5f92fe6b5d37d7b7a2ff90be1e86c3b587a6759b70c1d6",
+      "size": 8347
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_15.uasset": {
+      "hash": "sha256:df681fc1e7804e4b6d425f01f63b74b0177ea74fd8c6ed462f18df2c9266b624",
+      "size": 32212
+    },
+    "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_16.uasset": {
+      "hash": "sha256:8a4c559298166938fbc5da7a93e0311af8b9092d302dc0c8a4a51943980a1151",
+      "size": 13796
     },
     "Content/Audio/Signal/MS_Signal_InterferenceBed.uasset": {
       "hash": "sha256:6399245780c9578191356186a8c2b4dcf13601c647efcef2200c27f2d84a649c",
@@ -26823,9 +26891,17 @@
       "hash": "sha256:0afc973190575cc3dd8344d59d3b61d0b175d988c1e68048a2e9b01cead36a55",
       "size": 101148
     },
+    "Content/Enemies/Shambler/Anims/A_Shambler_RunStiffArmsHead.uasset": {
+      "hash": "sha256:1cc2135de92b10adcd78d4cd3849ccfc81ab6c63f106b593e3613bd41c5a6571",
+      "size": 85628
+    },
     "Content/Enemies/Shambler/Anims/A_Shambler_Scream.uasset": {
       "hash": "sha256:812b827681c48604e324d758f91d9bbee4bf2b7c9d099706af2c85d3ab36b840",
       "size": 196690
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_ScreamPinned.uasset": {
+      "hash": "sha256:fb58d04f673b86d6cf3f44501b2ad34fa6a80ed3edb35213e1293f6f8dd65084",
+      "size": 133727
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Walk.uasset": {
       "hash": "sha256:97a7801739632830eaa974ca33a2d35393c931fb22fa2d5aaea828af9f73c2e0",

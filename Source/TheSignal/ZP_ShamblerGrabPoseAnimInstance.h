@@ -5,12 +5,13 @@
 /**
  * UZP_ShamblerGrabPoseAnimInstance
  *
- * Purpose: C++ PARENT class of ABP_Shambler (the main anim instance). While the behavior
- *          component is in the Grab state, NativePostEvaluateAnimation applies the dev-tunable
- *          bone-local rotations (UZP_ShamblerBehaviorComponent::GrabArmLRotation /
- *          GrabArmRRotation / GrabHeadRotation) on top of the paired grapple clips so arm
- *          clipping and the bite angle against Marcus can be dialed live in PIE. Inert in every
- *          other state.
+ * Purpose: C++ PARENT class of ABP_Shambler (the main anim instance). Two post-evaluate jobs:
+ *          - Grab state: applies the dev-tunable bone-local rotations (GrabArmL/R/Head) on top
+ *            of the paired grapple clips so arm clipping / bite angle dial live in PIE.
+ *          - Run bursts: WORLD-space head stabilization (RunHeadStabilize 0..1) — the baked
+ *            local-track freeze still rides the torso's run-swing, so the head whipped around
+ *            (dev 2026-07-03); holding the head's component-space reference orientation gives
+ *            the steady facing-the-player gaze. Inert in every other state.
  *
  * Owner Subsystem: EnemyAI
  *
@@ -46,6 +47,7 @@ private:
 	int32 ArmLBone = INDEX_NONE;
 	int32 ArmRBone = INDEX_NONE;
 	int32 HeadBone = INDEX_NONE;
+	FQuat HeadRefCSRot = FQuat::Identity; // head's ref-pose component-space rotation (stabilize target)
 
 	/** Rigidly rotate RootBone's subtree (inclusive) about its CS position. */
 	void RotateBoneTreeCS(TArray<FTransform>& CS, const struct FReferenceSkeleton& RefSkel,

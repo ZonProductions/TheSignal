@@ -652,12 +652,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
 	float HoldFillPerSecond = 0.5f;
 
-	/** Ticking damage while HELD (munch + wrestle), landing once per second. Derivation (dev
-	 *  spec 2026-07-02): the fastest possible escape lasts GrabMinTrappedTime (2s) = 2 ticks
-	 *  = 12.5 = HALF a normal Shambler attack (25 = a quarter of max HP 100); riding the full
-	 *  StruggleTimeLimit (4s) to failure = 4 ticks = one FULL attack, then the knockdown. */
+	/** Ticking damage while HELD (munch + wrestle), landing once per second. HALVED 6.25 ->
+	 *  3.125 with the Shambler's AttackDamage (dev 2026-07-03: everything it deals, halved —
+	 *  "feels very overpowered"). The 2026-07-02 ratio derivation still holds at the new
+	 *  scale: fastest escape (2s) = 2 ticks = half an attack (12.5); riding the full
+	 *  StruggleTimeLimit (4s) to failure = one full attack, then the knockdown. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Damage")
-	float GrabTickDamagePerSecond = 6.25f;
+	float GrabTickDamagePerSecond = 3.125f;
 
 	/** MINIMUM seconds trapped (from the bite phase starting) before an escape can complete —
 	 *  even a perfect mash eats this long (and its damage ticks). The meter can be full
@@ -683,13 +684,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
 	float GrabCamUp = 25.f;
 
-	/** 1P→3P blend seconds (fits inside the 0.6s grab entry). */
+	/** 1P→3P blend seconds (fits inside the 0.6s grab entry). Raised 0.35 -> 0.5 with the
+	 *  smootherstep curve (dev 2026-07-03: "smoother in and out"). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabCamBlendIn = 0.35f;
+	float GrabCamBlendIn = 0.5f;
 
-	/** 3P→1P blend seconds (tail of the kick/push escape, or the start of the knockdown). */
+	/** Seconds the VIEW swings onto the grabber at the latch. The old code TELEPORTED the
+	 *  control rotation in one frame — the residual "camera jerk" no blend curve could hide
+	 *  (dev 2026-07-03: "cutscene-like"). Smootherstep-eased; look input is gated for the
+	 *  whole grab so nothing fights it. 0 = the old instant snap. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabCamBlendOut = 0.3f;
+	float GrabFaceBlendTime = 0.35f;
+
+	/** 3P→1P blend seconds (tail of the kick/push escape, or the start of the knockdown).
+	 *  Raised 0.3 -> 0.45 with the smootherstep curve (dev 2026-07-03). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
+	float GrabCamBlendOut = 0.45f;
 
 	/** Damage-vignette floor held while grabbed (bites still pulse it to max on top). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|HUD")
@@ -1248,6 +1258,11 @@ private:
 	FTimerHandle GrabLatchProbeTimer;
 	FVector GrabLatchProbeOrigin = FVector::ZeroVector;
 	double GrabLatchProbeStart = 0.0;
+
+	/** Eased view swing onto the grabber (replaces the latch-frame control-rotation snap). */
+	FRotator GrabFaceStartRot = FRotator::ZeroRotator;
+	FRotator GrabFaceTargetRot = FRotator::ZeroRotator;
+	float GrabFaceAlpha = 1.f; // 1 = settled/no blend running
 
 	/** True while attack is physically held (drives Hold accessibility fill). */
 	bool bGrabEscapeHeld = false;

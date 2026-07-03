@@ -48,18 +48,22 @@ void UZP_ShamblerGrabPoseAnimInstance::NativePostEvaluateAnimation()
 		}
 		if (!Behavior.IsValid()) return;
 	}
-	if (Behavior->State != EShamblerState::Grab) return;
+	const bool bGrab = (Behavior->State == EShamblerState::Grab);
+	const float HeadStab = FMath::Clamp(Behavior->RunHeadStabilize, 0.f, 1.f);
+	const bool bRunStabilize = !bGrab && HeadStab > 0.f && Behavior->IsRunBurstActive();
+	if (!bGrab && !bRunStabilize) return;
 
 	const FRotator& RotL = Behavior->GrabArmLRotation;
 	const FRotator& RotR = Behavior->GrabArmRRotation;
 	const FRotator& RotH = Behavior->GrabHeadRotation;
-	if (RotL.IsNearlyZero() && RotR.IsNearlyZero() && RotH.IsNearlyZero()) return;
+	if (bGrab && RotL.IsNearlyZero() && RotR.IsNearlyZero() && RotH.IsNearlyZero()) return;
 
 	const FReferenceSkeleton& RefSkel = Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
 
 	// Resolve the necromorph's upper-arm + head bones once — mixamorig naming, indices vary per
 	// export (e.g. mixamorig_leftarm_09), so match by substring: "leftarm"/"rightarm" (not
-	// "forearm"), and "head" excluding the "headtop_end" tip bone.
+	// "forearm"), and "head" excluding the "headtop_end" tip bone. Also cache the head's
+	// ref-pose COMPONENT-space rotation — the run-burst stabilize target.
 	if (!bResolved)
 	{
 		bResolved = true;
@@ -71,10 +75,34 @@ void UZP_ShamblerGrabPoseAnimInstance::NativePostEvaluateAnimation()
 			if (ArmLBone == INDEX_NONE && Name.Contains(TEXT("leftarm"))) { ArmLBone = i; }
 			if (ArmRBone == INDEX_NONE && Name.Contains(TEXT("rightarm"))) { ArmRBone = i; }
 		}
+		if (HeadBone != INDEX_NONE)
+		{
+			FTransform RefCS = FTransform::Identity;
+			for (int32 b = HeadBone; b != INDEX_NONE; b = RefSkel.GetParentIndex(b))
+			{
+				RefCS = RefCS * RefSkel.GetRefBonePose()[b]; // CS(bone) = Local(bone) * CS(parent)
+			}
+			HeadRefCSRot = RefCS.GetRotation();
+		}
 	}
 
 	TArray<FTransform>& CS = Mesh->GetEditableComponentSpaceTransforms();
 	if (CS.Num() == 0) return;
+
+	if (bRunStabilize)
+	{
+		// RUN BURST: hold the head at its ref-pose component-space orientation — a steady gaze
+		// on whatever the body faces (the player, mid-chase) while the torso pounds underneath.
+		// The baked local freeze couldn't do this: local-frozen bones still ride the parent.
+		if (HeadBone != INDEX_NONE && HeadBone < CS.Num())
+		{
+			FQuat Delta = HeadRefCSRot * CS[HeadBone].GetRotation().Inverse();
+			Delta.Normalize();
+			Delta = FQuat::Slerp(FQuat::Identity, Delta, HeadStab);
+			RotateBoneTreeCS(CS, RefSkel, HeadBone, Delta);
+		}
+		return;
+	}
 
 	struct FArmFix { int32 Bone; const FRotator* Rot; };
 	const FArmFix Fixes[] = { { ArmLBone, &RotL }, { ArmRBone, &RotR }, { HeadBone, &RotH } };

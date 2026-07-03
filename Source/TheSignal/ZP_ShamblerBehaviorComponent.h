@@ -112,10 +112,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float AttackCooldown = 0.4f;
 
-	/** 25 = two eaten swings cost half the player's health. Spam-trading must hurt — the design
-	 *  forces block (x0.25 damage + counter-stagger) or the back-step whiff instead. */
+	/** HALVED 25 -> 12.5 (dev 2026-07-03: "feels very overpowered, like PIE is set to very
+	 *  hard" — real difficulty tiers come later). Four eaten swings now cost half the player's
+	 *  health; block (x0.25 + counter-stagger) and the back-step whiff stay the smart plays. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
-	float AttackDamage = 25.f;
+	float AttackDamage = 12.5f;
 
 	/** CLIP time (s) of the contact frame in the swipe animation. Real-world hit timing is remapped
 	 *  through WindupPlayRate/StrikePlayRate at swing start. Must be < the clip length. */
@@ -174,6 +175,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
 	float GrabPairDistance = 70.f;
 
+	/** Seconds the body LUNGES into GrabPairDistance at the latch. Grabbing from max reach
+	 *  (GrabRange 230) used to TELEPORT it ~160uu in one frame — the visible pop the dev
+	 *  reported ("latches on from the farthest reach... jerks", 2026-07-03). Ease-out slide,
+	 *  driven in TickComponent while the pair collision is ignored. 0 = the old teleport. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float GrabSnapInDuration = 0.2f;
+
 	/** Escape stumble-back — a SMALL, contact-timed step, not a launch and not a cross-room slide
 	 *  (dev sequence 2026-07-02: camera is already back in 1P; the push reads, THEN the zombie
 	 *  stumbles back ~half a meter and is ready to attack). The zombie HOLDS the grapple spacing
@@ -227,6 +235,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
 	TObjectPtr<USoundBase> GrabLoopSound;
 
+	/** One-shot alert sting fired the instant the grab LATCHES (dev 2026-07-03), layered under
+	 *  the snarl loop. Lazily defaults to /Game/Audio/Shambler/SFX_GRAB_ALERT in BeginPlay. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<USoundBase> GrabAlertSound;
+
 	/** Seconds it holds the scream (stationary, plays the alert) before breaking into the chase.
 	 *  Applies to SIGHT aggro — the cinematic beat when it spots you across a room. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
@@ -273,10 +286,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	float RunAnimRefSpeed = 350.f;
 
+	/** WORLD-space head stabilization during run bursts, 0..1. Freezing the head's track (the
+	 *  arms treatment) only killed its LOCAL motion — it still rides the torso's run-swing and
+	 *  whips around (dev 2026-07-03: "head facing the player, not jerking around"). 1 = the
+	 *  head holds its reference orientation in component space (steady gaze at the player it's
+	 *  facing) while the body pounds underneath; 0 = off. Applied by ABP_Shambler's C++ parent
+	 *  (UZP_ShamblerGrabPoseAnimInstance) post-evaluate. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float RunHeadStabilize = 1.f;
+
+	/** True while the sprint-chase is in a RUN burst (the anim instance's head-stabilize gate). */
+	bool IsRunBurstActive() const { return bRunningChase && bRunBurstNow; }
+
 	/** Run cycle, played as a slot loop over the walk BlendSpace for the whole sprint. Default =
-	 *  A_Shambler_RunStiffArms: the NAAT run body with the arms FROZEN at the AS_NAAT_Zombie_LL_Idle
-	 *  pose (bake_shambler_run_arms.py — necromorphs don't pump their arms). Swap to plain
-	 *  A_Shambler_Run for the original swinging-arm cycle. */
+	 *  A_Shambler_RunStiffArmsHead: the NAAT run body with arms AND head/neck frozen at the
+	 *  AS_NAAT_Zombie_LL_Idle pose (bake_shambler_run_arms.py + bake_shambler_scream_run_fixes.py
+	 *  — dev 2026-07-03: "the run looks goofy with the head swinging around"). Swap to
+	 *  A_Shambler_RunStiffArms (head animated) or plain A_Shambler_Run (everything animated). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	TObjectPtr<UAnimSequence> RunAnim;
 
@@ -365,6 +391,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
 	TObjectPtr<USoundBase> IdleSound;
 
+	/** Footstep one-shots, random pick per step. Lazily filled in BeginPlay from
+	 *  /Game/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_NN (sliced from the dev's
+	 *  SFX_SHAMBLER_FOOTSTEPS reel — Scripts/Python/slice_footstep_reel.py). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
+	TArray<TObjectPtr<USoundBase>> FootstepSounds;
+
+	/** Footstep VOLUME (dev 2026-07-03). 0 = silent feet. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
+	float FootstepVolume = 1.f;
+
+	/** Distance (UU) traveled per footstep. DISTANCE-based stepping is what cadence-matches
+	 *  every gait automatically — wander 120 / chase 250 / run bursts 420, stumbles, pauses:
+	 *  faster movement = proportionally faster steps, stationary = silent. Tune until the
+	 *  sounds land on the visual foot plants. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
+	float FootstepStride = 80.f;
+
+	/** Random pitch spread per step (1 +/- this) so the steps don't sound mechanical. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
+	float FootstepPitchVar = 0.08f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
 	float LurkRange = 1800.f;
 
@@ -421,11 +468,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	float AnimWalkRefSpeed = 150.f;
 
-	/** The scream clip has no root motion but its retargeted pose floats off the ground. This nudges the
-	 *  mesh's Z only during the scream to ground it. -16 matches the same pelvis-lift compensation
-	 *  the idle clip uses, doubled for the scream's more-upright pose. 0 = no change. */
+	/** Mesh-Z nudge during the scream. With A_Shambler_ScreamPinned (lower body frozen at the
+	 *  idle stance — dev 2026-07-03: the old clip lifted the feet a few inches), the legs ARE
+	 *  the idle pose, so this matches IdleMeshZOffset (-8), not the old -16 whole-clip drop. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
-	float ScreamMeshZOffset = -16.f;
+	float ScreamMeshZOffset = -8.f;
 
 	/** The death clips have no root motion, so the corpse lands floating at hip height. This lowers the
 	 *  mesh by this much (UU) over the death clip so it settles on the ground. Tune until it grounds. */
@@ -642,6 +689,9 @@ private:
 	/** PROBE: trace a Visibility ray straight through the mesh center to prove whether its collision is hittable. */
 	void ProbeShootable();
 
+	/** Play one random footstep one-shot at the body (FootstepVolume / FootstepPitchVar). */
+	void PlayFootstep();
+
 	void UpdateLurk(float DistToPlayer);
 
 	UPROPERTY() TObjectPtr<ACharacter> Owner;
@@ -678,6 +728,12 @@ private:
 	FVector EscapePushbackFrom = FVector::ZeroVector;
 	FVector EscapePushbackTo = FVector::ZeroVector;
 
+	// latch lunge-in (driven in TickComponent — replaces the one-frame pair-spacing teleport)
+	bool bGrabSnapIn = false;
+	double GrabSnapStart = 0.0;
+	FVector GrabSnapFrom = FVector::ZeroVector;
+	FVector GrabSnapTo = FVector::ZeroVector;
+
 	/** True while Chase is holding position inside AttackRange (stand ready, face the player —
 	 *  no MoveToActor re-paths orbiting the target). */
 	bool bChaseHoldingInRange = false;
@@ -712,6 +768,9 @@ private:
 	bool bDropping = false;
 	float StateTimer = 0.f;
 	bool bDead = false;
+
+	// distance-based footsteps (accumulates 2D travel; one step per FootstepStride)
+	float StepDistanceAccum = 0.f;
 
 	// lurk audio
 	float LurkTimer = 0.f;

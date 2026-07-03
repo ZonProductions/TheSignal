@@ -49,15 +49,19 @@ void UZP_ShamblerBehaviorComponent::LoadAnimDefaults()
 	Fill(IdleAnim,       TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Idle.A_Shambler_Idle"));
 	Fill(AttackLAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_L.A_Shambler_Attack_L"));
 	Fill(AttackRAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_R.A_Shambler_Attack_R"));
-	Fill(ScreamAnim,     TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Scream.A_Shambler_Scream"));
+	// ScreamPinned = the scream with the LOWER BODY frozen at the idle stance — the raw clip
+	// lifted the feet a few inches off the ground (dev 2026-07-03). Baked by
+	// bake_shambler_scream_run_fixes.py; plain A_Shambler_Scream still exists.
+	Fill(ScreamAnim,     TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_ScreamPinned.A_Shambler_ScreamPinned"));
 	Fill(DeathFrontAnim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Front.A_Shambler_Death_Front"));
 	Fill(DeathBackAnim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Back.A_Shambler_Death_Back"));
 	Fill(HitFrontAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Front.A_Shambler_Hit_Front"));
 	Fill(HitBackAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Back.A_Shambler_Hit_Back"));
-	// RunStiffArms = the NAAT run body with the arms FROZEN at the LL_Idle pose (necromorphs
-	// don't pump their arms — dev 2026-07-03). Baked by Scripts/Python/bake_shambler_run_arms.py;
-	// plain A_Shambler_Run still exists if the swinging arms are ever wanted back.
-	Fill(RunAnim,        TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_RunStiffArms.A_Shambler_RunStiffArms"));
+	// RunStiffArmsHead = the NAAT run body with arms AND head/neck FROZEN at the LL_Idle pose
+	// (dev 2026-07-03: no arm pump, and "the head swinging around" looked goofy). Baked by
+	// bake_shambler_run_arms.py + bake_shambler_scream_run_fixes.py; A_Shambler_RunStiffArms
+	// (head animated) and plain A_Shambler_Run both still exist.
+	Fill(RunAnim,        TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_RunStiffArmsHead.A_Shambler_RunStiffArmsHead"));
 	// NAAT grab pair, attacker side (retargeted 2026-07-02, curve-audited — see retarget_grab_anims.py).
 	Fill(GrabEntryAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabEntry.A_Shambler_GrabEntry"));
 	Fill(GrabMunchAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabMunch.A_Shambler_GrabMunch"));
@@ -121,10 +125,34 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 		IdleSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_ZOMBIE_IDLE.SFX_ZOMBIE_IDLE"));
 	}
 
+	// Footstep one-shots — 16 steps sliced from the dev's SFX_SHAMBLER_FOOTSTEPS reel
+	// (slice_footstep_reel.py + import_shambler_footsteps.py). Distance-driven in Tick.
+	if (FootstepSounds.Num() == 0)
+	{
+		for (int32 i = 1; i <= 16; ++i)
+		{
+			const FString P = FString::Printf(
+				TEXT("/Game/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_%02d.SFX_SHAMBLER_FOOTSTEP_%02d"), i, i);
+			if (USoundBase* Step = LoadObject<USoundBase>(nullptr, *P))
+			{
+				FootstepSounds.Add(Step);
+			}
+		}
+		if (FootstepSounds.Num() == 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Shambler] no footstep sounds at /Game/Audio/Shambler/Footsteps/ — feet are silent"));
+		}
+	}
+
 	// Grapple snarl loop — the wave asset is set to Looping; started at latch, hard-cut on release.
 	if (!GrabLoopSound)
 	{
 		GrabLoopSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_SHAMBLER_GRAB.SFX_SHAMBLER_GRAB"));
+	}
+	// Latch alert sting — one-shot at the moment the grab lands (dev 2026-07-03).
+	if (!GrabAlertSound)
+	{
+		GrabAlertSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/Shambler/SFX_GRAB_ALERT.SFX_GRAB_ALERT"));
 	}
 
 	// Health — create one if the BP doesn't already have it, so the Shambler can take damage + die.
@@ -222,6 +250,23 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		}
 		return;
 	}
+	// DISTANCE-BASED FOOTSTEPS: one step SFX per FootstepStride units of 2D travel — the only
+	// scheme that cadence-matches EVERY gait (wander/chase/run-burst/stumble) with zero per-clip
+	// work: velocity drives it, so faster gaits step proportionally faster and a stationary or
+	// grabbed body is silent. Accumulator carries across short pauses (resumes mid-stride).
+	{
+		const float Speed2D = Owner->GetVelocity().Size2D();
+		if (Speed2D > 20.f)
+		{
+			StepDistanceAccum += Speed2D * DeltaTime;
+			if (StepDistanceAccum >= FMath::Max(20.f, FootstepStride))
+			{
+				StepDistanceAccum = 0.f;
+				PlayFootstep();
+			}
+		}
+	}
+
 	// Hit-jolt spring-back: the punch set in OnPointDamage decays to rest here every frame. XY only —
 	// the state logic owns the mesh Z (idle/scream offsets). Every landed hit visibly shoves the body.
 	if (!MeshPunch.IsNearlyZero(0.05f))
@@ -234,6 +279,25 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			RL.X = MeshBaseRelXY.X + MeshPunch.X;
 			RL.Y = MeshBaseRelXY.Y + MeshPunch.Y;
 			M->SetRelativeLocation(RL);
+		}
+	}
+
+	// Latch lunge-in: ease-out slide into GrabPairDistance (replaces the one-frame teleport when
+	// grabbing from max reach). Pair collision is mutually ignored and movement is MOVE_None, so
+	// a plain unswept lerp is safe; a grab that ends mid-lunge just drops the slide.
+	if (bGrabSnapIn)
+	{
+		if (State != EShamblerState::Grab || bDead)
+		{
+			bGrabSnapIn = false;
+		}
+		else
+		{
+			const float Dur = FMath::Max(0.01f, GrabSnapInDuration);
+			const float A = FMath::Clamp((float)((GetWorld()->GetTimeSeconds() - GrabSnapStart) / Dur), 0.f, 1.f);
+			const float E = 1.f - FMath::Square(1.f - A); // ease-out: lunges hard, lands soft
+			Owner->SetActorLocation(FMath::Lerp(GrabSnapFrom, GrabSnapTo, E), /*bSweep*/false);
+			if (A >= 1.f) { bGrabSnapIn = false; }
 		}
 	}
 
@@ -960,7 +1024,21 @@ void UZP_ShamblerBehaviorComponent::TryStartGrab()
 	{
 		FVector NewLoc = Target->GetActorLocation() - Dir * GrabPairDistance;
 		NewLoc.Z = Owner->GetActorLocation().Z;
-		Owner->SetActorLocation(NewLoc, /*bSweep*/false);
+		if (GrabSnapInDuration > 0.f)
+		{
+			// LUNGE the last stretch into pair spacing instead of teleporting — grabbing from
+			// max reach (GrabRange) popped the body ~160uu in one frame (dev 2026-07-03:
+			// "latches on from the farthest reach... jerks"). Victim froze in TryBeginGrab, so
+			// the captured target point is static; TickComponent drives the ease-out slide.
+			GrabSnapFrom = Owner->GetActorLocation();
+			GrabSnapTo = NewLoc;
+			GrabSnapStart = GetWorld()->GetTimeSeconds();
+			bGrabSnapIn = true;
+		}
+		else
+		{
+			Owner->SetActorLocation(NewLoc, /*bSweep*/false); // knob at 0 = old instant snap
+		}
 		Owner->SetActorRotation(FRotator(0.f, Dir.Rotation().Yaw, 0.f)); // snap-face ONCE (scream pattern)
 	}
 	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
@@ -973,6 +1051,12 @@ void UZP_ShamblerBehaviorComponent::TryStartGrab()
 	{
 		CM->StopMovementImmediately();
 		CM->SetMovementMode(MOVE_None); // AFTER SetState (SetState restores Walking from MOVE_None)
+	}
+	// Latch alert sting — one-shot, fires exactly as the grab lands (dev 2026-07-03). Far carry:
+	// it's an alert-class vocal, audible like the scream.
+	if (GrabAlertSound)
+	{
+		UZP_SFXStatics::PlaySFXAttached(GrabAlertSound, Owner->GetMesh(), EZP_SFXCarry::Far);
 	}
 	// Grapple snarl: looping wave attached to the body for the whole hold — hard-cut on any
 	// release path (EndGrabOnShambler / death). Replaces the one-shot attack bark here.
@@ -1165,6 +1249,7 @@ void UZP_ShamblerBehaviorComponent::OnVictimGrabPhase(EZP_GrabPhase NewPhase)
 void UZP_ShamblerBehaviorComponent::EndGrabOnShambler(bool bResumeChase)
 {
 	if (!Owner) { return; }
+	bGrabSnapIn = false; // a grab ending mid-lunge must not keep sliding the body
 	// Hard-cut the grapple snarl the instant the grab ends (dev spec: no fade, no tail).
 	if (GrabLoopAudio) { GrabLoopAudio->Stop(); GrabLoopAudio = nullptr; }
 	// Collision restore is DEFERRED until the capsules are clear of each other — restoring while
@@ -1673,6 +1758,18 @@ void UZP_ShamblerBehaviorComponent::EnsureLocomotion()
 		// path used to leave the mesh stuck in SingleNode if a one-shot was still mid-play, which is
 		// why EnsureLocomotion existed.
 	}
+}
+
+void UZP_ShamblerBehaviorComponent::PlayFootstep()
+{
+	if (!Owner || FootstepSounds.Num() == 0 || FootstepVolume <= 0.f) { return; }
+	USoundBase* Step = FootstepSounds[FMath::RandRange(0, FootstepSounds.Num() - 1)];
+	if (!Step) { return; }
+	// Room carry (~60 m — the profile documented for "footfalls of others"); slight random
+	// pitch so the 16 slices never read as a mechanical loop. FootstepVolume = THE dev knob.
+	const float Pitch = 1.f + FMath::FRandRange(-FootstepPitchVar, FootstepPitchVar);
+	UZP_SFXStatics::PlaySFXAtLocation(this, Step, Owner->GetActorLocation(),
+		EZP_SFXCarry::Room, FootstepVolume, Pitch);
 }
 
 void UZP_ShamblerBehaviorComponent::UpdateLurk(float DistToPlayer)
