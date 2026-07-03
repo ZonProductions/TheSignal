@@ -31,6 +31,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "JsonObjectWrapper.h"
 #include "ZP_WeaponTypes.h"
+#include "ZP_Grabbable.h"
 #include "ZP_GraceCharacter.generated.h"
 
 class UCameraComponent;
@@ -57,7 +58,7 @@ class USoundBase;
 class UZP_BriefcaseSubsystem;
 
 UCLASS(Blueprintable)
-class THESIGNAL_API AZP_GraceCharacter : public ACharacter
+class THESIGNAL_API AZP_GraceCharacter : public ACharacter, public IZP_Grabbable
 {
 	GENERATED_BODY()
 
@@ -99,6 +100,22 @@ public:
 	/** Footwear — leader-posed to MarcusBody. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
 	TObjectPtr<USkeletalMeshComponent> MarcusSneakers;
+
+	/** Marcus's head (CCMH_Head_Male — a SEPARATE mesh; the CCMH body asset is headless).
+	 *  Leader-posed to MarcusBody, hidden in normal FP play (it would sit in the camera),
+	 *  shown ONLY during the grab-struggle 3P beat. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MarcusHead;
+
+	/** Marcus's authored hair (SidePart_02 per the "Marcus" CC_SaveGame entry, dark-brown
+	 *  Hair Tint). Leader-posed like the head; shown only with it. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MarcusHair;
+
+	/** Marcus's eyebrows (Eyebrows_01 per the "Marcus" CC_SaveGame entry). No beard —
+	 *  the preset says Beard_Default (clean-shaven). */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Appearance")
+	TObjectPtr<USkeletalMeshComponent> MarcusBrows;
 
 	/** Overalls sleeves for the weapon-arm view-model — leader-posed to MeleeViewMesh
 	 *  so the FP arms wear Marcus's clothing (not bare skin). Shown with the view-model. */
@@ -573,6 +590,98 @@ public:
 	/** FPP_Longs_Idle — return-to-hold pose after dodge/block-release. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
 	TSoftObjectPtr<UAnimSequenceBase> MeleeIdleHoldAnim;
+
+	// --- Grab / Struggle (zombie grapple — Docs/Plan_GrabStruggle.md) ---
+
+	/** Current grab phase. None = not grabbed. Every input handler gates on this;
+	 *  LMB becomes the mash-to-escape input while != None. */
+	UPROPERTY(BlueprintReadOnly, Category = "Grab")
+	EZP_GrabPhase GrabPhase = EZP_GrabPhase::None;
+
+	// IZP_Grabbable — an enemy asks to latch on / releases us.
+	virtual EZP_GrabAttemptResult TryBeginGrab(AActor* Grabber) override;
+	virtual void AbortGrab() override;
+
+	/** Each LMB press adds this to the escape meter (threshold 1.0 wins). ~9 clean presses. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
+	float MashGainPerPress = 0.12f;
+
+	/** Escape meter drain per second (framerate-independent — presses are counted, not polled). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
+	float MashDecayPerSecond = 0.25f;
+
+	/** Seconds (from the bite phase starting) to reach the escape threshold before the
+	 *  knockdown fail state. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
+	float StruggleTimeLimit = 4.0f;
+
+	/** Accessibility: true = HOLD attack to fill the meter at HoldFillPerSecond instead of
+	 *  tapping (TLOU/RE4R "Repeated Input Type: Hold"). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
+	bool bEscapeHoldMode = false;
+
+	/** Meter fill per second while attack is held (Hold accessibility mode only). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
+	float HoldFillPerSecond = 0.5f;
+
+	/** Ticking damage while HELD (munch + wrestle), landing once per second. Derivation (dev
+	 *  spec 2026-07-02): the fastest possible escape lasts GrabMinTrappedTime (2s) = 2 ticks
+	 *  = 12.5 = HALF a normal Shambler attack (25 = a quarter of max HP 100); riding the full
+	 *  StruggleTimeLimit (4s) to failure = 4 ticks = one FULL attack, then the knockdown. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Damage")
+	float GrabTickDamagePerSecond = 6.25f;
+
+	/** MINIMUM seconds trapped (from the bite phase starting) before an escape can complete —
+	 *  even a perfect mash eats this long (and its damage ticks). The meter can be full
+	 *  earlier; the break fires the moment this gate opens. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
+	float GrabMinTrappedTime = 2.f;
+
+	/** EXTRA damage chunk on struggle failure, on top of the accumulated ticks (which already
+	 *  total one full attack by the fail point). 0 = ticks only. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Damage")
+	float FailDamageChunk = 0.f;
+
+	/** Seconds after breaking free during which NO enemy may grab (anti-chain-grab). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Rules")
+	float PostEscapeGrabImmunity = 3.0f;
+
+	/** Over-the-right-shoulder camera frame during the struggle: behind / right / above the head.
+	 *  THE distance knob — live-tunable in PIE (BP_GraceCharacter → Details → Grab|Camera). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
+	float GrabCamBack = 100.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
+	float GrabCamRight = 55.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
+	float GrabCamUp = 25.f;
+
+	/** 1P→3P blend seconds (fits inside the 0.6s grab entry). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
+	float GrabCamBlendIn = 0.35f;
+
+	/** 3P→1P blend seconds (tail of the kick/push escape, or the start of the knockdown). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
+	float GrabCamBlendOut = 0.3f;
+
+	/** Damage-vignette floor held while grabbed (bites still pulse it to max on top). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|HUD")
+	float GrabVignetteHold = 0.45f;
+
+	/** Flashlight intensity multiplier while grabbed — dims the beam+fill to a silhouette-read
+	 *  level instead of killing them (a pitch-dark room must not go fully black for the whole
+	 *  grapple). 1 = unchanged, 0 = off. Restored on release. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Flashlight")
+	float GrabFlashlightDimMul = 0.35f;
+
+	/** Player-facing mash prompt shown while grabbed — PLACEHOLDER: author the real wording in
+	 *  BP_GraceCharacter → Details → Grab|HUD. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|HUD")
+	FText GrabPromptText = NSLOCTEXT("TheSignal", "GrabMashPrompt", "PRESS TO BREAK FREE");
+
+	/** True when the most recent input came from a gamepad (lightweight per-tick poll of common
+	 *  pad buttons/sticks vs mouse/movement keys). Drives which button glyph UI prompts show. */
+	UPROPERTY(BlueprintReadOnly, Category = "Input")
+	bool bLastInputGamepad = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> InteractAction;
@@ -1078,6 +1187,75 @@ private:
 
 	/** Reads the PDA_Item UObject from Moonville's ShortcutSlots[SlotIndex] via reflection. */
 	UObject* GetItemDAFromShortcutSlot(int32 SlotIndex);
+
+	// --- Grab / Struggle runtime (Docs/Plan_GrabStruggle.md) ---
+
+	/** The enemy currently latched on. */
+	TWeakObjectPtr<AActor> GrabberActor;
+
+	/** Seconds left in the current fixed-length phase (entry / escape / knockdown / get-up). */
+	float GrabPhaseTimeRemaining = 0.f;
+
+	/** Escape meter 0→1. Presses add, decay drains, 1.0 breaks free. */
+	float EscapeProgress = 0.f;
+
+	/** Seconds left to reach the escape threshold before the knockdown fail. */
+	float StruggleTimeRemaining = 0.f;
+
+	/** Seconds held so far (from the bite phase starting) — gates the min-trapped-time escape. */
+	float GrabHeldTime = 0.f;
+
+	/** Countdown to the next once-per-second damage tick while held. */
+	float GrabNextTickIn = 1.f;
+
+	/** True while attack is physically held (drives Hold accessibility fill). */
+	bool bGrabEscapeHeld = false;
+
+	/** Device the currently-shown grab prompt glyph was picked for — re-shown on change. */
+	bool bGrabPromptGamepad = false;
+
+	/** Flashlight intensities captured at grab start for restore (-1 = nothing to restore). */
+	float PreGrabFlashlightIntensity = -1.f;
+	float PreGrabFlashlightFillIntensity = -1.f;
+
+	/** Per-tick input-device poll (sets bLastInputGamepad). */
+	void UpdateInputDeviceTracking();
+
+	/** Seconds during which NO enemy may grab (post-escape / post-knockdown). */
+	float GrabImmunityRemaining = 0.f;
+
+	/** 0 = live FP camera, 1 = full over-the-shoulder frame. Lerped in UpdateGrab; CalcCamera
+	 *  blends the two views by this, so entry and return are smooth on every exit path. */
+	float GrabCamWeight = 0.f;
+
+	/** Weapon stowed at grab start — re-equipped at the end (the ladder recipe). */
+	TSubclassOf<UObject> PreGrabWeaponClass;
+
+	// Retargeted grab clips, lazily loaded on first grab (LoadAnimDefaults pattern).
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimEntry;      // CCMH, MarcusBody
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimMunch;      // CCMH, MarcusBody
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimWrestle;    // CCMH, MarcusBody
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimKick;       // CCMH, MarcusBody
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimPush;       // CCMH, MarcusBody
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimKnockdownFP;// UEFN, hidden Mesh (camera rides)
+	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimGetUpBack;  // UEFN, hidden Mesh
+	bool bGrabAnimsLoaded = false;
+
+	void LoadGrabAnims();
+	void SetGrabPhase(EZP_GrabPhase NewPhase);
+	/** Per-tick grab machine: camera weight, meter decay/hold-fill, bite ticks, phase timers. */
+	void UpdateGrab(float DeltaTime);
+	/** LMB pressed while grabbed — the mash. */
+	void GrabMashPressed();
+	/** Tear down the grab on ANY exit path (escape completed, get-up done, abort, death). */
+	void EndGrab(bool bAborted);
+	/** SingleNode a grab clip on the visible 3P body (MarcusBody). */
+	void PlayGrabClipOnBody(UAnimSequenceBase* Clip, bool bLoop);
+	/** SingleNode a clip on the hidden Mesh with full-body copy → PlayerMesh → camera rides
+	 *  the FPCamera socket (the ladder mechanism). Knockdown/get-up path. */
+	void PlayGrabClipOnFPRig(UAnimSequenceBase* Clip);
+	/** Tell the grabber (IZP_Grabber, actor or component) the phase machine advanced. */
+	void NotifyGrabberPhase(EZP_GrabPhase Phase);
 
 	// --- Ladder Climbing ---
 

@@ -26,6 +26,7 @@
 #include "Navigation/PathFollowingComponent.h" // EPathFollowingResult
 #include "ZP_Staggerable.h"
 #include "ZP_Revivable.h"
+#include "ZP_Grabbable.h"
 #include "ZP_ShamblerBehaviorComponent.generated.h"
 
 class UAnimSequence;
@@ -45,11 +46,12 @@ enum class EShamblerState : uint8
 	Wander,   // roaming, unaware
 	Scream,   // just spotted the player — playing the alert
 	Chase,    // pursuing
-	Attack    // mid-swipe
+	Attack,   // mid-swipe
+	Grab      // latched onto the player — paired grab/struggle (victim-driven, see IZP_Grabber)
 };
 
 UCLASS(ClassGroup = (TheSignal), meta = (BlueprintSpawnableComponent))
-class THESIGNAL_API UZP_ShamblerBehaviorComponent : public UActorComponent, public IZP_Staggerable, public IZP_Revivable
+class THESIGNAL_API UZP_ShamblerBehaviorComponent : public UActorComponent, public IZP_Staggerable, public IZP_Revivable, public IZP_Grabber
 {
 	GENERATED_BODY()
 
@@ -138,6 +140,46 @@ public:
 	 *  next swing chains sooner. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float StrikePlayRate = 1.6f;
+
+	// --- Grab (paired grab/struggle — Docs/Plan_GrabStruggle.md) ---
+	/** Distance (UU) at which it latches. THE GRAB IS THE OPENER (dev direction 2026-07-02): the
+	 *  first thing it does in reach is grab — melee is the fallback while the grab is on cooldown
+	 *  or was deflected/evaded. Matches AttackRange so the grab wins at the swing-commit distance
+	 *  (and the Attack chain re-checks it between swings — see Evaluate). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float GrabRange = 230.f;
+
+	/** Seconds after a grab (landed OR deflected) before THIS zombie may grab again — the
+	 *  anti-chain-grab rule (Condemned's instant re-grab is the documented anti-pattern).
+	 *  This is the window in which it melees instead. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float GrabCooldown = 30.f;
+
+	/** Vertical counterpart to GrabPairDistance: nudges the zombie MESH up/down (UU) for the
+	 *  duration of the grab so the paired bodies line up in height (Marcus runs at 0.869 scale).
+	 *  Negative = down. Same mechanism as ScreamMeshZOffset; restores itself on state exit. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float GrabPairZOffset = 0.f;
+
+	/** Chest-to-chest spacing (UU) the zombie snaps to at latch — the authored pair distance of the
+	 *  NAAT clips. Tune in PIE until hands land on the body (MarcusBody runs at 0.869 scale, so the
+	 *  mannequin-authored spacing needs a nudge). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float GrabPairDistance = 70.f;
+
+	/** LaunchCharacter speed (UU/s) of the backward shove when the player kicks/pushes free — the
+	 *  clips have no root motion, so the knockback is programmatic. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float EscapeShoveSpeed = 450.f;
+
+	/** MINIMUM stun after being kicked/pushed off (the escape-reward punish window). The real pause
+	 *  is max(this, the Kicked/Pushed clip length ~2.3s) so it never resumes mid-reaction. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float EscapeStunDuration = 1.5f;
+
+	/** Stagger applied when a BLOCKING player deflects the grab attempt (mirrors the block reward). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	float DeflectStaggerDuration = 1.2f;
 
 	/** Seconds it holds the scream (stationary, plays the alert) before breaking into the chase.
 	 *  Applies to SIGHT aggro — the cinematic beat when it spots you across a room. */
@@ -278,6 +320,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	TObjectPtr<UAnimSequence> HitBackAnim;
 
+	/** Attacker-side NAAT grab clips (retargeted onto the necromorph skeleton — see
+	 *  Scripts/Python/retarget_grab_anims.py). Paired 1:1 with the player's victim clips. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<UAnimSequence> GrabEntryAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<UAnimSequence> GrabMunchAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<UAnimSequence> GrabWrestleAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<UAnimSequence> GrabKickedAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<UAnimSequence> GrabPushedAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	TObjectPtr<UAnimSequence> GrabTakedownAnim;
+
 	/** Speed (UU/s) at which the walk clip's stride looks natural. The clip's play rate scales with
 	 *  actual speed / this, so the feet keep pace instead of sliding. Tune until skate is gone. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
@@ -359,6 +416,9 @@ public:
 	virtual void ApplyDeadStateInstant_Implementation() override;
 	virtual void ReviveEnemy_Implementation() override;
 
+	// IZP_Grabber — the victim's phase machine drives; we mirror each phase with the paired clip.
+	virtual void OnVictimGrabPhase(EZP_GrabPhase NewPhase) override;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -396,6 +456,21 @@ private:
 	void FaceTargetSmooth(float DeltaTime);
 	void BeginAttack();
 	void ApplyAttackDamage();
+
+	/** In GrabRange + off cooldown: ask the victim (IZP_Grabbable) to be grabbed. Grabbed -> snap the
+	 *  pair spacing/facing, State=Grab, play the entry clip. Deflected -> stagger + full cooldown. */
+	void TryStartGrab();
+
+	/** Restore movement/collision after a grab ends (any outcome) and pick the follow-up state. */
+	void EndGrabOnShambler(bool bResumeChase);
+
+	/** Shot/staggered mid-grab: the grab breaks — the victim is released with no outcome anim
+	 *  (the victim's AbortGrab calls back OnVictimGrabPhase(None), which does our cleanup). */
+	void BreakGrabFromDamage();
+
+	/** Pause the AI (bStaggered) for Duration WITHOUT playing the flinch clip — used after grab
+	 *  outcomes where a paired reaction clip already owns the slot. */
+	void PauseAIWithoutFlinch(float Duration);
 
 	/** Wind-up over — snap the in-flight swing montage from WindupPlayRate to StrikePlayRate. */
 	UFUNCTION()
@@ -471,6 +546,7 @@ private:
 	float WalkDuration = 4.f;  // randomized 3-6s at walk-entry
 	FVector WanderDest = FVector::ZeroVector;
 	double LastAttackTime = -1000.0;
+	double LastGrabTime = -1000.0;   // grab cooldown anchor (set on landed AND deflected grabs)
 	bool bAttackIsLeft = false;
 	float CurrentSwingTotalTime = 0.f;                 // real seconds this swing lasts (rate-remapped)
 	TWeakObjectPtr<UAnimMontage> ActiveSwingMontage;   // in-flight swing, retimed at wind-up release

@@ -53,6 +53,13 @@ void UZP_ShamblerBehaviorComponent::LoadAnimDefaults()
 	Fill(DeathBackAnim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Death_Back.A_Shambler_Death_Back"));
 	Fill(HitFrontAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Front.A_Shambler_Hit_Front"));
 	Fill(HitBackAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Hit_Back.A_Shambler_Hit_Back"));
+	// NAAT grab pair, attacker side (retargeted 2026-07-02, curve-audited — see retarget_grab_anims.py).
+	Fill(GrabEntryAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabEntry.A_Shambler_GrabEntry"));
+	Fill(GrabMunchAnim,    TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabMunch.A_Shambler_GrabMunch"));
+	Fill(GrabWrestleAnim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabWrestle.A_Shambler_GrabWrestle"));
+	Fill(GrabKickedAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabKicked.A_Shambler_GrabKicked"));
+	Fill(GrabPushedAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabPushed.A_Shambler_GrabPushed"));
+	Fill(GrabTakedownAnim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabTakedown.A_Shambler_GrabTakedown"));
 }
 
 void UZP_ShamblerBehaviorComponent::BeginPlay()
@@ -418,8 +425,19 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			break;
 		}
 
-		// In range + off cooldown -> swipe.
+		// Close enough to LATCH? THE GRAB IS THE OPENER — the first thing it does in reach
+		// (jump-scare by design, dev direction 2026-07-02). Melee is the fallback while the
+		// grab is on cooldown or was deflected/evaded.
 		const double Now = GetWorld()->GetTimeSeconds();
+		if (DistToPlayer <= GrabRange && bSee
+			&& (Now - LastGrabTime) >= GrabCooldown)
+		{
+			TryStartGrab();
+			if (State == EShamblerState::Grab) { break; }
+			// Deflected/unavailable — fall through to the normal swing logic below.
+		}
+
+		// In range + off cooldown -> swipe.
 		if (DistToPlayer <= AttackRange && bSee && (Now - LastAttackTime) >= AttackCooldown)
 		{
 			BeginAttack();
@@ -440,6 +458,17 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 		const float SwingLen = (CurrentSwingTotalTime > 0.f) ? CurrentSwingTotalTime : AttackDuration;
 		if (StateTimer >= SwingLen)
 		{
+			// GRAB FIRST between swings too. The Attack state chains L/R/L/R without ever
+			// returning to Chase, so without this re-check a point-blank flurry would melee the
+			// player to death with the grab never firing again (exactly the reported bug).
+			const double NowAtk = GetWorld()->GetTimeSeconds();
+			if (Target && DistToPlayer <= GrabRange && HasLOS(Target)
+				&& (NowAtk - LastGrabTime) >= GrabCooldown)
+			{
+				TryStartGrab();
+				if (State == EShamblerState::Grab) { break; }
+			}
+
 			// Still on top of the player when the swing ends -> immediately swing again (other side,
 			// other strike sound). No cooldown gap: it flurries L/R/L/R until you die or break away.
 			if (Target && DistToPlayer <= AttackRange && HasLOS(Target))
@@ -451,6 +480,13 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 				SetState(Target ? EShamblerState::Chase : EShamblerState::Wander);
 			}
 		}
+		break;
+	}
+
+	case EShamblerState::Grab:
+	{
+		// Victim-driven: the player's phase machine calls OnVictimGrabPhase at every transition.
+		// Nothing to evaluate — movement is MOVE_None and the paired clips own the mesh.
 		break;
 	}
 	}
@@ -475,11 +511,14 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 				M->SetMovementMode(MOVE_Walking);
 			}
 		}
-		// Ground the floaty scream pose (and only the scream) by nudging the mesh Z.
+		// Ground the floaty scream pose / height-align the grab pair by nudging the mesh Z.
 		if (USkeletalMeshComponent* SM = Owner->GetMesh())
 		{
+			float StateZ = 0.f;
+			if (NewState == EShamblerState::Scream) { StateZ = ScreamMeshZOffset; }
+			else if (NewState == EShamblerState::Grab) { StateZ = GrabPairZOffset; }
 			FVector RL = SM->GetRelativeLocation();
-			RL.Z = MeshBaseRelZ + (NewState == EShamblerState::Scream ? ScreamMeshZOffset : 0.f);
+			RL.Z = MeshBaseRelZ + StateZ;
 			SM->SetRelativeLocation(RL);
 		}
 	}
@@ -525,6 +564,11 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 		break;
 
 	case EShamblerState::Attack:
+		SetSpeed(0.f);
+		if (AICon) { AICon->StopMovement(); }
+		break;
+
+	case EShamblerState::Grab:
 		SetSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
 		break;
@@ -617,6 +661,166 @@ void UZP_ShamblerBehaviorComponent::ApplyAttackDamage()
 
 	AController* Inst = Owner->GetController();
 	UGameplayStatics::ApplyDamage(Target, AttackDamage, Inst, Owner, nullptr);
+}
+
+// ───────────────────────── grab / struggle (Docs/Plan_GrabStruggle.md) ─────────────────────────
+
+void UZP_ShamblerBehaviorComponent::TryStartGrab()
+{
+	if (!Owner || !Target) { return; }
+	IZP_Grabbable* Victim = Cast<IZP_Grabbable>(Target.Get());
+	if (!Victim) { return; }
+
+	const double Now = GetWorld()->GetTimeSeconds();
+	const EZP_GrabAttemptResult Result = Victim->TryBeginGrab(Owner);
+
+	if (Result == EZP_GrabAttemptResult::Deflected)
+	{
+		// The guard turned the grab away: full cooldown + the block-reward stagger.
+		LastGrabTime = Now;
+		UE_LOG(LogTemp, Warning, TEXT("[Shambler] GRAB DEFLECTED (player blocking) — staggering"));
+		ReceiveStaggerHit(DeflectStaggerDuration);
+		return;
+	}
+	if (Result == EZP_GrabAttemptResult::Unavailable)
+	{
+		// Immunity window / mid-dodge / menus — short internal retry gate, keep swinging meanwhile.
+		LastGrabTime = Now - GrabCooldown + 1.0;
+		return;
+	}
+
+	// GRABBED — the victim froze itself and snapped to face us. Kill any in-flight swing, normalize
+	// the authored pair spacing, face the victim, freeze, and play the entry clip. The victim's
+	// phase machine drives everything from here via OnVictimGrabPhase.
+	LastGrabTime = Now;
+	CancelPendingSwing();
+
+	FVector ToVictim = Target->GetActorLocation() - Owner->GetActorLocation();
+	ToVictim.Z = 0.f;
+	const FVector Dir = ToVictim.GetSafeNormal();
+	if (!Dir.IsNearlyZero())
+	{
+		FVector NewLoc = Target->GetActorLocation() - Dir * GrabPairDistance;
+		NewLoc.Z = Owner->GetActorLocation().Z;
+		Owner->SetActorLocation(NewLoc, /*bSweep*/false);
+		Owner->SetActorRotation(FRotator(0.f, Dir.Rotation().Yaw, 0.f)); // snap-face ONCE (scream pattern)
+	}
+	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
+	{
+		Cap->IgnoreActorWhenMoving(Target.Get(), true); // victim ignores us from its own side
+	}
+
+	SetState(EShamblerState::Grab);
+	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+	{
+		CM->StopMovementImmediately();
+		CM->SetMovementMode(MOVE_None); // AFTER SetState (SetState restores Walking from MOVE_None)
+	}
+	if (Audio) { Audio->PlayAttack(/*bLunge=*/false); }
+	PlayOneShot(GrabEntryAnim);
+	UE_LOG(LogTemp, Warning, TEXT("[Shambler] GRAB latched"));
+}
+
+void UZP_ShamblerBehaviorComponent::OnVictimGrabPhase(EZP_GrabPhase NewPhase)
+{
+	if (!Owner) { return; }
+
+	// Dead grabber (grenade etc. mid-grab): the death path owns the body — only drop the pair
+	// collision ignore, never touch movement/state.
+	if (bDead)
+	{
+		if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
+		{
+			if (Target) { Cap->IgnoreActorWhenMoving(Target.Get(), false); }
+		}
+		return;
+	}
+
+	switch (NewPhase)
+	{
+	case EZP_GrabPhase::Munch:
+		PlaySlotLoop(GrabMunchAnim);
+		break;
+
+	case EZP_GrabPhase::Wrestle:
+		PlaySlotLoop(GrabWrestleAnim);
+		break;
+
+	case EZP_GrabPhase::EscapeKick:
+	case EZP_GrabPhase::EscapePush:
+	{
+		// Kicked/pushed off: paired reaction clip + programmatic knockback (no root motion in the
+		// pack) + the escape-reward stun window. Punish window = max(stun, clip) so the zombie
+		// never resumes acting mid-reaction.
+		StopSlotLoop();
+		EndGrabOnShambler(/*bResumeChase*/true);
+		UAnimSequence* Reaction = (NewPhase == EZP_GrabPhase::EscapeKick) ? GrabKickedAnim : GrabPushedAnim;
+		PlayOneShot(Reaction);
+		const FVector Back = -Owner->GetActorForwardVector();
+		Owner->LaunchCharacter(Back * EscapeShoveSpeed + FVector(0.f, 0.f, 50.f), true, false);
+		const float ClipLen = Reaction ? Reaction->GetPlayLength() : 2.3f;
+		PauseAIWithoutFlinch(FMath::Max(EscapeStunDuration, ClipLen));
+		break;
+	}
+
+	case EZP_GrabPhase::FailKnockdown:
+	{
+		// The victim failed the struggle: play the authored shove-down, hold through it, then the
+		// Chase resumes (the downed player has brief i-frames on its side).
+		StopSlotLoop();
+		EndGrabOnShambler(/*bResumeChase*/true);
+		PlayOneShot(GrabTakedownAnim);
+		PauseAIWithoutFlinch(GrabTakedownAnim ? GrabTakedownAnim->GetPlayLength() : 2.2f);
+		break;
+	}
+
+	case EZP_GrabPhase::None:
+	default:
+		// Aborted (victim died, or the grab was broken by damage): clean release, no outcome anims.
+		StopSlotLoop();
+		EndGrabOnShambler(/*bResumeChase*/true);
+		break;
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::EndGrabOnShambler(bool bResumeChase)
+{
+	if (!Owner) { return; }
+	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
+	{
+		if (Target) { Cap->IgnoreActorWhenMoving(Target.Get(), false); }
+	}
+	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+	{
+		if (CM->MovementMode == MOVE_None) { CM->SetMovementMode(MOVE_Walking); }
+	}
+	SetState((bResumeChase && Target) ? EShamblerState::Chase : EShamblerState::Wander);
+}
+
+void UZP_ShamblerBehaviorComponent::BreakGrabFromDamage()
+{
+	if (State != EShamblerState::Grab || !Target) { return; }
+	UE_LOG(LogTemp, Warning, TEXT("[Shambler] GRAB broken by damage"));
+	if (IZP_Grabbable* Victim = Cast<IZP_Grabbable>(Target.Get()))
+	{
+		// The victim's AbortGrab calls back OnVictimGrabPhase(None), which restores our state.
+		Victim->AbortGrab();
+	}
+	else
+	{
+		EndGrabOnShambler(true);
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::PauseAIWithoutFlinch(float Duration)
+{
+	bStaggered = true; // freezes Evaluate exactly like a stagger, but the slot keeps its clip
+	GetWorld()->GetTimerManager().ClearTimer(StaggerHandle);
+	GetWorld()->GetTimerManager().SetTimer(StaggerHandle, FTimerDelegate::CreateWeakLambda(this, [this]()
+	{
+		bStaggered = false;
+		if (!bDead) { EnsureLocomotion(); }
+	}), FMath::Max(0.1f, Duration), false);
 }
 
 // ───────────────────────── helpers ─────────────────────────
@@ -921,6 +1125,14 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 		}
 	}
 
+	// Shot/hit mid-grab: the grab BREAKS — the second out besides mashing (a cooked grenade,
+	// a future companion). Release FIRST so the cosmetic flinch below plays over Chase, not
+	// over the paired grab clip.
+	if (!Health->bIsDead && State == EShamblerState::Grab)
+	{
+		BreakGrabFromDamage();
+	}
+
 	// Visible hit feedback — three always-cosmetic layers (never pauses the AI, never cancels a
 	// swing; gameplay stagger stays block-only):
 	//  1. Mesh punch: EVERY hit, EVERY state, ungated — the body visibly shoves along the hit
@@ -1014,6 +1226,13 @@ void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration)
 		CurrentScreamHold = HurtScreamHoldTime;
 	}
 
+	// Staggered mid-grab (defensive — the victim can't block while grabbed, but an external
+	// stagger must never leave the player locked in the pair): break the grab first.
+	if (State == EShamblerState::Grab)
+	{
+		BreakGrabFromDamage();
+	}
+
 	// Staggered mid-swing (a landed block/melee hit during the wind-up or strike): the flinch clip
 	// replaces the swing on the slot, so the queued damage/release timers MUST die with it — a
 	// staggered swing invisibly landing its hit would break the block flow the stagger rewards.
@@ -1064,6 +1283,18 @@ void UZP_ShamblerBehaviorComponent::OnMoveCompleted(FAIRequestID RequestID, EPat
 void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 {
 	bDead = true;
+
+	// Died mid-grab (grenade, etc.): release the victim FIRST — their AbortGrab restores their
+	// camera/input/movement (and calls back OnVictimGrabPhase(None), which with bDead set only
+	// drops the pair collision ignore). The death path owns this body from here.
+	if (State == EShamblerState::Grab && Target)
+	{
+		if (IZP_Grabbable* Victim = Cast<IZP_Grabbable>(Target.Get()))
+		{
+			Victim->AbortGrab();
+		}
+	}
+
 	if (UWorld* W = GetWorld())
 	{
 		W->GetTimerManager().ClearTimer(EvalTimer);

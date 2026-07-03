@@ -63,6 +63,14 @@ void UZP_MarcusBodySpineBendAnimInstance::NativePostEvaluateAnimation()
 		TargetBend = t * MaxBend;
 	}
 
+	// Suspended while grabbed: the body plays authored full-body struggle clips and the 3P
+	// camera doesn't look through the chest — camera-derived bending only distorts the pose
+	// (it kinked the neck of the leader-posed head, dev report 2026-07-02).
+	if (Grace->GrabPhase != EZP_GrabPhase::None)
+	{
+		TargetBend = 0.f;
+	}
+
 	const float Dt = GetDeltaSeconds();
 	SpineBendCurrent = FMath::FInterpTo(SpineBendCurrent, TargetBend, Dt, Speed);
 	if (FMath::IsNearlyZero(SpineBendCurrent, 0.01f)) return;

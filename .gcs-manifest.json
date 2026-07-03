@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-02T17:27:11",
+  "created": "2026-07-02T21:50:04",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -13120,8 +13120,8 @@
       "size": 19724
     },
     "Content/Blueprints/UI/WBP_HUD.uasset": {
-      "hash": "sha256:c83bcf2af5f79a97c83821afe8956613a9e62c53d1360f0f74305f31f6f793b1",
-      "size": 64450
+      "hash": "sha256:19f3c68662ad9682a3732ae203289264ec767806462bf0e70836665ca00572e8",
+      "size": 65616
     },
     "Content/Blueprints/UI/WBP_InventoryTab.uasset": {
       "hash": "sha256:4857bdfba3ab29185bf3920723f57f473e8461173e2259585e715e731fff12f4",
@@ -13428,8 +13428,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:3bd517f390b75f592b9af84eb5dd7035e9a6f0944a15fc2977724907322c3eb5",
-      "size": 10779463
+      "hash": "sha256:456db283fe9a05e06c957f57aec52e9b46c2723d23292fab5388245a95c7ed5f",
+      "size": 10785840
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -23811,6 +23811,34 @@
       "hash": "sha256:c372b76c16d6a31589387037b3c4bfd72b09cdb39d920529dfda828ff009387c",
       "size": 8083
     },
+    "Content/checkpoints/2026-07-02t_grab_session_consolidated.md": {
+      "hash": "sha256:bafbaa29b1b6e65f4cf29e8827b5c997be1ff78fec02afeaa781691467c9d13f",
+      "size": 3496
+    },
+    "Content/checkpoints/2026-07-02u_grab_flashlight_dim.md": {
+      "hash": "sha256:8c4d333d1d1160cbe191cd16562e043ea65192a5e21b5bb9ffc488c608030d96",
+      "size": 1696
+    },
+    "Content/checkpoints/2026-07-02v_grab_neck_doubling_fixed.md": {
+      "hash": "sha256:ffd2854625adcfbe17fcea5ba783a722fedbc7489f72955bf35b517232610c87",
+      "size": 2984
+    },
+    "Content/checkpoints/2026-07-02w_grab_pose_knobs_downed_body_swim.md": {
+      "hash": "sha256:7b84ce7f61b7617eb14ba09f236075ebe7cadb7ee2dac94a1c9e40e8b972a6b6",
+      "size": 3393
+    },
+    "Content/checkpoints/2026-07-02x_shambler_invisible_pp_revert.md": {
+      "hash": "sha256:f2be2b02b9e5f976ae69613159e010efcf577c7087bad6ea2265c90f8b637271",
+      "size": 2646
+    },
+    "Content/checkpoints/2026-07-02y_knockdown_getup_fix.md": {
+      "hash": "sha256:3fd20fc018eec3210fbc6f735cf11d8ca13acaa82636660bf7f2422a5547526f",
+      "size": 2841
+    },
+    "Content/checkpoints/2026-07-02z_full_revert_to_pre_round4.md": {
+      "hash": "sha256:19016f8baf228f91518f4f2ebc38cd4ab5ef8bdef252ed01ebce7b139501910b",
+      "size": 3179
+    },
     "Content/Container_Yard/Materials/Decals/DE_Container_Branding_01.uasset": {
       "hash": "sha256:45d95b0faa964d5213d6a8f55533dfe2923e78a73883caba80fda2d8bdc4d7a3",
       "size": 11353
@@ -24376,8 +24404,8 @@
       "size": 68476
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:3a65fd919aa60d24bc695e0e744f91ae1ef1a2e98640c9b2ef1d3de506650947",
-      "size": 136286
+      "hash": "sha256:8a8c7f7c4629748cf5e1b2379659948588e1571e22dcc8fc087ab77bd7f9caee",
+      "size": 136585
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -26648,12 +26676,12 @@
       "size": 9792
     },
     "Content/Enemies/Shambler/ABP_Shambler.uasset": {
-      "hash": "sha256:7a3d9ee2015e0c354c792ab0f4f122a506e05bd1c740a22e91d937262198bd97",
-      "size": 67913
+      "hash": "sha256:670614bf2003ed570cb7626947f2a5968e1ffad52f49b932a3b16b19253a13ca",
+      "size": 76624
     },
     "Content/Enemies/Shambler/BP_Shambler.uasset": {
-      "hash": "sha256:02b00e6fb4fd9aa6a25807498294dbe9d62d1de3aba933dfc1c7452af4676352",
-      "size": 62291
+      "hash": "sha256:98e093145ce63e213fb5865c1bd82c3f1e0d287c44bfa6899ef74a1ef7993721",
+      "size": 63514
     },
     "Content/Enemies/Shambler/BS_Shambler.uasset": {
       "hash": "sha256:2e43ad9214ff2bacf9c4c6f4810ee9d4f510c0b61b7a017dbdd7e2e8fd41cc20",
@@ -26682,6 +26710,30 @@
     "Content/Enemies/Shambler/Anims/A_Shambler_Death_Front.uasset": {
       "hash": "sha256:6924b0f2404e74cad30ce16fb1c449162c32c9ade0d9022d589a2586da6e229b",
       "size": 992054
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_GrabEntry.uasset": {
+      "hash": "sha256:ee5eaee85245ed7734adeade6153439723ec4b531e7b7132a75a93525feffcc5",
+      "size": 133954
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_GrabKicked.uasset": {
+      "hash": "sha256:ea3f6902187ea87817f4fc73518df4a2f0e598a61865bf968023024c3fe72861",
+      "size": 346567
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_GrabMunch.uasset": {
+      "hash": "sha256:3546e5c8a12e229a06939c7016e25b897ae7bcbdfc93c01ff87e4b98337ab532",
+      "size": 312038
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_GrabPushed.uasset": {
+      "hash": "sha256:14d00d28772828fe096e21b059989e5cf7b273f8ac668f4bbf101a95b6e5ffdd",
+      "size": 342124
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_GrabTakedown.uasset": {
+      "hash": "sha256:fae6fe0a42fd10957f1306cf1a76478f5aa78081f304632bfddcbd16a973ad51",
+      "size": 338623
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_GrabWrestle.uasset": {
+      "hash": "sha256:624221af482221acb9470383e256fa58334d60a6b233bd8187e9fd5f63d31f84",
+      "size": 206978
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Hit_Back.uasset": {
       "hash": "sha256:e8ad66aeffba634dbb9e40d6c1cd406b155938b342caf6a8216c197ecb58f6cf",
@@ -64611,6 +64663,34 @@
       "hash": "sha256:f03eafc4d68e85a7651ff06d01b47fc18df707db33b516ed07d8c30ee58947ea",
       "size": 987503
     },
+    "Content/Marcus/GrabAnims/A_Marcus_GetUpBack.uasset": {
+      "hash": "sha256:fb73c825d4d39b16a9ecd09913a1e70119bfb897f4dedf9829862bf64d73403e",
+      "size": 234486
+    },
+    "Content/Marcus/GrabAnims/A_Marcus_GrabEntry.uasset": {
+      "hash": "sha256:d71cb6a79313571310aed16152f4977095ffcd1a6c79d4c593ceff8167b43864",
+      "size": 213889
+    },
+    "Content/Marcus/GrabAnims/A_Marcus_GrabKick.uasset": {
+      "hash": "sha256:60731f2620ac2f4c23f056f17eb10d9e5c41835fe0371b7dc681a5a719ff1712",
+      "size": 424989
+    },
+    "Content/Marcus/GrabAnims/A_Marcus_GrabMunch.uasset": {
+      "hash": "sha256:ff76d86c60d8a0bc794719df1f7e4741a70ba835fd937b0d1a0cb60946341f60",
+      "size": 431692
+    },
+    "Content/Marcus/GrabAnims/A_Marcus_GrabPush.uasset": {
+      "hash": "sha256:1f8133af6cebcb6136a407862ff39a5bc55f5f3730a87c8ef65a1dd8f8f0d0b4",
+      "size": 443145
+    },
+    "Content/Marcus/GrabAnims/A_Marcus_GrabWrestle.uasset": {
+      "hash": "sha256:18af2dbebb559a0470381158cdcb0f154cbe67cbe287f11ab9007b49b15148e5",
+      "size": 286278
+    },
+    "Content/Marcus/GrabAnims/A_Marcus_KnockdownFP.uasset": {
+      "hash": "sha256:69ada40c9a25271528c6e94145b6027e295827e52a19a55101a6553446053c24",
+      "size": 1540093
+    },
     "Content/Marcus/MeleeAnims/Marcus_A_MeleePipe_Attack_L.uasset": {
       "hash": "sha256:3303b977ebc156cae7d36b1a723fba4df05a3ef9d093c2ab8d5a4207977dfc1d",
       "size": 402357
@@ -64662,6 +64742,18 @@
     "Content/Marcus/MeleeAnims/Marcus_FPP_sns_Dodge.uasset": {
       "hash": "sha256:b247f47fcb3ce84be2a2457e4415bc68642f5f93ee9ce196deadbfa7204c926c",
       "size": 732480
+    },
+    "Content/Marcus/Rigs/IK_CCMH_Split.uasset": {
+      "hash": "sha256:5ab1b0176530fb60ac1b48339bb6a29702c272c5f6f6eae3f473d691b0630f93",
+      "size": 81776
+    },
+    "Content/Marcus/Rigs/RTG_CCMH_to_UEFN.uasset": {
+      "hash": "sha256:b2e33f8aabec9b9b61887d1591497f09d68db373722099860d38bd6f9dc7294f",
+      "size": 25913
+    },
+    "Content/Marcus/Rigs/RTG_UE5Manny_to_UEFN.uasset": {
+      "hash": "sha256:1fe1554ee8c7f5951f55ae08b871a6e0753cc172704bd16145be4595da02bfe9",
+      "size": 26541
     },
     "Content/Marlitia_Outpost/Blockout/SM_Cube.009.fbx": {
       "hash": "sha256:65ab96934c2280cdc1a707d097cf01e6c39b9ef06bda2af03b73278a5ee57904",

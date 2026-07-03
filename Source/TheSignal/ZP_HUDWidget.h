@@ -63,6 +63,11 @@ public:
 	UPROPERTY(meta=(BindWidgetOptional))
 	TObjectPtr<UImage> Crosshair;
 
+	/** Input glyph shown above the grab-struggle mash prompt (added to WBP_HUD 2026-07-02;
+	 *  laid out at runtime in NativeConstruct relative to InteractionPrompt). */
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UImage> GrabPromptIcon;
+
 	UPROPERTY(meta=(BindWidgetOptional))
 	TObjectPtr<UImage> DamageVignette;
 
@@ -162,6 +167,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Effects")
 	float InvincibilityVignetteMaxOpacity = 0.4f;
 
+	/** Attack-button glyph for keyboard/mouse (attack = LMB; Moonville KBM icon set). */
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Grab")
+	TSoftObjectPtr<UTexture2D> GrabPromptGlyphTexture = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(
+		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Art/Textures/UI/Input/KeyboardMouse/T_IconMouse1.T_IconMouse1")));
+
+	/** Attack-button glyph for gamepad (fire = Right Trigger; Moonville Xbox One icon set).
+	 *  Selected automatically when the last input came from a controller. */
+	UPROPERTY(EditDefaultsOnly, Category = "HUD|Grab")
+	TSoftObjectPtr<UTexture2D> GrabPromptGlyphGamepadTexture = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(
+		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Art/Textures/UI/Input/GamepadXboxOne/T_XB1_RT.T_XB1_RT")));
+
 	// --- API ---
 
 	/** Update health arc fill and color. 0.0 = dead, 1.0 = full. */
@@ -196,6 +212,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void SetCrosshairVisible(bool bVisible);
 
+	/** Hold the damage vignette at (at least) this opacity — used while grabbed by an enemy.
+	 *  Damage hits still pulse it to max on top; 0 releases the hold (normal fade-to-0). */
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+	void SetDamageVignetteHold(float HoldOpacity);
+
+	/** Show the grab-struggle prompt: attack-button glyph + text. bGamepad selects the
+	 *  controller glyph (RT) over the KBM one (LMB). Safe to re-call to swap glyphs live. */
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+	void ShowGrabPrompt(const FText& Text, bool bGamepad = false);
+
+	/** Hide the grab-struggle prompt (glyph + text). */
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+	void HideGrabPrompt();
+
 	/** Bind this HUD to a character's components (ammo, health delegates). */
 	void BindToCharacter(AZP_GraceCharacter* Character);
 
@@ -227,6 +257,9 @@ private:
 	int32 LastReserveAmmo = 0;
 
 	float DamageVignetteOpacity = 0.f;
+
+	/** Floor the damage vignette fades TOWARD instead of 0 (grab hold). */
+	float DamageVignetteHoldOpacity = 0.f;
 
 	float HealVignetteOpacity = 0.f;
 

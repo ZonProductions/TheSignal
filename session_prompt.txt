@@ -62,6 +62,18 @@
 - **Alternate structure (under consideration):** Dual protagonist — Grace through B1-3, meet new character (MGS/AC playstyle), Treatment Facility, replay B1-3 as new character, Labs as both. Would require second character controller + animation set.
 
 ## CURRENT PRIORITIES
+-1. GRAB/STRUGGLE SYSTEM (2026-07-02) — BUILT, compiled clean, NEEDS PIE TEST. Shambler grabs in
+   melee range -> 3P over-shoulder camera + damage vignette -> mash LMB to escape (kick/push +
+   zombie knockback/stun) or fail -> FP knockdown (camera rides the fall) + get-up. GRAB IS THE
+   OPENER (dev direction): first move in reach is the grab, melee is the fallback during its 8s
+   per-zombie cooldown; re-checked between chained swings (Attack-loop dead spot fixed). Blockable
+   (deflect = zombie stagger), dodge evades the latch, 3s post-escape immunity, downed i-frames.
+   All C++ (NEW ZP_GrabTypes.h/ZP_Grabbable.h +
+   GraceCharacter/ShamblerBehaviorComponent/HUDWidget); anims retargeted + curve-audited
+   (/Game/Marcus/GrabAnims/*, /Game/Enemies/Shambler/Anims/A_Shambler_Grab*). DEV: PIE checklist in
+   checkpoint 2026-07-02o_grab_struggle_system_built.md; author GrabPromptText (BP_GraceCharacter
+   -> Details -> Grab|HUD — placeholder ships); tune GrabPairDistance + GrabCam* live in PIE.
+   Plan doc: Docs/Plan_GrabStruggle.md.
 0. ENEMY PERSISTENCE + REVIVAL (2026-06-24) — BUILT + BP-wired, NEEDS PIE TEST. Dead enemies persist
    across save/load as corpses (NOT destroyed); completing an objective revives them. C++: ZP_Revivable.h
    (IZP_Revivable), rewritten ZP_DeathSaveComponent (was Destroy-based — now state-based), Shambler+Scytheer

@@ -42,6 +42,7 @@
 #include "Components/ShapeComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Animation/AnimSequenceBase.h"
@@ -197,6 +198,31 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MarcusPants->SetOnlyOwnerSee(true);
 	MarcusPants->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MarcusPants->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	// Head (CCMH_Head_Male — the CCMH body asset is HEADLESS; the head is a separate mesh).
+	// Hidden in normal FP play (it sits at the camera); shown only during the grab 3P beat.
+	MarcusHead = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusHead"));
+	MarcusHead->SetupAttachment(MarcusBody);
+	MarcusHead->SetOnlyOwnerSee(true);
+	MarcusHead->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MarcusHead->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MarcusHead->SetVisibility(false);
+
+	// Hair + brows — Marcus's authored look from the "Marcus" CC_SaveGame entry
+	// (SidePart_02 + Eyebrows_01, dark-brown tint). Shown/hidden together with MarcusHead.
+	MarcusHair = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusHair"));
+	MarcusHair->SetupAttachment(MarcusBody);
+	MarcusHair->SetOnlyOwnerSee(true);
+	MarcusHair->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MarcusHair->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MarcusHair->SetVisibility(false);
+
+	MarcusBrows = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusBrows"));
+	MarcusBrows->SetupAttachment(MarcusBody);
+	MarcusBrows->SetOnlyOwnerSee(true);
+	MarcusBrows->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MarcusBrows->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MarcusBrows->SetVisibility(false);
 
 	MarcusSneakers = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusSneakers"));
 	MarcusSneakers->SetupAttachment(MarcusBody);
@@ -855,6 +881,12 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		BlockClearanceRemaining = FMath::Max(0.f, BlockClearanceRemaining - DeltaTime);
 	}
 
+	// Which device is the player on? (drives button glyphs on UI prompts)
+	UpdateInputDeviceTracking();
+
+	// Grab/struggle machine: camera blend weight, escape meter, damage ticks, phase timers.
+	UpdateGrab(DeltaTime);
+
 	// Transient forward nudge that covers the block/dodge stance lean-in, then
 	// eases out (see UZP_GraceGameplayComponent). Driven by short windows — NOT
 	// pinned to bIsBlocking — so a sustained block hold settles to neutral.
@@ -1039,6 +1071,12 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 
 			// Reset after use — only moves when W/S actively held next frame
 			LadderClimbInput = 0.f;
+		}
+		else if (GrabPhase != EZP_GrabPhase::None)
+		{
+			// Grabbed: the grab machine owns BOTH meshes' playback — MarcusBody plays the victim
+			// clips (SetGrabPhase), and during knockdown/get-up the hidden Mesh plays the FP clips
+			// with full-body copy. The loco switcher below must not stomp either.
 		}
 		else
 		{
@@ -1238,7 +1276,8 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	// IMC_Grace and Moonville's IMC_InventoryCharacter double-firing.
 	// Gated while the save menu / first-time pickup is open so the D-pad drives the UI, not weapons
 	// (the raw poll reads hardware state and ignores input mode, so it needs an explicit guard).
-	if (!bInventoryMenuOpen && !bMapOpen && !bOnLadder && !bSaveMenuOpen && !bPickupMenuActive)
+	if (!bInventoryMenuOpen && !bMapOpen && !bOnLadder && !bSaveMenuOpen && !bPickupMenuActive
+		&& GrabPhase == EZP_GrabPhase::None)
 	{
 		if (APlayerController* PC = Cast<APlayerController>(GetController()))
 		{
@@ -1314,6 +1353,47 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 // CalcCamera runs last — nothing can override it.
 void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult)
 {
+	// Grab/struggle: over-the-right-shoulder 3P frame, blended with the live FP view by
+	// GrabCamWeight (lerped in UpdateGrab) so entry and return are smooth on every exit path.
+	// Same mechanism as the ladder — CalcCamera has final say, nothing detaches.
+	if (GrabCamWeight > KINDA_SMALL_NUMBER)
+	{
+		FMinimalViewInfo FPView;
+		Super::CalcCamera(DeltaTime, FPView);
+
+		const FVector Anchor = GetActorLocation() + FVector(0.f, 0.f, BaseEyeHeight);
+		const FRotator YawRot(0.f, GetActorRotation().Yaw, 0.f);
+		const FVector Fwd = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+		const FVector Right = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+		FVector CamPos = Anchor - Fwd * GrabCamBack + Right * GrabCamRight + FVector(0.f, 0.f, GrabCamUp);
+
+		// Hand-rolled spring-arm probe (no spring arm exists on this rig): clamp to geometry so
+		// the shoulder camera never ends up inside a wall in tight corridors.
+		FCollisionQueryParams Q(FName(TEXT("ZPGrabCam")), false);
+		Q.AddIgnoredActor(this);
+		if (AActor* G = GrabberActor.Get()) { Q.AddIgnoredActor(G); }
+		FHitResult CamHit;
+		if (GetWorld()->SweepSingleByChannel(CamHit, Anchor, CamPos, FQuat::Identity, ECC_Camera,
+			FCollisionShape::MakeSphere(12.f), Q))
+		{
+			CamPos = CamHit.Location;
+		}
+
+		// Aim at the midpoint between Marcus's head and the grabber's head — frames the wrestle.
+		FVector LookAt = Anchor + Fwd * 60.f;
+		if (AActor* G = GrabberActor.Get())
+		{
+			LookAt = (Anchor + G->GetActorLocation() + FVector(0.f, 0.f, 60.f)) * 0.5f;
+		}
+		const FRotator CamRot = (LookAt - CamPos).Rotation();
+
+		const float W = FMath::SmoothStep(0.f, 1.f, GrabCamWeight);
+		OutResult.Location = FMath::Lerp(FPView.Location, CamPos, W);
+		OutResult.Rotation = FQuat::Slerp(FPView.Rotation.Quaternion(), CamRot.Quaternion(), W).Rotator();
+		OutResult.FOV = FPView.FOV;
+		return;
+	}
+
 	if (bLadderTopExiting)
 	{
 		// Camera rises from the ladder eye to the standing-on-floor eye, tracking
@@ -1507,6 +1587,7 @@ void AZP_GraceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 
 	const FVector2D MoveInput = Value.Get<FVector2D>();
 	CurrentMoveInput = MoveInput;
@@ -1554,6 +1635,7 @@ void AZP_GraceCharacter::Input_MoveCompleted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 
 	const FVector2D LookInput = Value.Get<FVector2D>();
 
@@ -1566,6 +1648,7 @@ void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_SprintStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	if (DodgeLockRemaining > 0.f) return; // locked out mid-dodge
 	// Toggle sprint: press to start, press again to stop
 	if (GameplayComp)
@@ -1599,6 +1682,7 @@ void AZP_GraceCharacter::CancelSprintFromAction()
 void AZP_GraceCharacter::Input_Jump(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	if (bOnLadder)
 	{
 		// Don't interrupt the animated climb-over once it has started.
@@ -1631,6 +1715,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 		return;
 	}
 	if (bOnLadder) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — no interacting mid-struggle
 
 	UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] === Input_Interact fired ==="));
 
@@ -2003,6 +2088,7 @@ void AZP_GraceCharacter::ClearCurrentInteractable(AActor* Interactable)
 void AZP_GraceCharacter::Input_CrouchStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	// Toggle: stand if crouched, crouch if standing.
 	if (bIsCrouched)
 	{
@@ -2017,12 +2103,14 @@ void AZP_GraceCharacter::Input_CrouchStarted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_CrouchCompleted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	UnCrouch();
 }
 
 void AZP_GraceCharacter::Input_PeekStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	CancelSprintFromAction();
 	if (GameplayComp) GameplayComp->bWantsPeek = true;
 }
@@ -2030,12 +2118,14 @@ void AZP_GraceCharacter::Input_PeekStarted(const FInputActionValue& Value)
 void AZP_GraceCharacter::Input_PeekCompleted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	if (GameplayComp) GameplayComp->bWantsPeek = false;
 }
 
 void AZP_GraceCharacter::Input_AimStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
 
 	CancelSprintFromAction(); // aiming / blocking breaks a sprint
@@ -2064,6 +2154,7 @@ void AZP_GraceCharacter::Input_AimCompleted(const FInputActionValue& Value)
 	bBlockWanted = false; // RMB physically released — kill any buffered block intent
 
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 
 	if (bIsBlocking)
 	{
@@ -2168,7 +2259,7 @@ void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
 void AZP_GraceCharacter::TryEngageBufferedBlock()
 {
 	if (!bBlockWanted || bIsBlocking) { return; }
-	if (bInventoryMenuOpen || bMapOpen || bOnLadder) { return; }
+	if (bInventoryMenuOpen || bMapOpen || bOnLadder || GrabPhase != EZP_GrabPhase::None) { return; }
 	if (!KinemationComp || KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee) { return; }
 	// The strike + follow-through always play in full; once the swing passes
 	// MeleeBlockCancelFraction only return-to-idle dead frames remain, and the held guard cancels
@@ -2303,8 +2394,15 @@ void AZP_GraceCharacter::ReleaseBlock()
 
 void AZP_GraceCharacter::Input_FireStarted(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
-	if (!KinemationComp || !KinemationComp->ActiveWeapon) return;
+	// GRABBED: LMB is the struggle input — intercepted BEFORE the menu/weapon early-outs
+	// (the grab stows the weapon, so the ActiveWeapon check below would eat every mash press).
+	if (GrabPhase != EZP_GrabPhase::None)
+	{
+		bGrabEscapeHeld = true;
+		GrabMashPressed();
+		return;
+	}
+	if (bInventoryMenuOpen || bMapOpen || !KinemationComp || !KinemationComp->ActiveWeapon) return;
 	CancelSprintFromAction(); // firing / melee swinging breaks a sprint
 
 	// Attack > Block > Idle: swinging while the guard is up drops the guard for the swing;
@@ -2319,13 +2417,15 @@ void AZP_GraceCharacter::Input_FireStarted(const FInputActionValue& Value)
 
 void AZP_GraceCharacter::Input_FireCompleted(const FInputActionValue& Value)
 {
-	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) { bGrabEscapeHeld = false; return; }
+	if (bInventoryMenuOpen || bMapOpen) { return; }
 	if (KinemationComp) KinemationComp->FireReleased();
 }
 
 void AZP_GraceCharacter::Input_ReloadStarted(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	if (DodgeLockRemaining > 0.f) return; // no reload mid-dodge
 	CancelSprintFromAction(); // reloading breaks a sprint
 	if (KinemationComp) KinemationComp->Reload();
@@ -2346,6 +2446,7 @@ void AZP_GraceCharacter::Input_InventoryMenu(const FInputActionValue& Value)
 	// Don't let the inventory/notes/map tabs open UNDER the save point or pause menu (Moonville's
 	// IMC_InventoryCharacter stays active under those menus, so this action would otherwise still fire).
 	if (IsModalMenuOpen()) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — no menus under the struggle
 
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
 	if (!PC || !MoonvilleInventoryComp) return;
@@ -2383,6 +2484,7 @@ void AZP_GraceCharacter::Input_Map(const FInputActionValue& Value)
 {
 	// Don't let the map tab open UNDER the save point or pause menu.
 	if (IsModalMenuOpen()) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — no menus under the struggle
 
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController());
 	if (!PC) return;
@@ -3209,6 +3311,7 @@ void AZP_GraceCharacter::Input_InventorySlot3(const FInputActionValue& Value) { 
 void AZP_GraceCharacter::Input_InventorySlot(int32 SlotIndex)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	if (SlotIndex < 0 || SlotIndex > 3) return;
 	if (DodgeLockRemaining > 0.f) return; // no weapon swap mid-dodge
 
@@ -3557,6 +3660,13 @@ void AZP_GraceCharacter::RefreshPickupBlockStates()
 
 void AZP_GraceCharacter::HandleDeath()
 {
+	// Died mid-grab (bite ticks / fail chunk): tear the grab down FIRST — releases the grabber,
+	// restores collision ignores/movement/meshes/HUD — then the normal fade-to-black respawn.
+	if (GrabPhase != EZP_GrabPhase::None)
+	{
+		EndGrab(/*bAborted*/true);
+	}
+
 	if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
 	{
 		PC->OnPawnDied();
@@ -3585,6 +3695,7 @@ void AZP_GraceCharacter::UpdateHealthVignette(float NewHealth, float MaxHealth, 
 
 void AZP_GraceCharacter::Input_Flashlight(const FInputActionValue& Value)
 {
+	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
 	ToggleFlashlight();
 }
 
@@ -3681,6 +3792,14 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		return 0.f;
 	}
 
+	// Downed i-frames: while knocked down / getting up after a failed grab struggle, the player
+	// cannot respond — hits are free shots on a helpless target. The fail already cost
+	// FailDamageChunk; nothing else lands until Marcus is back on his feet.
+	if (GrabPhase == EZP_GrabPhase::FailKnockdown || GrabPhase == EZP_GrabPhase::GetUp)
+	{
+		return 0.f;
+	}
+
 	float IncomingDamage = DamageAmount;
 	if (bIsBlocking && DamageAmount > 0.f)
 	{
@@ -3733,7 +3852,9 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	// Camera flinch — immediate visceral feedback that something hit you.
 	// Skipped while blocking: the block already gives visceral feedback
 	// (BlockImpact anim + stagger), and a camera flinch on top reads as "broken".
-	if (ActualDamage > 0.f && !bIsBlocking)
+	// Skipped while grabbed: the flinch writes ControlRotation, which would corrupt the
+	// scripted 3P camera AND the FP view direction restored after the grab.
+	if (ActualDamage > 0.f && !bIsBlocking && GrabPhase == EZP_GrabPhase::None)
 	{
 		if (APlayerController* PC = Cast<APlayerController>(GetController()))
 		{
@@ -4193,10 +4314,12 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 		}
 	}
 
-	// Hide the head — the FP camera is socketed at the head bone, so the head
-	// mesh sits IN the camera. Without this we see backfaces / nothing from the
-	// inside of the head, occluding the torso below. Same trick PlayerMesh uses.
-	MarcusBody->HideBoneByName(FName("head"), EPhysBodyOp::PBO_None);
+	// NO head-bone hide here. CCMH_Body_Male is HEADLESS (the head is the separate
+	// CCMH_Head_Male on MarcusHead below), so hiding "head" on the body does nothing for the
+	// body — but bone visibility PROPAGATES to leader-posed followers (the hand_l/r lesson,
+	// 2026-06-20), and every vertex of the head mesh is skinned under that bone: the hide
+	// collapsed the entire grab-time head invisible (2026-07-02). FP never sees the head
+	// because MarcusHead itself stays SetVisibility(false) outside the grab beat.
 
 	// Attach Marcus to the CAPSULE (clean, always-upright frame — identical to the
 	// hidden locomotion CharacterMesh0). The pack AnimBP's RetargetPoseFromMesh
@@ -4229,6 +4352,39 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 	// Cap_01 (headwear) intentionally NOT shown on the self/FP body — it rides the
 	// head bone, which sits at the FP camera, so it would fill the lens (the head is
 	// hidden above for the same reason). Add it back only for a 3P / shadow body.
+
+	// Head: CCMH_Head_Male is a SEPARATE mesh (the body asset is headless — verified 2026-07-02
+	// when the grab's 3P camera showed a headless Marcus; the old HideBoneByName("head") on the
+	// body was a no-op). Leader-posed like the apparel; stays hidden except during the grab beat.
+	if (USkeletalMesh* Head = LoadObject<USkeletalMesh>(nullptr,
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Meshes/CCMH_Head_Male.CCMH_Head_Male")))
+	{
+		MarcusHead->SetSkeletalMesh(Head);
+		MarcusHead->SetLeaderPoseComponent(MarcusBody);
+		MarcusHead->SetVisibility(false);
+	}
+	// Hair + brows per the "Marcus" CC_SaveGame entry: SidePart_02 / Eyebrows_01 / Beard_Default
+	// (= no beard). Both are CCMH_Skeleton skeletal meshes (verified) -> leader-pose like the head.
+	if (USkeletalMesh* Hair = LoadObject<USkeletalMesh>(nullptr,
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Hair/Hairstyles/Side_Part_02/Side_Part_02_M.Side_Part_02_M")))
+	{
+		MarcusHair->SetSkeletalMesh(Hair);
+		MarcusHair->SetLeaderPoseComponent(MarcusBody);
+		MarcusHair->SetVisibility(false);
+		// The preset's authored "Hair Tint" — Dark Brown (0.251, 0.145, 0.098).
+		if (UMaterialInstanceDynamic* HairMID = MarcusHair->CreateAndSetMaterialInstanceDynamic(0))
+		{
+			HairMID->SetVectorParameterValue(FName(TEXT("Hair Tint")),
+				FLinearColor(0.250980f, 0.145098f, 0.098039f, 1.f));
+		}
+	}
+	if (USkeletalMesh* Brows = LoadObject<USkeletalMesh>(nullptr,
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Hair/Eyebrows/Eyebrows_01_Male.Eyebrows_01_Male")))
+	{
+		MarcusBrows->SetSkeletalMesh(Brows);
+		MarcusBrows->SetLeaderPoseComponent(MarcusBody);
+		MarcusBrows->SetVisibility(false);
+	}
 	if (USkeletalMesh* Sneakers = LoadObject<USkeletalMesh>(nullptr,
 		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Apparel/Male/Footwear/Sneaker_02/Sneaker_02.Sneaker_02")))
 	{
@@ -4307,6 +4463,7 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 void AZP_GraceCharacter::PerformDodge()
 {
 	if (DodgeCooldownRemaining > 0.f) return;
+	if (GrabPhase != EZP_GrabPhase::None) return; // can't dodge while grabbed
 	if (GetCharacterMovement()->IsFalling()) return;
 	if (bIsBlocking) return; // can't dodge while blocking
 
@@ -4990,6 +5147,502 @@ void AZP_GraceCharacter::DisableLockerInteraction(AActor* LockerActor)
 
 	LootedEmptyLockers.Add(FName(*LockerActor->GetName()));
 	UE_LOG(LogTemp, Log, TEXT("[LootLocker] Locker %s marked as looted and empty"), *LockerActor->GetName());
+}
+
+// ===========================================================================
+// Grab / Struggle (zombie grapple — Docs/Plan_GrabStruggle.md)
+// ===========================================================================
+
+void AZP_GraceCharacter::UpdateInputDeviceTracking()
+{
+	// Lightweight last-device poll — no CommonInput module dependency (Build.cs rules). A small
+	// fixed set of pad buttons/axes flips to gamepad; mouse activity or movement keys flip back.
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) { return; }
+
+	static const FKey PadButtons[] = {
+		EKeys::Gamepad_FaceButton_Bottom, EKeys::Gamepad_FaceButton_Right,
+		EKeys::Gamepad_FaceButton_Left, EKeys::Gamepad_FaceButton_Top,
+		EKeys::Gamepad_LeftShoulder, EKeys::Gamepad_RightShoulder,
+		EKeys::Gamepad_LeftTrigger, EKeys::Gamepad_RightTrigger,
+		EKeys::Gamepad_DPad_Up, EKeys::Gamepad_DPad_Down,
+		EKeys::Gamepad_DPad_Left, EKeys::Gamepad_DPad_Right,
+		EKeys::Gamepad_LeftThumbstick, EKeys::Gamepad_RightThumbstick };
+	for (const FKey& K : PadButtons)
+	{
+		if (PC->WasInputKeyJustPressed(K)) { bLastInputGamepad = true; return; }
+	}
+	static const FKey PadAxes[] = {
+		EKeys::Gamepad_LeftX, EKeys::Gamepad_LeftY, EKeys::Gamepad_RightX, EKeys::Gamepad_RightY };
+	for (const FKey& K : PadAxes)
+	{
+		if (FMath::Abs(PC->GetInputAnalogKeyState(K)) > 0.25f) { bLastInputGamepad = true; return; }
+	}
+
+	float MouseDX = 0.f, MouseDY = 0.f;
+	PC->GetInputMouseDelta(MouseDX, MouseDY);
+	static const FKey KBMKeys[] = {
+		EKeys::LeftMouseButton, EKeys::RightMouseButton,
+		EKeys::W, EKeys::A, EKeys::S, EKeys::D, EKeys::E, EKeys::SpaceBar };
+	bool bKBM = (FMath::Abs(MouseDX) > 0.1f || FMath::Abs(MouseDY) > 0.1f);
+	for (const FKey& K : KBMKeys)
+	{
+		if (bKBM) { break; }
+		bKBM = PC->WasInputKeyJustPressed(K);
+	}
+	if (bKBM) { bLastInputGamepad = false; }
+}
+
+void AZP_GraceCharacter::LoadGrabAnims()
+{
+	if (bGrabAnimsLoaded) { return; }
+	bGrabAnimsLoaded = true;
+	// Lazy-load (LoadAnimDefaults pattern — never hard-reference retargeted clips from a ctor).
+	auto L = [](const TCHAR* P) { return LoadObject<UAnimSequenceBase>(nullptr, P); };
+	GrabAnimEntry       = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabEntry.A_Marcus_GrabEntry"));
+	GrabAnimMunch       = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabMunch.A_Marcus_GrabMunch"));
+	GrabAnimWrestle     = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabWrestle.A_Marcus_GrabWrestle"));
+	GrabAnimKick        = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabKick.A_Marcus_GrabKick"));
+	GrabAnimPush        = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabPush.A_Marcus_GrabPush"));
+	GrabAnimKnockdownFP = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_KnockdownFP.A_Marcus_KnockdownFP"));
+	GrabAnimGetUpBack   = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GetUpBack.A_Marcus_GetUpBack"));
+	UE_LOG(LogTemp, Log, TEXT("[Grab] anims loaded: entry=%d munch=%d wrestle=%d kick=%d push=%d knockdown=%d getup=%d"),
+		GrabAnimEntry != nullptr, GrabAnimMunch != nullptr, GrabAnimWrestle != nullptr,
+		GrabAnimKick != nullptr, GrabAnimPush != nullptr, GrabAnimKnockdownFP != nullptr, GrabAnimGetUpBack != nullptr);
+}
+
+EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
+{
+	if (!Grabber || GrabPhase != EZP_GrabPhase::None) { return EZP_GrabAttemptResult::Unavailable; }
+	if (HealthComp && HealthComp->bIsDead) { return EZP_GrabAttemptResult::Unavailable; }
+	if (bOnLadder || bInventoryMenuOpen || bMapOpen || IsModalMenuOpen()) { return EZP_GrabAttemptResult::Unavailable; }
+	if (GrabImmunityRemaining > 0.f) { return EZP_GrabAttemptResult::Unavailable; }
+	if (DodgeLockRemaining > 0.f) { return EZP_GrabAttemptResult::Unavailable; } // mid-dodge = the dodge evaded the latch
+	if (bIsBlocking) { return EZP_GrabAttemptResult::Deflected; } // the guard turns the grab away
+
+	LoadGrabAnims();
+
+	GrabberActor = Grabber;
+	CancelSprintFromAction();
+	bBlockWanted = false; // a held RMB must not re-raise the guard under the grab
+	if (bIsCrouched) { UnCrouch(); }
+
+	// Stow the weapon (the ladder recipe) — re-equipped in EndGrab.
+	if (KinemationComp && KinemationComp->ActiveWeapon)
+	{
+		PreGrabWeaponClass = KinemationComp->ActiveWeapon->GetClass();
+		KinemationComp->UnequipWeapon();
+	}
+	else
+	{
+		PreGrabWeaponClass = nullptr;
+	}
+
+	// Freeze + snap to face the grabber. Control rotation is set ONCE and never moves during the
+	// grab (look input is gated), so the FP view direction on return has no snap.
+	FVector ToGrabber = Grabber->GetActorLocation() - GetActorLocation();
+	ToGrabber.Z = 0.f;
+	if (!ToGrabber.IsNearlyZero())
+	{
+		const float Yaw = ToGrabber.Rotation().Yaw;
+		if (Controller) { Controller->SetControlRotation(FRotator(0.f, Yaw, 0.f)); }
+		SetActorRotation(FRotator(0.f, Yaw, 0.f));
+	}
+	bUseControllerRotationYaw = false;
+	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+	{
+		CMC->StopMovementImmediately();
+		CMC->SetMovementMode(MOVE_None);
+	}
+	if (UCapsuleComponent* Cap = GetCapsuleComponent())
+	{
+		Cap->IgnoreActorWhenMoving(Grabber, true); // grabber ignores us from its own side
+	}
+
+	// The 3P camera is about to see the body — show the head + Marcus's authored hair/brows
+	// (all separate leader-posed meshes, hidden in FP because they sit at the camera).
+	if (MarcusHead) { MarcusHead->SetVisibility(true); }
+	if (MarcusHair) { MarcusHair->SetVisibility(true); }
+	if (MarcusBrows) { MarcusBrows->SetVisibility(true); }
+
+	// DIM the flashlight for the duration (full-off was an overcorrection — a pitch-dark room
+	// went black for the whole grapple). GrabFlashlightDimMul drops beam+fill to a silhouette
+	// read; original intensities restored in EndGrab. Toggling is input-gated mid-grab.
+	if (bFlashlightOn)
+	{
+		if (FlashlightComp)
+		{
+			PreGrabFlashlightIntensity = FlashlightComp->Intensity;
+			FlashlightComp->SetIntensity(PreGrabFlashlightIntensity * GrabFlashlightDimMul);
+		}
+		if (FlashlightFillComp)
+		{
+			PreGrabFlashlightFillIntensity = FlashlightFillComp->Intensity;
+			FlashlightFillComp->SetIntensity(PreGrabFlashlightFillIntensity * GrabFlashlightDimMul);
+		}
+	}
+
+	// Mash prompt (device-matched glyph) + held damage vignette.
+	bGrabPromptGamepad = bLastInputGamepad;
+	if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
+	{
+		if (PC->HUDWidget)
+		{
+			PC->HUDWidget->ShowGrabPrompt(GrabPromptText, bGrabPromptGamepad);
+			PC->HUDWidget->SetDamageVignetteHold(GrabVignetteHold);
+		}
+	}
+
+	EscapeProgress = 0.f;
+	StruggleTimeRemaining = StruggleTimeLimit;
+	GrabHeldTime = 0.f;
+	GrabNextTickIn = 1.f;
+	bGrabEscapeHeld = false;
+	SetGrabPhase(EZP_GrabPhase::Entry);
+	UE_LOG(LogTemp, Warning, TEXT("[Grab] LATCHED by %s"), *Grabber->GetName());
+	return EZP_GrabAttemptResult::Grabbed;
+}
+
+void AZP_GraceCharacter::AbortGrab()
+{
+	EndGrab(/*bAborted*/true);
+}
+
+void AZP_GraceCharacter::SetGrabPhase(EZP_GrabPhase NewPhase)
+{
+	GrabPhase = NewPhase;
+	switch (NewPhase)
+	{
+	case EZP_GrabPhase::Entry:
+		PlayGrabClipOnBody(GrabAnimEntry, /*bLoop*/false);
+		GrabPhaseTimeRemaining = GrabAnimEntry ? GrabAnimEntry->GetPlayLength() : 0.6f;
+		break;
+
+	case EZP_GrabPhase::Munch:
+		PlayGrabClipOnBody(GrabAnimMunch, /*bLoop*/true);
+		NotifyGrabberPhase(EZP_GrabPhase::Munch);
+		break;
+
+	case EZP_GrabPhase::Wrestle:
+		PlayGrabClipOnBody(GrabAnimWrestle, /*bLoop*/true);
+		NotifyGrabberPhase(EZP_GrabPhase::Wrestle);
+		break;
+
+	case EZP_GrabPhase::EscapeKick:
+	case EZP_GrabPhase::EscapePush:
+	{
+		UAnimSequenceBase* Clip = (NewPhase == EZP_GrabPhase::EscapeKick) ? GrabAnimKick : GrabAnimPush;
+		PlayGrabClipOnBody(Clip, /*bLoop*/false);
+		GrabPhaseTimeRemaining = Clip ? Clip->GetPlayLength() : 2.3f;
+		GrabImmunityRemaining = PostEscapeGrabImmunity; // anti-chain-grab window
+		NotifyGrabberPhase(NewPhase); // grabber: paired reaction + knockback + stun
+		if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
+		{
+			if (PC->HUDWidget)
+			{
+				PC->HUDWidget->HideGrabPrompt();
+				PC->HUDWidget->SetDamageVignetteHold(0.f);
+			}
+		}
+		UE_LOG(LogTemp, Warning, TEXT("[Grab] ESCAPED (%s)"),
+			NewPhase == EZP_GrabPhase::EscapeKick ? TEXT("kick") : TEXT("push"));
+		break;
+	}
+
+	case EZP_GrabPhase::FailKnockdown:
+	{
+		NotifyGrabberPhase(EZP_GrabPhase::FailKnockdown); // grabber: authored shove-down, then backs off
+		if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
+		{
+			if (PC->HUDWidget)
+			{
+				PC->HUDWidget->HideGrabPrompt();
+				PC->HUDWidget->SetDamageVignetteHold(0.f);
+			}
+		}
+		// Camera returns to 1P (GrabCamWeight target flips to 0) and RIDES THE FALL: the FPP
+		// knockdown plays on the hidden Mesh, the full-body copy drives PlayerMesh, and the
+		// camera is socketed to PlayerMesh's FPCamera — the exact ladder mechanism.
+		if (MarcusBody)
+		{
+			MarcusBody->SetVisibility(false, /*bPropagateToChildren*/true); // hides head+apparel too — no double body on the floor
+		}
+		if (PlayerMesh)
+		{
+			if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
+			{
+				AnimInst->bCopyAllBones = true;
+			}
+		}
+		PlayGrabClipOnFPRig(GrabAnimKnockdownFP);
+		GrabPhaseTimeRemaining = GrabAnimKnockdownFP ? GrabAnimKnockdownFP->GetPlayLength() : 3.87f;
+		GrabImmunityRemaining = FMath::Max(GrabImmunityRemaining, PostEscapeGrabImmunity); // no grabs off the floor
+		UE_LOG(LogTemp, Warning, TEXT("[Grab] STRUGGLE FAILED — knockdown"));
+		break;
+	}
+
+	case EZP_GrabPhase::GetUp:
+		PlayGrabClipOnFPRig(GrabAnimGetUpBack);
+		GrabPhaseTimeRemaining = GrabAnimGetUpBack ? GrabAnimGetUpBack->GetPlayLength() : 1.5f;
+		break;
+
+	case EZP_GrabPhase::None:
+	default:
+		break;
+	}
+}
+
+void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
+{
+	if (GrabImmunityRemaining > 0.f)
+	{
+		GrabImmunityRemaining = FMath::Max(0.f, GrabImmunityRemaining - DeltaTime);
+	}
+
+	// Camera blend weight: 1 = full over-the-shoulder frame. Blends out over the tail of the
+	// escape reaction, or immediately at knockdown/abort — CalcCamera consumes it every frame,
+	// so every exit path returns to FP smoothly.
+	const bool bWants3P =
+		GrabPhase == EZP_GrabPhase::Entry ||
+		GrabPhase == EZP_GrabPhase::Munch ||
+		GrabPhase == EZP_GrabPhase::Wrestle ||
+		((GrabPhase == EZP_GrabPhase::EscapeKick || GrabPhase == EZP_GrabPhase::EscapePush)
+			&& GrabPhaseTimeRemaining > GrabCamBlendOut);
+	const float TargetW = bWants3P ? 1.f : 0.f;
+	const float BlendTime = (TargetW > GrabCamWeight) ? GrabCamBlendIn : GrabCamBlendOut;
+	GrabCamWeight = FMath::FInterpConstantTo(GrabCamWeight, TargetW, DeltaTime,
+		(BlendTime > KINDA_SMALL_NUMBER) ? (1.f / BlendTime) : 1000.f);
+
+	if (GrabPhase == EZP_GrabPhase::None) { return; }
+
+	switch (GrabPhase)
+	{
+	case EZP_GrabPhase::Entry:
+		GrabPhaseTimeRemaining -= DeltaTime;
+		if (GrabPhaseTimeRemaining <= 0.f)
+		{
+			SetGrabPhase(EZP_GrabPhase::Munch);
+		}
+		break;
+
+	case EZP_GrabPhase::Munch:
+	case EZP_GrabPhase::Wrestle:
+	{
+		StruggleTimeRemaining -= DeltaTime;
+		GrabHeldTime += DeltaTime;
+
+		// The prompt glyph follows the device the player is actually using (KBM <-> pad).
+		if (bGrabPromptGamepad != bLastInputGamepad)
+		{
+			bGrabPromptGamepad = bLastInputGamepad;
+			if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
+			{
+				if (PC->HUDWidget) { PC->HUDWidget->ShowGrabPrompt(GrabPromptText, bGrabPromptGamepad); }
+			}
+		}
+
+		// Meter: Hold accessibility mode fills while attack is held; Tap mode decays between presses.
+		if (bEscapeHoldMode)
+		{
+			if (bGrabEscapeHeld) { EscapeProgress += HoldFillPerSecond * DeltaTime; }
+		}
+		else
+		{
+			EscapeProgress = FMath::Max(0.f, EscapeProgress - MashDecayPerSecond * DeltaTime);
+		}
+
+		// Ticking damage — GrabTickDamagePerSecond lands once per second HELD (munch AND wrestle),
+		// direct through HealthComp (fall-damage precedent: no block logic, no camera flinch; the
+		// HUD vignette pulses via OnHealthChanged). By design: fastest escape (GrabMinTrappedTime)
+		// = half a normal attack; riding out the full struggle = one full attack, then the fall.
+		GrabNextTickIn -= DeltaTime;
+		if (GrabNextTickIn <= 0.f)
+		{
+			GrabNextTickIn += 1.f;
+			if (HealthComp)
+			{
+				HealthComp->ApplyDamage(GrabTickDamagePerSecond);
+				if (HealthComp->bIsDead) { return; } // HandleDeath already tore the grab down
+			}
+		}
+
+		// Escape is gated by the minimum trapped time — the meter can be full earlier; the
+		// break fires the moment the gate opens.
+		if (EscapeProgress >= 1.f && GrabHeldTime >= GrabMinTrappedTime)
+		{
+			SetGrabPhase(FMath::RandBool() ? EZP_GrabPhase::EscapeKick : EZP_GrabPhase::EscapePush);
+		}
+		else if (StruggleTimeRemaining <= 0.f)
+		{
+			// FAIL: ticks already totaled a full attack; FailDamageChunk is optional extra on top.
+			if (FailDamageChunk > 0.f && HealthComp)
+			{
+				HealthComp->ApplyDamage(FailDamageChunk);
+				if (HealthComp->bIsDead) { return; }
+			}
+			SetGrabPhase(EZP_GrabPhase::FailKnockdown);
+		}
+		break;
+	}
+
+	case EZP_GrabPhase::EscapeKick:
+	case EZP_GrabPhase::EscapePush:
+		GrabPhaseTimeRemaining -= DeltaTime;
+		if (GrabPhaseTimeRemaining <= 0.f)
+		{
+			EndGrab(/*bAborted*/false);
+		}
+		break;
+
+	case EZP_GrabPhase::FailKnockdown:
+		GrabPhaseTimeRemaining -= DeltaTime;
+		if (GrabPhaseTimeRemaining <= 0.f)
+		{
+			SetGrabPhase(EZP_GrabPhase::GetUp);
+		}
+		break;
+
+	case EZP_GrabPhase::GetUp:
+		GrabPhaseTimeRemaining -= DeltaTime;
+		if (GrabPhaseTimeRemaining <= 0.f)
+		{
+			EndGrab(/*bAborted*/false);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void AZP_GraceCharacter::GrabMashPressed()
+{
+	if (GrabPhase == EZP_GrabPhase::Munch)
+	{
+		// First press: the struggle engages — both bodies switch to the wrestle pair.
+		if (!bEscapeHoldMode) { EscapeProgress += MashGainPerPress; }
+		SetGrabPhase(EZP_GrabPhase::Wrestle);
+	}
+	else if (GrabPhase == EZP_GrabPhase::Wrestle && !bEscapeHoldMode)
+	{
+		EscapeProgress = FMath::Min(EscapeProgress + MashGainPerPress, 1.5f);
+	}
+}
+
+void AZP_GraceCharacter::EndGrab(bool bAborted)
+{
+	if (GrabPhase == EZP_GrabPhase::None) { return; }
+	GrabPhase = EZP_GrabPhase::None;
+	bGrabEscapeHeld = false;
+
+	// Aborts (grabber died / grab broken by damage / player died) must tell the grabber —
+	// clean exits already notified it via their outcome phase.
+	if (bAborted)
+	{
+		NotifyGrabberPhase(EZP_GrabPhase::None);
+	}
+
+	// Movement + collision + rotation back (the ladder-exit recipe).
+	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+	{
+		if (CMC->MovementMode == MOVE_None) { CMC->SetMovementMode(MOVE_Walking); }
+	}
+	bUseControllerRotationYaw = true;
+	if (UCapsuleComponent* Cap = GetCapsuleComponent())
+	{
+		if (AActor* G = GrabberActor.Get()) { Cap->IgnoreActorWhenMoving(G, false); }
+	}
+
+	// Meshes back to FP configuration: body visible, head re-hidden (it sits at the FP
+	// camera — the propagate-true restore below would otherwise show it), full-body copy off.
+	// The loco switcher in Tick re-seats both meshes' clips next frame (GrabPhase == None).
+	if (MarcusBody)
+	{
+		MarcusBody->SetVisibility(true, /*bPropagateToChildren*/true);
+	}
+	if (MarcusHead) { MarcusHead->SetVisibility(false); }
+	if (MarcusHair) { MarcusHair->SetVisibility(false); }
+	if (MarcusBrows) { MarcusBrows->SetVisibility(false); }
+
+	// Flashlight back to full brightness if it was dimmed for the grapple.
+	if (FlashlightComp && PreGrabFlashlightIntensity >= 0.f)
+	{
+		FlashlightComp->SetIntensity(PreGrabFlashlightIntensity);
+	}
+	if (FlashlightFillComp && PreGrabFlashlightFillIntensity >= 0.f)
+	{
+		FlashlightFillComp->SetIntensity(PreGrabFlashlightFillIntensity);
+	}
+	PreGrabFlashlightIntensity = -1.f;
+	PreGrabFlashlightFillIntensity = -1.f;
+	if (PlayerMesh)
+	{
+		if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
+		{
+			AnimInst->bCopyAllBones = false;
+		}
+	}
+
+	// HUD released.
+	if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
+	{
+		if (PC->HUDWidget)
+		{
+			PC->HUDWidget->HideGrabPrompt();
+			PC->HUDWidget->SetDamageVignetteHold(0.f);
+		}
+	}
+
+	// Weapon back in hand.
+	if (PreGrabWeaponClass && KinemationComp)
+	{
+		KinemationComp->EquipWeaponClass(PreGrabWeaponClass);
+	}
+	PreGrabWeaponClass = nullptr;
+	GrabberActor = nullptr;
+
+	UE_LOG(LogTemp, Warning, TEXT("[Grab] ended (aborted=%d)"), bAborted ? 1 : 0);
+}
+
+void AZP_GraceCharacter::PlayGrabClipOnBody(UAnimSequenceBase* Clip, bool bLoop)
+{
+	if (!Clip || !MarcusBody) { return; }
+	if (UAnimSingleNodeInstance* SNI = MarcusBody->GetSingleNodeInstance())
+	{
+		SNI->SetAnimationAsset(Clip, bLoop, 1.0f);
+		SNI->SetPlaying(true);
+	}
+}
+
+void AZP_GraceCharacter::PlayGrabClipOnFPRig(UAnimSequenceBase* Clip)
+{
+	if (!Clip) { return; }
+	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
+	{
+		SNI->SetAnimationAsset(Clip, /*bLoop*/false, 1.0f);
+		SNI->SetPlaying(true);
+	}
+}
+
+void AZP_GraceCharacter::NotifyGrabberPhase(EZP_GrabPhase Phase)
+{
+	AActor* G = GrabberActor.Get();
+	if (!G) { return; }
+	// The grabber interface may live on the actor OR one of its components (the Shambler's
+	// behavior component) — same resolution pattern as StaggerEnemy.
+	if (IZP_Grabber* GI = Cast<IZP_Grabber>(G))
+	{
+		GI->OnVictimGrabPhase(Phase);
+		return;
+	}
+	for (UActorComponent* Comp : G->GetComponents())
+	{
+		if (IZP_Grabber* CI = Cast<IZP_Grabber>(Comp))
+		{
+			CI->OnVictimGrabPhase(Phase);
+			return;
+		}
+	}
 }
 
 // ===========================================================================

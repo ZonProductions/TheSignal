@@ -9,6 +9,7 @@
 #include "ZP_EventBroadcaster.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Engine/Texture2D.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include <initializer_list>
@@ -46,6 +47,29 @@ void UZP_HUDWidget::NativeConstruct()
 	{
 		SignalWaveDMI = UMaterialInstanceDynamic::Create(SignalWaveMaterial, this);
 		SignalWave->SetBrushFromMaterial(SignalWaveDMI);
+	}
+
+	// Grab prompt glyph — hidden until a grab; laid out at runtime just above the interaction
+	// prompt (the widget was added to WBP_HUD by tooling with no authored slot layout).
+	if (GrabPromptIcon)
+	{
+		GrabPromptIcon->SetVisibility(ESlateVisibility::Collapsed);
+		if (UCanvasPanelSlot* IconSlot = Cast<UCanvasPanelSlot>(GrabPromptIcon->Slot))
+		{
+			if (InteractionPrompt)
+			{
+				if (UCanvasPanelSlot* PromptSlot = Cast<UCanvasPanelSlot>(InteractionPrompt->Slot))
+				{
+					IconSlot->SetAnchors(PromptSlot->GetAnchors());
+					IconSlot->SetAlignment(FVector2D(0.5f, 1.f)); // bottom-center pivot
+					const FVector2D P = PromptSlot->GetPosition();
+					const FVector2D S = PromptSlot->GetSize();
+					IconSlot->SetPosition(FVector2D(P.X + S.X * 0.5f, P.Y - 8.f)); // centered above the text
+					IconSlot->SetAutoSize(false);
+					IconSlot->SetSize(FVector2D(52.f, 52.f));
+				}
+			}
+		}
 	}
 
 	// Initialize vignettes — load materials by path, start hidden
@@ -154,8 +178,9 @@ void UZP_HUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		Widget->SetRenderOpacity(Opacity);
 	};
 
-	// Damage vignette — always fades to 0 (one-shot flash)
-	FadeVignette(DamageVignette, DamageVignetteOpacity, 0.f, DamageVignetteFadeSpeed);
+	// Damage vignette — fades to the hold floor (0 normally; raised while grabbed so the
+	// vignette stays up through the struggle, with hits still pulsing it to max on top).
+	FadeVignette(DamageVignette, DamageVignetteOpacity, DamageVignetteHoldOpacity, DamageVignetteFadeSpeed);
 
 	// Heal vignette — always fades to 0 (one-shot flash)
 	FadeVignette(HealVignette, HealVignetteOpacity, 0.f, HealVignetteFadeSpeed);
@@ -165,6 +190,41 @@ void UZP_HUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 	// Invincibility vignette — holds at target while active, fades to 0 when cleared
 	FadeVignette(InvincibilityVignette, InvincibilityVignetteOpacity, InvincibilityVignetteTarget, EffectVignetteFadeSpeed);
+}
+
+void UZP_HUDWidget::SetDamageVignetteHold(float HoldOpacity)
+{
+	DamageVignetteHoldOpacity = FMath::Clamp(HoldOpacity, 0.f, 1.f);
+	// Raising the hold above the current opacity snaps up immediately — the grab just landed.
+	if (DamageVignette && DamageVignetteOpacity < DamageVignetteHoldOpacity)
+	{
+		DamageVignetteOpacity = DamageVignetteHoldOpacity;
+		DamageVignette->SetRenderOpacity(DamageVignetteOpacity);
+	}
+}
+
+void UZP_HUDWidget::ShowGrabPrompt(const FText& Text, bool bGamepad)
+{
+	ShowInteractionPrompt(Text);
+	if (GrabPromptIcon)
+	{
+		UTexture2D* Glyph = bGamepad ? GrabPromptGlyphGamepadTexture.LoadSynchronous()
+		                             : GrabPromptGlyphTexture.LoadSynchronous();
+		if (Glyph)
+		{
+			GrabPromptIcon->SetBrushFromTexture(Glyph, /*bMatchSize*/false);
+		}
+		GrabPromptIcon->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+}
+
+void UZP_HUDWidget::HideGrabPrompt()
+{
+	HideInteractionPrompt();
+	if (GrabPromptIcon)
+	{
+		GrabPromptIcon->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void UZP_HUDWidget::SetHealth(float HealthPercent)
