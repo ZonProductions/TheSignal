@@ -13,7 +13,7 @@
  *
  * Blueprint Extension Points:
  *   - Add CharacterCustomizer component in child Blueprint (BP_NPC) for visual assembly.
- *   - Set NPCRole, DialogueData, InteractionPrompt per-instance in editor.
+ *   - Set AZP_NPCRole, AZP_DialogueData, InteractionPrompt per-instance in editor.
  *   - Override OnInteract_Implementation in Blueprint for custom behavior.
  *
  * Dependencies:
@@ -55,19 +55,19 @@ public:
 
 	/** NPC role determines interaction behavior. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
-	EZP_NPCNPCRole NPCRole = EZP_NPCNPCRole::Interactive;
+	EZP_NPCNPCRole AZP_NPCRole = EZP_NPCNPCRole::Interactive;
 
 	/** Dialogue played when player interacts. Ignored for Crowd role. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
-	TObjectPtr<UZP_DialogueData> DialogueData;
+	TObjectPtr<UZP_DialogueData> AZP_DialogueData;
 
-	/** Custom prompt override. Empty = auto-generated from NPCRole. */
+	/** Custom prompt override. Empty = auto-generated from AZP_NPCRole. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
-	FText InteractionPromptOverride;
+	FText AZP_InteractionPromptOverride;
 
 	/** If true, interaction disables after first use (one-shot NPC). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
-	bool bInteractOnce = false;
+	bool bAZP_InteractOnce = false;
 
 protected:
 	virtual void BeginPlay() override;

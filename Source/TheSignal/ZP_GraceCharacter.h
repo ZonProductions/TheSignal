@@ -13,8 +13,8 @@
  * Owner Subsystem: PlayerCharacter
  *
  * Blueprint Extension Points:
- *   - MovementConfig DataAsset (propagated to GameplayComp).
- *   - WeaponClass (propagated to KinemationComp).
+ *   - AZP_MovementConfig DataAsset (propagated to GameplayComp).
+ *   - AZP_WeaponClass (propagated to KinemationComp).
  *   - Input actions set via EditDefaultsOnly (configured in BP child).
  *   - OnInteract BlueprintImplementableEvent for interaction logic.
  *
@@ -146,71 +146,75 @@ public:
 	 *  RangedSleeve, moved together) on top of the leader-posed Kinemation aim. Dial in
 	 *  Details → Appearance; applied every frame so PIE edits show live. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	FVector RangedArmsOffset = FVector::ZeroVector;
+	FVector AZP_RangedArmsOffset = FVector::ZeroVector;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	FRotator RangedArmsRotation = FRotator::ZeroRotator;
+	FRotator AZP_RangedArmsRotation = FRotator::ZeroRotator;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	float RangedArmsScale = 1.0f;
+	float AZP_RangedArmsScale = 1.0f;
 
 	/** Native CCMH locomotion clips (retargeted offline from the player's Manny clips),
 	 *  played on MarcusBody via SingleNode — no live retarget node, no shuffle. */
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusIdle;
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusWalk;
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusRun;
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusCrouchIdle;
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> MarcusCrouchWalk;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|MarcusClips") TObjectPtr<UAnimSequenceBase> AZP_MarcusIdle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|MarcusClips") TObjectPtr<UAnimSequenceBase> AZP_MarcusWalk;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|MarcusClips") TObjectPtr<UAnimSequenceBase> AZP_MarcusRun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|MarcusClips") TObjectPtr<UAnimSequenceBase> AZP_MarcusCrouchIdle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|MarcusClips") TObjectPtr<UAnimSequenceBase> AZP_MarcusCrouchWalk;
 
 	/** Live-tunable facing offset for Marcus's visible body (on top of the -90 base
 	 *  yaw). Dial in BP_GraceCharacter → Details → Appearance to correct the angle the
 	 *  body faces / tilt. Applied every frame so edits show live in PIE. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	float MarcusBodyYaw = 0.0f;
+	float AZP_MarcusBodyYaw = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	float MarcusBodyPitch = 0.0f;
+	float AZP_MarcusBodyPitch = 0.0f;
+
+	/** Uniform scale of the CCMH Marcus body that drops his eyes to the FP camera height (measured 124/143). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	float AZP_MarcusBodyScale = 0.869f;
 
 	/** Camera look-down angle (degrees) below which MarcusBody's spine starts
 	 *  bending forward so the camera never sees inside the chest cavity during
 	 *  Kinemation reload/switch dives. No bend above this threshold. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
-	float SpineBendThresholdDeg = 45.f;
+	float AZP_SpineBendThresholdDeg = 45.f;
 
 	/** Maximum total spine bend (degrees) when looking straight down (-90 pitch).
 	 *  Distributed across spine_01..spine_05 with weights .10/.15/.20/.25/.30,
 	 *  more toward the head. 0 disables. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
-	float SpineBendMaxDeg = 55.f;
+	float AZP_SpineBendMaxDeg = 55.f;
 
 	/** Easing speed (higher = snappier) for SpineBend toward target each frame. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
-	float SpineBendInterpSpeed = 12.f;
+	float AZP_SpineBendInterpSpeed = 12.f;
 
 	/** Bone-LOCAL hinge axis for forward bend. Default (0,1,0) = bone-local +Y
 	 *  (right vector) which bends forward on UE5/MetaHuman/CCMH spine convention.
 	 *  Flip sign or swap component if the body leans the wrong way. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|SpineBend")
-	FVector SpineBendBoneLocalAxis = FVector(0.f, 1.f, 0.f);
+	FVector AZP_SpineBendBoneLocalAxis = FVector(0.f, 1.f, 0.f);
 
 	/** Per-action CAMERA offset applied during that move so the leaning body doesn't clip
 	 *  the lens — the camera is moved instead of the body. Capsule space: +X = forward
-	 *  (lens away from the body), +Z = up. Lerped in/out at WeaponActionOffsetSpeed. One
+	 *  (lens away from the body), +Z = up. Lerped in/out at AZP_WeaponActionOffsetSpeed. One
 	 *  each for reload / switch / swing / block — dial independently in Details → Camera. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	FVector ReloadCamOffset = FVector(3.0f, 0.0f, 0.0f);
+	FVector AZP_ReloadCamOffset = FVector(3.0f, 0.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	FVector SwitchCamOffset = FVector(3.0f, 0.0f, 0.0f);
+	FVector AZP_SwitchCamOffset = FVector(3.0f, 0.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	FVector SwingCamOffset = FVector(4.0f, 0.0f, 0.0f);
+	FVector AZP_SwingCamOffset = FVector(4.0f, 0.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (DisplayName = "Block Camera Offset (moves VIEW)"))
-	FVector BlockCamOffset = FVector(4.0f, 0.0f, 0.0f);
+	FVector AZP_BlockCamOffset = FVector(4.0f, 0.0f, 0.0f);
 
 	/** Camera offset held during a dodge — split by weapon so the melee (pipe) dash,
 	 *  where the body leans hard toward the lens, can push the view clear of the body
 	 *  independently of the ranged dash. Capsule space: +X = forward (lens away from
 	 *  body), +Z = up. Applied while the dodge clearance window is active. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (DisplayName = "Dodge Camera Offset (Melee)"))
-	FVector DodgeCamOffsetMelee = FVector(15.0f, 0.0f, 0.0f);
+	FVector AZP_DodgeCamOffsetMelee = FVector(15.0f, 0.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (DisplayName = "Dodge Camera Offset (Ranged)"))
-	FVector DodgeCamOffsetRanged = FVector(0.0f, 0.0f, 0.0f);
+	FVector AZP_DodgeCamOffsetRanged = FVector(0.0f, 0.0f, 0.0f);
 
 	/** Maximum degrees the camera may pitch DOWN from horizon (positive value).
 	 *  Clamps both controller look input AND animation-driven camera dives
@@ -218,16 +222,36 @@ public:
 	 *  the visible body when looking down. Default 55 = comfortable, eyes can
 	 *  still see the floor a couple of meters ahead but never the chest cavity. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Pitch")
-	float CameraPitchDownLimitDeg = 55.f;
+	float AZP_CameraPitchDownLimitDeg = 55.f;
 
 	/** Maximum degrees the camera may pitch UP from horizon (positive value).
 	 *  Standard FPS max-look-up cap. Default 80. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Pitch")
-	float CameraPitchUpLimitDeg = 80.f;
+	float AZP_CameraPitchUpLimitDeg = 80.f;
 
 	/** How fast the camera slides to/from the active offset (higher = snappier). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float WeaponActionOffsetSpeed = 10.0f;
+	float AZP_WeaponActionOffsetSpeed = 10.0f;
+
+	/** Camera sits 20cm forward of the FPCamera socket so melee/dodge/block spine leans never put the view inside the body (dev-proven). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float AZP_CameraForwardOffset = 20.0f;
+
+	/** SH2-style darkness: negative exposure bias on the player post-process (darker without crushing). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Exposure")
+	float AZP_AutoExposureBias = -0.5f;
+
+	/** Exposure floor — lets eyes adapt to moonlit night while sealed dark rooms stay dark (session-64 tuned). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Exposure")
+	float AZP_AutoExposureMinBrightness = 0.2f;
+
+	/** Exposure ceiling of the player's clamped auto-exposure window. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Exposure")
+	float AZP_AutoExposureMaxBrightness = 1.2f;
+
+	/** Bloom on the player post-process — kept low so darkness stays crisp. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Exposure")
+	float AZP_PlayerBloomIntensity = 0.2f;
 
 
 	/** Current interpolated weapon-action camera offset (runtime; fed to GameplayComp). */
@@ -240,13 +264,13 @@ public:
 	 *  is an OPTIONAL extra added ON TOP only while blocking; leave it zero and block
 	 *  grips identically to non-block pipe wielding. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	FVector MeleeHandLOffset = FVector::ZeroVector;
+	FVector AZP_MeleeHandLOffset = FVector::ZeroVector;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	FVector MeleeHandROffset = FVector::ZeroVector;
+	FVector AZP_MeleeHandROffset = FVector::ZeroVector;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Block Hand L Offset (extra, on top)"))
-	FVector BlockHandLOffset = FVector::ZeroVector;
+	FVector AZP_BlockHandLOffset = FVector::ZeroVector;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Block Hand R Offset (extra, on top)"))
-	FVector BlockHandROffset = FVector::ZeroVector;
+	FVector AZP_BlockHandROffset = FVector::ZeroVector;
 
 	/** Active melee hand grip offset, chosen by block state — read by the post-process
 	 *  hand anim layer. bRight selects hand_r, else hand_l. */
@@ -267,19 +291,19 @@ public:
 	 *  differ from the Operator the -155/-90 was tuned for). Dial in Details →
 	 *  Appearance, applied every frame so PIE edits show live. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	FVector MeleeViewOffset = FVector(0.0f, 0.0f, -155.0f);
+	FVector AZP_MeleeViewOffset = FVector(0.0f, 0.0f, -155.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	FRotator MeleeViewRotation = FRotator(0.0f, -90.0f, 0.0f);
+	FRotator AZP_MeleeViewRotation = FRotator(0.0f, -90.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
-	float MeleeViewScale = 1.0f;
+	float AZP_MeleeViewScale = 1.0f;
 
 	/** Extra placement applied to the melee weapon-arm view-model (the ARM RIG —
 	 *  MeleeViewMesh + sleeves + hands) ONLY while blocking — added on top of
-	 *  MeleeViewOffset. Moves the ARMS, NOT the camera. X = forward/back,
+	 *  AZP_MeleeViewOffset. Moves the ARMS, NOT the camera. X = forward/back,
 	 *  Y = left/right, Z = up/down. Dial in Details → Appearance; applied every frame
 	 *  so PIE edits show live — tune it WHILE holding a block. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance", meta = (DisplayName = "Block Arms Offset (moves arms)"))
-	FVector BlockViewOffset = FVector::ZeroVector;
+	FVector AZP_BlockViewOffset = FVector::ZeroVector;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	TObjectPtr<UZP_GraceGameplayComponent> GameplayComp;
@@ -316,6 +340,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	TObjectPtr<UPostProcessComponent> DeathVignetteComp;
 
+	/** Health fraction below which the low-health vignette starts (also the map range start). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Vignette")
+	float AZP_VignetteHealthThreshold = 0.5f;
+
+	/** Vignette intensity at 0% HP. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Vignette")
+	float AZP_VignetteMaxIntensity = 1.5f;
+
 	// --- Flashlight (TLOU/SH2 style chest-mounted) ---
 
 	/** Chest-mounted spotlight. Follows camera with slight lag for organic chest-mounted feel. */
@@ -333,7 +365,7 @@ public:
 
 	/** Sound played when toggling flashlight on/off. Defaults to CC pack flashlight click. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
-	TObjectPtr<USoundBase> FlashlightClickSound;
+	TObjectPtr<USoundBase> AZP_FlashlightClickSound;
 
 	// --- Footsteps (own-body foley; distance-based — the SingleNode locomotion has no anim notifies) ---
 
@@ -342,47 +374,91 @@ public:
 	 *  Author it ONCE in the editor and extend forever — no code, no rebuilds. Lazily defaults to
 	 *  /Game/Core/Data/DA_Footsteps. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	TObjectPtr<UZP_FootstepData> FootstepData;
+	TObjectPtr<UZP_FootstepData> AZP_FootstepData;
 
-	/** Hard fallback set used only when FootstepData is missing/unmatched AND its DefaultSounds
+	/** Hard fallback set used only when AZP_FootstepData is missing/unmatched AND its AZP_DefaultSounds
 	 *  are empty. Defaults to the Moonville hard-surface set (SW_Footstep_1..6). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Footsteps")
-	TArray<TObjectPtr<USoundBase>> FootstepSounds;
+	TArray<TObjectPtr<USoundBase>> AZP_FootstepSounds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	float FootstepVolume = 0.4f;
+	float AZP_FootstepVolume = 0.4f;
 
 	/** Extra volume on sprint steps (heavier footfalls). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	float SprintFootstepVolumeMul = 1.25f;
+	float AZP_SprintFootstepVolumeMul = 1.25f;
 
 	/** Distance (UU) between steps while walking. Crouch steps at 0.85x this, half volume. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	float FootstepWalkStride = 170.f;
+	float AZP_FootstepWalkStride = 170.f;
 
 	/** Distance (UU) between steps while sprinting. MUST be well under WalkStride x (Sprint/Walk
 	 *  speed ratio) or sprint cadence sounds identical to walking — at 260 walk / 390 sprint,
 	 *  150 gives ~2.6 steps/s vs ~1.5 walking (clearly a run). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	float FootstepSprintStride = 150.f;
+	float AZP_FootstepSprintStride = 150.f;
+
+	/** Speed below which no footsteps play (standing/drifting). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float AZP_FootstepMinSpeed = 60.f;
+
+	/** Stride multiplier for crouch steps. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float AZP_FootstepCrouchStrideMul = 0.85f;
+
+	/** Volume multiplier for crouch steps. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float AZP_FootstepCrouchVolumeMul = 0.5f;
+
+	/** Default footstep pitch-jitter floor when no surface row matches. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float AZP_FootstepPitchMinDefault = 0.92f;
+
+	/** Default footstep pitch-jitter ceiling when no surface row matches. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
+	float AZP_FootstepPitchMaxDefault = 1.08f;
 
 	/** How quickly the flashlight tracks the camera (higher = snappier, lower = more chest lag). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
-	float FlashlightInterpSpeed = 8.0f;
+	float AZP_FlashlightInterpSpeed = 8.0f;
 
 	/** Downward pitch offset from camera direction (chest naturally points slightly down). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flashlight")
-	float FlashlightPitchOffset = -5.0f;
+	float AZP_FlashlightPitchOffset = -5.0f;
+
+	/** iPhone-torch beam intensity — corridor throw of the chest spotlight (dev-tuned profile). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flashlight")
+	float AZP_FlashlightIntensity = 25000.0f;
+
+	/** Concentrated hotspot cone of the flashlight beam (distance punch). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flashlight")
+	float AZP_FlashlightInnerConeAngle = 16.0f;
+
+	/** Wide phone-LED spill cone for close range. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flashlight")
+	float AZP_FlashlightOuterConeAngle = 40.0f;
+
+	/** Potential reach (50 m) of the flashlight beam. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flashlight")
+	float AZP_FlashlightAttenuationRadius = 5000.0f;
+
+	/** Ambient fill point-light intensity simulating flashlight bounce. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flashlight")
+	float AZP_FlashlightFillIntensity = 670.0f;
+
+	/** Radius of the fill light's ambient coverage. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flashlight")
+	float AZP_FlashlightFillAttenuationRadius = 600.0f;
 
 	// --- Configuration (propagated to components in PostInitializeComponents) ---
 
 	/** DataAsset with all movement tuning values. Set in BP child. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
-	TObjectPtr<UZP_GraceMovementConfig> MovementConfig;
+	TObjectPtr<UZP_GraceMovementConfig> AZP_MovementConfig;
 
 	/** Blueprint class of weapon to spawn. Set in BP child. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	TSubclassOf<AActor> WeaponClass;
+	TSubclassOf<AActor> AZP_WeaponClass;
 
 	/** How far the gun reaches ahead of the camera. The capsule is held this
 	 *  far off any wall the player faces so the muzzle never clips through
@@ -390,74 +466,98 @@ public:
 	 *  Moves the whole capsule (camera rides it  normal); NEVER PlayerMesh.
 	 *  0 disables. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float GunCollisionReach = 75.0f;
+	float AZP_GunCollisionReach = 75.0f;
 
 	/** Radius of the muzzle clearance probe. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float GunCollisionRadius = 6.0f;
+	float AZP_GunCollisionRadius = 6.0f;
 
 	/** Decal materials for bullet impacts. Set in BP child via Python. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	TArray<TSoftObjectPtr<UMaterialInterface>> BulletDecalMaterials;
+	TArray<TSoftObjectPtr<UMaterialInterface>> AZP_BulletDecalMaterials;
 
 	/** Skeletal mesh for hidden locomotion Mesh. Set in BP child. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
-	TObjectPtr<USkeletalMesh> LocomotionSkeletalMesh;
+	TObjectPtr<USkeletalMesh> AZP_LocomotionSkeletalMesh;
 
 	/** Idle animation for hidden locomotion mesh. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
-	TObjectPtr<UAnimSequenceBase> IdleAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_IdleAnimation;
 
 	/** Walk animation for hidden locomotion mesh. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
-	TObjectPtr<UAnimSequenceBase> WalkAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_WalkAnimation;
 
 	/** Run animation for hidden locomotion mesh. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
-	TObjectPtr<UAnimSequenceBase> RunAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_RunAnimation;
 
 	/** Crouch idle animation for hidden locomotion mesh. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
-	TObjectPtr<UAnimSequenceBase> CrouchIdleAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_CrouchIdleAnimation;
 
 	/** Crouch walk animation for hidden locomotion mesh. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion")
-	TObjectPtr<UAnimSequenceBase> CrouchWalkAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_CrouchWalkAnimation;
+
+	/** Ground speed above which idle switches to walk clips (also the Marcus body mirror). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
+	float AZP_LocoWalkSpeedThreshold = 10.0f;
+
+	/** Ground speed above which walk switches to run clips. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
+	float AZP_LocoRunSpeedThreshold = 150.0f;
 
 	/** Ladder climb up loop animation. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
-	TObjectPtr<UAnimSequenceBase> LadderClimbUpAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_LadderClimbUpAnimation;
 
 	/** Ladder climb down loop animation. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
-	TObjectPtr<UAnimSequenceBase> LadderClimbDownAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_LadderClimbDownAnimation;
 
 	/** Ladder idle animation (holding on, not moving). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
-	TObjectPtr<UAnimSequenceBase> LadderIdleAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_LadderIdleAnimation;
 
 	/** Animated climb-over-the-top exit (root motion carries the body onto the
 	 *  upper floor). Default A_Climb_Up_out_Right_UE5, set via set_all_cdo.py. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
-	TObjectPtr<UAnimSequenceBase> LadderTopExitAnimation;
+	TObjectPtr<UAnimSequenceBase> AZP_LadderTopExitAnimation;
 
 	/** Playback speed of the climb-over-the-top exit (anim + camera). 2.0 = double. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Locomotion|Ladder")
-	float LadderTopExitPlayRate = 2.0f;
+	float AZP_LadderTopExitPlayRate = 2.0f;
+
+	/** UU per ladder rung; drives climb anim scrubbing and rung snapping. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion|Ladder")
+	float AZP_LadderRungSpacing = 23.5f;
+
+	/** Distance the capsule stands off the ladder center while climbing. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion|Ladder")
+	float AZP_LadderStandoffDist = 75.f;
+
+	/** UU pushed toward/past the ladder center onto the upper floor at top exit. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion|Ladder")
+	float AZP_LadderTopExitPush = 120.f;
+
+	/** Offset below the ladder top that caps the highest climbable position. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion|Ladder")
+	float AZP_LadderTopClearance = 80.f;
 
 	// --- Input Actions (set in Blueprint child, e.g. BP_GraceCharacter) ---
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> MoveAction;
+	TObjectPtr<UInputAction> AZP_MoveAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> LookAction;
+	TObjectPtr<UInputAction> AZP_LookAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> SprintAction;
+	TObjectPtr<UInputAction> AZP_SprintAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> JumpAction;
+	TObjectPtr<UInputAction> AZP_JumpAction;
 
 	// --- Movement feel ---
 
@@ -466,7 +566,7 @@ public:
 	 *  forward speed. Deliberately harsh (dev 2026-07-03: backing away from the Shambler sprint
 	 *  must not be a free escape — turn and run, or dodge). Was a hardcoded 0.55. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float BackpedalSpeedMul = 0.4f;
+	float AZP_BackpedalSpeedMul = 0.4f;
 
 	// --- Dodge (replaces Jump on space bar) ---
 
@@ -477,49 +577,49 @@ public:
 	 *  spine/camera yanks at high values, that's the locomotion blend reading a
 	 *  one-frame "running" spike — tune down rather than re-architecting. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
-	float DodgeImpulse = 1200.f;
+	float AZP_DodgeImpulse = 1200.f;
 
 	/** Stamina consumed per dodge, as a PERCENT of max stamina (0-100). The
 	 *  dodge is blocked if the player doesn't have at least this much. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
-	float DodgeStaminaCostPercent = 20.f;
+	float AZP_DodgeStaminaCostPercent = 20.f;
 
 	/** Seconds after a dodge fires during which sprinting and weapon swapping
 	 *  are locked out (the player is committed to the dash). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
-	float DodgeLockWindow = 0.5f;
+	float AZP_DodgeLockWindow = 0.5f;
 
 	/** Cooldown between dodges (seconds). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
-	float DodgeCooldown = 0.8f;
+	float AZP_DodgeCooldown = 0.8f;
 
 	/** FPP_sns_Dodge — played on MeleeViewMesh. Doesn't drive PlayerMesh so the
 	 *  firearm grip on hand_r is never disturbed; visible only when the melee
 	 *  view model is active (pipe up). Movement impulse fires either way. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dodge")
-	TSoftObjectPtr<UAnimSequenceBase> DodgeAnim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_DodgeAnim;
 
 	// --- Fall Damage ---
 
 	/** Drop distance (cm, peak-to-landing) below which a fall deals NO damage —
 	 *  normal jumps and short hops are free. At/just above this, damage starts at
-	 *  FallDamageMinAmount. Tune to ~1 story so a one-floor drop hurts (30 HP) but
+	 *  AZP_FallDamageMinAmount. Tune to ~1 story so a one-floor drop hurts (30 HP) but
 	 *  stepping off a curb doesn't. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
-	float FallDamageMinDistance = 300.f;
+	float AZP_FallDamageMinDistance = 300.f;
 
-	/** Drop distance (cm) at/above which a fall deals FallDamageMaxAmount (lethal).
+	/** Drop distance (cm) at/above which a fall deals AZP_FallDamageMaxAmount (lethal).
 	 *  Tune to ~2 stories. Between min and max, damage lerps min→max amount. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
-	float FallDamageMaxDistance = 600.f;
+	float AZP_FallDamageMaxDistance = 600.f;
 
-	/** Damage dealt at exactly FallDamageMinDistance (1-story drop). */
+	/** Damage dealt at exactly AZP_FallDamageMinDistance (1-story drop). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
-	float FallDamageMinAmount = 30.f;
+	float AZP_FallDamageMinAmount = 30.f;
 
-	/** Damage dealt at/above FallDamageMaxDistance (2-story drop = lethal). */
+	/** Damage dealt at/above AZP_FallDamageMaxDistance (2-story drop = lethal). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fall Damage")
-	float FallDamageMaxAmount = 100.f;
+	float AZP_FallDamageMaxAmount = 100.f;
 
 	// --- Block (RMB hold while pipe equipped) ---
 
@@ -539,72 +639,76 @@ public:
 
 	/** Incoming damage is multiplied by this while blocking (0.25 = 75% off). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	float BlockDamageReductionMul = 0.25f;
+	float AZP_BlockDamageReductionMul = 0.25f;
+
+	/** Ground speed above which the held block switches from BlockLoop to BlockWalk. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
+	float AZP_BlockWalkSpeedThreshold = 50.f;
 
 	// ── Block stamina (blocking is a resource, not a free wall) ─────────
 	/** Percent of max stamina a BLOCKED HIT costs (~1/3 per dev direction). The ONLY stamina cost
 	 *  of blocking — holding the pose is free. Not enough left = GUARD BREAK: the hit lands at
 	 *  full damage and the guard drops. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
-	float BlockHitStaminaPercent = 33.3f;
+	float AZP_BlockHitStaminaPercent = 33.3f;
 
 	/** Minimum stamina fraction (0..1) required to RAISE (or re-raise) the guard — you cannot put
 	 *  up a guard you can't pay for (default = one blocked hit's worth). Guard comes back as
 	 *  stamina recovers past this while RMB is still held. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
-	float BlockMinStaminaFractionToStart = 0.334f;
+	float AZP_BlockMinStaminaFractionToStart = 0.334f;
 
 	// ── Stagger (exposed knobs) ──────────────────────────────────────
 	// MELEE DESIGN (RE/SH2R-style): your swings do damage but do NOT stop the enemy — staggering
 	// is the BLOCK reward. Spam-trading loses (enemies swing into your combo); block/dodge wins.
 	/** Seconds the attacker is staggered after a successful BLOCK — the counter window (1-2 free hits). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
-	float BlockStaggerDuration = 1.2f;
+	float AZP_BlockStaggerDuration = 1.2f;
 
 	/** Minimum seconds between block-staggers. Kept BELOW enemy swing cadence (~1.9s) so every
 	 *  well-executed block rewards; it only exists as a safety floor against stagger spam. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
-	float BlockStaggerCooldown = 1.5f;
+	float AZP_BlockStaggerCooldown = 1.5f;
 
 	/** Seconds the enemy is staggered by a landed melee (pipe) HIT. 0 = hits NEVER stagger — that
 	 *  is the intended design (0.5 let the player stun-lock enemies by spamming; they died without
 	 *  ever swinging back). Raise above 0 only to deliberately re-enable hit-staggers. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
-	float HitStaggerDuration = 0.f;
+	float AZP_HitStaggerDuration = 0.f;
 
 	/** Minimum seconds between melee-hit staggers on the SAME enemy chain. Irrelevant while
-	 *  HitStaggerDuration = 0 (hits never stagger). */
+	 *  AZP_HitStaggerDuration = 0 (hits never stagger). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
-	float HitStaggerCooldown = 0.0f;
+	float AZP_HitStaggerCooldown = 0.0f;
 
 	/** Kubold FPP_Longs_BlockLoop — held block pose, standing still. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> BlockLoopAnim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockLoopAnim;
 
 	/** Kubold FPP_Longs_BlockWalk — block pose while walking. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> BlockWalkAnim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockWalkAnim;
 
 	/** Kubold FPP_Longs_BlockStart — pose-in motion before the loop. Gives the
 	 *  eye visible motion so the held BlockLoop doesn't read as a freeze-frame. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> BlockStartAnim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockStartAnim;
 
 	/** Kubold FPP_Longs_BlockStop — pose-out motion after release. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> BlockStopAnim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockStopAnim;
 
 	/** Kubold FPP_Longs_BlockImpact 1/2/3 — random reaction on a blocked hit. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> BlockImpact1Anim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockImpact1Anim;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> BlockImpact2Anim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockImpact2Anim;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> BlockImpact3Anim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockImpact3Anim;
 
 	/** FPP_Longs_Idle — return-to-hold pose after dodge/block-release. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
-	TSoftObjectPtr<UAnimSequenceBase> MeleeIdleHoldAnim;
+	TSoftObjectPtr<UAnimSequenceBase> AZP_MeleeIdleHoldAnim;
 
 	// --- Grab / Struggle (zombie grapple — Docs/Plan_GrabStruggle.md) ---
 
@@ -623,7 +727,7 @@ public:
 
 	/** Each LMB press adds this to the escape meter (threshold 1.0 wins). ~9 clean presses. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
-	float MashGainPerPress = 0.12f;
+	float AZP_MashGainPerPress = 0.12f;
 
 	/** MINIMUM bite beat (s, from Munch starting) before a mash press may flip the pair to the
 	 *  Wrestle clips. ROOT-CAUSED 2026-07-03 ([LatchProbe]): a player who ran in fighting is
@@ -632,97 +736,97 @@ public:
 	 *  blend behind — the "latch glitch". Presses inside this window still count their meter
 	 *  gain; only the visual pair-switch waits. 0 = old instant behavior. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
-	float GrabMinMunchTime = 0.5f;
+	float AZP_GrabMinMunchTime = 0.5f;
 
 	/** Escape meter drain per second (framerate-independent — presses are counted, not polled). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
-	float MashDecayPerSecond = 0.25f;
+	float AZP_MashDecayPerSecond = 0.25f;
 
 	/** Seconds (from the bite phase starting) to reach the escape threshold before the
 	 *  knockdown fail state. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
-	float StruggleTimeLimit = 4.0f;
+	float AZP_StruggleTimeLimit = 4.0f;
 
-	/** Accessibility: true = HOLD attack to fill the meter at HoldFillPerSecond instead of
+	/** Accessibility: true = HOLD attack to fill the meter at AZP_HoldFillPerSecond instead of
 	 *  tapping (TLOU/RE4R "Repeated Input Type: Hold"). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
-	bool bEscapeHoldMode = false;
+	bool bAZP_EscapeHoldMode = false;
 
 	/** Meter fill per second while attack is held (Hold accessibility mode only). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
-	float HoldFillPerSecond = 0.5f;
+	float AZP_HoldFillPerSecond = 0.5f;
 
 	/** Ticking damage while HELD (munch + wrestle), landing once per second. HALVED 6.25 ->
-	 *  3.125 with the Shambler's AttackDamage (dev 2026-07-03: everything it deals, halved —
+	 *  3.125 with the Shambler's AZP_AttackDamage (dev 2026-07-03: everything it deals, halved —
 	 *  "feels very overpowered"). The 2026-07-02 ratio derivation still holds at the new
 	 *  scale: fastest escape (2s) = 2 ticks = half an attack (12.5); riding the full
-	 *  StruggleTimeLimit (4s) to failure = one full attack, then the knockdown. */
+	 *  AZP_StruggleTimeLimit (4s) to failure = one full attack, then the knockdown. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Damage")
-	float GrabTickDamagePerSecond = 3.125f;
+	float AZP_GrabTickDamagePerSecond = 3.125f;
 
 	/** MINIMUM seconds trapped (from the bite phase starting) before an escape can complete —
 	 *  even a perfect mash eats this long (and its damage ticks). The meter can be full
 	 *  earlier; the break fires the moment this gate opens. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Struggle")
-	float GrabMinTrappedTime = 2.f;
+	float AZP_GrabMinTrappedTime = 2.f;
 
 	/** EXTRA damage chunk on struggle failure, on top of the accumulated ticks (which already
 	 *  total one full attack by the fail point). 0 = ticks only. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Damage")
-	float FailDamageChunk = 0.f;
+	float AZP_FailDamageChunk = 0.f;
 
 	/** Seconds after breaking free during which NO enemy may grab (anti-chain-grab). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Rules")
-	float PostEscapeGrabImmunity = 3.0f;
+	float AZP_PostEscapeGrabImmunity = 3.0f;
 
 	/** Over-the-right-shoulder camera frame during the struggle: behind / right / above the head.
 	 *  THE distance knob — live-tunable in PIE (BP_GraceCharacter → Details → Grab|Camera). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabCamBack = 100.f;
+	float AZP_GrabCamBack = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabCamRight = 55.f;
+	float AZP_GrabCamRight = 55.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabCamUp = 25.f;
+	float AZP_GrabCamUp = 25.f;
 
 	/** 1P→3P blend seconds (fits inside the 0.6s grab entry). Raised 0.35 -> 0.5 with the
 	 *  smootherstep curve (dev 2026-07-03: "smoother in and out"). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabCamBlendIn = 0.5f;
+	float AZP_GrabCamBlendIn = 0.5f;
 
 	/** Seconds the VIEW swings onto the grabber at the latch. The old code TELEPORTED the
 	 *  control rotation in one frame — the residual "camera jerk" no blend curve could hide
 	 *  (dev 2026-07-03: "cutscene-like"). Smootherstep-eased; look input is gated for the
 	 *  whole grab so nothing fights it. 0 = the old instant snap. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabFaceBlendTime = 0.35f;
+	float AZP_GrabFaceBlendTime = 0.35f;
 
 	/** 3P→1P blend seconds (tail of the kick/push escape, or the start of the knockdown).
 	 *  Raised 0.3 -> 0.45 with the smootherstep curve (dev 2026-07-03). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Camera")
-	float GrabCamBlendOut = 0.45f;
+	float AZP_GrabCamBlendOut = 0.45f;
 
 	/** Damage-vignette floor held while grabbed (bites still pulse it to max on top). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|HUD")
-	float GrabVignetteHold = 0.45f;
+	float AZP_GrabVignetteHold = 0.45f;
 
 	/** Flashlight intensity multiplier while grabbed — dims the beam+fill to a silhouette-read
 	 *  level instead of killing them (a pitch-dark room must not go fully black for the whole
 	 *  grapple). 1 = unchanged, 0 = off. Restored on release. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Flashlight")
-	float GrabFlashlightDimMul = 0.35f;
+	float AZP_GrabFlashlightDimMul = 0.35f;
 
 	/** Additive BONE-LOCAL rotations on Marcus's upper arms during the 3P grapple — dial out
 	 *  arm clipping against the Shambler. Applied by the MarcusBody post-process layer on top
 	 *  of the paired clips; live-tunable in PIE, zero = off. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Pose")
-	FRotator GrabArmLRotation = FRotator::ZeroRotator;
+	FRotator AZP_GrabArmLRotation = FRotator::ZeroRotator;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Pose")
-	FRotator GrabArmRRotation = FRotator::ZeroRotator;
+	FRotator AZP_GrabArmRRotation = FRotator::ZeroRotator;
 
 	/** Player-facing mash prompt shown while grabbed — PLACEHOLDER: author the real wording in
 	 *  BP_GraceCharacter → Details → Grab|HUD. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|HUD")
-	FText GrabPromptText = NSLOCTEXT("TheSignal", "GrabMashPrompt", "PRESS TO BREAK FREE");
+	FText AZP_GrabPromptText = NSLOCTEXT("TheSignal", "GrabMashPrompt", "PRESS TO BREAK FREE");
 
 	/** True when the most recent input came from a gamepad (lightweight per-tick poll of common
 	 *  pad buttons/sticks vs mouse/movement keys). Drives which button glyph UI prompts show. */
@@ -730,24 +834,24 @@ public:
 	bool bLastInputGamepad = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> InteractAction;
+	TObjectPtr<UInputAction> AZP_InteractAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> CrouchAction;
+	TObjectPtr<UInputAction> AZP_CrouchAction;
 
 	/** Q key — lean peek around cover (camera only, no weapon aim). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Tactical")
-	TObjectPtr<UInputAction> PeekAction;
+	TObjectPtr<UInputAction> AZP_PeekAction;
 
 	/** RMB — aim down sights. Auto-peeks with weapon when near cover. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Tactical")
-	TObjectPtr<UInputAction> AimAction;
+	TObjectPtr<UInputAction> AZP_AimAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Tactical")
-	TObjectPtr<UInputAction> FireAction;
+	TObjectPtr<UInputAction> AZP_FireAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Tactical")
-	TObjectPtr<UInputAction> ReloadAction;
+	TObjectPtr<UInputAction> AZP_ReloadAction;
 
 	// --- BP Interface Compatibility ---
 	// These properties are synced from components after init so that
@@ -766,15 +870,15 @@ public:
 
 	/** Input action for toggling the map (M key). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> MapAction;
+	TObjectPtr<UInputAction> AZP_MapAction;
 
 	/** Input action for cycling inventory tabs left (Q key). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
-	TObjectPtr<UInputAction> TabCycleLeftAction;
+	TObjectPtr<UInputAction> AZP_TabCycleLeftAction;
 
 	/** Input action for cycling inventory tabs right (E key). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
-	TObjectPtr<UInputAction> TabCycleRightAction;
+	TObjectPtr<UInputAction> AZP_TabCycleRightAction;
 
 	// --- Inventory ---
 
@@ -814,30 +918,46 @@ public:
 
 	/** Input action for opening/closing inventory menu (Tab). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
-	TObjectPtr<UInputAction> InventoryMenuAction;
+	TObjectPtr<UInputAction> AZP_InventoryMenuAction;
 
 	/** Shortcut cross slot input actions (keys 1-4). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
-	TObjectPtr<UInputAction> InventorySlot0Action;
+	TObjectPtr<UInputAction> AZP_InventorySlot0Action;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
-	TObjectPtr<UInputAction> InventorySlot1Action;
+	TObjectPtr<UInputAction> AZP_InventorySlot1Action;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
-	TObjectPtr<UInputAction> InventorySlot2Action;
+	TObjectPtr<UInputAction> AZP_InventorySlot2Action;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Inventory")
-	TObjectPtr<UInputAction> InventorySlot3Action;
+	TObjectPtr<UInputAction> AZP_InventorySlot3Action;
 
 	/** Flashlight toggle action (IA_InventoryFlashlight). Mapped in IMC_Grace to F + Right Shoulder. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> FlashlightAction;
+	TObjectPtr<UInputAction> AZP_FlashlightAction;
 
 	/** PDA_Item data asset for starting weapon. Granted to inventory at BeginPlay. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-	TSoftObjectPtr<UObject> StartingWeaponItem;
+	TSoftObjectPtr<UObject> AZP_StartingWeaponItem;
+
+	/** Frames the grab-the-whole-pile sweep keeps grabbing next-closest pickups after one E press. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory|Pickup")
+	int32 AZP_GrabAllSweepTicks = 20;
+
+	/** Max distance for an in-use container to count as arm's reach (guards against stale in-use flags hijacking E). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory|Container")
+	float AZP_ContainerReachDistance = 500.f;
 
 	// --- Interaction ---
+
+	/** Crosshair line-trace reach (UU) for pickups/containers/doors on E press. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float AZP_InteractTraceDistance = 300.0f;
+
+	/** Cosine of the look-at cone (~60 deg) required for a door overlap to consume the E press. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float AZP_DoorLOSDotThreshold = 0.5f;
 
 	/** The IZP_Interactable actor currently in range (set by overlap on interactables). */
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
@@ -864,7 +984,7 @@ public:
 	 *  doesn't implement the interface — new enemies become staggerable just by implementing it. */
 	void StaggerEnemy(AActor* Enemy, float Duration);
 
-	/** Stagger an enemy using HitStaggerDuration — called by the melee component on a landed pipe hit. */
+	/** Stagger an enemy using AZP_HitStaggerDuration — called by the melee component on a landed pipe hit. */
 	UFUNCTION(BlueprintCallable, Category = "Combat|Stagger")
 	void MeleeStaggerEnemy(AActor* Enemy);
 
@@ -939,7 +1059,7 @@ private:
 	/** Calls Moonville's ExecuteItemActionByShortcut for consumable items. */
 	void UseItemFromShortcutSlot(int32 SlotIndex);
 
-	/** Adds StartingWeaponItem to inventory at BeginPlay. */
+	/** Adds AZP_StartingWeaponItem to inventory at BeginPlay. */
 	void GrantStartingItems();
 
 	// --- Inventory persistence via EasyGameUI's per-slot save FILE ---
@@ -978,7 +1098,7 @@ private:
 	float DodgeCooldownRemaining = 0.f;
 
 	/** Seconds remaining where sprint + weapon swap are locked out by an active
-	 *  dodge. Set to DodgeLockWindow in PerformDodge, decremented in Tick. */
+	 *  dodge. Set to AZP_DodgeLockWindow in PerformDodge, decremented in Tick. */
 	float DodgeLockRemaining = 0.f;
 
 	/** Seconds remaining where the dodge holds extra forward camera clearance
@@ -987,7 +1107,7 @@ private:
 
 	/** Duration of the dodge forward-clearance window (seconds). */
 	UPROPERTY(EditDefaultsOnly, Category = "Dodge")
-	float DodgeClearanceWindow = 0.5f;
+	float AZP_DodgeClearanceWindow = 0.5f;
 
 	// --- Fall Damage tracking ---
 	/** Highest Z reached since the current fall began (the apex). Drop distance =
@@ -1006,7 +1126,7 @@ private:
 	/** Duration of the block forward-clearance nudge (seconds) — long enough to
 	 *  cover the stance lean-in, then it eases out even while block is held. */
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Block")
-	float BlockClearanceWindow = 0.4f;
+	float AZP_BlockClearanceWindow = 0.4f;
 
 
 	/** True when the block walk anim is currently loaded (vs BlockLoop). */
@@ -1020,10 +1140,10 @@ private:
 	 *  clip out and snap straight to BlockLoop. */
 	float BlockStartLockRemaining = 0.f;
 
-	/** Last time a blocked hit staggered the attacker — gates re-stagger by BlockStaggerCooldown. */
+	/** Last time a blocked hit staggered the attacker — gates re-stagger by AZP_BlockStaggerCooldown. */
 	double LastBlockStaggerTime = -1000.0;
 
-	/** Last time a melee hit staggered an enemy — gates re-stagger by HitStaggerCooldown. */
+	/** Last time a melee hit staggered an enemy — gates re-stagger by AZP_HitStaggerCooldown. */
 	double LastHitStaggerTime = -1000.0;
 
 	/** Switch MeleeViewMesh between BlockLoop / BlockWalk based on motion. */
@@ -1083,7 +1203,7 @@ private:
 	TSubclassOf<AActor> GetWeaponClassFromItem(UObject* ItemDA);
 
 	/** Reads the configured Item DataAsset off a Moonville BP_ItemPickup (the "Item"
-	 *  property, falling back to "ItemDataAsset"). Null if the actor isn't a pickup. */
+	 *  property, falling back to "AZP_ItemDataAsset"). Null if the actor isn't a pickup. */
 	UObject* GetPickupItemDA(AActor* PickupActor);
 
 	/** True if the player must NOT be able to pick up this pickup: a firearm/melee
@@ -1267,7 +1387,7 @@ private:
 	/** True while attack is physically held (drives Hold accessibility fill). */
 	bool bGrabEscapeHeld = false;
 
-	/** A mash press landed during the GrabMinMunchTime window — the Wrestle switch is buffered
+	/** A mash press landed during the AZP_GrabMinMunchTime window — the Wrestle switch is buffered
 	 *  and fires from UpdateGrab the moment the minimum bite beat has played. */
 	bool bWrestleQueued = false;
 
@@ -1296,13 +1416,13 @@ private:
 	FTimerHandle GrabCollisionRestoreTimer;
 
 	// Retargeted grab clips, lazily loaded on first grab (LoadAnimDefaults pattern).
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimEntry;      // CCMH, MarcusBody
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimMunch;      // CCMH, MarcusBody
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimWrestle;    // CCMH, MarcusBody
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimKick;       // CCMH, MarcusBody
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimPush;       // CCMH, MarcusBody
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimKnockdownFP;// UEFN, hidden Mesh (camera rides)
-	UPROPERTY() TObjectPtr<UAnimSequenceBase> GrabAnimGetUpBack;  // UEFN, hidden Mesh
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Anims", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimSequenceBase> AZP_GrabAnimEntry;      // CCMH, MarcusBody
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Anims", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimSequenceBase> AZP_GrabAnimMunch;      // CCMH, MarcusBody
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Anims", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimSequenceBase> AZP_GrabAnimWrestle;    // CCMH, MarcusBody
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Anims", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimSequenceBase> AZP_GrabAnimKick;       // CCMH, MarcusBody
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Anims", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimSequenceBase> AZP_GrabAnimPush;       // CCMH, MarcusBody
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Anims", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimSequenceBase> AZP_GrabAnimKnockdownFP;// UEFN, hidden Mesh (camera rides)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab|Anims", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimSequenceBase> AZP_GrabAnimGetUpBack;  // UEFN, hidden Mesh
 	bool bGrabAnimsLoaded = false;
 
 	void LoadGrabAnims();
@@ -1364,7 +1484,7 @@ private:
 	/** Exit climbing state. bExitTop = true → teleport to top, false → teleport to bottom. */
 	void ExitLadder(bool bExitTop);
 
-	/** Begin the animated climb-over-the-top exit. Plays LadderTopExitAnimation;
+	/** Begin the animated climb-over-the-top exit. Plays AZP_LadderTopExitAnimation;
 	 *  the body's baked root motion carries it onto the floor while the camera
 	 *  lerps up; capsule snaps to the resting spot when the anim completes. */
 	void BeginLadderTopExit(class AZP_Ladder* Ladder);

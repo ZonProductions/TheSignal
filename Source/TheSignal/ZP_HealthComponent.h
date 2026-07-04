@@ -13,7 +13,7 @@
  * Blueprint Extension Points:
  *   - OnHealthChanged: fires on every damage event with new health, max health, and damage dealt
  *   - OnDied: fires once when health reaches zero
- *   - MaxHealth: configurable per-instance in editor
+ *   - AZP_MaxHealth: configurable per-instance in editor
  *   - ApplyInvincibility(Duration): grants temporary invulnerability
  *   - ApplyDamageReduction(Multiplier, Duration): scales incoming damage temporarily
  *
@@ -37,7 +37,7 @@ public:
 	UZP_HealthComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
-	float MaxHealth = 100.f;
+	float AZP_MaxHealth = 100.f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float CurrentHealth;
@@ -66,7 +66,7 @@ public:
 	/** Called by owning actor's TakeDamage override. Clamps health, broadcasts events. */
 	void ApplyDamage(float DamageAmount);
 
-	/** Restore health by Amount, clamped to MaxHealth. Broadcasts OnHealthChanged.
+	/** Restore health by Amount, clamped to AZP_MaxHealth. Broadcasts OnHealthChanged.
 	 *  Called by health item consume actions. */
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void Heal(float Amount);

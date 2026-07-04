@@ -15,7 +15,7 @@ void UZP_ObjectiveSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	// Restore any previously-saved progress BEFORE auto-starting, so start-on-load
 	// objectives that were already completed/active don't restart.
-	if (bAutoPersist)
+	if (bAZP_AutoPersist)
 	{
 		LoadObjectiveState();
 	}
@@ -31,7 +31,7 @@ bool UZP_ObjectiveSubsystem::LoadDefinitions()
 	Definitions.Reset();
 	StartOnLoadIds.Reset();
 
-	UDataTable* Table = LoadObject<UDataTable>(nullptr, TEXT("/Game/Data/DT_Objectives.DT_Objectives"));
+	UDataTable* Table = LoadObject<UDataTable>(nullptr, *AZP_DefinitionsTablePath);
 	if (!Table)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ObjectiveSubsystem: DT_Objectives not found at /Game/Data/DT_Objectives"));
@@ -285,7 +285,7 @@ void UZP_ObjectiveSubsystem::TryAdvance()
 	OnTrackerRefresh.Broadcast();
 
 	// Persist the settled state (skipped while restoring from a save to avoid a redundant write).
-	if (bAutoPersist && !bRestoring)
+	if (bAZP_AutoPersist && !bRestoring)
 	{
 		SaveObjectiveState();
 	}
@@ -309,9 +309,14 @@ bool UZP_ObjectiveSubsystem::GetActiveObjective(FZP_ObjectiveDef& OutDef) const
 
 bool UZP_ObjectiveSubsystem::GetActiveMainObjective(FZP_ObjectiveDef& OutDef) const
 {
-	for (const FZP_ObjectiveDef& Def : Definitions)
+	// The most recently STARTED active main owns the HUD tracker — lets a per-level objective
+	// (e.g. RESEARCH1, bootstrapped by that level's ObjectiveReactor) take over from a global
+	// bStartOnLoad main without table-order fights. TSet preserves insertion order.
+	TArray<FName> Started = ActiveObjectives.Array();
+	for (int32 i = Started.Num() - 1; i >= 0; --i)
 	{
-		if (!Def.bSideObjective && ActiveObjectives.Contains(Def.Id)) { OutDef = Def; return true; }
+		const FZP_ObjectiveDef* Def = FindDef(Started[i]);
+		if (Def && !Def->bSideObjective) { OutDef = *Def; return true; }
 	}
 	return false;
 }
@@ -386,9 +391,9 @@ void UZP_ObjectiveSubsystem::ResetAllProgress()
 	SubObjectiveStage.Reset();
 	Flags.Reset();
 
-	if (UGameplayStatics::DoesSaveGameExist(ObjectiveStateSlot, 0))
+	if (UGameplayStatics::DoesSaveGameExist(AZP_ObjectiveStateSlot, 0))
 	{
-		UGameplayStatics::DeleteGameInSlot(ObjectiveStateSlot, 0);
+		UGameplayStatics::DeleteGameInSlot(AZP_ObjectiveStateSlot, 0);
 	}
 
 	// Re-start the auto-start objectives so the tracker isn't left empty (TryAdvance re-persists).
@@ -397,7 +402,7 @@ void UZP_ObjectiveSubsystem::ResetAllProgress()
 		StartObjective(Id);
 	}
 	OnTrackerRefresh.Broadcast();
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveSubsystem: ALL progress reset (slot '%s' cleared)"), *ObjectiveStateSlot);
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveSubsystem: ALL progress reset (slot '%s' cleared)"), *AZP_ObjectiveStateSlot);
 }
 
 void UZP_ObjectiveSubsystem::NotifyInventoryChanged(FName ItemId)
@@ -485,15 +490,15 @@ void UZP_ObjectiveSubsystem::SaveObjectiveState()
 	UZP_SaveGame* Save = Cast<UZP_SaveGame>(UGameplayStatics::CreateSaveGameObject(UZP_SaveGame::StaticClass()));
 	if (!Save) return;
 	WriteToSave(Save);
-	UGameplayStatics::SaveGameToSlot(Save, ObjectiveStateSlot, 0);
+	UGameplayStatics::SaveGameToSlot(Save, AZP_ObjectiveStateSlot, 0);
 }
 
 void UZP_ObjectiveSubsystem::LoadObjectiveState()
 {
-	if (!UGameplayStatics::DoesSaveGameExist(ObjectiveStateSlot, 0)) return;
-	UZP_SaveGame* Save = Cast<UZP_SaveGame>(UGameplayStatics::LoadGameFromSlot(ObjectiveStateSlot, 0));
+	if (!UGameplayStatics::DoesSaveGameExist(AZP_ObjectiveStateSlot, 0)) return;
+	UZP_SaveGame* Save = Cast<UZP_SaveGame>(UGameplayStatics::LoadGameFromSlot(AZP_ObjectiveStateSlot, 0));
 	if (!Save) return;
 	ReadFromSave(Save);
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveSubsystem: restored objective state from slot '%s' (%d active, %d done)"),
-		*ObjectiveStateSlot, ActiveObjectives.Num(), CompletedObjectives.Num());
+		*AZP_ObjectiveStateSlot, ActiveObjectives.Num(), CompletedObjectives.Num());
 }

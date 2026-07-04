@@ -33,7 +33,7 @@ void AZP_Elevator::MoveToRelativeZ(float RelativeZ)
 {
 	TargetLocation = OriginLocation + FVector(0.f, 0.f, RelativeZ);
 
-	if (GetActorLocation().Equals(TargetLocation, ArriveTolerance))
+	if (GetActorLocation().Equals(TargetLocation, AZP_ArriveTolerance))
 	{
 		// Already there — fire arrival so hooks (doors/audio) still run.
 		bMoving = false;
@@ -56,13 +56,13 @@ void AZP_Elevator::Tick(float DeltaTime)
 	if (!bMoving) return;
 
 	const FVector Cur = GetActorLocation();
-	const FVector New = FMath::VInterpConstantTo(Cur, TargetLocation, DeltaTime, MoveSpeed);
+	const FVector New = FMath::VInterpConstantTo(Cur, TargetLocation, DeltaTime, AZP_MoveSpeed);
 
 	// bSweep = false: the platform is a kinematic mover — it must NOT be blocked by the rider's
 	// capsule. The standing character is carried by the engine's based-movement instead.
 	SetActorLocation(New, /*bSweep=*/false);
 
-	if (New.Equals(TargetLocation, ArriveTolerance))
+	if (New.Equals(TargetLocation, AZP_ArriveTolerance))
 	{
 		SetActorLocation(TargetLocation, /*bSweep=*/false);
 		bMoving = false;

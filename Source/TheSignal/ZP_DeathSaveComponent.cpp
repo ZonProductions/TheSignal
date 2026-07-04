@@ -65,13 +65,13 @@ void UZP_DeathSaveComponent::BindSaveComponent()
 
 void UZP_DeathSaveComponent::BindObjectiveEvents()
 {
-	if (ReviveOnObjective.IsNone()) return; // nothing to listen for — this enemy never auto-revives
+	if (AZP_ReviveOnObjective.IsNone()) return; // nothing to listen for — this enemy never auto-revives
 
 	UZP_ObjectiveSubsystem* Obj = GetObjectiveSubsystem();
 	if (!Obj)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[DeathSave] %s: ReviveOnObjective='%s' set but no ObjectiveSubsystem — cannot bind revive."),
-			GetOwner() ? *GetOwner()->GetName() : TEXT("?"), *ReviveOnObjective.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("[DeathSave] %s: AZP_ReviveOnObjective='%s' set but no ObjectiveSubsystem — cannot bind revive."),
+			GetOwner() ? *GetOwner()->GetName() : TEXT("?"), *AZP_ReviveOnObjective.ToString());
 		return;
 	}
 
@@ -79,7 +79,7 @@ void UZP_DeathSaveComponent::BindObjectiveEvents()
 	Obj->OnSubObjectiveCompleted.AddDynamic(this, &UZP_DeathSaveComponent::OnSubObjectiveCompletedEvt);
 	Obj->OnFlagSet.AddDynamic(this, &UZP_DeathSaveComponent::OnFlagSetEvt);
 	UE_LOG(LogTemp, Log, TEXT("[DeathSave] %s: listening to revive on '%s'"),
-		GetOwner() ? *GetOwner()->GetName() : TEXT("?"), *ReviveOnObjective.ToString());
+		GetOwner() ? *GetOwner()->GetName() : TEXT("?"), *AZP_ReviveOnObjective.ToString());
 }
 
 void UZP_DeathSaveComponent::OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjectWrapper JsonObject)
@@ -104,7 +104,7 @@ void UZP_DeathSaveComponent::OnEguiSaveLoadVariables(uint8 OperationType, FJsonO
 	if (IsReviveConditionMet())
 	{
 		UE_LOG(LogTemp, Log, TEXT("[DeathSave] %s: was dead at save but revive beat '%s' already met — staying alive."),
-			GetOwner() ? *GetOwner()->GetName() : TEXT("?"), *ReviveOnObjective.ToString());
+			GetOwner() ? *GetOwner()->GetName() : TEXT("?"), *AZP_ReviveOnObjective.ToString());
 		return;
 	}
 
@@ -133,7 +133,7 @@ void UZP_DeathSaveComponent::RestoreDeadState()
 	// own OnDied corpse path runs. (The death anim replays, but the enemy correctly stays dead.)
 	if (UZP_HealthComponent* H = GetHealth())
 	{
-		if (!H->bIsDead) { H->ApplyDamage(H->MaxHealth * 10.f); }
+		if (!H->bIsDead) { H->ApplyDamage(H->AZP_MaxHealth * 10.f); }
 		UE_LOG(LogTemp, Warning, TEXT("[DeathSave] %s: no IZP_Revivable — used generic re-kill to restore dead state (revival unavailable for this enemy)."),
 			GetOwner() ? *GetOwner()->GetName() : TEXT("?"));
 	}
@@ -145,7 +145,7 @@ void UZP_DeathSaveComponent::OnFlagSetEvt(FName Flag)                     { Hand
 
 void UZP_DeathSaveComponent::HandleReviveTrigger(FName Id)
 {
-	if (Id.IsNone() || Id != ReviveOnObjective) return;
+	if (Id.IsNone() || Id != AZP_ReviveOnObjective) return;
 
 	UZP_HealthComponent* H = GetHealth();
 	if (!H || !H->bIsDead) return; // only a dead enemy can be revived
@@ -165,12 +165,12 @@ void UZP_DeathSaveComponent::HandleReviveTrigger(FName Id)
 
 bool UZP_DeathSaveComponent::IsReviveConditionMet() const
 {
-	if (ReviveOnObjective.IsNone()) return false;
+	if (AZP_ReviveOnObjective.IsNone()) return false;
 	if (UZP_ObjectiveSubsystem* Obj = GetObjectiveSubsystem())
 	{
-		return Obj->IsObjectiveComplete(ReviveOnObjective)
-			|| Obj->IsSubObjectiveComplete(ReviveOnObjective)
-			|| Obj->HasFlag(ReviveOnObjective);
+		return Obj->IsObjectiveComplete(AZP_ReviveOnObjective)
+			|| Obj->IsSubObjectiveComplete(AZP_ReviveOnObjective)
+			|| Obj->HasFlag(AZP_ReviveOnObjective);
 	}
 	return false;
 }

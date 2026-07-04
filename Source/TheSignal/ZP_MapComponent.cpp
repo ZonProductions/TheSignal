@@ -21,11 +21,11 @@ void UZP_MapComponent::BeginPlay()
 	for (TActorIterator<AZP_MapVolume> It(World); It; ++It)
 	{
 		AZP_MapVolume* Volume = *It;
-		if (Volume && !Volume->AreaID.IsNone())
+		if (Volume && !Volume->AZP_AreaID.IsNone())
 		{
-			AreaVolumes.Add(Volume->AreaID, Volume);
+			AreaVolumes.Add(Volume->AZP_AreaID, Volume);
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] MapComponent: Registered area '%s' (%s)"),
-				*Volume->AreaID.ToString(), *Volume->AreaDisplayName.ToString());
+				*Volume->AZP_AreaID.ToString(), *Volume->AZP_AreaDisplayName.ToString());
 		}
 	}
 

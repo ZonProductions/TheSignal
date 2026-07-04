@@ -57,10 +57,10 @@ bp_grace = unreal.load_asset('/Game/Core/Player/BP_GraceCharacter')
 if bp_grace:
     cdo = unreal.get_default_object(bp_grace.generated_class())
     if cdo:
-        cdo.set_editor_property('map_action', ia_map)
+        cdo.set_editor_property('AZP_MapAction', ia_map)
         unreal.EditorAssetLibrary.save_asset('/Game/Core/Player/BP_GraceCharacter', only_if_is_dirty=False)
         # Verify
-        check = cdo.get_editor_property('map_action')
+        check = cdo.get_editor_property('AZP_MapAction')
         print('MapAction set and saved. Verify:', check)
     else:
         print('FAIL: No CDO')

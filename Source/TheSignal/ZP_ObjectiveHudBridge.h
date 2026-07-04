@@ -31,12 +31,12 @@ public:
 
 	/** The EasyGameUI quest module widget class — set to WBP_EHB_QuestStatusDisplayer in BPC defaults. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Objectives")
-	TSubclassOf<UUserWidget> QuestWidgetClass;
+	TSubclassOf<UUserWidget> AZP_QuestWidgetClass;
 
 	/** Seconds the tracker stays up after a show event (menu close / level load / objective update)
 	 *  before it fades out. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Objectives")
-	float ShowDuration = 8.f;
+	float AZP_ShowDuration = 8.f;
 
 	/** Force a refresh (also called on bind). BP-callable for testing. */
 	UFUNCTION(BlueprintCallable, Category = "Objectives")
@@ -70,7 +70,7 @@ protected:
 	UFUNCTION()
 	void HandleTrackerRefresh();
 
-	/** Timer callback: fade the tracker out after ShowDuration. */
+	/** Timer callback: fade the tracker out after AZP_ShowDuration. */
 	void FadeOutTracker();
 
 private:
@@ -82,5 +82,5 @@ private:
 
 	bool bAutoCreated = false; // true if QuestWidget was auto-created (vs registered from the HUD)
 
-	FTimerHandle FadeTimer; // counts down ShowDuration after each show event
+	FTimerHandle FadeTimer; // counts down AZP_ShowDuration after each show event
 };

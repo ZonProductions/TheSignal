@@ -59,7 +59,7 @@ AZP_ScytheerBase::AZP_ScytheerBase()
 	{
 		CM->bOrientRotationToMovement = true;
 		CM->bUseControllerDesiredRotation = false;
-		CM->MaxWalkSpeed = WanderSpeed;
+		CM->MaxWalkSpeed = AZP_WanderSpeed;
 		CM->RotationRate = FRotator(0.f, 360.f, 0.f);
 		// RVO avoidance — smoother steering around obstacles (doors that just-closed, props in
 		// doorways, the player). Doesn't fix navmesh issues directly but stops the body from
@@ -88,11 +88,11 @@ void AZP_ScytheerBase::LoadSFXDefaults()
 	// with Scytheer-specific names so the dev can swap each one for real audio independently of the
 	// Crawler. Earlier wiring re-used the Crawler assets directly which made true creature-specific
 	// audio swap impossible without breaking the Crawler.
-	FillSnd(AlertSound,  TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Alert.SFX_Scytheer_Alert"));
-	FillSnd(AttackSound, TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Attack.SFX_Scytheer_Attack"));
-	FillSnd(HitSound,    TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Hit.SFX_Scytheer_Hit"));
-	FillSnd(DeathSound,  TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Death.SFX_Scytheer_Death"));
-	FillSnd(LurkSound,   TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Lurk.SFX_Scytheer_Lurk"));
+	FillSnd(AZP_AlertSound,  TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Alert.SFX_Scytheer_Alert"));
+	FillSnd(AZP_AttackSound, TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Attack.SFX_Scytheer_Attack"));
+	FillSnd(AZP_HitSound,    TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Hit.SFX_Scytheer_Hit"));
+	FillSnd(AZP_DeathSound,  TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Death.SFX_Scytheer_Death"));
+	FillSnd(AZP_LurkSound,   TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Lurk.SFX_Scytheer_Lurk"));
 
 	// Carry/attenuation is C++-owned (UZP_SFXStatics Far profile, ~120 m natural falloff) — the old
 	// SA_EnemyVoice asset silently fell silent at ~15 m, which killed alert/hit/death audibility.
@@ -124,31 +124,31 @@ void AZP_ScytheerBase::BeginPlay()
 		}
 	}
 	AICon = Cast<AAIController>(GetController());
-	UE_LOG(LogTemp, Warning, TEXT("[Scytheer] BeginPlay controller=%s AICon=%s PatrolPath=%s splineLen=%.0f"),
+	UE_LOG(LogTemp, Warning, TEXT("[Scytheer] BeginPlay controller=%s AICon=%s AZP_PatrolPath=%s splineLen=%.0f"),
 		GetController() ? *GetController()->GetName() : TEXT("NULL"),
 		AICon ? *AICon->GetName() : TEXT("NULL"),
-		PatrolPath ? *PatrolPath->GetName() : TEXT("NULL"),
-		PatrolPath ? PatrolPath->GetSplineLength() : 0.f);
+		AZP_PatrolPath ? *AZP_PatrolPath->GetName() : TEXT("NULL"),
+		AZP_PatrolPath ? AZP_PatrolPath->GetSplineLength() : 0.f);
 
-	// Anim slice timing — anchor SecondsPerFrame to DieEndFrame so every user-typed frame marker
+	// Anim slice timing — anchor SecondsPerFrame to AZP_DieEndFrame so every user-typed frame marker
 	// maps to the same fraction of the clip regardless of sampler-reported fps.
-	if (SingleAnim)
+	if (AZP_SingleAnim)
 	{
-		ClipLen = SingleAnim->GetPlayLength();
-		if (DieEndFrame > 0)
+		ClipLen = AZP_SingleAnim->GetPlayLength();
+		if (AZP_DieEndFrame > 0)
 		{
-			SecondsPerFrame = ClipLen / (float)DieEndFrame;
+			SecondsPerFrame = ClipLen / (float)AZP_DieEndFrame;
 		}
 		else
 		{
-			const double FPS = SingleAnim->GetSamplingFrameRate().AsDecimal();
+			const double FPS = AZP_SingleAnim->GetSamplingFrameRate().AsDecimal();
 			SecondsPerFrame = (FPS > 0.0) ? (float)(1.0 / FPS) : (1.f / 30.f);
 		}
 		UE_LOG(LogTemp, Warning, TEXT("[Scytheer] anim=%s len=%.3fs spf=%.4f (Walk=%.2fs-%.2fs, Die=%.2fs-%.2fs)"),
-			*SingleAnim->GetName(), ClipLen, SecondsPerFrame,
-			Frame2Time(WalkStartFrame), Frame2Time(WalkEndFrame),
-			Frame2Time(DieStartFrame), Frame2Time(DieEndFrame));
-		GetMesh()->PlayAnimation(SingleAnim, true);
+			*AZP_SingleAnim->GetName(), ClipLen, SecondsPerFrame,
+			Frame2Time(AZP_WalkStartFrame), Frame2Time(AZP_WalkEndFrame),
+			Frame2Time(AZP_DieStartFrame), Frame2Time(AZP_DieEndFrame));
+		GetMesh()->PlayAnimation(AZP_SingleAnim, true);
 	}
 
 	// Health — auto-attach; OnDied -> Die state.
@@ -156,10 +156,10 @@ void AZP_ScytheerBase::BeginPlay()
 	if (!Health)
 	{
 		Health = NewObject<UZP_HealthComponent>(this, TEXT("ScytheerHealth"));
-		Health->MaxHealth = MaxHealth;
+		Health->AZP_MaxHealth = AZP_MaxHealth;
 		Health->RegisterComponent();
 	}
-	Health->MaxHealth = MaxHealth;
+	Health->AZP_MaxHealth = AZP_MaxHealth;
 	Health->ResetHealth();
 	Health->OnDied.AddDynamic(this, &AZP_ScytheerBase::OnOwnerDied);
 	OnTakePointDamage.AddDynamic(this, &AZP_ScytheerBase::OnPointDamage);
@@ -198,17 +198,17 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	}
 
 	// Throttled state probe — ~once per second at 60fps. Print exactly what the wander state sees
-	// so we can tell whether the patrol-branch even runs, what AICon/PatrolPath are, and whether
+	// so we can tell whether the patrol-branch even runs, what AICon/AZP_PatrolPath are, and whether
 	// the body is translating.
 	{
 		static int32 sLogCounter = 0;
 		if ((++sLogCounter % 60) == 0)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[Scytheer] TICK state=%d AICon=%s PatrolPath=%s splineLen=%.0f bWanderMoving=%d loc=(%.0f,%.0f,%.0f) vel=%.0f"),
+			UE_LOG(LogTemp, Warning, TEXT("[Scytheer] TICK state=%d AICon=%s AZP_PatrolPath=%s splineLen=%.0f bWanderMoving=%d loc=(%.0f,%.0f,%.0f) vel=%.0f"),
 				(int32)State,
 				AICon ? *AICon->GetName() : TEXT("NULL"),
-				PatrolPath ? *PatrolPath->GetName() : TEXT("NULL"),
-				PatrolPath ? PatrolPath->GetSplineLength() : 0.f,
+				AZP_PatrolPath ? *AZP_PatrolPath->GetName() : TEXT("NULL"),
+				AZP_PatrolPath ? AZP_PatrolPath->GetSplineLength() : 0.f,
 				bWanderMoving ? 1 : 0,
 				GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z,
 				GetVelocity().Size());
@@ -224,8 +224,8 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	// "On wall" test = is the body currently elevated above the patrol spline's ground point?
 	// If yes, aggro should run DOWN the spline first (WallDescent) instead of instant-dropping +
 	// transitioning to Chase (which gravity-yeets the body off the wall).
-	const bool bOnWall = (PatrolPath
-		&& (GetActorLocation().Z - PatrolPath->GetLocationAtDistance(0.f).Z) > OnWallZThreshold);
+	const bool bOnWall = (AZP_PatrolPath
+		&& (GetActorLocation().Z - AZP_PatrolPath->GetLocationAtDistance(0.f).Z) > AZP_OnWallZThreshold);
 
 	// Detection / aggro management.
 	if (!bAggro && State != EScytheerState::Die)
@@ -233,7 +233,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		// "Same geometry" gate: LOS trace + navmesh reachability. A closed door blocks both. An
 		// open door lets the navmesh path through and aggro fires only then.
 		const bool bReachable = (Player && bSee) ? IsPlayerReachable(Player) : false;
-		if (Player && Dist <= DetectionRange && bSee && bReachable)
+		if (Player && Dist <= AZP_DetectionRange && bSee && bReachable)
 		{
 			// Log what the LOS trace actually hit (or didn't). If HasLOS thinks it sees the player
 			// through a wall, this fires whenever bAggro flips on — we can see the trace start/end +
@@ -243,8 +243,8 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 			FCollisionQueryParams DbgP;
 			DbgP.AddIgnoredActor(this);
 			DbgP.AddIgnoredActor(Player);
-			const FVector Eye = GetActorLocation() + FVector(0, 0, 30.f);
-			const FVector End = Player->GetActorLocation() + FVector(0, 0, 40.f);
+			const FVector Eye = GetActorLocation() + FVector(0, 0, AZP_LOSEyeZOffset);
+			const FVector End = Player->GetActorLocation() + FVector(0, 0, AZP_LOSTargetZOffset);
 			const bool bAnyHit = GetWorld()->LineTraceSingleByChannel(DbgHit, Eye, End, ECC_WorldStatic, DbgP);
 			UE_LOG(LogTemp, Warning, TEXT("[Scytheer] AGGRO eye=(%.0f,%.0f,%.0f) -> player=(%.0f,%.0f,%.0f) Dist=%.0f bSee=1 | rawTrace blocked=%d first='%s' atDist=%.0f"),
 				Eye.X, Eye.Y, Eye.Z, End.X, End.Y, End.Z, Dist,
@@ -264,7 +264,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	else if (bAggro)
 	{
 		LostSightTimer = bSee ? 0.f : (LostSightTimer + DeltaTime);
-		if (LostSightTimer >= LoseSightTime || Dist > GiveUpRange)
+		if (LostSightTimer >= AZP_LoseSightTime || Dist > AZP_GiveUpRange)
 		{
 			bAggro = false;
 			LostSightTimer = 0.f;
@@ -272,7 +272,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 			{
 				// Patrol path set -> walk back to it (no teleport). No path -> straight to Wander
 				// (which falls back to random navmesh wander).
-				EnterState(PatrolPath ? EScytheerState::ReturnToPatrol : EScytheerState::Wander);
+				EnterState(AZP_PatrolPath ? EScytheerState::ReturnToPatrol : EScytheerState::Wander);
 			}
 		}
 	}
@@ -283,40 +283,40 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	{
 	case EScytheerState::Wander:
 	{
-		if (PatrolPath && PatrolPath->GetSplineLength() > KINDA_SMALL_NUMBER)
+		if (AZP_PatrolPath && AZP_PatrolPath->GetSplineLength() > KINDA_SMALL_NUMBER)
 		{
 			// SPLINE-DIRECT patrol: drive the body's position + rotation straight from the spline,
-			// ping-ponging end to end at WanderSpeed. Uses the per-point WallNormals on the path so
+			// ping-ponging end to end at AZP_WanderSpeed. Uses the per-point WallNormals on the path so
 			// the Scytheer can walk up walls / across ceilings — CharacterMovement is in MOVE_None
 			// during patrol (set in EnterState(Wander)) so gravity doesn't pull the body off the wall
 			// and the capsule doesn't try to step-up world geometry while clinging.
-			const float Total = PatrolPath->GetSplineLength();
-			PatrolDistance += (float)PatrolDir * WanderSpeed * DeltaTime;
+			const float Total = AZP_PatrolPath->GetSplineLength();
+			PatrolDistance += (float)PatrolDir * AZP_WanderSpeed * DeltaTime;
 			if (PatrolDistance >= Total)      { PatrolDistance = Total; PatrolDir = -1; }
 			else if (PatrolDistance <= 0.f)   { PatrolDistance = 0.f;   PatrolDir =  1; }
 
-			const FVector Loc = PatrolPath->GetLocationAtDistance(PatrolDistance);
-			const FVector Up  = PatrolPath->GetWallNormalAtDistance(PatrolDistance);
-			FVector Fwd       = PatrolPath->GetForwardAtDistance(PatrolDistance);
+			const FVector Loc = AZP_PatrolPath->GetLocationAtDistance(PatrolDistance);
+			const FVector Up  = AZP_PatrolPath->GetWallNormalAtDistance(PatrolDistance);
+			FVector Fwd       = AZP_PatrolPath->GetForwardAtDistance(PatrolDistance);
 			if (PatrolDir < 0) { Fwd = -Fwd; }
 
 			// Smooth orientation: at the spline endpoints (and any other moment Fwd flips
 			// direction), capping the per-frame angular speed avoids the 1-frame 180° snap.
-			// PatrolTurnRate is deg/s — high enough that normal patrol along a curving spline
+			// AZP_PatrolTurnRate is deg/s — high enough that normal patrol along a curving spline
 			// looks instantaneous, low enough that endpoint reversals turn over ~0.5s.
 			const FRotator DesiredRot = MakeOrientation(Fwd, Up);
-			const FRotator NewRot     = FMath::RInterpConstantTo(GetActorRotation(), DesiredRot, DeltaTime, PatrolTurnRate);
+			const FRotator NewRot     = FMath::RInterpConstantTo(GetActorRotation(), DesiredRot, DeltaTime, AZP_PatrolTurnRate);
 			SetActorLocationAndRotation(Loc, NewRot, /*bSweep=*/false, nullptr, ETeleportType::TeleportPhysics);
 		}
 		else
 		{
-			// Fallback: random navmesh wander when no PatrolPath is wired.
+			// Fallback: random navmesh wander when no AZP_PatrolPath is wired.
 			if (bWanderMoving)
 			{
-				if (FVector::Dist2D(GetActorLocation(), WanderDest) < 120.f)
+				if (FVector::Dist2D(GetActorLocation(), WanderDest) < AZP_WanderArriveRadius)
 				{
 					bWanderMoving = false;
-					PauseTimer = FMath::FRandRange(PauseMin, PauseMax);
+					PauseTimer = FMath::FRandRange(AZP_PauseMin, AZP_PauseMax);
 					if (AICon) { AICon->StopMovement(); }
 				}
 			}
@@ -335,9 +335,9 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 
 	case EScytheerState::Alert:
 	{
-		// Sit in the idle pose; face the player; advance to Chase after AlertHoldTime.
+		// Sit in the idle pose; face the player; advance to Chase after AZP_AlertHoldTime.
 		FaceTargetSmooth(DeltaTime);
-		if ((Now - StateEnteredAt) >= AlertHoldTime)
+		if ((Now - StateEnteredAt) >= AZP_AlertHoldTime)
 		{
 			EnterState(EScytheerState::Chase);
 		}
@@ -346,22 +346,22 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 
 	case EScytheerState::WallDescent:
 	{
-		// Drive the body backward along the spline (PatrolDistance -> 0) at ChaseSpeed, holding
+		// Drive the body backward along the spline (PatrolDistance -> 0) at AZP_ChaseSpeed, holding
 		// the wall-normal orientation so it reads as "running down the wall". On arrival within a
 		// short threshold of the ground point, hand off to Chase (which restores MOVE_Walking and
 		// starts the navmesh pursuit).
-		if (PatrolPath && PatrolPath->GetSplineLength() > KINDA_SMALL_NUMBER)
+		if (AZP_PatrolPath && AZP_PatrolPath->GetSplineLength() > KINDA_SMALL_NUMBER)
 		{
-			PatrolDistance -= ChaseSpeed * DeltaTime;
+			PatrolDistance -= AZP_ChaseSpeed * DeltaTime;
 			if (PatrolDistance < 0.f) { PatrolDistance = 0.f; }
 
-			const FVector Loc = PatrolPath->GetLocationAtDistance(PatrolDistance);
-			const FVector Up  = PatrolPath->GetWallNormalAtDistance(PatrolDistance);
+			const FVector Loc = AZP_PatrolPath->GetLocationAtDistance(PatrolDistance);
+			const FVector Up  = AZP_PatrolPath->GetWallNormalAtDistance(PatrolDistance);
 			// Forward = direction of motion = -spline tangent (we're going backward through the spline).
-			FVector Fwd       = -PatrolPath->GetForwardAtDistance(PatrolDistance);
+			FVector Fwd       = -AZP_PatrolPath->GetForwardAtDistance(PatrolDistance);
 
 			const FRotator Desired = MakeOrientation(Fwd, Up);
-			const FRotator NewRot  = FMath::RInterpConstantTo(GetActorRotation(), Desired, DeltaTime, PatrolTurnRate);
+			const FRotator NewRot  = FMath::RInterpConstantTo(GetActorRotation(), Desired, DeltaTime, AZP_PatrolTurnRate);
 			SetActorLocationAndRotation(Loc, NewRot, /*bSweep=*/false, nullptr, ETeleportType::TeleportPhysics);
 
 			// Drive the descent ALL THE WAY to the spline's start point (PatrolDistance == 0). The
@@ -388,7 +388,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		if (!Player) { EnterState(EScytheerState::Wander); break; }
 
 		// In range + off cooldown -> swipe.
-		if (Dist <= AttackRange && bSee && (Now - LastAttackTime) >= AttackCooldown)
+		if (Dist <= AZP_AttackRange && bSee && (Now - LastAttackTime) >= AZP_AttackCooldown)
 		{
 			PendingAttackVariant = FMath::RandRange(1, 3);
 			LastAttackTime = Now;
@@ -402,7 +402,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		// time. At 2s try a wider acceptance radius (path may have been too tight against geometry).
 		// At 4s give up and return to Wander before whatever 7s watchdog respawns the actor — getting
 		// caught against door geometry was the dev's repeat complaint.
-		if (FVector::DistSquared(GetActorLocation(), LastChaseStuckLoc) < 30.f * 30.f)
+		if (FVector::DistSquared(GetActorLocation(), LastChaseStuckLoc) < AZP_ChaseStuckMoveThreshold * AZP_ChaseStuckMoveThreshold)
 		{
 			ChaseStuckTimer += DeltaTime;
 		}
@@ -411,7 +411,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 			ChaseStuckTimer = 0.f;
 			LastChaseStuckLoc = GetActorLocation();
 		}
-		if (ChaseStuckTimer >= 4.f)
+		if (ChaseStuckTimer >= AZP_ChaseStuckGiveUpTime)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Scytheer] CHASE stuck 4s -> de-aggro at (%.0f,%.0f,%.0f)"),
 				GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
@@ -419,22 +419,22 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 			LostSightTimer = 0.f;
 			ChaseStuckTimer = 0.f;
 			// Walk back to the patrol spline if we have one (no teleport). No path -> wander.
-			EnterState(PatrolPath ? EScytheerState::ReturnToPatrol : EScytheerState::Wander);
+			EnterState(AZP_PatrolPath ? EScytheerState::ReturnToPatrol : EScytheerState::Wander);
 			break;
 		}
-		if (ChaseStuckTimer >= 2.f && AICon)
+		if (ChaseStuckTimer >= AZP_ChaseStuckRepathTime && AICon)
 		{
 			// Wider acceptance radius — often the AI is parked one capsule-width from a door because
-			// the goal is set to AttackRange-60; relaxing it lets path-following declare success and
-			// the next frame's MoveToActor recomputes.
+			// the goal is set to AZP_AttackRange - AZP_ChaseAcceptanceOffset; relaxing it lets
+			// path-following declare success and the next frame's MoveToActor recomputes.
 			AICon->StopMovement();
-			AICon->MoveToActor(Player, FMath::Max(AttackRange - 60.f, 200.f));
+			AICon->MoveToActor(Player, FMath::Max(AZP_AttackRange - AZP_ChaseAcceptanceOffset, 200.f));
 			ChaseStuckTimer = 2.5f; // hold above the threshold so we don't re-issue every frame
 			break;
 		}
 
 		// Keep closing — re-path each frame so the chase tracks the moving player.
-		if (AICon) { AICon->MoveToActor(Player, FMath::Max(AttackRange - 60.f, 40.f)); }
+		if (AICon) { AICon->MoveToActor(Player, FMath::Max(AZP_AttackRange - AZP_ChaseAcceptanceOffset, 40.f)); }
 		break;
 	}
 
@@ -449,9 +449,9 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 			if (Elapsed >= Midpoint)
 			{
 				bAttackHitFired = true;
-				if (Dist <= AttackRange * 1.4f && bSee)
+				if (Dist <= AZP_AttackRange * AZP_AttackHitRangeMultiplier && bSee)
 				{
-					UGameplayStatics::ApplyDamage(Player, AttackDamage, GetInstigatorController(), this, nullptr);
+					UGameplayStatics::ApplyDamage(Player, AZP_AttackDamage, GetInstigatorController(), this, nullptr);
 				}
 			}
 		}
@@ -469,21 +469,21 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		// Walk back to the closest spline point via CharacterMovement. When close enough, hand off
 		// to Wander (which will set MOVE_None and start the spline-direct patrol from here — no
 		// teleport, the body is already at the spline).
-		if (!PatrolPath)
+		if (!AZP_PatrolPath)
 		{
 			EnterState(EScytheerState::Wander);
 			break;
 		}
-		const float ClosestD = PatrolPath->GetClosestDistanceToPoint(GetActorLocation());
-		const FVector Goal = PatrolPath->GetLocationAtDistance(ClosestD);
-		if (FVector::Dist(GetActorLocation(), Goal) < 80.f)
+		const float ClosestD = AZP_PatrolPath->GetClosestDistanceToPoint(GetActorLocation());
+		const FVector Goal = AZP_PatrolPath->GetLocationAtDistance(ClosestD);
+		if (FVector::Dist(GetActorLocation(), Goal) < AZP_MoveAcceptanceRadius)
 		{
 			EnterState(EScytheerState::Wander);
 		}
 		else
 		{
 			// Re-issue MoveTo each tick in case the chosen point shifted or got blocked.
-			if (AICon) { AICon->MoveToLocation(Goal, 80.f); }
+			if (AICon) { AICon->MoveToLocation(Goal, AZP_MoveAcceptanceRadius); }
 		}
 		break;
 	}
@@ -521,14 +521,14 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 	switch (NewState)
 	{
 	case EScytheerState::Wander:
-		StartSegment(WalkStartFrame, WalkEndFrame, true);
-		SetMaxWalkSpeed(WanderSpeed);
+		StartSegment(AZP_WalkStartFrame, AZP_WalkEndFrame, true);
+		SetMaxWalkSpeed(AZP_WanderSpeed);
 		bWanderMoving = false;
 		PauseTimer = 0.f; // pick a leg on the next tick
 		// Rejoin nearest spot on the patrol path so the resume point isn't always 0.
-		if (PatrolPath)
+		if (AZP_PatrolPath)
 		{
-			PatrolDistance = PatrolPath->GetClosestDistanceToPoint(GetActorLocation());
+			PatrolDistance = AZP_PatrolPath->GetClosestDistanceToPoint(GetActorLocation());
 			// Spline-direct patrol: park CharacterMovement so gravity / collision pushes don't fight
 			// the SetActorLocationAndRotation we issue from the patrol's wall normals.
 			if (UCharacterMovementComponent* CM = GetCharacterMovement())
@@ -540,10 +540,10 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 		break;
 
 	case EScytheerState::Alert:
-		StartSegment(IdleStartFrame, IdleEndFrame, true);
+		StartSegment(AZP_IdleStartFrame, AZP_IdleEndFrame, true);
 		SetMaxWalkSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
-		UZP_SFXStatics::PlaySFXAttached(AlertSound, GetRootComponent(), EZP_SFXCarry::Far);
+		UZP_SFXStatics::PlaySFXAttached(AZP_AlertSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 
 	case EScytheerState::WallDescent:
@@ -552,59 +552,59 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 		// !=Wander && !=WallDescent guard) so the body doesn't fall off the wall mid-descent. The
 		// per-tick logic below drives PatrolDistance toward 0 (the ground end of the spline) and
 		// hands off to Chase once we reach it.
-		StartSegment(RunStartFrame, RunEndFrame, true);
+		StartSegment(AZP_RunStartFrame, AZP_RunEndFrame, true);
 		SetMaxWalkSpeed(0.f); // movement is driven by SetActorLocation, not CMC, during descent
 		if (AICon) { AICon->StopMovement(); }
-		UZP_SFXStatics::PlaySFXAttached(AlertSound, GetRootComponent(), EZP_SFXCarry::Far);
+		UZP_SFXStatics::PlaySFXAttached(AZP_AlertSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 
 	case EScytheerState::Chase:
-		StartSegment(RunStartFrame, RunEndFrame, true);
-		SetMaxWalkSpeed(ChaseSpeed);
+		StartSegment(AZP_RunStartFrame, AZP_RunEndFrame, true);
+		SetMaxWalkSpeed(AZP_ChaseSpeed);
 		ChaseStuckTimer = 0.f;
 		LastChaseStuckLoc = GetActorLocation();
 		break;
 
 	case EScytheerState::Attack:
 	{
-		int32 SF = Attack1StartFrame, EF = Attack1EndFrame;
-		if (PendingAttackVariant == 2) { SF = Attack2StartFrame; EF = Attack2EndFrame; }
-		else if (PendingAttackVariant == 3) { SF = Attack3StartFrame; EF = Attack3EndFrame; }
+		int32 SF = AZP_Attack1StartFrame, EF = AZP_Attack1EndFrame;
+		if (PendingAttackVariant == 2) { SF = AZP_Attack2StartFrame; EF = AZP_Attack2EndFrame; }
+		else if (PendingAttackVariant == 3) { SF = AZP_Attack3StartFrame; EF = AZP_Attack3EndFrame; }
 		StartSegment(SF, EF, false);
 		SetMaxWalkSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
-		UZP_SFXStatics::PlaySFXAttached(AttackSound, GetRootComponent(), EZP_SFXCarry::Far);
+		UZP_SFXStatics::PlaySFXAttached(AZP_AttackSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 	}
 
 	case EScytheerState::Hit:
-		StartSegment(HitStartFrame, HitEndFrame, false);
+		StartSegment(AZP_HitStartFrame, AZP_HitEndFrame, false);
 		// Far carry matters here: the player can hitscan-snipe from well past room scale and needs
 		// the hit-confirm to be audible at the shot distance.
-		UZP_SFXStatics::PlaySFXAttached(HitSound, GetRootComponent(), EZP_SFXCarry::Far);
+		UZP_SFXStatics::PlaySFXAttached(AZP_HitSound, GetRootComponent(), EZP_SFXCarry::Far);
 		break;
 
 	case EScytheerState::Die:
-		StartSegment(DieStartFrame, DieEndFrame, false);
+		StartSegment(AZP_DieStartFrame, AZP_DieEndFrame, false);
 		SetMaxWalkSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
 		// Silent when a LOAD restores a corpse (ApplyDeadStateInstant re-enters Die for the pose) —
 		// with Far carry, replaying the cry would make every dead Scytheer audibly "die" on load.
 		if (!bRestoringDeadState)
 		{
-			UZP_SFXStatics::PlaySFXAttached(DeathSound, GetRootComponent(), EZP_SFXCarry::Far);
+			UZP_SFXStatics::PlaySFXAttached(AZP_DeathSound, GetRootComponent(), EZP_SFXCarry::Far);
 		}
 		break;
 
 	case EScytheerState::ReturnToPatrol:
 		// Walking back to the closest spline point via the navmesh — no spline-direct teleport.
-		StartSegment(WalkStartFrame, WalkEndFrame, true);
-		SetMaxWalkSpeed(WanderSpeed);
-		if (PatrolPath && AICon)
+		StartSegment(AZP_WalkStartFrame, AZP_WalkEndFrame, true);
+		SetMaxWalkSpeed(AZP_WanderSpeed);
+		if (AZP_PatrolPath && AICon)
 		{
-			const float ClosestD = PatrolPath->GetClosestDistanceToPoint(GetActorLocation());
-			const FVector Goal = PatrolPath->GetLocationAtDistance(ClosestD);
-			AICon->MoveToLocation(Goal, 80.f);
+			const float ClosestD = AZP_PatrolPath->GetClosestDistanceToPoint(GetActorLocation());
+			const FVector Goal = AZP_PatrolPath->GetLocationAtDistance(ClosestD);
+			AICon->MoveToLocation(Goal, AZP_MoveAcceptanceRadius);
 		}
 		break;
 	}
@@ -626,9 +626,9 @@ void AZP_ScytheerBase::StartSegment(int32 FrameStart, int32 FrameEnd, bool bLoop
 		SNI->SetPosition(SegStartT, false);
 		SNI->SetPlaying(true);
 	}
-	else if (SingleAnim)
+	else if (AZP_SingleAnim)
 	{
-		SM->PlayAnimation(SingleAnim, true);
+		SM->PlayAnimation(AZP_SingleAnim, true);
 		if (UAnimSingleNodeInstance* SNI2 = SM->GetSingleNodeInstance())
 		{
 			SNI2->SetLooping(false);
@@ -699,8 +699,8 @@ APawn* AZP_ScytheerBase::GetPlayer() const
 bool AZP_ScytheerBase::HasLOS(const AActor* Target) const
 {
 	if (!Target || !GetWorld()) { return false; }
-	const FVector Start = GetActorLocation() + FVector(0, 0, 30.f);
-	const FVector End = Target->GetActorLocation() + FVector(0, 0, 40.f);
+	const FVector Start = GetActorLocation() + FVector(0, 0, AZP_LOSEyeZOffset);
+	const FVector End = Target->GetActorLocation() + FVector(0, 0, AZP_LOSTargetZOffset);
 	FCollisionQueryParams P;
 	P.AddIgnoredActor(this);
 	P.AddIgnoredActor(Target);
@@ -752,7 +752,7 @@ bool AZP_ScytheerBase::IsPlayerReachable(const AActor* Target) const
 		return false; // closed door / unreachable region
 	}
 	const float PathLen = Result.Path->GetLength();
-	return PathLen <= MaxReachablePathLength;
+	return PathLen <= AZP_MaxReachablePathLength;
 }
 
 void AZP_ScytheerBase::PickNewWanderPoint()
@@ -760,10 +760,10 @@ void AZP_ScytheerBase::PickNewWanderPoint()
 	UNavigationSystemV1* Nav = UNavigationSystemV1::GetCurrent(GetWorld());
 	if (!Nav || !AICon) { return; }
 	FNavLocation Result;
-	if (Nav->GetRandomReachablePointInRadius(GetActorLocation(), WanderRadius, Result))
+	if (Nav->GetRandomReachablePointInRadius(GetActorLocation(), AZP_WanderRadius, Result))
 	{
 		WanderDest = Result.Location;
-		AICon->MoveToLocation(WanderDest, 80.f);
+		AICon->MoveToLocation(WanderDest, AZP_MoveAcceptanceRadius);
 	}
 }
 
@@ -784,7 +784,7 @@ void AZP_ScytheerBase::FaceTargetSmooth(float DeltaTime)
 	if (ToP.IsNearlyZero()) { return; }
 	const FRotator Cur = GetActorRotation();
 	const FRotator Desired(0.f, ToP.Rotation().Yaw, 0.f);
-	const FRotator NewRot = FMath::RInterpConstantTo(Cur, Desired, DeltaTime, CombatTurnRate);
+	const FRotator NewRot = FMath::RInterpConstantTo(Cur, Desired, DeltaTime, AZP_CombatTurnRate);
 	SetActorRotation(FRotator(0.f, NewRot.Yaw, 0.f));
 }
 
@@ -796,8 +796,8 @@ void AZP_ScytheerBase::OnPointDamage(AActor* DamagedActor, float Damage, AContro
 {
 	if (bDead || !Health) { return; }
 	const float HitZAboveCentre = HitLocation.Z - GetActorLocation().Z;
-	const bool bHead = HitZAboveCentre >= HeadshotMinZ;
-	const float Dmg = bHead ? HeadShotDamage : BodyShotDamage;
+	const bool bHead = HitZAboveCentre >= AZP_HeadshotMinZ;
+	const float Dmg = bHead ? AZP_HeadShotDamage : AZP_BodyShotDamage;
 	UE_LOG(LogTemp, Warning, TEXT("[Scytheer] HIT z+%.0f -> %s, %.0f dmg (was %.0f HP)"),
 		HitZAboveCentre, bHead ? TEXT("HEADSHOT") : TEXT("body"), Dmg, Health->CurrentHealth);
 	Health->ApplyDamage(Dmg);
@@ -810,7 +810,7 @@ void AZP_ScytheerBase::OnPointDamage(AActor* DamagedActor, float Damage, AContro
 		// perma-stunlock. 1.5s lets the body act between flinches.
 		const double NowDmg = GetWorld()->GetTimeSeconds();
 		if (State != EScytheerState::Attack && State != EScytheerState::Die
-		 && (NowDmg - LastHitReactTime) >= HitReactCooldown)
+		 && (NowDmg - LastHitReactTime) >= AZP_HitReactCooldown)
 		{
 			LastHitReactTime = NowDmg;
 			EnterState(EScytheerState::Hit);

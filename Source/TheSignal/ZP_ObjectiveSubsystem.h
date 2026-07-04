@@ -124,7 +124,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Objectives|Save")
 	void ReadFromSave(const UZP_SaveGame* Save);
 
-	/** Self-contained persistence: write objective state to a dedicated slot (auto-called on change when bAutoPersist). */
+	/** Self-contained persistence: write objective state to a dedicated slot (auto-called on change when bAZP_AutoPersist). */
 	UFUNCTION(BlueprintCallable, Category = "Objectives|Save")
 	void SaveObjectiveState();
 
@@ -132,15 +132,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Objectives|Save")
 	void LoadObjectiveState();
 
+	/** Asset path of the objective-definitions DataTable loaded by LoadDefinitions. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objectives|Data")
+	FString AZP_DefinitionsTablePath = TEXT("/Game/Data/DT_Objectives.DT_Objectives");
+
 	/** Dedicated slot used by SaveObjectiveState/LoadObjectiveState (separate from the player's manual save slots). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objectives|Save")
-	FString ObjectiveStateSlot = TEXT("TheSignal_Objectives");
+	FString AZP_ObjectiveStateSlot = TEXT("TheSignal_Objectives");
 
-	/** When true, objective state auto-persists to ObjectiveStateSlot on every change and restores on game
+	/** When true, objective state auto-persists to AZP_ObjectiveStateSlot on every change and restores on game
 	 *  start. FALSE = save-file-tied: a fresh PIE / new game starts clean (bStartOnLoad only); save/restore is
 	 *  driven from the EasyGameUI save hook (AZP_GraceCharacter::OnEguiSaveLoadVariables → Save/LoadObjectiveState). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objectives|Save")
-	bool bAutoPersist = false;
+	bool bAZP_AutoPersist = false;
 
 	// --- Events ---
 	UPROPERTY(BlueprintAssignable, Category = "Objectives") FZP_OnObjectiveEvent OnObjectiveStarted;

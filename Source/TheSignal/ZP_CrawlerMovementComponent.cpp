@@ -2,9 +2,6 @@
 
 #include "ZP_CrawlerMovementComponent.h"
 
-static constexpr float CrawlerGravity = 980.f;
-static constexpr float TerminalVelocity = 2000.f;
-
 UZP_CrawlerMovementComponent::UZP_CrawlerMovementComponent()
 {
 	// PhysFlying owns rotation — make sure the controller and the base CMC don't fight it.
@@ -49,9 +46,9 @@ void UZP_CrawlerMovementComponent::BeginLaunch(const FVector& TargetLocation)
 	const float HorizDist = Horiz.Size();
 	const FVector HorizDir = Horiz.GetSafeNormal();
 
-	const float HorizSpeed = 1400.f;
-	const float t = FMath::Clamp(HorizDist / HorizSpeed, 0.30f, 0.85f);
-	const float Vz = (ToTarget.Z / t) + 0.5f * CrawlerGravity * t;
+	const float HorizSpeed = AZP_LaunchHorizSpeed;
+	const float t = FMath::Clamp(HorizDist / HorizSpeed, AZP_LaunchTimeMin, AZP_LaunchTimeMax);
+	const float Vz = (ToTarget.Z / t) + 0.5f * AZP_CrawlerGravity * t;
 	Velocity = HorizDir * (HorizDist / t) + FVector(0.f, 0.f, Vz);
 }
 
@@ -78,8 +75,8 @@ void UZP_CrawlerMovementComponent::PhysFlying(float DeltaTime, int32 Iterations)
 	if (bLaunching)
 	{
 		LaunchTimer += DeltaTime;
-		Velocity.Z = FMath::Max(Velocity.Z - CrawlerGravity * DeltaTime, -TerminalVelocity);
-		if (LaunchTimer > 1.5f) { bLaunching = false; bImpacted = true; } // safety: never fly forever
+		Velocity.Z = FMath::Max(Velocity.Z - AZP_CrawlerGravity * DeltaTime, -AZP_TerminalVelocity);
+		if (LaunchTimer > AZP_LaunchMaxDuration) { bLaunching = false; bImpacted = true; } // safety: never fly forever
 	}
 	else if (bSlamming)
 	{
@@ -101,7 +98,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float DeltaTime, int32 Iterations)
 		const float Speed = GetMaxSpeed();
 		if (!Dir.IsNearlyZero() && Speed > UE_SMALL_NUMBER)
 		{
-			const FVector Smoothed = FMath::VInterpTo(FVector(Velocity.X, Velocity.Y, 0.f), Dir * Speed, DeltaTime, 8.f);
+			const FVector Smoothed = FMath::VInterpTo(FVector(Velocity.X, Velocity.Y, 0.f), Dir * Speed, DeltaTime, AZP_GroundPursuitInterpSpeed);
 			Velocity.X = Smoothed.X;
 			Velocity.Y = Smoothed.Y;
 		}
@@ -110,7 +107,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float DeltaTime, int32 Iterations)
 			Velocity.X = 0.f;
 			Velocity.Y = 0.f;
 		}
-		Velocity.Z = FMath::Max(Velocity.Z - CrawlerGravity * DeltaTime, -TerminalVelocity);
+		Velocity.Z = FMath::Max(Velocity.Z - AZP_CrawlerGravity * DeltaTime, -AZP_TerminalVelocity);
 	}
 
 	// --- ROTATION (always — even frozen, so a clung crawler stays aligned to its wall) ---
@@ -139,7 +136,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float DeltaTime, int32 Iterations)
 	}
 
 	// Void kill — never leave a runaway crawler falling forever.
-	if (UpdatedComponent->GetComponentLocation().Z < -5000.f)
+	if (UpdatedComponent->GetComponentLocation().Z < AZP_VoidKillZ)
 	{
 		GetOwner()->Destroy();
 	}
@@ -148,7 +145,7 @@ void UZP_CrawlerMovementComponent::PhysFlying(float DeltaTime, int32 Iterations)
 void UZP_CrawlerMovementComponent::ApplyBodyRotation(float DeltaTime)
 {
 	FRotator Desired = UpdatedComponent->GetComponentRotation();
-	float Rate = 10.f;
+	float Rate = AZP_BodyRotationRate;
 
 	if (bClinging && !WallNormal.IsNearlyZero())
 	{
@@ -158,7 +155,7 @@ void UZP_CrawlerMovementComponent::ApplyBodyRotation(float DeltaTime)
 		{
 			Desired = FRotationMatrix::MakeFromXZ(Forward, WallNormal).Rotator();
 		}
-		Rate = 12.f;
+		Rate = AZP_ClingRotationRate;
 	}
 	else
 	{

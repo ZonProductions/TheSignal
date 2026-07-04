@@ -16,34 +16,34 @@ UZP_EnemyAudioComponent::UZP_EnemyAudioComponent()
 	static ConstructorHelpers::FObjectFinder<USoundBase> HitF(TEXT("/Game/Audio/Crawler/SFX_Crawler_Hit.SFX_Crawler_Hit"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> Atk1F(TEXT("/Game/Audio/Crawler/SFX_Crawler_Attack.SFX_Crawler_Attack"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> Atk2F(TEXT("/Game/Audio/Crawler/SFX_Crawler_Attack2.SFX_Crawler_Attack2"));
-	if (LurkF.Succeeded())  { LurkingLoop = LurkF.Object; }
-	if (AlertF.Succeeded()) { AlertSound = AlertF.Object; }
-	if (HitF.Succeeded())   { HitSound = HitF.Object; }
-	if (Atk1F.Succeeded())  { AttackSounds.Add(Atk1F.Object); }   // [0] normal strike (Attack1)
-	if (Atk2F.Succeeded())  { AttackSounds.Add(Atk2F.Object); }   // [last] lunge (Attack2)
+	if (LurkF.Succeeded())  { AZP_LurkingLoop = LurkF.Object; }
+	if (AlertF.Succeeded()) { AZP_AlertSound = AlertF.Object; }
+	if (HitF.Succeeded())   { AZP_HitSound = HitF.Object; }
+	if (Atk1F.Succeeded())  { AZP_AttackSounds.Add(Atk1F.Object); }   // [0] normal strike (Attack1)
+	if (Atk2F.Succeeded())  { AZP_AttackSounds.Add(Atk2F.Object); }   // [last] lunge (Attack2)
 }
 
 void UZP_EnemyAudioComponent::PlayLurk()
 {
-	if (!LurkingLoop) { return; }
-	const float JitterLin = FMath::Pow(10.f, FMath::FRandRange(-LurkVolumeJitterDb, LurkVolumeJitterDb) / 20.f);
-	PlayOneShot(LurkingLoop, LurkVolume * JitterLin, /*bAllowMuffle=*/true);
+	if (!AZP_LurkingLoop) { return; }
+	const float JitterLin = FMath::Pow(10.f, FMath::FRandRange(-AZP_LurkVolumeJitterDb, AZP_LurkVolumeJitterDb) / 20.f);
+	PlayOneShot(AZP_LurkingLoop, AZP_LurkVolume * JitterLin, /*bAllowMuffle=*/true);
 }
 
 void UZP_EnemyAudioComponent::PlayAlert(float LowPassHz)
 {
-	PlayOneShot(AlertSound, 1.f, /*bAllowMuffle=*/true, LowPassHz);
+	PlayOneShot(AZP_AlertSound, 1.f, /*bAllowMuffle=*/true, LowPassHz);
 }
 
 void UZP_EnemyAudioComponent::PlayHit()
 {
-	PlayOneShot(HitSound, 1.f, /*bAllowMuffle=*/true);
+	PlayOneShot(AZP_HitSound, 1.f, /*bAllowMuffle=*/true);
 }
 
 void UZP_EnemyAudioComponent::PlayAttack(bool bLunge)
 {
-	if (AttackSounds.Num() == 0) { return; }
-	USoundBase* Sound = bLunge ? AttackSounds.Last() : AttackSounds[0];
+	if (AZP_AttackSounds.Num() == 0) { return; }
+	USoundBase* Sound = bLunge ? AZP_AttackSounds.Last() : AZP_AttackSounds[0];
 	PlayOneShot(Sound, 1.f, /*bAllowMuffle=*/true);
 }
 
@@ -56,5 +56,5 @@ void UZP_EnemyAudioComponent::PlayOneShot(USoundBase* Sound, float Vol, bool bAl
 	// in UZP_SFXStatics — the one playback path every world SFX uses. Enemy voices carry Far so an
 	// aggro scream is audible down a hallway, bends around corners, and muffles only through walls.
 	UZP_SFXStatics::PlaySFXAttached(Sound, Owner->GetRootComponent(), EZP_SFXCarry::Far,
-		VolumeMultiplier * Vol, 1.f, /*bPropagate=*/bAllowMuffle, ForceLowPassHz);
+		AZP_VolumeMultiplier * Vol, 1.f, /*bPropagate=*/bAllowMuffle, ForceLowPassHz);
 }

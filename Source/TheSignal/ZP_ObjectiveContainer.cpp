@@ -46,7 +46,7 @@ void AZP_ObjectiveContainer::BeginPlay()
 	Super::BeginPlay();
 
 	// Fit the interaction trigger to whatever mesh this instance uses (+ padding).
-	UZP_ContainerUtils::FitBoxToMeshBounds(ContainerMesh, InteractionVolume, InteractionPadding);
+	UZP_ContainerUtils::FitBoxToMeshBounds(ContainerMesh, InteractionVolume, AZP_InteractionPadding);
 
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_ObjectiveContainer::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_ObjectiveContainer::OnOverlapEnd);
@@ -55,37 +55,37 @@ void AZP_ObjectiveContainer::BeginPlay()
 	if (IsObjectiveFlagAlreadySet())
 	{
 		bUnlocked = true;
-		SetStatusLightColor(FLinearColor(0.1f, 0.8f, 0.1f));
+		SetStatusLightColor(AZP_UnlockedLightColor);
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveContainer %s: restored UNLOCKED from flag '%s'"),
-			*GetName(), *ObjectiveFlagOnUnlock.ToString());
+			*GetName(), *AZP_ObjectiveFlagOnUnlock.ToString());
 		return; // already done — don't auto-lock doors
 	}
 
-	// Auto-lock any InteractDoors within DoorLockRadius (mirrors the card reader).
-	if (DoorLockRadius > 0.f)
+	// Auto-lock any InteractDoors within AZP_DoorLockRadius (mirrors the card reader).
+	if (AZP_DoorLockRadius > 0.f)
 	{
 		const FVector MyLocation = GetActorLocation();
 		for (TActorIterator<AZP_InteractDoor> It(GetWorld()); It; ++It)
 		{
 			AZP_InteractDoor* Door = *It;
-			if (Door && FVector::Dist(MyLocation, Door->GetActorLocation()) <= DoorLockRadius)
+			if (Door && FVector::Dist(MyLocation, Door->GetActorLocation()) <= AZP_DoorLockRadius)
 			{
-				Door->bLocked = true;
+				Door->bAZP_Locked = true;
 				AutoLockedDoors.Add(Door);
 			}
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveContainer %s: Ready — %d required item type(s), Flag=%s, LinkedDoor=%s, AutoLockedDoors=%d"),
-		*GetName(), RequiredItems.Num(), *ObjectiveFlagOnUnlock.ToString(),
-		LinkedDoor ? *LinkedDoor->GetName() : TEXT("NONE"), AutoLockedDoors.Num());
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveContainer %s: Ready — %d required item type(s), Flag=%s, AZP_LinkedDoor=%s, AutoLockedDoors=%d"),
+		*GetName(), AZP_RequiredItems.Num(), *AZP_ObjectiveFlagOnUnlock.ToString(),
+		AZP_LinkedDoor ? *AZP_LinkedDoor->GetName() : TEXT("NONE"), AutoLockedDoors.Num());
 }
 
 // --- IZP_Interactable ---
 
 FText AZP_ObjectiveContainer::GetInteractionPrompt_Implementation()
 {
-	return PromptText;
+	return AZP_PromptText;
 }
 
 void AZP_ObjectiveContainer::OnInteract_Implementation(ACharacter* Interactor)
@@ -95,9 +95,9 @@ void AZP_ObjectiveContainer::OnInteract_Implementation(ACharacter* Interactor)
 		return;
 	}
 
-	if (RequiredItems.Num() == 0)
+	if (AZP_RequiredItems.Num() == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ObjectiveContainer %s: no RequiredItems configured — cannot unlock"), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ObjectiveContainer %s: no AZP_RequiredItems configured — cannot unlock"), *GetName());
 		return;
 	}
 
@@ -108,14 +108,14 @@ void AZP_ObjectiveContainer::OnInteract_Implementation(ACharacter* Interactor)
 		Unlock(Interactor);
 		if (PC && PC->HUDWidget)
 		{
-			PC->HUDWidget->ShowInteractionPrompt(UnlockedMessage);
+			PC->HUDWidget->ShowInteractionPrompt(AZP_UnlockedMessage);
 		}
 	}
 	else
 	{
 		if (PC && PC->HUDWidget)
 		{
-			PC->HUDWidget->ShowInteractionPrompt(MissingItemsMessage);
+			PC->HUDWidget->ShowInteractionPrompt(AZP_MissingItemsMessage);
 		}
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveContainer %s: player missing required items"), *GetName());
 	}
@@ -135,7 +135,7 @@ void AZP_ObjectiveContainer::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	{
 		if (PC->HUDWidget)
 		{
-			PC->HUDWidget->ShowInteractionPrompt(PromptText);
+			PC->HUDWidget->ShowInteractionPrompt(AZP_PromptText);
 		}
 	}
 }
@@ -209,7 +209,7 @@ bool AZP_ObjectiveContainer::HasAllRequiredItems(ACharacter* Character) const
 	UActorComponent* InvComp = GetMoonvilleInventoryComp(Character);
 	if (!InvComp) return false;
 
-	for (const FZP_RequiredItem& Req : RequiredItems)
+	for (const FZP_RequiredItem& Req : AZP_RequiredItems)
 	{
 		UObject* DA = Req.Item.LoadSynchronous();
 		if (!DA)
@@ -232,17 +232,17 @@ void AZP_ObjectiveContainer::Unlock(ACharacter* Character)
 
 	UActorComponent* InvComp = GetMoonvilleInventoryComp(Character);
 
-	if (bConsumeItemsOnUnlock && InvComp)
+	if (bAZP_ConsumeItemsOnUnlock && InvComp)
 	{
 		UFunction* RemoveFunc = InvComp->FindFunction(FName("RemoveItemByDataAsset"));
 		if (RemoveFunc)
 		{
-			for (const FZP_RequiredItem& Req : RequiredItems)
+			for (const FZP_RequiredItem& Req : AZP_RequiredItems)
 			{
 				UObject* DA = Req.Item.LoadSynchronous();
 				if (!DA) continue;
-				struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-				Params.ItemDataAsset = DA;
+				struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+				Params.AZP_ItemDataAsset = DA;
 				Params.AmountToRemove = FMath::Max(Req.Count, 1);
 				InvComp->ProcessEvent(RemoveFunc, &Params);
 				UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveContainer %s: consumed %s x%d"),
@@ -254,10 +254,10 @@ void AZP_ObjectiveContainer::Unlock(ACharacter* Character)
 	bUnlocked = true;
 
 	// Open the linked door + any auto-locked doors.
-	if (LinkedDoor)
+	if (AZP_LinkedDoor)
 	{
-		LinkedDoor->Unlock();
-		LinkedDoor->OpenDoor();
+		AZP_LinkedDoor->Unlock();
+		AZP_LinkedDoor->OpenDoor();
 	}
 	for (auto& DoorRef : AutoLockedDoors)
 	{
@@ -267,16 +267,16 @@ void AZP_ObjectiveContainer::Unlock(ACharacter* Character)
 		}
 	}
 
-	SetStatusLightColor(FLinearColor(0.1f, 0.8f, 0.1f)); // green
+	SetStatusLightColor(AZP_UnlockedLightColor); // green
 
 	// Persist + advance objectives (flag also restores unlocked state on load).
-	SetObjectiveFlag(ObjectiveFlagOnUnlock);
+	SetObjectiveFlag(AZP_ObjectiveFlagOnUnlock);
 
 	// Per-instance custom outcome (power on, SFX, etc.).
 	OnUnlocked();
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveContainer %s: UNLOCKED (flag=%s, door=%s)"),
-		*GetName(), *ObjectiveFlagOnUnlock.ToString(), LinkedDoor ? *LinkedDoor->GetName() : TEXT("NONE"));
+		*GetName(), *AZP_ObjectiveFlagOnUnlock.ToString(), AZP_LinkedDoor ? *AZP_LinkedDoor->GetName() : TEXT("NONE"));
 }
 
 void AZP_ObjectiveContainer::SetStatusLightColor(FLinearColor Color)
@@ -300,12 +300,12 @@ void AZP_ObjectiveContainer::SetObjectiveFlag(FName Flag)
 
 bool AZP_ObjectiveContainer::IsObjectiveFlagAlreadySet() const
 {
-	if (ObjectiveFlagOnUnlock.IsNone()) return false;
+	if (AZP_ObjectiveFlagOnUnlock.IsNone()) return false;
 	UWorld* World = GetWorld();
 	UGameInstance* GI = World ? World->GetGameInstance() : nullptr;
 	if (UZP_ObjectiveSubsystem* Obj = GI ? GI->GetSubsystem<UZP_ObjectiveSubsystem>() : nullptr)
 	{
-		return Obj->HasFlag(ObjectiveFlagOnUnlock);
+		return Obj->HasFlag(AZP_ObjectiveFlagOnUnlock);
 	}
 	return false;
 }

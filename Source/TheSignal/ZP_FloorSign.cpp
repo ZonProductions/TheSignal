@@ -44,9 +44,9 @@ void AZP_FloorSign::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 
 void AZP_FloorSign::UpdateMaterial()
 {
-	const int32 Clamped = FMath::Clamp(FloorNumber, 1, 6);
-	const FString Path = FString::Printf(
-		TEXT("/Game/TheSignal/Materials/MI_FloorSign_%d.MI_FloorSign_%d"), Clamped, Clamped);
+	const int32 Clamped = FMath::Clamp(AZP_FloorNumber, 1, 6);
+	const FString Path = AZP_FloorSignMaterialPathFormat.Replace(
+		TEXT("%d"), *FString::FromInt(Clamped), ESearchCase::CaseSensitive);
 
 	UMaterialInterface* MI = Cast<UMaterialInterface>(
 		StaticLoadObject(UMaterialInterface::StaticClass(), nullptr, *Path));

@@ -91,20 +91,20 @@ cdo = get_cdo(bp_grace)
 
 # Movement config
 if da_movement:
-    cdo.set_editor_property('MovementConfig', da_movement)
+    cdo.set_editor_property('AZP_MovementConfig', da_movement)
 
 # Core input actions
 action_map = {
-    'MoveAction': ia_move,
-    'LookAction': ia_look,
-    'SprintAction': ia_sprint,
-    'JumpAction': ia_jump,
-    'InteractAction': ia_interact,
-    'CrouchAction': ia_crouch,
-    'PeekAction': ia_peek,
-    'AimAction': ia_aim,
-    'FireAction': ia_fire,
-    'ReloadAction': ia_reload,
+    'AZP_MoveAction': ia_move,
+    'AZP_LookAction': ia_look,
+    'AZP_SprintAction': ia_sprint,
+    'AZP_JumpAction': ia_jump,
+    'AZP_InteractAction': ia_interact,
+    'AZP_CrouchAction': ia_crouch,
+    'AZP_PeekAction': ia_peek,
+    'AZP_AimAction': ia_aim,
+    'AZP_FireAction': ia_fire,
+    'AZP_ReloadAction': ia_reload,
 }
 for prop_name, action in action_map.items():
     if action:
@@ -118,11 +118,11 @@ for prop_name, action in action_map.items():
 
 # Inventory input actions
 inv_action_map = {
-    'InventoryMenuAction': ia_inv_menu,
-    'InventorySlot0Action': ia_slot0,
-    'InventorySlot1Action': ia_slot1,
-    'InventorySlot2Action': ia_slot2,
-    'InventorySlot3Action': ia_slot3,
+    'AZP_InventoryMenuAction': ia_inv_menu,
+    'AZP_InventorySlot0Action': ia_slot0,
+    'AZP_InventorySlot1Action': ia_slot1,
+    'AZP_InventorySlot2Action': ia_slot2,
+    'AZP_InventorySlot3Action': ia_slot3,
 }
 for prop_name, action in inv_action_map.items():
     if action:
@@ -137,26 +137,26 @@ for prop_name, action in inv_action_map.items():
 # Starting weapon item: NOT set here (inherited from the C++ ctor default — see note at the top).
 # Log the effective value so the post-rebuild output still surfaces a wrong ctor line at a glance.
 try:
-    unreal.log(f"  StartingWeaponItem (inherited from C++) = {cdo.get_editor_property('StartingWeaponItem')}")
+    unreal.log(f"  StartingWeaponItem (inherited from C++) = {cdo.get_editor_property('AZP_StartingWeaponItem')}")
 except Exception as e:
     unreal.log_error(f'  StartingWeaponItem read FAILED: {e}')
 
 # Auto-spawn weapon = false (inventory manages weapon lifecycle)
 try:
-    cdo.set_editor_property('bAutoSpawnWeapon', True)
+    cdo.set_editor_property('bAZP_AutoSpawnWeapon', True)
 except:
     pass
 
 # Map input action
 if ia_map:
     try:
-        cdo.set_editor_property('MapAction', ia_map)
+        cdo.set_editor_property('AZP_MapAction', ia_map)
         unreal.log(f'  MapAction = {ia_map.get_name()}')
     except Exception as e:
         unreal.log_error(f'  MapAction FAILED: {e}')
 
 # Tab cycling
-for prop, action in [('TabCycleLeftAction', ia_tab_left), ('TabCycleRightAction', ia_tab_right)]:
+for prop, action in [('AZP_TabCycleLeftAction', ia_tab_left), ('AZP_TabCycleRightAction', ia_tab_right)]:
     if action:
         try:
             cdo.set_editor_property(prop, action)
@@ -167,7 +167,7 @@ for prop, action in [('TabCycleLeftAction', ia_tab_left), ('TabCycleRightAction'
 # Bullet decal materials (TArray<TSoftObjectPtr<UMaterialInterface>>)
 if decal_mats:
     try:
-        cdo.set_editor_property('BulletDecalMaterials', decal_mats)
+        cdo.set_editor_property('AZP_BulletDecalMaterials', decal_mats)
         unreal.log(f'  BulletDecalMaterials = {len(decal_mats)} materials')
     except Exception as e:
         unreal.log_error(f'  BulletDecalMaterials FAILED: {e}')
@@ -177,14 +177,14 @@ unreal.log('[set_all_cdo] BP_GraceCharacter CDO configured')
 # ── 2. PC_Grace CDO ───────────────────────────────────────────────
 if bp_pc and imc_grace:
     cdo_pc = get_cdo(bp_pc)
-    cdo_pc.set_editor_property('DefaultMappingContext', imc_grace)
-    cdo_pc.set_editor_property('DefaultMappingPriority', 1)
+    cdo_pc.set_editor_property('AZP_DefaultMappingContext', imc_grace)
+    cdo_pc.set_editor_property('AZP_DefaultMappingPriority', 1)
     unreal.log('[set_all_cdo] PC_Grace CDO: DefaultMappingContext = IMC_Grace (priority 1)')
 
     # Inventory Tab Widget class
     if wbp_inv_tab:
         try:
-            cdo_pc.set_editor_property('InventoryTabWidgetClass', wbp_inv_tab.generated_class())
+            cdo_pc.set_editor_property('AZP_InventoryTabWidgetClass', wbp_inv_tab.generated_class())
             unreal.log(f'  InventoryTabWidgetClass = {wbp_inv_tab.get_name()}')
         except Exception as e:
             unreal.log_error(f'  InventoryTabWidgetClass FAILED: {e}')
@@ -192,7 +192,7 @@ if bp_pc and imc_grace:
     # Map Widget class (legacy standalone — kept as fallback)
     if wbp_map:
         try:
-            cdo_pc.set_editor_property('MapWidgetClass', wbp_map.generated_class())
+            cdo_pc.set_editor_property('AZP_MapWidgetClass', wbp_map.generated_class())
             unreal.log(f'  MapWidgetClass = {wbp_map.get_name()}')
         except Exception as e:
             unreal.log_error(f'  MapWidgetClass FAILED: {e}')
@@ -212,11 +212,11 @@ wbp_hud = load('/Game/Blueprints/UI/WBP_HUD')
 if wbp_hud:
     cdo_hud = get_cdo(wbp_hud)
     hud_icon_map = {
-        'PistolIconTexture':  '/Game/icons/Icon_Pistol',
-        'RifleIconTexture':   '/Game/icons/Icon_Rifle',
-        'ShotgunIconTexture': '/Game/icons/Icon_Shotgun',
-        'PipeIconTexture':    '/Game/icons/Icon_Pipe',
-        'GrenadeIconTexture': '/Game/icons/Icon_Grenade',
+        'AZP_PistolIconTexture':  '/Game/icons/Icon_Pistol',
+        'AZP_RifleIconTexture':   '/Game/icons/Icon_Rifle',
+        'AZP_ShotgunIconTexture': '/Game/icons/Icon_Shotgun',
+        'AZP_PipeIconTexture':    '/Game/icons/Icon_Pipe',
+        'AZP_GrenadeIconTexture': '/Game/icons/Icon_Grenade',
     }
     for prop, path in hud_icon_map.items():
         tex = load(path)
@@ -237,7 +237,7 @@ unreal.log('[set_all_cdo] All Blueprints saved')
 
 # ── Verify critical properties ─────────────────────────────────────
 cdo = get_cdo(bp_grace)
-for p in ['InventorySlot0Action', 'InventorySlot1Action', 'InventorySlot2Action', 'InventorySlot3Action', 'InventoryMenuAction']:
+for p in ['AZP_InventorySlot0Action', 'AZP_InventorySlot1Action', 'AZP_InventorySlot2Action', 'AZP_InventorySlot3Action', 'AZP_InventoryMenuAction']:
     try:
         val = cdo.get_editor_property(p)
         unreal.log(f'  VERIFY {p} = {val.get_name() if val else "NULL"}')

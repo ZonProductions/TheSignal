@@ -12,7 +12,7 @@
  * Owner Subsystem: PlayerCharacter
  *
  * Blueprint Extension Points:
- *   - DefaultMappingContext set in Blueprint (avoids hard C++ asset refs).
+ *   - AZP_DefaultMappingContext set in Blueprint (avoids hard C++ asset refs).
  *   - Additional mapping contexts can be added/removed at runtime.
  *
  * Dependencies:
@@ -44,11 +44,23 @@ public:
 	/** Called by Grace when health reaches zero. Fades to black, then respawns after delay. */
 	void OnPawnDied();
 
+	/** Seconds of camera fade from black on every level start (initial spawn and respawn reload). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Fade")
+	float AZP_LevelStartFadeInDuration = 0.5f;
+
+	/** Seconds of the fade-to-black (with audio fade) when the pawn dies. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
+	float AZP_DeathFadeOutDuration = 0.5f;
+
+	/** Seconds held at black after death before the level reloads for respawn. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
+	float AZP_RespawnDelay = 1.0f;
+
 	// --- HUD ---
 
 	/** Widget class to spawn as the gameplay HUD. Set to WBP_HUD in PC_Grace Blueprint. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<UZP_HUDWidget> HUDWidgetClass;
+	TSubclassOf<UZP_HUDWidget> AZP_HUDWidgetClass;
 
 	/** Live HUD widget instance. Created in BeginPlay. */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -58,7 +70,7 @@ public:
 
 	/** Widget class for dialogue subtitles/choices. Set to WBP_DialogueBox in PC_Grace Blueprint. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<UZP_DialogueWidget> DialogueWidgetClass;
+	TSubclassOf<UZP_DialogueWidget> AZP_DialogueWidgetClass;
 
 	/** Live dialogue widget instance. Created in BeginPlay. */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -72,7 +84,7 @@ public:
 
 	/** Widget class for the map overlay. Set to WBP_Map in PC_Grace Blueprint. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<UZP_MapWidget> MapWidgetClass;
+	TSubclassOf<UZP_MapWidget> AZP_MapWidgetClass;
 
 	/** Live map widget instance. Created in BeginPlay. */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -82,7 +94,7 @@ public:
 
 	/** Widget class for the unified inventory tab menu (Map/Inventory/Notes). Set to WBP_InventoryTab in PC_Grace Blueprint. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<UZP_InventoryTabWidget> InventoryTabWidgetClass;
+	TSubclassOf<UZP_InventoryTabWidget> AZP_InventoryTabWidgetClass;
 
 	/** Live inventory tab widget instance. Created in BeginPlay. */
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -92,11 +104,15 @@ public:
 
 	/** Input action for toggling the pause menu. Set to IA_OpenPauseMenu in PC_Grace Blueprint. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	TObjectPtr<UInputAction> PauseAction;
+	TObjectPtr<UInputAction> AZP_PauseAction;
 
 	/** Widget class to spawn as the pause menu. Set to WBP_EasyPauseMenu in PC_Grace Blueprint. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<UUserWidget> PauseMenuWidgetClass;
+	TSubclassOf<UUserWidget> AZP_PauseMenuWidgetClass;
+
+	/** Named buttons inside the EGUI pause menu widget that get collapsed on open (unwanted menu entries). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|PauseMenu")
+	TArray<FName> AZP_PauseMenuButtonsToHide = { "SaveSavegameButton", "PhotoModeBtn", "CreditsBtn" };
 
 	/** True while the pause menu is up — gameplay/inventory input handlers suppress themselves under it. */
 	UFUNCTION(BlueprintPure, Category = "UI")
@@ -120,11 +136,11 @@ public:
 
 	/** Default mapping context applied on BeginPlay. Set in PC_Grace Blueprint. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
-	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+	TObjectPtr<UInputMappingContext> AZP_DefaultMappingContext;
 
 	/** Input mapping priority. Higher = takes precedence. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
-	int32 DefaultMappingPriority = 1;
+	int32 AZP_DefaultMappingPriority = 1;
 
 	/** Add a mapping context at runtime. */
 	UFUNCTION(BlueprintCallable, Category = "Input")
@@ -151,7 +167,7 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
-	/** Toggle pause menu on/off. Bound to PauseAction. */
+	/** Toggle pause menu on/off. Bound to AZP_PauseAction. */
 	void TogglePauseMenu();
 
 	/** Tracked pause menu widget instance. Weak so self-close (Continue button) nulls automatically. */

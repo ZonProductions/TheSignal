@@ -8,7 +8,7 @@
  * Purpose: In-map vertical elevator car. Smoothly translates its platform between relative-Z
  *          "stops" within the CURRENT map (no level load) and carries any character standing on
  *          it via UE's native moving-base support. Driven by an AZP_TransitPanel destination of
- *          type InMapElevator (panel->LinkedElevator->MoveToRelativeZ). Analogous to
+ *          type InMapElevator (panel->AZP_LinkedElevator->MoveToRelativeZ). Analogous to
  *          AZP_LockableDoor (smooth FInterp Tick) but vertical + rider-carrying. The player does
  *          NOT interact with this actor directly — only through the transit panel console.
  *
@@ -16,7 +16,7 @@
  *
  * Blueprint Extension Points:
  *   - PlatformMesh: set the SM_Elevator car mesh in the BP child (Movable, BlockAll).
- *   - MoveSpeed: travel speed (UU/s).
+ *   - AZP_MoveSpeed: travel speed (UU/s).
  *   - OnElevatorArrived: delegate for door/audio/VFX hooks.
  *
  * Dependencies: None — standalone kinematic platform. Rider carrying relies on the engine's
@@ -55,11 +55,11 @@ public:
 
 	/** Constant travel speed in UU/s. Real-elevator feel ~150-250. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator")
-	float MoveSpeed = 200.f;
+	float AZP_MoveSpeed = 200.f;
 
 	/** Snap tolerance (UU) for "arrived". */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator")
-	float ArriveTolerance = 1.f;
+	float AZP_ArriveTolerance = 1.f;
 
 	// --- Delegate ---
 

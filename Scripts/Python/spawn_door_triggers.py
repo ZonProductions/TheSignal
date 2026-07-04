@@ -86,16 +86,16 @@ for name, class_name, actor in doors:
         continue
 
     # Set properties
-    trigger.set_editor_property('DoorActor', actor)
+    trigger.set_editor_property('AZP_DoorActor', actor)
 
     if is_slide:
-        trigger.set_editor_property('OpenMode', unreal.ZP_InteractDoorMode.SLIDE)
-        trigger.set_editor_property('SlideOffset', unreal.Vector(0, 150, 0))
+        trigger.set_editor_property('AZP_OpenMode', unreal.ZP_InteractDoorMode.SLIDE)
+        trigger.set_editor_property('AZP_SlideOffset', unreal.Vector(0, 150, 0))
     else:
-        trigger.set_editor_property('OpenMode', unreal.ZP_InteractDoorMode.ROTATE)
-        trigger.set_editor_property('OpenAngle', 90.0)
+        trigger.set_editor_property('AZP_OpenMode', unreal.ZP_InteractDoorMode.ROTATE)
+        trigger.set_editor_property('AZP_OpenAngle', 90.0)
 
-    trigger.set_editor_property('InterpSpeed', 4.0)
+    trigger.set_editor_property('AZP_InterpSpeed', 4.0)
 
     # Label it clearly
     mode_str = "Slide" if is_slide else "Rotate"

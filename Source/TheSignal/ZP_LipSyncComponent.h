@@ -64,6 +64,80 @@ public:
 	/** Process PCM audio buffer (called by proxy on audio render thread). */
 	void ProcessAudioBuffer(float* AudioData, int32 NumSamples, int32 NumChannels, int32 SampleRate);
 
+	// --- Viseme mapping (index order: 0=sil, 1=PP, 2=FF, 3=TH, 4=DD, 5=kk, 6=CH, 7=SS, 8=nn, 9=RR, 10=aa, 11=E, 12=ih, 13=oh, 14=ou) ---
+
+	/** Per-viseme jaw-open weight mapping shaping how far the jaw opens for each detected phoneme. */
+	UPROPERTY(EditAnywhere, Category = "LipSync|Visemes")
+	float AZP_VisemeToJaw[15] = {
+		0.00f, 0.15f, 0.35f, 0.45f, 0.60f, 0.55f, 0.50f, 0.30f,
+		0.20f, 0.50f, 1.00f, 0.70f, 0.55f, 0.80f, 0.60f };
+
+	/** Per-viseme lower-lip raise weight mapping (bilabials/labiodentals PP, FF, ou dominate). */
+	UPROPERTY(EditAnywhere, Category = "LipSync|Visemes")
+	float AZP_VisemeToLipUp[15] = {
+		0.00f, 0.70f, 0.50f, 0.10f, 0.00f, 0.00f, 0.00f, 0.00f,
+		0.10f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.30f };
+
+	/** Per-viseme mouth-width mapping (positive = spread as in E/ih/aa, negative = purse as in oh/ou/PP). */
+	UPROPERTY(EditAnywhere, Category = "LipSync|Visemes")
+	float AZP_VisemeToWidth[15] = {
+		0.00f, -0.40f, -0.15f, 0.00f, 0.00f, 0.00f, 0.15f, 0.25f,
+		0.00f, 0.00f, 0.50f, 0.60f, 0.50f, -0.50f, -0.60f };
+
+	// --- Smoothing knobs ---
+
+	/** FInterpTo speed used when the jaw is opening (target above current) - higher snaps the mouth open faster on syllable onsets. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Smoothing")
+	float AZP_JawOpenInterpSpeed = 25.f;
+
+	/** FInterpTo speed used when the jaw is closing (target below current) - lower gives a softer, lazier mouth close between syllables. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Smoothing")
+	float AZP_JawCloseInterpSpeed = 8.f;
+
+	/** FInterpTo smoothing speed for the lower-lip raise channel (bilabial lip press response speed). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Smoothing")
+	float AZP_LipUpInterpSpeed = 18.f;
+
+	/** FInterpTo smoothing speed for the mouth-width (spread/purse) channel. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Smoothing")
+	float AZP_MouthWidthInterpSpeed = 15.f;
+
+	// --- Bone pose knobs ---
+
+	/** Maximum jaw bone rotation in degrees at full jaw-open weight - the master 'how wide does the mouth open' knob. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|BonePose")
+	float AZP_MaxJawOpenAngleDeg = 25.f;
+
+	/** Rotation in degrees applied to lip_lower_l/r bones at full lip-raise weight (negative = curl upward) for PP/FF bilabial shapes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|BonePose")
+	float AZP_MaxLipRaiseAngleDeg = -12.f;
+
+	/** Rotation in degrees applied to mouth_l/r corner bones at full width weight (mirrored +/- between sides) for spread vs purse shapes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|BonePose")
+	float AZP_MaxMouthWidthAngleDeg = 8.f;
+
+	// --- Bone names ---
+
+	/** Skeleton bone name driven for jaw open; also the bone whose presence auto-identifies the CC head mesh. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Bones")
+	FName AZP_JawBoneName = TEXT("jaw");
+
+	/** Skeleton bone name for the right lower-lip bone driven by the lip-raise channel. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Bones")
+	FName AZP_LipLowerRightBoneName = TEXT("lip_lower_r");
+
+	/** Skeleton bone name for the left lower-lip bone driven by the lip-raise channel. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Bones")
+	FName AZP_LipLowerLeftBoneName = TEXT("lip_lower_l");
+
+	/** Skeleton bone name for the right mouth-corner bone driven by the width channel. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Bones")
+	FName AZP_MouthRightBoneName = TEXT("mouth_r");
+
+	/** Skeleton bone name for the left mouth-corner bone driven by the width channel (rotation applied mirrored/negated vs the right corner). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LipSync|Bones")
+	FName AZP_MouthLeftBoneName = TEXT("mouth_l");
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

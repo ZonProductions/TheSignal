@@ -63,6 +63,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Locomotion")
 	uint8 Gait = 1;
 
+	/** Ground-speed threshold (cm/s) above which the character counts as moving (drives bShouldMove and the idle/locomotion switch feel). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion|Tuning")
+	float AZP_MovingSpeedThreshold = 3.0f;
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;

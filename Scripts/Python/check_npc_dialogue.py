@@ -14,19 +14,19 @@ for npc in npcs:
             unreal.log(f'  Component: {cname}')
             # Check PluginDialogue
             try:
-                pd = comp.get_editor_property('PluginDialogue')
+                pd = comp.get_editor_property('AZP_PluginDialogue')
                 unreal.log(f'  PluginDialogue: {pd}')
             except:
                 unreal.log(f'  PluginDialogue: NOT FOUND')
             # Check DialogueWidgetClass
             try:
-                dwc = comp.get_editor_property('DialogueWidgetClass')
+                dwc = comp.get_editor_property('AZP_DialogueWidgetClass')
                 unreal.log(f'  DialogueWidgetClass: {dwc}')
             except:
                 unreal.log(f'  DialogueWidgetClass: NOT FOUND')
             # Check DialogueData (fallback)
             try:
-                dd = comp.get_editor_property('DialogueData')
+                dd = comp.get_editor_property('AZP_DialogueData')
                 unreal.log(f'  DialogueData: {dd}')
             except:
                 unreal.log(f'  DialogueData: NOT FOUND')

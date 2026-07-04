@@ -53,7 +53,7 @@ void UZP_DialogueManager::BeginPlay()
 			}
 		}
 
-		UE_LOG(LogDialogue, Log, TEXT("[TheSignal] DialogueManager: auto-registered %d dialogue assets."), DialogueLookupTable.Num());
+		UE_LOG(LogDialogue, Log, TEXT("[TheSignal] DialogueManager: auto-registered %d dialogue assets."), AZP_DialogueLookupTable.Num());
 	}
 
 	UE_LOG(LogDialogue, Log, TEXT("[TheSignal] DialogueManager initialized."));
@@ -86,7 +86,7 @@ void UZP_DialogueManager::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	{
 		OnDialogueLineEnded.Broadcast();
 
-		const FZP_DialogueLine& Line = ActiveDialogue->Lines[CurrentLineIndex];
+		const FZP_DialogueLine& Line = ActiveDialogue->AZP_Lines[CurrentLineIndex];
 		if (Line.PostDelay > 0.f)
 		{
 			bWaitingForPostDelay = true;
@@ -103,20 +103,20 @@ void UZP_DialogueManager::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UZP_DialogueManager::RegisterDialogue(UZP_DialogueData* Dialogue)
 {
-	if (!Dialogue || Dialogue->DialogueID == NAME_None) return;
+	if (!Dialogue || Dialogue->AZP_DialogueID == NAME_None) return;
 
-	if (!DialogueLookupTable.Contains(Dialogue->DialogueID))
+	if (!AZP_DialogueLookupTable.Contains(Dialogue->AZP_DialogueID))
 	{
-		DialogueLookupTable.Add(Dialogue->DialogueID, Dialogue);
-		UE_LOG(LogDialogue, Log, TEXT("Registered dialogue '%s'."), *Dialogue->DialogueID.ToString());
+		AZP_DialogueLookupTable.Add(Dialogue->AZP_DialogueID, Dialogue);
+		UE_LOG(LogDialogue, Log, TEXT("Registered dialogue '%s'."), *Dialogue->AZP_DialogueID.ToString());
 	}
 
 	// Also register any DAs referenced by choice jumps (recursive discovery)
-	for (const FZP_DialogueLine& Line : Dialogue->Lines)
+	for (const FZP_DialogueLine& Line : Dialogue->AZP_Lines)
 	{
 		for (const FZP_DialogueChoice& Choice : Line.Choices)
 		{
-			if (Choice.NextDialogueID != NAME_None && !DialogueLookupTable.Contains(Choice.NextDialogueID))
+			if (Choice.NextDialogueID != NAME_None && !AZP_DialogueLookupTable.Contains(Choice.NextDialogueID))
 			{
 				// Try to find the DA by scanning loaded assets with matching DialogueID
 				// For now, the NPC interaction component should register all its response DAs
@@ -128,7 +128,7 @@ void UZP_DialogueManager::RegisterDialogue(UZP_DialogueData* Dialogue)
 
 void UZP_DialogueManager::PlayDialogue(UZP_DialogueData* Dialogue)
 {
-	if (!Dialogue || Dialogue->Lines.Num() == 0)
+	if (!Dialogue || Dialogue->AZP_Lines.Num() == 0)
 	{
 		UE_LOG(LogDialogue, Warning, TEXT("PlayDialogue called with null or empty dialogue."));
 		return;
@@ -138,34 +138,34 @@ void UZP_DialogueManager::PlayDialogue(UZP_DialogueData* Dialogue)
 	RegisterDialogue(Dialogue);
 
 	// One-shot check
-	if (Dialogue->bOneShot && PlayedDialogueIDs.Contains(Dialogue->DialogueID))
+	if (Dialogue->bAZP_OneShot && PlayedDialogueIDs.Contains(Dialogue->AZP_DialogueID))
 	{
-		UE_LOG(LogDialogue, Log, TEXT("Skipping one-shot dialogue '%s' — already played."), *Dialogue->DialogueID.ToString());
+		UE_LOG(LogDialogue, Log, TEXT("Skipping one-shot dialogue '%s' — already played."), *Dialogue->AZP_DialogueID.ToString());
 		return;
 	}
 
 	// If something is playing, compare priority
 	if (bIsPlaying && ActiveDialogue)
 	{
-		if (Dialogue->Priority > ActiveDialogue->Priority)
+		if (Dialogue->AZP_Priority > ActiveDialogue->AZP_Priority)
 		{
 			// Interrupt current, queue the interrupted one (if not one-shot-already-counted)
 			UE_LOG(LogDialogue, Log, TEXT("Dialogue '%s' (pri %d) interrupting '%s' (pri %d)."),
-				*Dialogue->DialogueID.ToString(), Dialogue->Priority,
-				*ActiveDialogue->DialogueID.ToString(), ActiveDialogue->Priority);
+				*Dialogue->AZP_DialogueID.ToString(), Dialogue->AZP_Priority,
+				*ActiveDialogue->AZP_DialogueID.ToString(), ActiveDialogue->AZP_Priority);
 			StopDialogue();
 		}
 		else
 		{
 			// Queue the new one
-			DialogueQueue.Add({ Dialogue, Dialogue->Priority });
+			DialogueQueue.Add({ Dialogue, Dialogue->AZP_Priority });
 			// Sort queue by priority (highest first)
 			DialogueQueue.Sort([](const FQueuedDialogue& A, const FQueuedDialogue& B)
 			{
 				return A.Priority > B.Priority;
 			});
 			UE_LOG(LogDialogue, Log, TEXT("Queued dialogue '%s' (pri %d). Queue size: %d."),
-				*Dialogue->DialogueID.ToString(), Dialogue->Priority, DialogueQueue.Num());
+				*Dialogue->AZP_DialogueID.ToString(), Dialogue->AZP_Priority, DialogueQueue.Num());
 			return;
 		}
 	}
@@ -180,17 +180,17 @@ void UZP_DialogueManager::PlayDialogue(UZP_DialogueData* Dialogue)
 	OnDialogueStarted.Broadcast(Dialogue);
 	if (EventBroadcaster)
 	{
-		EventBroadcaster->BroadcastDialogueStarted(Dialogue->DialogueID);
+		EventBroadcaster->BroadcastDialogueStarted(Dialogue->AZP_DialogueID);
 	}
 	UE_LOG(LogDialogue, Log, TEXT("Starting dialogue '%s' (%d lines)."),
-		*Dialogue->DialogueID.ToString(), Dialogue->Lines.Num());
+		*Dialogue->AZP_DialogueID.ToString(), Dialogue->AZP_Lines.Num());
 
 	StartLine(0);
 }
 
 void UZP_DialogueManager::PlayDialogueByID(FName DialogueID)
 {
-	if (TObjectPtr<UZP_DialogueData>* Found = DialogueLookupTable.Find(DialogueID))
+	if (TObjectPtr<UZP_DialogueData>* Found = AZP_DialogueLookupTable.Find(DialogueID))
 	{
 		PlayDialogue(*Found);
 	}
@@ -217,7 +217,7 @@ void UZP_DialogueManager::SelectChoice(int32 ChoiceIndex)
 {
 	if (!bWaitingForChoice || !ActiveDialogue) return;
 
-	const FZP_DialogueLine& Line = ActiveDialogue->Lines[CurrentLineIndex];
+	const FZP_DialogueLine& Line = ActiveDialogue->AZP_Lines[CurrentLineIndex];
 	TArray<FZP_DialogueChoice> FilteredChoices = FilterChoices(Line.Choices);
 
 	if (!FilteredChoices.IsValidIndex(ChoiceIndex))
@@ -264,14 +264,14 @@ bool UZP_DialogueManager::HasDialoguePlayed(FName DialogueID) const
 
 void UZP_DialogueManager::StartLine(int32 Index)
 {
-	if (!ActiveDialogue || !ActiveDialogue->Lines.IsValidIndex(Index))
+	if (!ActiveDialogue || !ActiveDialogue->AZP_Lines.IsValidIndex(Index))
 	{
 		FinishDialogue();
 		return;
 	}
 
 	CurrentLineIndex = Index;
-	const FZP_DialogueLine& Line = ActiveDialogue->Lines[Index];
+	const FZP_DialogueLine& Line = ActiveDialogue->AZP_Lines[Index];
 
 	UE_LOG(LogDialogue, Log, TEXT("  Line %d — %s: \"%s\""),
 		Index, *Line.Speaker.ToString(), *Line.SubtitleText.ToString());
@@ -318,7 +318,7 @@ void UZP_DialogueManager::AdvanceToNextLine()
 	if (!ActiveDialogue) return;
 
 	int32 NextIndex = CurrentLineIndex + 1;
-	if (NextIndex < ActiveDialogue->Lines.Num())
+	if (NextIndex < ActiveDialogue->AZP_Lines.Num())
 	{
 		StartLine(NextIndex);
 	}
@@ -333,15 +333,15 @@ void UZP_DialogueManager::FinishDialogue()
 	if (ActiveDialogue)
 	{
 		// Mark as played for one-shot tracking
-		if (ActiveDialogue->bOneShot && ActiveDialogue->DialogueID != NAME_None)
+		if (ActiveDialogue->bAZP_OneShot && ActiveDialogue->AZP_DialogueID != NAME_None)
 		{
-			PlayedDialogueIDs.Add(ActiveDialogue->DialogueID);
+			PlayedDialogueIDs.Add(ActiveDialogue->AZP_DialogueID);
 		}
 		if (EventBroadcaster)
 		{
-			EventBroadcaster->BroadcastDialogueFinished(ActiveDialogue->DialogueID);
+			EventBroadcaster->BroadcastDialogueFinished(ActiveDialogue->AZP_DialogueID);
 		}
-		UE_LOG(LogDialogue, Log, TEXT("Dialogue '%s' finished."), *ActiveDialogue->DialogueID.ToString());
+		UE_LOG(LogDialogue, Log, TEXT("Dialogue '%s' finished."), *ActiveDialogue->AZP_DialogueID.ToString());
 	}
 
 	ActiveDialogue = nullptr;
@@ -370,7 +370,7 @@ float UZP_DialogueManager::GetLineDuration(const FZP_DialogueLine& Line) const
 	}
 
 	// Text-only fallback: ~50ms per character, minimum 2 seconds
-	float TextDuration = FMath::Max(2.f, Line.SubtitleText.ToString().Len() * 0.05f);
+	float TextDuration = FMath::Max(AZP_MinSubtitleDuration, Line.SubtitleText.ToString().Len() * AZP_SubtitleSecondsPerChar);
 	return TextDuration;
 }
 
@@ -383,7 +383,7 @@ void UZP_DialogueManager::PlayNextFromQueue()
 	DialogueQueue.RemoveAt(0);
 
 	UE_LOG(LogDialogue, Log, TEXT("Playing next from queue: '%s' (pri %d). Remaining: %d."),
-		*Next.Dialogue->DialogueID.ToString(), Next.Priority, DialogueQueue.Num());
+		*Next.Dialogue->AZP_DialogueID.ToString(), Next.Priority, DialogueQueue.Num());
 
 	PlayDialogue(Next.Dialogue);
 }

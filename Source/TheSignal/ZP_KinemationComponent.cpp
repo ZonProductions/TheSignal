@@ -34,41 +34,41 @@ UZP_KinemationComponent::UZP_KinemationComponent()
 		TEXT("/Game/Core/Materials/MI_HandSkin.MI_HandSkin"));
 	if (HandSkinFinder.Succeeded())
 	{
-		MeleeHandMaterial = HandSkinFinder.Object;
+		AZP_MeleeHandMaterial = HandSkinFinder.Object;
 	}
 
 	// --- Weapon / melee impact sounds (imported to /Game/Audio/Weapons) ---
 	static ConstructorHelpers::FObjectFinder<USoundBase> PistolImpactFinder(
 		TEXT("/Game/Audio/Weapons/SFX_RANGE_IMPACT_PISTOL.SFX_RANGE_IMPACT_PISTOL"));
-	if (PistolImpactFinder.Succeeded()) { PistolImpactSound = PistolImpactFinder.Object; }
+	if (PistolImpactFinder.Succeeded()) { AZP_PistolImpactSound = PistolImpactFinder.Object; }
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> RifleImpactFinder(
 		TEXT("/Game/Audio/Weapons/SFX_RANGE_IMPACT_RIFLE.SFX_RANGE_IMPACT_RIFLE"));
-	if (RifleImpactFinder.Succeeded()) { RifleImpactSound = RifleImpactFinder.Object; }
+	if (RifleImpactFinder.Succeeded()) { AZP_RifleImpactSound = RifleImpactFinder.Object; }
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> ShotgunImpactFinder(
 		TEXT("/Game/Audio/Weapons/SFX_RANGE_IMPACT_SHOTGUN.SFX_RANGE_IMPACT_SHOTGUN"));
-	if (ShotgunImpactFinder.Succeeded()) { ShotgunImpactSound = ShotgunImpactFinder.Object; }
+	if (ShotgunImpactFinder.Succeeded()) { AZP_ShotgunImpactSound = ShotgunImpactFinder.Object; }
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> PipeMetalFinder(
 		TEXT("/Game/Audio/Weapons/SFX_PIPE_HIT.SFX_PIPE_HIT"));
-	if (PipeMetalFinder.Succeeded()) { PipeMetalSound = PipeMetalFinder.Object; }
+	if (PipeMetalFinder.Succeeded()) { AZP_PipeMetalSound = PipeMetalFinder.Object; }
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> PipeWallFinder(
 		TEXT("/Game/Audio/Weapons/SFX_PIPE_SURFACE_WALL_IMPACT.SFX_PIPE_SURFACE_WALL_IMPACT"));
-	if (PipeWallFinder.Succeeded()) { PipeWallImpactSound = PipeWallFinder.Object; }
+	if (PipeWallFinder.Succeeded()) { AZP_PipeWallImpactSound = PipeWallFinder.Object; }
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeFlesh1Finder(
 		TEXT("/Game/Audio/Weapons/SFX_MELEE_IMPACT1.SFX_MELEE_IMPACT1"));
-	if (MeleeFlesh1Finder.Succeeded()) { MeleeFleshImpactSounds.Add(MeleeFlesh1Finder.Object); }
+	if (MeleeFlesh1Finder.Succeeded()) { AZP_MeleeFleshImpactSounds.Add(MeleeFlesh1Finder.Object); }
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeFlesh2Finder(
 		TEXT("/Game/Audio/Weapons/SFX_MELEE_IMPACT2.SFX_MELEE_IMPACT2"));
-	if (MeleeFlesh2Finder.Succeeded()) { MeleeFleshImpactSounds.Add(MeleeFlesh2Finder.Object); }
+	if (MeleeFlesh2Finder.Succeeded()) { AZP_MeleeFleshImpactSounds.Add(MeleeFlesh2Finder.Object); }
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeSwingFinder(
 		TEXT("/Game/Audio/Weapons/SFX_MELEE_SWING.SFX_MELEE_SWING"));
-	if (MeleeSwingFinder.Succeeded()) { MeleeSwingSound = MeleeSwingFinder.Object; }
+	if (MeleeSwingFinder.Succeeded()) { AZP_MeleeSwingSound = MeleeSwingFinder.Object; }
 }
 
 // NEVER move PlayerMesh to animate weapon transitions — the first-person
@@ -158,23 +158,23 @@ void UZP_KinemationComponent::InitializeKinemation()
 	// REVERTED 2026-06-20: the CCMH-retargeted Marcus_ melee set collapsed the
 	// pose (arms mispositioned — "more than a tuning displacement"). Back to the
 	// proven Operator-skeleton A_MeleePipe clips on SKM_Operator_Mono below.
-	MeleeLightAnims.Reset();
+	AZP_MeleeLightAnims.Reset();
 	for (const FString& Name : { FString(TEXT("A_MeleePipe_Attack_R")),
 	                             FString(TEXT("A_MeleePipe_Attack_L")) })
 	{
 		const FString Path = FString::Printf(TEXT("/Game/TheSignal/Animations/Melee/%s.%s"), *Name, *Name);
 		if (UAnimSequenceBase* Anim = LoadObject<UAnimSequenceBase>(nullptr, *Path))
 		{
-			MeleeLightAnims.Add(Anim);
+			AZP_MeleeLightAnims.Add(Anim);
 		}
 	}
-	MeleeIdleAnim = LoadObject<UAnimSequenceBase>(nullptr,
+	AZP_MeleeIdleAnim = LoadObject<UAnimSequenceBase>(nullptr,
 		TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Idle.A_MeleePipe_Idle"));
-	MeleeEquipAnim = LoadObject<UAnimSequenceBase>(nullptr,
+	AZP_MeleeEquipAnim = LoadObject<UAnimSequenceBase>(nullptr,
 		TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Equip.A_MeleePipe_Equip"));
-	MeleeUnequipAnim = LoadObject<UAnimSequenceBase>(nullptr,
+	AZP_MeleeUnequipAnim = LoadObject<UAnimSequenceBase>(nullptr,
 		TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Unequip.A_MeleePipe_Unequip"));
-	GrenadeThrowAnim = LoadObject<UAnimSequenceBase>(nullptr,
+	AZP_GrenadeThrowAnim = LoadObject<UAnimSequenceBase>(nullptr,
 		TEXT("/Game/Animations/FPS/AM_FP_GrenadeThrow.AM_FP_GrenadeThrow"));
 
 	// View-model mesh: the Operator body PlayerMesh wears — PROVEN pose/skeleton.
@@ -187,7 +187,7 @@ void UZP_KinemationComponent::InitializeKinemation()
 	if (MeleeViewMeshComponent && !MeleeViewMeshComponent->GetSkeletalMeshAsset())
 	{
 		if (USkeletalMesh* ViewMesh = LoadObject<USkeletalMesh>(nullptr,
-			TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SKM_Operator_Mono.SKM_Operator_Mono")))
+			*AZP_MeleeViewModelMeshAsset.ToString()))
 		{
 			MeleeViewMeshComponent->SetSkeletalMesh(ViewMesh);
 			MeleeViewMeshComponent->HideBoneByName(FName("thigh_l"), PBO_None);
@@ -202,11 +202,11 @@ void UZP_KinemationComponent::InitializeKinemation()
 			// an Input-Pose -> Output passthrough graph on SKM_Manny_Skeleton.
 
 			// Paint the bare-skin slots (forearm MI_Skin + the hand MI_Gloves) with the
-			// MeleeHandMaterial (defaults to flat MI_HandSkin; settable in BP_GraceCharacter
+			// AZP_MeleeHandMaterial (defaults to flat MI_HandSkin; settable in BP_GraceCharacter
 			// → KinemationComp Details → Kinemation|Melee). Flat = solid color = UV-independent
 			// — can't mismap the glove/hand UVs (that caused the splotch) and there is NO
 			// second mesh to z-fight. Tune tone on MI_HandSkin (SkinColor / Roughness params).
-			UMaterialInterface* HandSkin = MeleeHandMaterial;
+			UMaterialInterface* HandSkin = AZP_MeleeHandMaterial;
 			if (!HandSkin)
 			{
 				HandSkin = LoadObject<UMaterialInterface>(nullptr,
@@ -228,24 +228,24 @@ void UZP_KinemationComponent::InitializeKinemation()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: Anims — MeleeLight:%d, MeleeIdle:%s, MeleeEquip:%s, MeleeUnequip:%s, GrenadeThrow:%s, ViewMesh:%s"),
-		MeleeLightAnims.Num(),
-		MeleeIdleAnim ? TEXT("OK") : TEXT("NOT FOUND"),
-		MeleeEquipAnim ? TEXT("OK") : TEXT("NOT FOUND"),
-		MeleeUnequipAnim ? TEXT("OK") : TEXT("NOT FOUND"),
-		GrenadeThrowAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		AZP_MeleeLightAnims.Num(),
+		AZP_MeleeIdleAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		AZP_MeleeEquipAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		AZP_MeleeUnequipAnim ? TEXT("OK") : TEXT("NOT FOUND"),
+		AZP_GrenadeThrowAnim ? TEXT("OK") : TEXT("NOT FOUND"),
 		(MeleeViewMeshComponent && MeleeViewMeshComponent->GetSkeletalMeshAsset()) ? TEXT("OK") : TEXT("NOT FOUND"));
 
 	// Load grenade projectile class
-	if (!GrenadeProjectileClass)
+	if (!AZP_GrenadeProjectileClass)
 	{
-		GrenadeProjectileClass = AZP_GrenadeProjectile::StaticClass();
+		AZP_GrenadeProjectileClass = AZP_GrenadeProjectile::StaticClass();
 	}
 
 	// Initialize ammo state from config
-	CurrentAmmo = MagSize;
+	CurrentAmmo = AZP_MagSize;
 
-	// Spawn and equip default weapon (only if bAutoSpawnWeapon is true)
-	if (bAutoSpawnWeapon)
+	// Spawn and equip default weapon (only if bAZP_AutoSpawnWeapon is true)
+	if (bAZP_AutoSpawnWeapon)
 	{
 		SpawnAndEquipWeapon();
 		// Apply per-weapon config (mag size, fire rate, damage, weapon type)
@@ -253,12 +253,12 @@ void UZP_KinemationComponent::InitializeKinemation()
 		// reload is blocked because CurrentWeaponType remains None.
 		if (ActiveWeapon)
 		{
-			ApplyWeaponConfig(WeaponClass);
+			ApplyWeaponConfig(AZP_WeaponClass);
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: bAutoSpawnWeapon=false — weapon spawn deferred to inventory."));
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: bAZP_AutoSpawnWeapon=false — weapon spawn deferred to inventory."));
 	}
 
 	// Broadcast initial ammo state (after weapon spawn so HUD binding can catch it)
@@ -388,9 +388,9 @@ void UZP_KinemationComponent::InitKinemationAnimation()
 
 void UZP_KinemationComponent::SpawnAndEquipWeapon()
 {
-	if (!WeaponClass)
+	if (!AZP_WeaponClass)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: No WeaponClass set — skipping."));
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: No AZP_WeaponClass set — skipping."));
 		return;
 	}
 
@@ -408,7 +408,7 @@ void UZP_KinemationComponent::SpawnAndEquipWeapon()
 	SpawnParams.Owner = Owner;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	ActiveWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass, FTransform::Identity, SpawnParams);
+	ActiveWeapon = GetWorld()->SpawnActor<AActor>(AZP_WeaponClass, FTransform::Identity, SpawnParams);
 	if (!ActiveWeapon)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[TheSignal] KinemationComponent: Failed to spawn weapon!"));
@@ -416,7 +416,7 @@ void UZP_KinemationComponent::SpawnAndEquipWeapon()
 	}
 
 	// Attach weapon to PlayerMesh at the gun socket
-	const FName WeaponSocket(TEXT("VB ik_hand_gun"));
+	const FName WeaponSocket = AZP_WeaponAttachSocketName;
 	ActiveWeapon->AttachToComponent(PlayerMeshComponent,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 
@@ -467,7 +467,7 @@ bool UZP_KinemationComponent::EquipWeapon()
 
 	if (ActiveWeapon)
 	{
-		ApplyWeaponConfig(WeaponClass);
+		ApplyWeaponConfig(AZP_WeaponClass);
 		OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
 		OnWeaponTypeChanged.Broadcast(CurrentWeaponType);
 		OnWeaponChanged.Broadcast(ActiveWeapon);
@@ -500,7 +500,7 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 	}
 
 	// If same weapon type is already equipped, skip
-	if (ActiveWeapon && WeaponClass == ActorClass)
+	if (ActiveWeapon && AZP_WeaponClass == ActorClass)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::EquipWeaponClass — same weapon already equipped."));
 		return true;
@@ -509,7 +509,7 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 	// Save current weapon class before switching (for auto-switch-back after throwable)
 	if (ActiveWeapon && CurrentWeaponType != EZP_WeaponType::Throwable)
 	{
-		PreviousWeaponClass = WeaponClass;
+		PreviousWeaponClass = AZP_WeaponClass;
 	}
 
 	// --- Traditional Kinemation swap (session 63): the new weapon's Draw
@@ -564,11 +564,11 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 	GetWorld()->GetTimerManager().SetTimer(WeaponSwitchAnimHandle, [this]()
 	{
 		bWeaponSwitching = false;
-	}, WeaponDrawLockTime, false);
+	}, AZP_WeaponDrawLockTime, false);
 	GetWorld()->GetTimerManager().SetTimer(HeadHideHandle, [this]()
 	{
 		SetCameraBonePinned(false);
-	}, SwapHeadHideTime, false);
+	}, AZP_SwapHeadHideTime, false);
 
 	return true;
 }
@@ -581,7 +581,7 @@ bool UZP_KinemationComponent::PerformWeaponSwap(TSubclassOf<AActor> ActorClass)
 		ActiveWeapon = nullptr;
 	}
 
-	WeaponClass = ActorClass;
+	AZP_WeaponClass = ActorClass;
 	SpawnAndEquipWeapon(); // sets ActiveSettings + plays the Draw montage (deferred one tick)
 
 	if (!ActiveWeapon)
@@ -590,7 +590,7 @@ bool UZP_KinemationComponent::PerformWeaponSwap(TSubclassOf<AActor> ActorClass)
 	}
 
 	ApplyWeaponConfig(ActorClass); // melee raises its Kubold view model in here
-	CurrentAmmo = MagSize;
+	CurrentAmmo = AZP_MagSize;
 	OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
 	OnWeaponTypeChanged.Broadcast(CurrentWeaponType);
 	OnWeaponChanged.Broadcast(ActiveWeapon);
@@ -615,10 +615,10 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	if (WeaponName.Contains(TEXT("Viper")))
 	{
 		// WK-11 Viper — Pistol
-		MagSize = 12;
-		FireCooldownTime = 0.25f;
-		HitscanBodyDamage = 10.f;
-		HitscanWeakPointDamage = 50.f;
+		AZP_MagSize = 12;
+		AZP_FireCooldownTime = 0.25f;
+		AZP_HitscanBodyDamage = 10.f;
+		AZP_HitscanWeakPointDamage = 50.f;
 		ReserveAmmo = 48;
 	}
 	else if (WeaponName.Contains(TEXT("Herrington")))
@@ -626,10 +626,10 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 		// Herrington 11-87 — Shotgun (Police or standard)
 		// Buckshot spray: these are the TOTAL per-shot damage (3x pistol = 30/150),
 		// split across the pellets in PerformHitscan.
-		MagSize = 6;
-		FireCooldownTime = 0.8f;
-		HitscanBodyDamage = 30.f;
-		HitscanWeakPointDamage = 150.f;
+		AZP_MagSize = 6;
+		AZP_FireCooldownTime = 0.8f;
+		AZP_HitscanBodyDamage = 30.f;
+		AZP_HitscanWeakPointDamage = 150.f;
 		ReserveAmmo = 24;
 		bShellReload = true;
 	}
@@ -637,29 +637,29 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	{
 		// AK-105 Carbine — Assault Rifle. Semi-auto: limited by trigger pull,
 		// not cycling — 0.47s read as ~1 shot/sec in play (dev call).
-		MagSize = 30;
-		FireCooldownTime = 0.15f;
-		HitscanBodyDamage = 15.f;
-		HitscanWeakPointDamage = 60.f;
+		AZP_MagSize = 30;
+		AZP_FireCooldownTime = 0.15f;
+		AZP_HitscanBodyDamage = 15.f;
+		AZP_HitscanWeakPointDamage = 60.f;
 		ReserveAmmo = 90;
 	}
 	else if (WeaponName.Contains(TEXT("TR15")))
 	{
 		// TR15 — Rifle
-		MagSize = 20;
-		FireCooldownTime = 0.15f;
-		HitscanBodyDamage = 18.f;
-		HitscanWeakPointDamage = 70.f;
+		AZP_MagSize = 20;
+		AZP_FireCooldownTime = 0.15f;
+		AZP_HitscanBodyDamage = 18.f;
+		AZP_HitscanWeakPointDamage = 70.f;
 		ReserveAmmo = 60;
 	}
 	else if (WeaponName.Contains(TEXT("SRM")))
 	{
 		// SRM-12 — Shotgun. Buckshot spray: TOTAL per-shot damage (3x pistol = 30/150),
 		// split across the pellets in PerformHitscan.
-		MagSize = 8;
-		FireCooldownTime = 0.7f;
-		HitscanBodyDamage = 30.f;
-		HitscanWeakPointDamage = 150.f;
+		AZP_MagSize = 8;
+		AZP_FireCooldownTime = 0.7f;
+		AZP_HitscanBodyDamage = 30.f;
+		AZP_HitscanWeakPointDamage = 150.f;
 		ReserveAmmo = 32;
 		bShellReload = true;
 	}
@@ -667,9 +667,9 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	{
 		// Pipe — Melee weapon
 		CurrentWeaponType = EZP_WeaponType::Melee;
-		MeleeDamage = 25.f;
-		MeleeCooldown = 0.7f;
-		MagSize = 0;
+		AZP_MeleeDamage = 25.f;
+		AZP_MeleeCooldown = 0.7f;
+		AZP_MagSize = 0;
 		CurrentAmmo = 0;
 		ReserveAmmo = 0;
 	}
@@ -677,7 +677,7 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	{
 		// Grenade — Throwable weapon (1 throw per equip, consumed from inventory)
 		CurrentWeaponType = EZP_WeaponType::Throwable;
-		MagSize = 1;
+		AZP_MagSize = 1;
 		CurrentAmmo = 1;
 		ReserveAmmo = 0;
 	}
@@ -864,18 +864,18 @@ void UZP_KinemationComponent::SetAiming(bool bAiming)
 
 	// Per-weapon ADS FOV — the aim pose pulls the gun to the eye (the "zoom"); a wider
 	// FOV counteracts it. Widen shotgun/rifle to dial their zoom back. Hip-fire = default.
-	float TargetFOV = DefaultFOV;
+	float TargetFOV = AZP_DefaultFOV;
 	if (bAiming)
 	{
 		switch (CurrentWeaponIcon)
 		{
-			case EZP_WeaponIcon::Shotgun: TargetFOV = AdsFOVShotgun; break;
-			case EZP_WeaponIcon::Rifle:   TargetFOV = AdsFOVRifle;   break;
-			case EZP_WeaponIcon::Pistol:  TargetFOV = AdsFOVPistol;  break;
+			case EZP_WeaponIcon::Shotgun: TargetFOV = AZP_AdsFOVShotgun; break;
+			case EZP_WeaponIcon::Rifle:   TargetFOV = AZP_AdsFOVRifle;   break;
+			case EZP_WeaponIcon::Pistol:  TargetFOV = AZP_AdsFOVPistol;  break;
 			default: break;
 		}
 	}
-	SetTargetFOV(TargetFOV, AdsFOVInterpSpeed);
+	SetTargetFOV(TargetFOV, AZP_AdsFOVInterpSpeed);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::SetAiming(%s)"),
 		bAiming ? TEXT("true") : TEXT("false"));
@@ -927,7 +927,7 @@ void UZP_KinemationComponent::FirePressed()
 	UZP_CrawlerBehaviorComponent::BroadcastGunshot(
 		GetWorld(),
 		GetOwner()->GetActorLocation(),
-		8000.f, // default broadcast radius (creatures use their own GunshotAlertRadius for per-instance override)
+		AZP_GunshotAlertRadius, // default broadcast radius (creatures use their own AZP_GunshotAlertRadius for per-instance override)
 		GetOwner()
 	);
 
@@ -936,12 +936,12 @@ void UZP_KinemationComponent::FirePressed()
 	GetWorld()->GetTimerManager().SetTimer(FireCooldownHandle, [this]()
 	{
 		bFireCooldown = false;
-	}, FireCooldownTime, false);
+	}, AZP_FireCooldownTime, false);
 }
 
 void UZP_KinemationComponent::PerformHitscan()
 {
-	if (BulletDecalMaterials.Num() == 0)
+	if (AZP_BulletDecalMaterials.Num() == 0)
 	{
 		return;
 	}
@@ -960,22 +960,22 @@ void UZP_KinemationComponent::PerformHitscan()
 	const FVector AimDir = AimRot.Vector();
 
 	// Shotguns fire a randomized buckshot spray; everything else is a single round.
-	// HitscanBodyDamage/WeakPointDamage are the TOTAL per-shot damage — split across the
+	// AZP_HitscanBodyDamage/WeakPointDamage are the TOTAL per-shot damage — split across the
 	// pellets, so a full spray that all connects deals the total and partial hits scale down.
 	const bool bShotgun = (CurrentWeaponIcon == EZP_WeaponIcon::Shotgun);
 	const int32 PelletCount = bShotgun
-		? FMath::Max(1, FMath::RandRange(ShotgunPelletMin, ShotgunPelletMax))
+		? FMath::Max(1, FMath::RandRange(AZP_ShotgunPelletMin, AZP_ShotgunPelletMax))
 		: 1;
-	const float SpreadRad = FMath::DegreesToRadians(FMath::Max(0.f, ShotgunSpreadDegrees));
+	const float SpreadRad = FMath::DegreesToRadians(FMath::Max(0.f, AZP_ShotgunSpreadDegrees));
 
 	// Impact sound chosen by weapon identity — played ONCE per trigger pull at the
 	// first surface a round connects with (a 20-pellet shotgun must not fire 20 thuds).
 	USoundBase* ImpactSound = nullptr;
 	switch (CurrentWeaponIcon)
 	{
-		case EZP_WeaponIcon::Pistol:  ImpactSound = PistolImpactSound;  break;
-		case EZP_WeaponIcon::Rifle:   ImpactSound = RifleImpactSound;   break;
-		case EZP_WeaponIcon::Shotgun: ImpactSound = ShotgunImpactSound; break;
+		case EZP_WeaponIcon::Pistol:  ImpactSound = AZP_PistolImpactSound;  break;
+		case EZP_WeaponIcon::Rifle:   ImpactSound = AZP_RifleImpactSound;   break;
+		case EZP_WeaponIcon::Shotgun: ImpactSound = AZP_ShotgunImpactSound; break;
 		default: break;
 	}
 	bool bPlayedImpactSound = false;
@@ -983,7 +983,7 @@ void UZP_KinemationComponent::PerformHitscan()
 	for (int32 Pellet = 0; Pellet < PelletCount; ++Pellet)
 	{
 		const FVector Dir = (bShotgun && SpreadRad > 0.f) ? FMath::VRandCone(AimDir, SpreadRad) : AimDir;
-		const FVector End = Start + Dir * HitscanRange;
+		const FVector End = Start + Dir * AZP_HitscanRange;
 
 		FHitResult Hit;
 		FCollisionQueryParams Params;
@@ -1023,29 +1023,29 @@ void UZP_KinemationComponent::PerformHitscan()
 			bPlayedImpactSound = true;
 		}
 
-		UMaterialInterface* DecalMat = BulletDecalMaterials[FMath::RandRange(0, BulletDecalMaterials.Num() - 1)];
+		UMaterialInterface* DecalMat = AZP_BulletDecalMaterials[FMath::RandRange(0, AZP_BulletDecalMaterials.Num() - 1)];
 
 		// Decal projects along its local X — must face INTO the surface (opposite of impact normal)
 		const FRotator DecalRotation = (-Hit.ImpactNormal).Rotation();
 		if (UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(
-				GetWorld(), DecalMat, DecalSize, Hit.ImpactPoint, DecalRotation, DecalLifetime))
+				GetWorld(), DecalMat, AZP_DecalSize, Hit.ImpactPoint, DecalRotation, AZP_DecalLifetime))
 		{
-			Decal->SetFadeOut(DecalLifetime - 2.0f, 2.0f);
+			Decal->SetFadeOut(AZP_DecalLifetime - AZP_DecalFadeDuration, AZP_DecalFadeDuration);
 		}
 
 		// Apply this pellet's share of the damage to the hit actor.
 		if (Hit.GetActor())
 		{
 			const float DistFromCenter = FVector::Dist(Hit.ImpactPoint, Hit.GetActor()->GetActorLocation());
-			const bool bWeakPointHit = DistFromCenter <= WeakPointRadius;
-			const float FullDamage = bWeakPointHit ? HitscanWeakPointDamage : HitscanBodyDamage;
+			const bool bWeakPointHit = DistFromCenter <= AZP_WeakPointRadius;
+			const float FullDamage = bWeakPointHit ? AZP_HitscanWeakPointDamage : AZP_HitscanBodyDamage;
 			const float Damage = FullDamage / PelletCount; // per-pellet share of the total
 
 			UGameplayStatics::ApplyPointDamage(
 				Hit.GetActor(), Damage, Dir, Hit, PC, GetOwner(), nullptr);
 
 			// Blood on pawn hits: ranged trio "Splash + Hit + Metal" (bullet impact/ricochet) at the
-			// enemy's BloodIntensity + traced splatter decals. Per-enemy via UZP_BloodFXComponent.
+			// enemy's AZP_BloodIntensity + traced splatter decals. Per-enemy via UZP_BloodFXComponent.
 			if (Cast<APawn>(Hit.GetActor()))
 			{
 				UZP_BloodFXComponent::PlayHitBloodFor(Hit.GetActor(), Hit.ImpactPoint, Dir, /*bMeleeHit=*/false, Hit.ImpactNormal);
@@ -1076,7 +1076,7 @@ void UZP_KinemationComponent::Reload()
 	}
 
 	// Skip reload if mag is full or no reserve ammo
-	if (CurrentAmmo >= MagSize || ReserveAmmo <= 0)
+	if (CurrentAmmo >= AZP_MagSize || ReserveAmmo <= 0)
 	{
 		return;
 	}
@@ -1086,12 +1086,12 @@ void UZP_KinemationComponent::Reload()
 	// Shell loaders animate per shell — lock/refill/head-hide must run for
 	// the REAL duration or the head pops back mid-animation (dev-caught on
 	// the shotgun: ~9s full reload vs the old flat 3s).
-	float ThisReloadTime = ReloadTime;
+	float ThisReloadTime = AZP_ReloadTime;
 	if (bShellReload)
 	{
-		const int32 Shells = FMath::Min(MagSize - CurrentAmmo, ReserveAmmo);
-		const float StartTime = (CurrentAmmo == 0) ? ShellReloadEmptyStartTime : ShellReloadTacStartTime;
-		ThisReloadTime = StartTime + Shells * ShellReloadLoopTime + ShellReloadEndTime;
+		const int32 Shells = FMath::Min(AZP_MagSize - CurrentAmmo, ReserveAmmo);
+		const float StartTime = (CurrentAmmo == 0) ? AZP_ShellReloadEmptyStartTime : AZP_ShellReloadTacStartTime;
+		ThisReloadTime = StartTime + Shells * AZP_ShellReloadLoopTime + AZP_ShellReloadEndTime;
 	}
 
 	bIsReloading = true;
@@ -1104,7 +1104,7 @@ void UZP_KinemationComponent::Reload()
 		// Transfer ammo from reserve (= inventory ammo) into the magazine. ReserveAmmo
 		// mirrors the inventory; the character consumes the actual items on the
 		// OnReserveConsumed broadcast, then re-syncs ReserveAmmo from what's left.
-		const int32 AmmoNeeded = MagSize - CurrentAmmo;
+		const int32 AmmoNeeded = AZP_MagSize - CurrentAmmo;
 		const int32 AmmoAvailable = FMath::Min(AmmoNeeded, ReserveAmmo);
 		CurrentAmmo += AmmoAvailable;
 		OnReserveConsumed.Broadcast(AmmoAvailable, CurrentWeaponIcon);
@@ -1123,32 +1123,32 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 
 	// --- Pick the swing: cycles F → R → L (variety is dev-approved) ---
 	UAnimSequenceBase* SwingAnim = nullptr;
-	if (MeleeLightAnims.Num() > 0)
+	if (AZP_MeleeLightAnims.Num() > 0)
 	{
-		SwingAnim = MeleeLightAnims[MeleeLightAnimIndex % MeleeLightAnims.Num()];
+		SwingAnim = AZP_MeleeLightAnims[MeleeLightAnimIndex % AZP_MeleeLightAnims.Num()];
 		++MeleeLightAnimIndex;
 	}
 
 	// Swing whoosh — own-body foley, fires with the swing regardless of view-model state.
-	if (MeleeSwingSound)
+	if (AZP_MeleeSwingSound)
 	{
-		UGameplayStatics::PlaySound2D(GetOwner(), MeleeSwingSound, MeleeSwingVolume);
+		UGameplayStatics::PlaySound2D(GetOwner(), AZP_MeleeSwingSound, AZP_MeleeSwingVolume);
 	}
 
 	// --- Animation: retargeted Kubold swing on the view model (TICKET-054) ---
 	float SwingDuration = 0.7f; // fallback if anim missing
 	if (bMeleeViewModelActive && MeleeViewMeshComponent && SwingAnim)
 	{
-		PlayMeleeViewAnim(SwingAnim, false, MeleeSwingRate);
-		SwingDuration = SwingAnim->GetPlayLength() / FMath::Max(MeleeSwingRate, 0.1f);
+		PlayMeleeViewAnim(SwingAnim, false, AZP_MeleeSwingRate);
+		SwingDuration = SwingAnim->GetPlayLength() / FMath::Max(AZP_MeleeSwingRate, 0.1f);
 
 		bMeleeSwingActive = true;
 		bMeleeSwingTailCancelable = false;
 		GetWorld()->GetTimerManager().SetTimer(MeleeSwingReturnHandle, [this]()
 		{
-			if (bMeleeViewModelActive && MeleeIdleAnim)
+			if (bMeleeViewModelActive && AZP_MeleeIdleAnim)
 			{
-				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+				PlayMeleeViewAnim(AZP_MeleeIdleAnim, true, 1.0f);
 			}
 			bMeleeSwingActive = false;
 			bMeleeSwingTailCancelable = false;
@@ -1159,7 +1159,7 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 		GetWorld()->GetTimerManager().SetTimer(MeleeTailCancelHandle, [this]()
 		{
 			bMeleeSwingTailCancelable = true;
-		}, SwingDuration * FMath::Clamp(MeleeBlockCancelFraction, 0.1f, 1.0f), false);
+		}, SwingDuration * FMath::Clamp(AZP_MeleeBlockCancelFraction, 0.1f, 1.0f), false);
 	}
 	else
 	{
@@ -1170,18 +1170,18 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 
 	// --- Damage: sweep on the impact frame, not at click time ---
 	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f SWING click — damage sweep queued to fire at t=%.2f (+%.2fs)"),
-		GetWorld()->GetTimeSeconds(), GetWorld()->GetTimeSeconds() + MeleeDamageDelay, MeleeDamageDelay);
+		GetWorld()->GetTimeSeconds(), GetWorld()->GetTimeSeconds() + AZP_MeleeDamageDelay, AZP_MeleeDamageDelay);
 	GetWorld()->GetTimerManager().SetTimer(MeleeDamageHandle, [this]()
 	{
 		DoMeleeDamageSweep();
-	}, MeleeDamageDelay, false);
+	}, AZP_MeleeDamageDelay, false);
 
 	// Cooldown covers the full swing so a re-click can't restart mid-animation
 	bMeleeCooldown = true;
 	GetWorld()->GetTimerManager().SetTimer(MeleeCooldownHandle, [this]()
 	{
 		bMeleeCooldown = false;
-	}, FMath::Max(MeleeCooldown, SwingDuration), false);
+	}, FMath::Max(AZP_MeleeCooldown, SwingDuration), false);
 }
 
 void UZP_KinemationComponent::DoMeleeDamageSweep()
@@ -1194,7 +1194,7 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 	{
 		const FVector Start = CameraComponent->GetComponentLocation();
 		const FRotator AimRot = PC->GetControlRotation();
-		const FVector End = Start + AimRot.Vector() * MeleeRange;
+		const FVector End = Start + AimRot.Vector() * AZP_MeleeRange;
 
 		FHitResult Hit;
 		FCollisionQueryParams Params;
@@ -1214,7 +1214,7 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 		for (int32 Iter = 0; Iter < 8; ++Iter)
 		{
 			if (!GetWorld()->SweepSingleByChannel(Hit, Start, End, FQuat::Identity,
-				ECC_Visibility, FCollisionShape::MakeSphere(MeleeSweepRadius), Params))
+				ECC_Visibility, FCollisionShape::MakeSphere(AZP_MeleeSweepRadius), Params))
 			{
 				break; // swung at nothing solid
 			}
@@ -1239,14 +1239,14 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 				// Pipe is metal — the metal sound always plays — and a flesh impact
 				// layers on top (dev: "impact + hit at the same time"). Close carry: own-melee
 				// foley, always within ~2 m of the listener.
-				UZP_SFXStatics::PlaySFXAtLocation(this, PipeMetalSound, ImpactLoc, EZP_SFXCarry::Close);
-				if (MeleeFleshImpactSounds.Num() > 0)
+				UZP_SFXStatics::PlaySFXAtLocation(this, AZP_PipeMetalSound, ImpactLoc, EZP_SFXCarry::Close);
+				if (AZP_MeleeFleshImpactSounds.Num() > 0)
 				{
-					USoundBase* Flesh = MeleeFleshImpactSounds[FMath::RandRange(0, MeleeFleshImpactSounds.Num() - 1)];
+					USoundBase* Flesh = AZP_MeleeFleshImpactSounds[FMath::RandRange(0, AZP_MeleeFleshImpactSounds.Num() - 1)];
 					UZP_SFXStatics::PlaySFXAtLocation(this, Flesh, ImpactLoc, EZP_SFXCarry::Close);
 				}
 
-				// Blood: melee trio "Splash with Burst + Hit" at the enemy's BloodIntensity +
+				// Blood: melee trio "Splash with Burst + Hit" at the enemy's AZP_BloodIntensity +
 				// traced persistent splatter decals + delayed floor pool. Per-enemy via UZP_BloodFXComponent.
 				// ImpactNormal lays the body-residual stains flat on the skin.
 				const FVector SwingDir = (Hit.TraceEnd - Hit.TraceStart).GetSafeNormal();
@@ -1255,16 +1255,16 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 			else
 			{
 				// Pipe struck a wall / hard surface.
-				UZP_SFXStatics::PlaySFXAtLocation(this, PipeWallImpactSound, ImpactLoc, EZP_SFXCarry::Close);
+				UZP_SFXStatics::PlaySFXAtLocation(this, AZP_PipeWallImpactSound, ImpactLoc, EZP_SFXCarry::Close);
 			}
 
 			if (Hit.GetActor())
 			{
 				// Tag the hit as MELEE so height-headshot enemies (Shambler/Scytheer) treat it as a
-				// flat body strike (MeleeDamage), never a headshot.
+				// flat body strike (AZP_MeleeDamage), never a headshot.
 				UGameplayStatics::ApplyPointDamage(
 					Hit.GetActor(),
-					MeleeDamage,
+					AZP_MeleeDamage,
 					AimRot.Vector(),
 					Hit,
 					PC,
@@ -1273,9 +1273,9 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 				);
 
 				UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee hit %s — %.0f dmg"),
-					*Hit.GetActor()->GetName(), MeleeDamage);
+					*Hit.GetActor()->GetName(), AZP_MeleeDamage);
 
-				// Stagger the enemy on a landed pipe hit (HitStaggerDuration). Routed through the
+				// Stagger the enemy on a landed pipe hit (AZP_HitStaggerDuration). Routed through the
 				// player so the duration stays an exposed knob and the IZP_Staggerable lookup is shared.
 				if (bHitEnemy)
 				{
@@ -1292,7 +1292,7 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 	UZP_CrawlerBehaviorComponent::BroadcastGunshot(
 		GetWorld(),
 		GetOwner()->GetActorLocation(),
-		2000.f,
+		AZP_MeleeNoiseAlertRadius,
 		GetOwner()
 	);
 }
@@ -1327,8 +1327,8 @@ void UZP_KinemationComponent::SetMeleeWeaponBlockGrip(bool bBlocking)
 	// blend swept the pipe OUT of the hand on un/block. Hand-local is the fix.)
 	MeleeWeaponMeshComp->AttachToComponent(MeleeViewMeshComponent,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r"));
-	MeleeWeaponMeshComp->SetRelativeLocation(MeleeGripOffset);
-	MeleeWeaponMeshComp->SetRelativeRotation(MeleeGripRotation);
+	MeleeWeaponMeshComp->SetRelativeLocation(AZP_MeleeGripOffset);
+	MeleeWeaponMeshComp->SetRelativeRotation(AZP_MeleeGripRotation);
 	MeleeGripBlend = bBlocking ? 1.f : 0.f;
 }
 
@@ -1336,16 +1336,16 @@ void UZP_KinemationComponent::UpdateMeleeGrip(float DeltaSeconds, bool bBlocking
 {
 	if (!MeleeWeaponMeshComp) return;
 
-	MeleeGripBlend = FMath::FInterpTo(MeleeGripBlend, bBlocking ? 1.f : 0.f, DeltaSeconds, BlockGripBlendSpeed);
+	MeleeGripBlend = FMath::FInterpTo(MeleeGripBlend, bBlocking ? 1.f : 0.f, DeltaSeconds, AZP_BlockGripBlendSpeed);
 
 	// Ease the hand_r-RELATIVE grip between idle and block. Block is an additive delta on
 	// the fitted idle grip, so both endpoints live in the same (hand-local) frame. We set
 	// the pipe's RELATIVE transform on a hand_r-parented mesh, so the engine composes it
 	// with the freshly evaluated hand pose every frame: the pipe tracks the hand 1:1 and
 	// the un/block transition can only shift the grip WITHIN the hand — never out of it.
-	const FVector  Loc   = MeleeGripOffset + BlockGripDeltaLocation * MeleeGripBlend;
-	const FQuat    IdleQ = MeleeGripRotation.Quaternion();
-	const FQuat    Rot   = FQuat::Slerp(IdleQ, IdleQ * BlockGripDeltaRotation.Quaternion(), MeleeGripBlend);
+	const FVector  Loc   = AZP_MeleeGripOffset + AZP_BlockGripDeltaLocation * MeleeGripBlend;
+	const FQuat    IdleQ = AZP_MeleeGripRotation.Quaternion();
+	const FQuat    Rot   = FQuat::Slerp(IdleQ, IdleQ * AZP_BlockGripDeltaRotation.Quaternion(), MeleeGripBlend);
 
 	MeleeWeaponMeshComp->SetRelativeLocation(Loc);
 	MeleeWeaponMeshComp->SetRelativeRotation(Rot);
@@ -1392,7 +1392,7 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 		MeleeWeaponMeshComp->CastShadow = false;
 		MeleeWeaponMeshComp->RegisterComponent();
 		if (UStaticMesh* PipeMesh = LoadObject<UStaticMesh>(nullptr,
-			TEXT("/Game/InventorySystemPro/ExampleContent/Common/Art/Pipe/SM_Pipe.SM_Pipe")))
+			*AZP_MeleeWeaponMeshAsset.ToString()))
 		{
 			MeleeWeaponMeshComp->SetStaticMesh(PipeMesh);
 		}
@@ -1401,7 +1401,7 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ActivateMeleeViewModel — SM_Pipe not found, view model swings empty-handed."));
 		}
 	}
-	// Idle/swing grip: hand_r + MeleeGripOffset (fitted to the idle finger channel).
+	// Idle/swing grip: hand_r + AZP_MeleeGripOffset (fitted to the idle finger channel).
 	// Block re-attaches to ik_hand_gun at runtime via SetMeleeWeaponBlockGrip() — only
 	// block needed the weapon joint; idle must stay on hand_r or its fitted grip breaks.
 	SetMeleeWeaponBlockGrip(false);
@@ -1426,16 +1426,16 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 	}
 
 	// Raise: Kubold Equip → Idle loop. Swing is blocked until the raise lands.
-	if (MeleeEquipAnim)
+	if (AZP_MeleeEquipAnim)
 	{
-		PlayMeleeViewAnim(MeleeEquipAnim, false, MeleeEquipRate);
-		const float EquipTime = MeleeEquipAnim->GetPlayLength() / FMath::Max(MeleeEquipRate, 0.1f);
+		PlayMeleeViewAnim(AZP_MeleeEquipAnim, false, AZP_MeleeEquipRate);
+		const float EquipTime = AZP_MeleeEquipAnim->GetPlayLength() / FMath::Max(AZP_MeleeEquipRate, 0.1f);
 
 		GetWorld()->GetTimerManager().SetTimer(MeleeEquipIdleHandle, [this]()
 		{
-			if (bMeleeViewModelActive && MeleeIdleAnim)
+			if (bMeleeViewModelActive && AZP_MeleeIdleAnim)
 			{
-				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+				PlayMeleeViewAnim(AZP_MeleeIdleAnim, true, 1.0f);
 			}
 		}, EquipTime, false);
 
@@ -1445,9 +1445,9 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 			bMeleeCooldown = false;
 		}, EquipTime, false);
 	}
-	else if (MeleeIdleAnim)
+	else if (AZP_MeleeIdleAnim)
 	{
-		PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+		PlayMeleeViewAnim(AZP_MeleeIdleAnim, true, 1.0f);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee view model ACTIVE (Kubold FPP)"));
@@ -1491,9 +1491,9 @@ void UZP_KinemationComponent::ActivateThrowableViewModel()
 	{
 		ActiveWeapon->AttachToComponent(MeleeViewMeshComponent,
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r"));
-		ActiveWeapon->SetActorRelativeLocation(ThrowableGripOffset);
-		ActiveWeapon->SetActorRelativeRotation(ThrowableGripRotation);
-		ActiveWeapon->SetActorRelativeScale3D(ThrowableGripScale);
+		ActiveWeapon->SetActorRelativeLocation(AZP_ThrowableGripOffset);
+		ActiveWeapon->SetActorRelativeRotation(AZP_ThrowableGripRotation);
+		ActiveWeapon->SetActorRelativeScale3D(AZP_ThrowableGripScale);
 		ActiveWeapon->SetActorHiddenInGame(false);
 	}
 
@@ -1502,23 +1502,23 @@ void UZP_KinemationComponent::ActivateThrowableViewModel()
 	// Only the back half of the Kubold Equip — the first half mimes drawing
 	// a pipe (a remnant, no pipe in hand); the simple rise from below is the
 	// grenade-out animation (dev call)
-	if (MeleeEquipAnim)
+	if (AZP_MeleeEquipAnim)
 	{
-		PlayMeleeViewAnim(MeleeEquipAnim, false, MeleeEquipRate);
-		const float StartTime = MeleeEquipAnim->GetPlayLength() * ThrowableEquipStartFraction;
+		PlayMeleeViewAnim(AZP_MeleeEquipAnim, false, AZP_MeleeEquipRate);
+		const float StartTime = AZP_MeleeEquipAnim->GetPlayLength() * AZP_ThrowableEquipStartFraction;
 		MeleeViewMeshComponent->SetPosition(StartTime, false);
-		const float EquipTime = (MeleeEquipAnim->GetPlayLength() - StartTime) / FMath::Max(MeleeEquipRate, 0.1f);
+		const float EquipTime = (AZP_MeleeEquipAnim->GetPlayLength() - StartTime) / FMath::Max(AZP_MeleeEquipRate, 0.1f);
 		GetWorld()->GetTimerManager().SetTimer(MeleeEquipIdleHandle, [this]()
 		{
-			if (bMeleeViewModelActive && MeleeIdleAnim)
+			if (bMeleeViewModelActive && AZP_MeleeIdleAnim)
 			{
-				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+				PlayMeleeViewAnim(AZP_MeleeIdleAnim, true, 1.0f);
 			}
 		}, EquipTime, false);
 	}
-	else if (MeleeIdleAnim)
+	else if (AZP_MeleeIdleAnim)
 	{
-		PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+		PlayMeleeViewAnim(AZP_MeleeIdleAnim, true, 1.0f);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Throwable view model ACTIVE (Kubold right fist)"));
@@ -1549,12 +1549,12 @@ void UZP_KinemationComponent::DeactivateMeleeViewModel(bool bPlayUnequip)
 	bMeleeSwingActive = false;
 	bMeleeSwingTailCancelable = false;
 
-	if (MeleeViewMeshComponent && bPlayUnequip && MeleeUnequipAnim)
+	if (MeleeViewMeshComponent && bPlayUnequip && AZP_MeleeUnequipAnim)
 	{
 		// Lower the pipe through the swap drop window; hide at the off-screen
 		// moment (0.5s — matches EquipWeaponClass phase 2). Clavicle restore is
 		// handled by ApplyWeaponConfig when the new weapon's config lands.
-		PlayMeleeViewAnim(MeleeUnequipAnim, false, MeleeUnequipRate);
+		PlayMeleeViewAnim(AZP_MeleeUnequipAnim, false, AZP_MeleeUnequipRate);
 		GetWorld()->GetTimerManager().SetTimer(MeleeUnequipHideHandle, [this]()
 		{
 			if (!bMeleeViewModelActive && MeleeViewMeshComponent)
@@ -1565,7 +1565,7 @@ void UZP_KinemationComponent::DeactivateMeleeViewModel(bool bPlayUnequip)
 					MeleeWeaponMeshComp->SetVisibility(false);
 				}
 			}
-		}, 0.5f, false);
+		}, AZP_MeleeUnequipHideDelay, false);
 	}
 	else
 	{
@@ -1620,13 +1620,13 @@ void UZP_KinemationComponent::ThrowProjectile()
 
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	AController* PC = OwnerPawn ? OwnerPawn->GetController() : nullptr;
-	if (!PC || !CameraComponent || !GrenadeProjectileClass)
+	if (!PC || !CameraComponent || !AZP_GrenadeProjectileClass)
 	{
 		return;
 	}
 
 	const FVector SpawnLoc = CameraComponent->GetComponentLocation()
-		+ PC->GetControlRotation().Vector() * 100.f;
+		+ PC->GetControlRotation().Vector() * AZP_ThrowSpawnForwardOffset;
 	const FRotator SpawnRot = PC->GetControlRotation();
 
 	FActorSpawnParameters SpawnParams;
@@ -1635,7 +1635,7 @@ void UZP_KinemationComponent::ThrowProjectile()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AActor* Grenade = GetWorld()->SpawnActor<AActor>(
-		GrenadeProjectileClass, SpawnLoc, SpawnRot, SpawnParams);
+		AZP_GrenadeProjectileClass, SpawnLoc, SpawnRot, SpawnParams);
 
 	if (Grenade)
 	{
@@ -1666,7 +1666,7 @@ void UZP_KinemationComponent::ThrowProjectile()
 	GetWorld()->GetTimerManager().SetTimer(FireCooldownHandle, [this]()
 	{
 		bFireCooldown = false;
-	}, 0.8f, false);
+	}, AZP_ThrowCooldownTime, false);
 }
 
 void UZP_KinemationComponent::SetCameraBonePinned(bool bPinned)
@@ -1698,22 +1698,22 @@ void UZP_KinemationComponent::RestockThrowable()
 	{
 		return;
 	}
-	CurrentAmmo = MagSize > 0 ? MagSize : 1;
+	CurrentAmmo = AZP_MagSize > 0 ? AZP_MagSize : 1;
 	OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
 
 	// Bring the next grenade up like a fresh equip (dev call) — replay the
 	// rise-from-below on the view model, same as the initial grenade equip.
-	if (bMeleeViewModelActive && MeleeEquipAnim && MeleeViewMeshComponent)
+	if (bMeleeViewModelActive && AZP_MeleeEquipAnim && MeleeViewMeshComponent)
 	{
-		PlayMeleeViewAnim(MeleeEquipAnim, false, MeleeEquipRate);
-		const float StartTime = MeleeEquipAnim->GetPlayLength() * ThrowableEquipStartFraction;
+		PlayMeleeViewAnim(AZP_MeleeEquipAnim, false, AZP_MeleeEquipRate);
+		const float StartTime = AZP_MeleeEquipAnim->GetPlayLength() * AZP_ThrowableEquipStartFraction;
 		MeleeViewMeshComponent->SetPosition(StartTime, false);
-		const float EquipTime = (MeleeEquipAnim->GetPlayLength() - StartTime) / FMath::Max(MeleeEquipRate, 0.1f);
+		const float EquipTime = (AZP_MeleeEquipAnim->GetPlayLength() - StartTime) / FMath::Max(AZP_MeleeEquipRate, 0.1f);
 		GetWorld()->GetTimerManager().SetTimer(MeleeEquipIdleHandle, [this]()
 		{
-			if (bMeleeViewModelActive && MeleeIdleAnim)
+			if (bMeleeViewModelActive && AZP_MeleeIdleAnim)
 			{
-				PlayMeleeViewAnim(MeleeIdleAnim, true, 1.0f);
+				PlayMeleeViewAnim(AZP_MeleeIdleAnim, true, 1.0f);
 			}
 		}, EquipTime, false);
 	}

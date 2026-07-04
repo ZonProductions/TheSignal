@@ -41,7 +41,7 @@ public:
 
 	/** Reset the enemy from a dead/corpse state back to a fully alive, patrolling state: health to max,
 	 *  collision + movement + AI re-enabled, locomotion restored. Called by UZP_DeathSaveComponent when the
-	 *  enemy's configured ReviveOnObjective completes. Safe to call only on a currently-dead enemy. */
+	 *  enemy's configured AZP_ReviveOnObjective completes. Safe to call only on a currently-dead enemy. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Enemy|Revive")
 	void ReviveEnemy();
 };

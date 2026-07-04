@@ -28,10 +28,10 @@ void AZP_ObjectiveTrigger::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, A
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[ObjTrigger] %s OVERLAP by %s (isPlayer=%d, bFired=%d, bOneShot=%d)"),
+	UE_LOG(LogTemp, Warning, TEXT("[ObjTrigger] %s OVERLAP by %s (isPlayer=%d, bFired=%d, bAZP_OneShot=%d)"),
 		*GetName(), OtherActor ? *OtherActor->GetName() : TEXT("NULL"),
-		Cast<AZP_GraceCharacter>(OtherActor) != nullptr, bFired, bOneShot);
-	if (bOneShot && bFired) return;
+		Cast<AZP_GraceCharacter>(OtherActor) != nullptr, bFired, bAZP_OneShot);
+	if (bAZP_OneShot && bFired) return;
 	if (!Cast<AZP_GraceCharacter>(OtherActor)) return; // players only
 	Fire();
 }
@@ -44,28 +44,28 @@ void AZP_ObjectiveTrigger::Fire()
 	if (!Obj) { UE_LOG(LogTemp, Warning, TEXT("[ObjTrigger] %s: no ObjectiveSubsystem"), *GetName()); return; }
 
 	// Optional gate: only fire while the named main objective is active.
-	if (!RequiresActiveObjective.IsNone() && !Obj->IsObjectiveActive(RequiresActiveObjective))
+	if (!AZP_RequiresActiveObjective.IsNone() && !Obj->IsObjectiveActive(AZP_RequiresActiveObjective))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ObjTrigger] %s: GATED — RequiresActiveObjective '%s' is NOT active right now, so nothing fired. (Did you reach the step / is OFFICE1 active?)"),
-			*GetName(), *RequiresActiveObjective.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("[ObjTrigger] %s: GATED — AZP_RequiresActiveObjective '%s' is NOT active right now, so nothing fired. (Did you reach the step / is OFFICE1 active?)"),
+			*GetName(), *AZP_RequiresActiveObjective.ToString());
 		return;
 	}
 
-	if (TargetId.IsNone())
+	if (AZP_TargetId.IsNone())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ObjectiveTrigger %s: TargetId is None — nothing to fire"), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ObjectiveTrigger %s: AZP_TargetId is None — nothing to fire"), *GetName());
 		return;
 	}
 
-	switch (Action)
+	switch (AZP_Action)
 	{
-	case EZP_ObjectiveTriggerAction::SetFlag:              Obj->SetFlag(TargetId); break;
-	case EZP_ObjectiveTriggerAction::CompleteSubObjective: Obj->CompleteSubObjective(TargetId); break;
-	case EZP_ObjectiveTriggerAction::CompleteObjective:    Obj->CompleteObjective(TargetId); break;
-	case EZP_ObjectiveTriggerAction::StartObjective:       Obj->StartObjective(TargetId); break;
+	case EZP_ObjectiveTriggerAction::SetFlag:              Obj->SetFlag(AZP_TargetId); break;
+	case EZP_ObjectiveTriggerAction::CompleteSubObjective: Obj->CompleteSubObjective(AZP_TargetId); break;
+	case EZP_ObjectiveTriggerAction::CompleteObjective:    Obj->CompleteObjective(AZP_TargetId); break;
+	case EZP_ObjectiveTriggerAction::StartObjective:       Obj->StartObjective(AZP_TargetId); break;
 	}
 
 	bFired = true;
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveTrigger %s: fired %s '%s'"),
-		*GetName(), *UEnum::GetValueAsString(Action), *TargetId.ToString());
+		*GetName(), *UEnum::GetValueAsString(AZP_Action), *AZP_TargetId.ToString());
 }

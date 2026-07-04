@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-03T11:04:56",
+  "created": "2026-07-04T09:39:47",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -1594,6 +1594,18 @@
     "Content/Audio/SA_EnemyVoice.uasset": {
       "hash": "sha256:fd7bf95d3dbb2b00860488ef9a5b5ddc497d2e8faee094a4e0f0b67db72da150",
       "size": 1741
+    },
+    "Content/Audio/SFX_LARGE_SLIDE_DOOR.uasset": {
+      "hash": "sha256:d3ce47991de0ce8967f97ee0fdccc6c6542196aee5b5d00b8197f8019e043197",
+      "size": 315980
+    },
+    "Content/Audio/Campaign/C1_FUSE_BOX_COMPLETE.uasset": {
+      "hash": "sha256:2c162e75a663656d0cf1aeff81a3d6e0ee26cfe6c2c5add3e1bcd46f74161b2c",
+      "size": 539482
+    },
+    "Content/Audio/Campaign/C1_POWER_OUT.uasset": {
+      "hash": "sha256:1b6382aad5324d2010e4a12140575dccfea625e345b17d19deeed8e7f75550d4",
+      "size": 539442
     },
     "Content/Audio/Crawler/SFX_Crawler_Alert.uasset": {
       "hash": "sha256:bc1ab0fadf7d3b3603b9890cfc4d5a80ba80782524d21638be97456a19a61560",
@@ -13500,8 +13512,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:456db283fe9a05e06c957f57aec52e9b46c2723d23292fab5388245a95c7ed5f",
-      "size": 10785840
+      "hash": "sha256:1f5dd4b576cd10d6560978721bcab1ad3f019114021493a482c6db303bdefe26",
+      "size": 10798395
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -24548,8 +24560,8 @@
       "size": 18476
     },
     "Content/Data/DT_Objectives.uasset": {
-      "hash": "sha256:36a71bf9f606cd7497bf61dcc27eca9f3b2f2e941bfc71172f7f79ebce84cd61",
-      "size": 5777
+      "hash": "sha256:884afc1c3a416d4c2754f13315d6b7effc1ae9b7936f51cc72c1968bfe5621fe",
+      "size": 7902
     },
     "Content/Dialogue/Dialogue_Test.uasset": {
       "hash": "sha256:98831845dc9341524ec30b6cdce299e0728e24f6ea87f4b94d7c49b8030bc4f2",

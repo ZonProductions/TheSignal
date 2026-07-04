@@ -15,8 +15,8 @@
  *
  * Blueprint Extension Points:
  *   - PanelMesh: set static mesh in BP child.
- *   - RequiredItemDA / RequiredItemName: configure per-instance.
- *   - LinkedDoor: set reference to door actor in level editor.
+ *   - AZP_RequiredItemDA / AZP_RequiredItemName: configure per-instance.
+ *   - AZP_LinkedDoor: set reference to door actor in level editor.
  *
  * Dependencies:
  *   - IZP_Interactable interface
@@ -59,47 +59,55 @@ public:
 
 	/** The Moonville PDA_Item data asset required to unlock. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
-	TSoftObjectPtr<UObject> RequiredItemDA;
+	TSoftObjectPtr<UObject> AZP_RequiredItemDA;
 
 	/** Display name of the required item (shown in HUD feedback). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
-	FText RequiredItemName = FText::FromString(TEXT("Key Card"));
+	FText AZP_RequiredItemName = FText::FromString(TEXT("Key Card"));
 
 	/** The lockable door this panel unlocks (slide/gate type). */
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "CardReader")
-	TObjectPtr<AZP_LockableDoor> LinkedDoor;
+	TObjectPtr<AZP_LockableDoor> AZP_LinkedDoor;
 
 	/** Radius to auto-detect and lock nearby InteractDoors at BeginPlay. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
-	float DoorLockRadius = 300.f;
+	float AZP_DoorLockRadius = 300.f;
 
 	/** Whether to remove the key item from inventory after use. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
-	bool bConsumeKeyOnUse = true;
+	bool bAZP_ConsumeKeyOnUse = true;
 
 	/** Prompt shown to the player when in range. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
-	FText PromptText = FText::FromString(TEXT("Use Card Reader"));
+	FText AZP_PromptText = FText::FromString(TEXT("Use Card Reader"));
 
 	/** Message shown when item is missing. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
-	FText MissingItemMessage = FText::FromString(TEXT("Required: {0}"));
+	FText AZP_MissingItemMessage = FText::FromString(TEXT("Required: {0}"));
 
 	/** Message shown when access is granted. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader")
-	FText AccessGrantedMessage = FText::FromString(TEXT("Access Granted"));
+	FText AZP_AccessGrantedMessage = FText::FromString(TEXT("Access Granted"));
+
+	/** Status light color while the panel is locked (red), set in the constructor. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CardReader|Light")
+	FLinearColor AZP_LockedLightColor = FLinearColor(0.8f, 0.1f, 0.1f);
+
+	/** Status light color after a successful unlock (green), hardcoded inside UseKey. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CardReader|Light")
+	FLinearColor AZP_UnlockedLightColor = FLinearColor(0.1f, 0.8f, 0.1f);
 
 	// --- Objective hooks (optional; leave None to disable) ---
 
 	/** Objective flag set the first time the player interacts with this reader, locked or not.
 	 *  Use it to REVEAL a hidden sub-objective (e.g. "Find security card") via its RevealRequirements. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader|Objective")
-	FName ObjectiveFlagOnTry = NAME_None;
+	FName AZP_ObjectiveFlagOnTry = NAME_None;
 
 	/** Objective flag set when this reader is successfully unlocked. Use it to COMPLETE the access
 	 *  step (e.g. an "Access east wing" stage gated on FlagSet of this flag). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CardReader|Objective")
-	FName ObjectiveFlagOnUnlock = NAME_None;
+	FName AZP_ObjectiveFlagOnUnlock = NAME_None;
 
 	// --- IZP_Interactable ---
 
@@ -115,7 +123,7 @@ private:
 	/** InteractDoors auto-locked by this panel at BeginPlay. */
 	TArray<TWeakObjectPtr<AZP_InteractDoor>> AutoLockedDoors;
 
-	/** Check if the character has RequiredItemDA in their Moonville inventory. */
+	/** Check if the character has AZP_RequiredItemDA in their Moonville inventory. */
 	bool CheckPlayerHasItem(ACharacter* Character);
 
 	/** Consume the key item, unlock + open the linked door. */

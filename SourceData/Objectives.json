@@ -42,5 +42,36 @@
 				]
 			}
 		]
+	},
+	{
+		"Id": "RESEARCH1",
+		"Title": "Find a way out",
+		"bSideObjective": false,
+		"bStartOnLoad": false,
+		"Requires": [],
+		"SubObjectives": [
+			{
+				"Id": "RF_POWER",
+				"Title": "Get the power back",
+				"RevealRequirements": [
+					{ "Type": "FlagSet", "Value": "ELEVATOR_BLOCKED_SEEN" }
+				],
+				"Requirements": [
+					{ "Type": "FlagSet", "Value": "FUSE_BOX" }
+				],
+				"Stages": []
+			},
+			{
+				"Id": "RF_FUSES",
+				"Title": "Find 3 fuses",
+				"RevealRequirements": [
+					{ "Type": "FlagSet", "Value": "FUSE_BOX_TOUCHED" }
+				],
+				"Requirements": [
+					{ "Type": "FlagSet", "Value": "FUSE_BOX" }
+				],
+				"Stages": []
+			}
+		]
 	}
 ]

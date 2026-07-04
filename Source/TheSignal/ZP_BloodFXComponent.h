@@ -43,43 +43,43 @@ public:
 	// ── Systems (lazily defaulted to the Blood_VFX_Pack assets, dev-picked off the overview map) ──
 	/** Spurt intensity 1-3 — the pack ships every hit system in three levels (the three mannequins
 	 *  per stall on the overview map). THE per-enemy dial: set it on BloodFX in BP_Shambler /
-	 *  BP_Scytheer. Picks MeleeBloodSystems/RangedBloodSystems[Intensity-1]. */
+	 *  BP_Scytheer. Picks AZP_MeleeBloodSystems/AZP_RangedBloodSystems[Intensity-1]. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood", meta = (ClampMin = "1", ClampMax = "3"))
-	int32 BloodIntensity = 2;
+	int32 AZP_BloodIntensity = 2;
 
 	/** MELEE hit systems by intensity ([0]=1 .. [2]=3). Default: the overview map's
 	 *  "Splash with Burst + Hit" trio (P_SplashWithBurst_Hit_01/02/03) — correct residual blood. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	TArray<TObjectPtr<UNiagaraSystem>> MeleeBloodSystems;
+	TArray<TObjectPtr<UNiagaraSystem>> AZP_MeleeBloodSystems;
 
 	/** RANGED hit systems by intensity. Default: the overview map's "Splash + Hit + Metal" trio
 	 *  (P_Splash_HitWithMetal_01/02/03) — bullet impact/ricochet read. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	TArray<TObjectPtr<UNiagaraSystem>> RangedBloodSystems;
+	TArray<TObjectPtr<UNiagaraSystem>> AZP_RangedBloodSystems;
 
 	/** OPTIONAL dribble attached to the body after a heavy hit. Default NONE — the pack's bleeding
 	 *  systems spurt like a halloween gag (dev-rejected). Assign only if a genuinely subtle drip
 	 *  system exists. The quiet aftermath is the delayed floor pool below instead. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	TObjectPtr<UNiagaraSystem> BleedSystem;
+	TObjectPtr<UNiagaraSystem> AZP_BleedSystem;
 
-	/** Seconds the attached bleed runs before deactivating (only if BleedSystem is set). */
+	/** Seconds the attached bleed runs before deactivating (only if AZP_BleedSystem is set). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	float BleedDuration = 1.6f;
+	float AZP_BleedDuration = 1.6f;
 
 	// ── Quiet aftermath: a small pool forming under the enemy after a heavy hit ──
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	bool bDelayedFloorPool = true;
+	bool bAZP_DelayedFloorPool = true;
 
 	/** Seconds after the heavy hit before the pool appears (blood had time to run down). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	float PoolDelay = 1.2f;
+	float AZP_PoolDelay = 1.2f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	float PoolSizeMin = 28.f;
+	float AZP_PoolSizeMin = 28.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	float PoolSizeMax = 44.f;
+	float AZP_PoolSizeMax = 44.f;
 
 	/** Stop the owner's skeletal meshes RECEIVING decals. ON by default — DEAD END, proven 3 ways
 	 *  in PIE (2026-07-02): world-space decals float in air when the body moves; bone-attached
@@ -87,106 +87,106 @@ public:
 	 *  box rides the spine to the ground and paints the FLOOR. Decals cannot stick to deforming
 	 *  skin. Real on-body blood = material wound masks (future feature). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	bool bDisableBodyDecals = true;
+	bool bAZP_DisableBodyDecals = true;
 
 	// ── Body WOUNDS that cling (pre-skinned sphere-mask in M_ZP_CreatureSkin — the free
 	//    L4D2/Looman technique; wounds live in reference-pose space inside the skin shader, so
 	//    they follow every animation and the death fall; zero UV requirements) ──
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Wounds")
-	bool bBodyWounds = true;
+	bool bAZP_BodyWounds = true;
 
 	/** Wound tint blended into the skin's BaseColor (roughness also drops to a wet 0.3 inside). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Wounds")
-	FLinearColor WoundColor = FLinearColor(0.06f, 0.008f, 0.1f, 1.f);
+	FLinearColor AZP_WoundColor = FLinearColor(0.06f, 0.008f, 0.1f, 1.f);
 
 	/** Wound radius in WORLD units (converted to mesh-local for the shader). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Wounds")
-	float WoundRadiusMin = 14.f;
+	float AZP_WoundRadiusMin = 14.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Wounds")
-	float WoundRadiusMax = 24.f;
+	float AZP_WoundRadiusMax = 24.f;
 
 	/** MUST match the WoundLoc_N/WoundRadius_N slot count in M_ZP_CreatureSkin (4). Oldest wound
 	 *  is overwritten when full — enemies die in ~4 hits, so the cap never visibly recycles. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Wounds")
-	int32 MaxBodyWounds = 4;
+	int32 AZP_MaxBodyWounds = 4;
 
-	// ── Body residual decals — DEAD END, default OFF (see bDisableBodyDecals). Kept only as an
-	//    experiment knob; enabling also requires bDisableBodyDecals=false. ──
+	// ── Body residual decals — DEAD END, default OFF (see bAZP_DisableBodyDecals). Kept only as an
+	//    experiment knob; enabling also requires bAZP_DisableBodyDecals=false. ──
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter", AdvancedDisplay)
-	bool bBodyResidual = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter", AdvancedDisplay)
-	int32 NumBodyResiduals = 3;
+	bool bAZP_BodyResidual = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter", AdvancedDisplay)
-	float BodyResidualSizeMin = 7.f;
+	int32 AZP_NumBodyResiduals = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter", AdvancedDisplay)
-	float BodyResidualSizeMax = 14.f;
+	float AZP_BodyResidualSizeMin = 7.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter", AdvancedDisplay)
+	float AZP_BodyResidualSizeMax = 14.f;
 
 	// ── Colors ──
 	/** Particle blood tint. Dark PURPLE that still READS in dark rooms — the first-pass near-black
 	 *  (2% luminance) was invisible, which killed the whole effect. Per-enemy override in BP. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	FLinearColor BloodColor = FLinearColor(0.14f, 0.015f, 0.22f, 1.f);
+	FLinearColor AZP_BloodColor = FLinearColor(0.14f, 0.015f, 0.22f, 1.f);
 
 	/** Mist/smoke layer tint. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	FLinearColor SmokeColor = FLinearColor(0.06f, 0.02f, 0.1f, 1.f);
+	FLinearColor AZP_SmokeColor = FLinearColor(0.06f, 0.02f, 0.1f, 1.f);
 
 	/** Splatter DECAL tint — inkier/darker than the airborne blood (drying ink look on surfaces). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	FLinearColor DecalColor = FLinearColor(0.05f, 0.006f, 0.085f, 1.f);
+	FLinearColor AZP_DecalColor = FLinearColor(0.05f, 0.006f, 0.085f, 1.f);
 
 	// ── Scale / feel ──
 	/** Overall burst scale (component scale AND the "Scale" user param). A 1 m lead pipe is not a
 	 *  water balloon — default is deliberately big. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	float BloodScale = 1.6f;
+	float AZP_BloodScale = 1.6f;
 
-	/** Particle lifetime multiplier ("LifeTimeMult" user param) — longer-lingering droplets. */
+	/** Particle lifetime multiplier ("AZP_LifeTimeMult" user param) — longer-lingering droplets. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood")
-	float LifeTimeMult = 1.5f;
+	float AZP_LifeTimeMult = 1.5f;
 
 	// ── Guaranteed splatter decals (C++ traces — deterministic, they always land) ──
 	/** Decal material. Default: pack MI_BloodDecal (master exposes a "Color" vector param). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	TObjectPtr<UMaterialInterface> DecalMaterial;
+	TObjectPtr<UMaterialInterface> AZP_DecalMaterial;
 
 	/** Splats traced along the spray direction onto the wall/geometry BEHIND the enemy. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	int32 NumWallSplats = 2;
+	int32 AZP_NumWallSplats = 2;
 
 	/** Splats traced DOWN onto the floor around/past the enemy. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	int32 NumFloorSplats = 2;
+	int32 AZP_NumFloorSplats = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	float DecalSizeMin = 26.f;
+	float AZP_DecalSizeMin = 26.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	float DecalSizeMax = 58.f;
+	float AZP_DecalSizeMax = 58.f;
 
 	/** Seconds before a splatter decal fades. 0 = NEVER — it stays. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	float DecalLifetime = 0.f;
+	float AZP_DecalLifetime = 0.f;
 
 	/** How far behind the wound the wall-splatter trace reaches (UU). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood|Splatter")
-	float WallTraceDistance = 420.f;
+	float AZP_WallTraceDistance = 420.f;
 
 	// ── Pack user-param names (only touch if a swapped system names them differently) ──
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood", AdvancedDisplay)
-	FName ColorParam = FName(TEXT("Color"));
+	FName AZP_ColorParam = FName(TEXT("Color"));
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood", AdvancedDisplay)
-	FName SmokeColorParam = FName(TEXT("SmokeColor"));
+	FName AZP_SmokeColorParam = FName(TEXT("AZP_SmokeColor"));
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood", AdvancedDisplay)
-	FName ScaleParam = FName(TEXT("Scale"));
+	FName AZP_ScaleParam = FName(TEXT("Scale"));
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood", AdvancedDisplay)
-	FName LifeTimeParam = FName(TEXT("LifeTimeMult"));
+	FName AZP_LifeTimeParam = FName(TEXT("AZP_LifeTimeMult"));
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blood", AdvancedDisplay)
-	FName DecalColorParam = FName(TEXT("Color"));
+	FName AZP_DecalColorParam = FName(TEXT("Color"));
 
 	/** Full composite at Location spraying along Direction. bMeleeHit selects the melee system trio
 	 *  (+ delayed floor pool); false = the ranged/bullet trio. SurfaceNormal (the wound's impact

@@ -26,7 +26,7 @@ void AZP_DialogueTrigger::OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedC
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (!bEnabled || !DialogueData) return;
+	if (!bAZP_Enabled || !AZP_DialogueData) return;
 
 	// Only trigger for player characters
 	ACharacter* Character = Cast<ACharacter>(OtherActor);
@@ -44,12 +44,12 @@ void AZP_DialogueTrigger::OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedC
 	}
 
 	UE_LOG(LogDialogueTrigger, Log, TEXT("DialogueTrigger '%s' activated — playing '%s'."),
-		*GetName(), *DialogueData->DialogueID.ToString());
+		*GetName(), *AZP_DialogueData->AZP_DialogueID.ToString());
 
-	Manager->PlayDialogue(DialogueData);
+	Manager->PlayDialogue(AZP_DialogueData);
 
-	if (bTriggerOnce)
+	if (bAZP_TriggerOnce)
 	{
-		bEnabled = false;
+		bAZP_Enabled = false;
 	}
 }

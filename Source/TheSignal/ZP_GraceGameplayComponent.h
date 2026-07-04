@@ -12,9 +12,9 @@
  * Owner Subsystem: PlayerCharacter
  *
  * Blueprint Extension Points:
- *   - MovementConfig DataAsset for all tuning values.
- *   - CameraComponent ref (auto-discovered by name "FirstPersonCamera" if not set).
- *   - bUseBuiltInHeadBob flag — disable when Kinemation handles camera.
+ *   - AZP_MovementConfig DataAsset for all tuning values.
+ *   - AZP_CameraComponent ref (auto-discovered by name "FirstPersonCamera" if not set).
+ *   - bAZP_UseBuiltInHeadBob flag — disable when Kinemation handles camera.
  *   - bWantsPeek — set true/false from input to control peek behavior.
  *
  * Dependencies:
@@ -51,11 +51,15 @@ public:
 
 	/** DataAsset with all movement tuning values. Set via owner or SCS defaults. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
-	TObjectPtr<UZP_GraceMovementConfig> MovementConfig;
+	TObjectPtr<UZP_GraceMovementConfig> AZP_MovementConfig;
 
 	/** Camera to use for peek/bob/interaction trace. Auto-discovered if not set. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "References")
-	TObjectPtr<UCameraComponent> CameraComponent;
+	TObjectPtr<UCameraComponent> AZP_CameraComponent;
+
+	/** Component name searched on the owner at BeginPlay to auto-discover the camera when AZP_CameraComponent is left unset. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "References")
+	FName AZP_CameraAutoDiscoverName = TEXT("FirstPersonCamera");
 
 	// --- Movement State ---
 
@@ -70,12 +74,32 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement|GASP")
 	uint8 GASPGait = 1;
 
+	/** Fraction of AZP_WalkSpeed above which the GASP gait classifier reports Run (1) instead of Walk (0) — feeds the AnimBP gait state. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|GASP")
+	float AZP_GaitRunSpeedRatio = 0.5f;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float CurrentStamina = 100.0f;
 
+	/** Forward speed (cm/s) the player must exceed while sprinting for stamina to actually drain — holding sprint while standing still regens instead. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Stamina")
+	float AZP_SprintDrainForwardSpeedThreshold = 50.0f;
+
+	/** Planar speed (cm/s) below which pressing forward while sprinting on ground counts as being stalled against a wall. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Stamina")
+	float AZP_WallStuckSpeedThreshold = 30.0f;
+
+	/** Seconds of wall-stall (sprinting into a wall without moving) before sprint auto-cancels so stamina stops draining pointlessly. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Stamina")
+	float AZP_WallStuckCancelTime = 0.25f;
+
 	/** Whether to use rotational head bob (pitch/roll). Grace's anxious eye movement. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|HeadBob")
-	bool bUseBuiltInHeadBob = true;
+	bool bAZP_UseBuiltInHeadBob = true;
+
+	/** Minimum planar speed (cm/s) before head bob starts; below it the bob eases back to rest. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|HeadBob")
+	float AZP_MinSpeedForBob = 10.0f;
 
 	/** Extra forward (capsule +X) camera clearance, cm, used as a TRANSIENT nudge
 	 *  to cover the block/dodge stance lean-IN (when the spine pitches forward and
@@ -83,22 +107,22 @@ public:
 	 *  eases back to 0 — it is NOT held for the duration of a block, or a sustained
 	 *  hold would leave the camera floating forward. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
-	float BlockDodgeForwardClearance = 14.0f;
+	float AZP_BlockDodgeForwardClearance = 14.0f;
 
 	/** Interp speed for easing the block/dodge forward clearance back out to 0. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
-	float ForwardClearanceInterpSpeed = 8.0f;
+	float AZP_ForwardClearanceInterpSpeed = 8.0f;
 
 	/** Forward (capsule +X) camera offset. The Operator's FPCamera socket sits ~62cm
 	 *  FORWARD of the body (fine when the body was hidden) — this pulls the camera back
 	 *  onto Marcus's head so looking down shows chest->feet. Measured/verified live. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
-	float CameraExtraForward = -70.0f;
+	float AZP_CameraExtraForward = -70.0f;
 
 	/** World-up camera offset — sets the camera to Marcus's eye line. Verified live:
 	 *  head ~10cm above camera = eye level, body extends below into the down-view. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
-	float CameraExtraHeight = 12.0f;
+	float AZP_CameraExtraHeight = 12.0f;
 
 	/** When false, the Marcus eye-offset above is replaced by the ranged offsets below
 	 *  — used while a ranged weapon is up (visible arms are the Kinemation Operator on
@@ -113,9 +137,9 @@ public:
 	 *  + ADS distance). The old -70 default pulled the camera off that socket and shoved
 	 *  the gun into frame. Tune from 0. Live. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
-	float CameraRangedForward = 0.0f;
+	float AZP_CameraRangedForward = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Camera")
-	float CameraRangedHeight = 0.0f;
+	float AZP_CameraRangedHeight = 0.0f;
 
 	/** Extra camera offset during weapon actions (reload/switch/swing/block), set by the
 	 *  character each frame (already lerped). Capsule space: +X = forward, +Z = up. Added
@@ -174,7 +198,7 @@ public:
 	/** Forward-axis move input (W=+1, S=-1). Set every Input_Move tick; reset to 0 on Completed. */
 	void SetForwardInput(float Value) { CurrentForwardInput = Value; }
 
-	/** Apply MovementConfig values to the owner's CharacterMovementComponent and camera. */
+	/** Apply AZP_MovementConfig values to the owner's CharacterMovementComponent and camera. */
 	UFUNCTION(BlueprintCallable, Category = "Config")
 	void ApplyMovementConfig();
 
@@ -186,7 +210,7 @@ public:
 	float GetHeadBobOffsetZ() const { return HeadBobOffsetZ; }
 
 	/** Called by the character each frame: true during the short block/dodge
-	 *  lean-in window. While true the camera snaps to BlockDodgeForwardClearance of
+	 *  lean-in window. While true the camera snaps to AZP_BlockDodgeForwardClearance of
 	 *  forward push; when it goes false the push eases back to 0. */
 	void SetForwardClearanceActive(bool bActive) { bForwardClearanceActive = bActive; }
 

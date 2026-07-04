@@ -30,9 +30,9 @@ AZP_PlayerController::AZP_PlayerController()
 
 	// Default Input Mapping Context
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCFinder(TEXT("/Game/Core/Input/IMC_Grace"));
-	if (IMCFinder.Succeeded()) DefaultMappingContext = IMCFinder.Object;
+	if (IMCFinder.Succeeded()) AZP_DefaultMappingContext = IMCFinder.Object;
 
-	// Widget classes (InventoryTabWidgetClass, MapWidgetClass) are set via BP CDO
+	// Widget classes (AZP_InventoryTabWidgetClass, AZP_MapWidgetClass) are set via BP CDO
 	// because FClassFinder for Widget Blueprints causes cascading loads during CDO construction.
 }
 
@@ -41,46 +41,46 @@ void AZP_PlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	// Runtime fallback: load widget classes if not set by BP CDO
-	if (!InventoryTabWidgetClass)
+	if (!AZP_InventoryTabWidgetClass)
 	{
-		InventoryTabWidgetClass = LoadClass<UZP_InventoryTabWidget>(nullptr,
+		AZP_InventoryTabWidgetClass = LoadClass<UZP_InventoryTabWidget>(nullptr,
 			TEXT("/Game/Blueprints/UI/WBP_InventoryTab.WBP_InventoryTab_C"));
 	}
-	if (!MapWidgetClass)
+	if (!AZP_MapWidgetClass)
 	{
-		MapWidgetClass = LoadClass<UZP_MapWidget>(nullptr,
+		AZP_MapWidgetClass = LoadClass<UZP_MapWidget>(nullptr,
 			TEXT("/Game/User_Interface/WBP_Map.WBP_Map_C"));
 	}
 
-	if (DefaultMappingContext)
+	if (AZP_DefaultMappingContext)
 	{
-		AddMappingContext(DefaultMappingContext, DefaultMappingPriority);
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Applied default IMC (priority %d)."), DefaultMappingPriority);
+		AddMappingContext(AZP_DefaultMappingContext, AZP_DefaultMappingPriority);
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Applied default IMC (priority %d)."), AZP_DefaultMappingPriority);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PlayerController: No DefaultMappingContext set! Input won't work."));
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PlayerController: No AZP_DefaultMappingContext set! Input won't work."));
 	}
 
 	// Create gameplay HUD
-	if (HUDWidgetClass && IsLocalController())
+	if (AZP_HUDWidgetClass && IsLocalController())
 	{
-		HUDWidget = CreateWidget<UZP_HUDWidget>(this, HUDWidgetClass);
+		HUDWidget = CreateWidget<UZP_HUDWidget>(this, AZP_HUDWidgetClass);
 		if (HUDWidget)
 		{
 			HUDWidget->AddToViewport();
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created HUD widget %s"), *HUDWidgetClass->GetName());
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created HUD widget %s"), *AZP_HUDWidgetClass->GetName());
 		}
 	}
-	else if (!HUDWidgetClass)
+	else if (!AZP_HUDWidgetClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PlayerController: No HUDWidgetClass set — no gameplay HUD."));
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PlayerController: No AZP_HUDWidgetClass set — no gameplay HUD."));
 	}
 
 	// Create dialogue widget
-	if (DialogueWidgetClass && IsLocalController())
+	if (AZP_DialogueWidgetClass && IsLocalController())
 	{
-		DialogueWidget = CreateWidget<UZP_DialogueWidget>(this, DialogueWidgetClass);
+		DialogueWidget = CreateWidget<UZP_DialogueWidget>(this, AZP_DialogueWidgetClass);
 		if (DialogueWidget)
 		{
 			DialogueWidget->AddToViewport(50); // Above HUD (0), below pause menu (200)
@@ -88,49 +88,49 @@ void AZP_PlayerController::BeginPlay()
 			{
 				DialogueWidget->BindToDialogueManager(DialogueManager);
 			}
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created DialogueWidget %s"), *DialogueWidgetClass->GetName());
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created DialogueWidget %s"), *AZP_DialogueWidgetClass->GetName());
 		}
 	}
 
 	// Create map widget
-	if (MapWidgetClass && IsLocalController())
+	if (AZP_MapWidgetClass && IsLocalController())
 	{
-		MapWidget = CreateWidget<UZP_MapWidget>(this, MapWidgetClass);
+		MapWidget = CreateWidget<UZP_MapWidget>(this, AZP_MapWidgetClass);
 		if (MapWidget)
 		{
 			MapWidget->AddToViewport(100); // Above HUD (0), above dialogue (50), below pause (200)
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] MAP DEBUG: Created MapWidget from %s"), *MapWidgetClass->GetName());
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] MAP DEBUG: Created MapWidget from %s"), *AZP_MapWidgetClass->GetName());
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: CreateWidget returned NULL for MapWidgetClass %s"), *MapWidgetClass->GetName());
+			UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: CreateWidget returned NULL for AZP_MapWidgetClass %s"), *AZP_MapWidgetClass->GetName());
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: MapWidgetClass is %s, IsLocal=%d — MapWidget NOT created"),
-			MapWidgetClass ? TEXT("set") : TEXT("NULL"), IsLocalController() ? 1 : 0);
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: AZP_MapWidgetClass is %s, IsLocal=%d — MapWidget NOT created"),
+			AZP_MapWidgetClass ? TEXT("set") : TEXT("NULL"), IsLocalController() ? 1 : 0);
 	}
 
 	// Create inventory tab widget (Map / Inventory / Notes)
-	if (InventoryTabWidgetClass && IsLocalController())
+	if (AZP_InventoryTabWidgetClass && IsLocalController())
 	{
-		InventoryTabWidget = CreateWidget<UZP_InventoryTabWidget>(this, InventoryTabWidgetClass);
+		InventoryTabWidget = CreateWidget<UZP_InventoryTabWidget>(this, AZP_InventoryTabWidgetClass);
 		if (InventoryTabWidget)
 		{
 			InventoryTabWidget->AddToViewport(100); // Same Z as old map widget
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created InventoryTabWidget from %s"), *InventoryTabWidgetClass->GetName());
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Created InventoryTabWidget from %s"), *AZP_InventoryTabWidgetClass->GetName());
 		}
 	}
-	else if (!InventoryTabWidgetClass)
+	else if (!AZP_InventoryTabWidgetClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PlayerController: No InventoryTabWidgetClass set — Tab menu won't work."));
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PlayerController: No AZP_InventoryTabWidgetClass set — Tab menu won't work."));
 	}
 
 	// Fade from black on every level start (covers both initial spawn and respawn reload)
 	if (PlayerCameraManager)
 	{
-		PlayerCameraManager->StartCameraFade(1.f, 0.f, 0.5f, FLinearColor::Black, /*bShouldFadeAudio=*/false, /*bHoldWhenFinished=*/false);
+		PlayerCameraManager->StartCameraFade(1.f, 0.f, AZP_LevelStartFadeInDuration, FLinearColor::Black, /*bShouldFadeAudio=*/false, /*bHoldWhenFinished=*/false);
 	}
 }
 
@@ -140,10 +140,10 @@ void AZP_PlayerController::SetupInputComponent()
 
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		if (PauseAction)
+		if (AZP_PauseAction)
 		{
-			EIC->BindAction(PauseAction, ETriggerEvent::Started, this, &AZP_PlayerController::TogglePauseMenu);
-			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Bound PauseAction to TogglePauseMenu."));
+			EIC->BindAction(AZP_PauseAction, ETriggerEvent::Started, this, &AZP_PlayerController::TogglePauseMenu);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Bound AZP_PauseAction to TogglePauseMenu."));
 		}
 	}
 }
@@ -159,10 +159,10 @@ bool AZP_PlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate)
 		// Re-arm the gameplay mapping context we suspended when the pause menu opened. Remove-then-add
 		// guarantees exactly one instance no matter which path triggered the unpause (so the player is
 		// never left stuck or with a duplicated context).
-		if (DefaultMappingContext)
+		if (AZP_DefaultMappingContext)
 		{
-			RemoveMappingContext(DefaultMappingContext);
-			AddMappingContext(DefaultMappingContext, DefaultMappingPriority);
+			RemoveMappingContext(AZP_DefaultMappingContext);
+			AddMappingContext(AZP_DefaultMappingContext, AZP_DefaultMappingPriority);
 		}
 		SetInputMode(FInputModeGameOnly());
 		SetShowMouseCursor(false);
@@ -230,25 +230,20 @@ void AZP_PlayerController::TogglePauseMenu()
 	}
 
 	// Menu closed → open it
-	if (!PauseMenuWidgetClass)
+	if (!AZP_PauseMenuWidgetClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] PauseMenuWidgetClass not set — cannot open pause menu."));
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] AZP_PauseMenuWidgetClass not set — cannot open pause menu."));
 		return;
 	}
 
-	UUserWidget* Menu = CreateWidget<UUserWidget>(this, PauseMenuWidgetClass);
+	UUserWidget* Menu = CreateWidget<UUserWidget>(this, AZP_PauseMenuWidgetClass);
 	if (Menu)
 	{
 		Menu->AddToViewport(200);
 		ActivePauseMenu = Menu;
 
 		// Hide EGUI buttons we don't need — Collapsed removes from layout (no gaps)
-		static const FName ButtonsToHide[] = {
-			FName("SaveSavegameButton"),
-			FName("PhotoModeBtn"),
-			FName("CreditsBtn")
-		};
-		for (const FName& Name : ButtonsToHide)
+		for (const FName& Name : AZP_PauseMenuButtonsToHide)
 		{
 			if (UWidget* W = Menu->GetWidgetFromName(Name))
 			{
@@ -262,9 +257,9 @@ void AZP_PlayerController::TogglePauseMenu()
 		// "under" the menu and let gameplay actions steal the controller's menu-nav inputs. Removing the
 		// gameplay mapping context (IMC_Grace) kills EVERY gameplay action regardless of input mode — the
 		// exact fix the save menu uses. Restored in SetPause(false) on unpause.
-		if (DefaultMappingContext)
+		if (AZP_DefaultMappingContext)
 		{
-			RemoveMappingContext(DefaultMappingContext);
+			RemoveMappingContext(AZP_DefaultMappingContext);
 		}
 
 		// GameAndUI (not UIOnly) and DON'T force focus to the root: the EGUI pause widget is a
@@ -288,11 +283,11 @@ void AZP_PlayerController::OnPawnDied()
 	// Fade to black with audio fade, hold at black
 	if (PlayerCameraManager)
 	{
-		PlayerCameraManager->StartCameraFade(0.f, 1.f, 0.5f, FLinearColor::Black, /*bShouldFadeAudio=*/true, /*bHoldWhenFinished=*/true);
+		PlayerCameraManager->StartCameraFade(0.f, 1.f, AZP_DeathFadeOutDuration, FLinearColor::Black, /*bShouldFadeAudio=*/true, /*bHoldWhenFinished=*/true);
 	}
 
-	// Respawn after 1 second
-	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &AZP_PlayerController::ExecuteRespawn, 1.0f, false);
+	// Respawn after delay
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &AZP_PlayerController::ExecuteRespawn, AZP_RespawnDelay, false);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] PlayerController: Pawn died — fading to black, respawn in 1s."));
 }

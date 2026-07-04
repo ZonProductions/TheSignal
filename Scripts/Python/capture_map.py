@@ -33,7 +33,7 @@ def capture_all_maps(resolution=2048):
     unreal.log(f'[MapCapture] Found {len(volumes)} map volume(s)')
 
     for volume in volumes:
-        area_id = volume.get_editor_property('area_id')
+        area_id = volume.get_editor_property('AZP_AreaID')
         if not area_id or str(area_id) == 'None':
             unreal.log_warning(f'[MapCapture] Volume {volume.get_name()} has no AreaID - skipping')
             continue
@@ -45,8 +45,8 @@ def capture_area(volume, resolution=2048):
     """Capture a single map area from a MapVolume actor."""
 
     world = unreal.EditorLevelLibrary.get_editor_world()
-    area_id = str(volume.get_editor_property('area_id'))
-    capture_height = volume.get_editor_property('capture_height')
+    area_id = str(volume.get_editor_property('AZP_AreaID'))
+    capture_height = volume.get_editor_property('AZP_CaptureHeight')
 
     # Get volume bounds
     bounds_comp = volume.get_editor_property('area_bounds')
@@ -148,7 +148,7 @@ def capture_single(area_id, resolution=2048):
     all_actors = unreal.EditorLevelLibrary.get_all_level_actors()
     for actor in all_actors:
         if 'ZP_MapVolume' in actor.get_class().get_name():
-            aid = str(actor.get_editor_property('area_id'))
+            aid = str(actor.get_editor_property('AZP_AreaID'))
             if aid == area_id:
                 capture_area(actor, resolution)
                 return

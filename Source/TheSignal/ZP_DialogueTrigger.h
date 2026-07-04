@@ -12,8 +12,8 @@
  * Owner Subsystem: Narrative
  *
  * Blueprint Extension Points:
- *   - DialogueData: set in editor details panel per-instance.
- *   - bEnabled: toggle trigger on/off at runtime.
+ *   - AZP_DialogueData: set in editor details panel per-instance.
+ *   - bAZP_Enabled: toggle trigger on/off at runtime.
  *   - TriggerOnce: auto-disables after first activation.
  *
  * Dependencies:
@@ -38,15 +38,15 @@ public:
 
 	/** The dialogue to play when triggered. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
-	TObjectPtr<UZP_DialogueData> DialogueData;
+	TObjectPtr<UZP_DialogueData> AZP_DialogueData;
 
-	/** If true, disables itself after first trigger. Independent of DialogueData's bOneShot. */
+	/** If true, disables itself after first trigger. Independent of AZP_DialogueData's bAZP_OneShot. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
-	bool bTriggerOnce = true;
+	bool bAZP_TriggerOnce = true;
 
 	/** Runtime enable/disable. Can be toggled by other systems. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
-	bool bEnabled = true;
+	bool bAZP_Enabled = true;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dialogue")

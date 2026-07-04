@@ -97,17 +97,17 @@ class THESIGNAL_API UZP_DialogueData : public UDataAsset
 public:
 	/** Unique ID for save tracking and cross-dialogue jumps. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dialogue")
-	FName DialogueID;
+	FName AZP_DialogueID;
 
 	/** Ordered lines of dialogue. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dialogue")
-	TArray<FZP_DialogueLine> Lines;
+	TArray<FZP_DialogueLine> AZP_Lines;
 
 	/** If true, this dialogue plays once per save — never again after first playback. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dialogue")
-	bool bOneShot = true;
+	bool bAZP_OneShot = true;
 
-	/** Priority for queue management. Higher interrupts lower. Ren=100, Ambient=10. */
+	/** AZP_Priority for queue management. Higher interrupts lower. Ren=100, Ambient=10. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dialogue", meta=(ClampMin="0"))
-	int32 Priority = 50;
+	int32 AZP_Priority = 50;
 };

@@ -34,8 +34,8 @@ class IZP_Staggerable
 
 public:
 	/** Stagger this enemy for Duration seconds: play the hit/flinch reaction and pause its AI.
-	 *  Called by the player on a landed melee hit (HitStaggerDuration) and on a blocked attack
-	 *  (BlockStaggerDuration). Implementations should bypass any internal hit-react cooldown so the
+	 *  Called by the player on a landed melee hit (AZP_HitStaggerDuration) and on a blocked attack
+	 *  (AZP_BlockStaggerDuration). Implementations should bypass any internal hit-react cooldown so the
 	 *  stagger always reads. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat|Stagger")
 	void ReceiveStagger(float Duration);

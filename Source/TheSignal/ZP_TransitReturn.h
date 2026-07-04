@@ -17,9 +17,9 @@
  *
  * Blueprint Extension Points:
  *   - ButtonMesh: set the call-button mesh in the BP child.
- *   - LinkedElevator: the car this button recalls.
- *   - ReturnLocation: explicit stop marker for this floor (optional — auto-finds the nearest
- *     AZP_TransitLocation at BeginPlay when left unset and bAutoFindNearestLocation is true).
+ *   - AZP_LinkedElevator: the car this button recalls.
+ *   - AZP_ReturnLocation: explicit stop marker for this floor (optional — auto-finds the nearest
+ *     AZP_TransitLocation at BeginPlay when left unset and bAZP_AutoFindNearestLocation is true).
  *   - InteractionVolume: shrink/resize per placement if the default shaft-sized box is too big.
  *
  * Dependencies: IZP_Interactable, AZP_GraceCharacter (interaction + HUD prompt), AZP_Elevator
@@ -53,19 +53,19 @@ public:
 
 	/** The elevator car this button recalls. Required. */
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Transit")
-	TObjectPtr<AZP_Elevator> LinkedElevator;
+	TObjectPtr<AZP_Elevator> AZP_LinkedElevator;
 
 	/** The stop marker for THIS floor (target Z the car is recalled to). Leave unset to auto-find the
 	 *  nearest AZP_TransitLocation at BeginPlay. If set, this overrides the auto-find. */
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Transit")
-	TObjectPtr<AZP_TransitLocation> ReturnLocation;
+	TObjectPtr<AZP_TransitLocation> AZP_ReturnLocation;
 
-	/** When ReturnLocation is unset, find and cache the nearest AZP_TransitLocation at BeginPlay. */
+	/** When AZP_ReturnLocation is unset, find and cache the nearest AZP_TransitLocation at BeginPlay. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
-	bool bAutoFindNearestLocation = true;
+	bool bAZP_AutoFindNearestLocation = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")
-	FText PromptText = FText::FromString(TEXT("Call Elevator"));
+	FText AZP_PromptText = FText::FromString(TEXT("Call Elevator"));
 
 	// --- IZP_Interactable ---
 	virtual FText GetInteractionPrompt_Implementation() override;
@@ -79,7 +79,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	/** ReturnLocation if set; otherwise the cached/auto-found nearest AZP_TransitLocation. */
+	/** AZP_ReturnLocation if set; otherwise the cached/auto-found nearest AZP_TransitLocation. */
 	AZP_TransitLocation* ResolveReturnLocation();
 
 	UFUNCTION()
@@ -90,6 +90,6 @@ private:
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	/** Nearest stop marker found at BeginPlay (used only when ReturnLocation is unset). */
+	/** Nearest stop marker found at BeginPlay (used only when AZP_ReturnLocation is unset). */
 	TWeakObjectPtr<AZP_TransitLocation> CachedNearestLocation;
 };

@@ -35,7 +35,7 @@ enum class EZP_TransitDestType : uint8
 {
 	/** Load another map (OpenLevel to TargetLevel, spawn at ArrivalPointTag). The original behaviour. */
 	LoadLevel     UMETA(DisplayName = "Load Level"),
-	/** Move the panel's LinkedElevator up/down to a relative Z within the CURRENT map — no level load. */
+	/** Move the panel's AZP_LinkedElevator up/down to a relative Z within the CURRENT map — no level load. */
 	InMapElevator UMETA(DisplayName = "In-Map Elevator")
 };
 
@@ -53,7 +53,7 @@ struct FZP_TransitDestination
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
 	FText DisplayName;
 
-	/** LoadLevel = open another map; InMapElevator = ride the panel's LinkedElevator within this map. */
+	/** LoadLevel = open another map; InMapElevator = ride the panel's AZP_LinkedElevator within this map. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
 	EZP_TransitDestType DestType = EZP_TransitDestType::LoadLevel;
 
@@ -116,7 +116,7 @@ struct FZP_TransitMenuEntry
 {
 	GENERATED_BODY()
 
-	/** Index into the panel's Destinations array. */
+	/** Index into the panel's AZP_Destinations array. */
 	UPROPERTY(BlueprintReadOnly, Category = "Transit")
 	int32 DestinationIndex = INDEX_NONE;
 

@@ -58,11 +58,11 @@ void UZP_ObjectiveHudBridge::HandleTrackerRefresh()
 	if (!Subsystem) return;
 
 	// Create the quest widget once (C++ side — avoids BP CreateWidget).
-	if (!QuestWidget && QuestWidgetClass)
+	if (!QuestWidget && AZP_QuestWidgetClass)
 	{
 		if (APlayerController* PC = Cast<APlayerController>(GetOwner()))
 		{
-			QuestWidget = CreateWidget<UUserWidget>(PC, QuestWidgetClass);
+			QuestWidget = CreateWidget<UUserWidget>(PC, AZP_QuestWidgetClass);
 			if (QuestWidget) { QuestWidget->AddToViewport(50); bAutoCreated = true; }
 		}
 	}
@@ -86,10 +86,10 @@ void UZP_ObjectiveHudBridge::HandleTrackerRefresh()
 	EndObjective(QuestWidget, Def.Title);
 
 	// Show window: this call IS a show event (level load / objective update / menu close all route here).
-	// (Re)start the countdown so the tracker fades out ShowDuration seconds after the most recent event.
+	// (Re)start the countdown so the tracker fades out AZP_ShowDuration seconds after the most recent event.
 	if (UWorld* W = GetWorld())
 	{
-		W->GetTimerManager().SetTimer(FadeTimer, this, &UZP_ObjectiveHudBridge::FadeOutTracker, ShowDuration, false);
+		W->GetTimerManager().SetTimer(FadeTimer, this, &UZP_ObjectiveHudBridge::FadeOutTracker, AZP_ShowDuration, false);
 	}
 }
 

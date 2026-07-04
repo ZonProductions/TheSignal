@@ -31,19 +31,19 @@ public:
 
 	/** Lurking growl — played intermittently at low volume while the enemy is unnoticed. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
-	TObjectPtr<USoundBase> LurkingLoop;
+	TObjectPtr<USoundBase> AZP_LurkingLoop;
 
 	/** One-shot when the enemy notices the player. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
-	TObjectPtr<USoundBase> AlertSound;
+	TObjectPtr<USoundBase> AZP_AlertSound;
 
 	/** One-shot when the enemy is hit / takes damage (but survives). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
-	TObjectPtr<USoundBase> HitSound;
+	TObjectPtr<USoundBase> AZP_HitSound;
 
 	/** Attack one-shots: [0] = normal strike (Attack1), last = lunge / surprise (Attack2). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
-	TArray<TObjectPtr<USoundBase>> AttackSounds;
+	TArray<TObjectPtr<USoundBase>> AZP_AttackSounds;
 
 	/** LEGACY — no longer used. Carry/attenuation is C++-owned in UZP_SFXStatics (Far profile) so
 	 *  it can't silently drift in a .uasset; the old SA_EnemyVoice asset fell silent at ~40 m. */
@@ -51,15 +51,15 @@ public:
 	TObjectPtr<USoundAttenuation> Attenuation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
-	float VolumeMultiplier = 1.f;
+	float AZP_VolumeMultiplier = 1.f;
 
 	/** Base volume for lurking growls (quieter than alert/attack, but must be clearly audible). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
-	float LurkVolume = 0.8f;
+	float AZP_LurkVolume = 0.8f;
 
 	/** Per-growl random volume swing, in dB (+/-). Keeps the lurking organic. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyAudio")
-	float LurkVolumeJitterDb = 2.f;
+	float AZP_LurkVolumeJitterDb = 2.f;
 
 	/** Intermittent lurking growl (low, jittered volume). Call on an interval while unnoticed. */
 	UFUNCTION(BlueprintCallable, Category = "EnemyAudio")

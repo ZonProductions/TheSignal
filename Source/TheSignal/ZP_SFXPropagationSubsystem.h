@@ -32,11 +32,13 @@ class THESIGNAL_API UZP_SFXPropagationSubsystem : public UTickableWorldSubsystem
 public:
 	/** Seconds between full propagation re-evaluations (trace + nav query per live sound).
 	 *  Interpolation runs every tick regardless, so transitions stay smooth. */
-	static constexpr float RetargetInterval = 0.15f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Propagation")
+	float AZP_RetargetInterval = 0.15f;
 	/** Interp speed (per second) for volume and low-pass toward their current targets. */
-	static constexpr float InterpSpeed = 9.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Propagation")
+	float AZP_InterpSpeed = 9.f;
 	/** "No filtering" low-pass frequency — effectively bypass. */
-	static constexpr float LPFOpenHz = 20000.f;
+	static constexpr float AZP_LPFOpenHz = 20000.f;
 
 	/** Track a freshly spawned one-shot. BaseVolume = the volume the caller asked for (propagation
 	 *  multiplies on top). MaxLowPassHz > 0 = caller-forced ceiling (e.g. gaze hiss) that the

@@ -54,7 +54,7 @@ void UZP_GraceAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsCrouching = CachedMovement->IsCrouching();
 
 	// Moving threshold
-	bShouldMove = Speed > 3.0f && !bIsInAir;
+	bShouldMove = Speed > AZP_MovingSpeedThreshold && !bIsInAir;
 
 	// Sprint + Gait from GameplayComponent
 	if (UZP_GraceGameplayComponent* GC = CachedCharacter->FindComponentByClass<UZP_GraceGameplayComponent>())

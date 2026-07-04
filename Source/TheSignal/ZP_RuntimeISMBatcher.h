@@ -13,7 +13,7 @@
  * Owner Subsystem: PlayerCharacter
  *
  * Blueprint Extension Points:
- *   - MinInstanceCount: minimum instances before batching (default 10)
+ *   - AZP_MinInstanceCount: minimum instances before batching (default 10)
  *
  * Dependencies:
  *   - Must be attached to a persistent actor (e.g., player character)
@@ -35,15 +35,15 @@ public:
 
 	/** Only batch mesh types with at least this many instances (per floor+material group). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ISM Batcher")
-	int32 MinInstanceCount = 10;
+	int32 AZP_MinInstanceCount = 10;
 
 	/** Floor params — synced from FloorCullingComponent before BatchStaticMeshes(). */
-	float FloorHeight = 500.0f;
-	float FloorBaseZ = 0.0f;
-	int32 NumFloors = 5;
+	float AZP_FloorHeight = 500.0f;
+	float AZP_FloorBaseZ = 0.0f;
+	int32 AZP_NumFloors = 5;
 
 	/** Zones where actors should NOT be batched (stairwells, etc.). Synced from FloorCullingComponent. */
-	TArray<FBox> AlwaysVisibleZones;
+	TArray<FBox> AZP_AlwaysVisibleZones;
 
 	/** Creates per-floor ISMCs from all StaticMeshActors. Call after floor params are set. */
 	void BatchStaticMeshes();

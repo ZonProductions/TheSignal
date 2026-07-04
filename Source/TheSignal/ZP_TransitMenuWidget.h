@@ -74,7 +74,15 @@ public:
 
 	/** Row widget spawned per destination (WBP_TransitRow). If unset, plain code buttons are used. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")
-	TSubclassOf<UZP_TransitRowWidget> RowWidgetClass;
+	TSubclassOf<UZP_TransitRowWidget> AZP_RowWidgetClass;
+
+	/** Player-facing header label of the code-mode destination list; hardcoded FText::FromString violates the expose-player-facing-text rule (unlike the LOCKED strings, which already use NSLOCTEXT). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit|Text")
+	FText AZP_TransitMenuHeaderText = FText::FromString(TEXT("SELECT DESTINATION"));
+
+	/** Player-facing label of the code-mode Close button; hardcoded FText::FromString, should be an editable FText. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit|Text")
+	FText AZP_TransitCloseButtonText = FText::FromString(TEXT("Close"));
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;

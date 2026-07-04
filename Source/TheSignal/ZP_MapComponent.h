@@ -79,7 +79,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	/** Registry of all map areas in the level (AreaID -> Volume). */
+	/** Registry of all map areas in the level (AZP_AreaID -> Volume). */
 	UPROPERTY()
 	TMap<FName, TObjectPtr<AZP_MapVolume>> AreaVolumes;
 

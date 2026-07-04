@@ -62,9 +62,9 @@ namespace
 	// Defaults below are used when a knob var is absent, so the light still works before the vars exist.
 
 	const TCHAR* GStatusLightName = TEXT("ZP_ObjectiveStatusLight");
-	constexpr float GDefaultLightIntensity = 300.f;  // candelas (was a fixed 150 — bumped; now tunable)
-	constexpr float GStatusLightRadius     = 300.f;  // attenuation radius (UU)
-	constexpr float GStatusLightHeight     = 80.f;   // Z offset above the container root
+	constexpr float AZP_GDefaultLightIntensity = 300.f;  // candelas (was a fixed 150 — bumped; now tunable)
+	constexpr float AZP_GStatusLightRadius     = 300.f;  // attenuation radius (UU)
+	constexpr float AZP_GStatusLightHeight     = 80.f;   // Z offset above the container root
 
 	float ReadFloatProp(const AActor* A, const TCHAR* Name, float Def)
 	{
@@ -134,11 +134,11 @@ namespace
 			Light = NewObject<UPointLightComponent>(Container, UPointLightComponent::StaticClass(), FName(GStatusLightName));
 			if (!Light) return;
 			Light->SetMobility(EComponentMobility::Movable);
-			Light->SetAttenuationRadius(GStatusLightRadius);
+			Light->SetAttenuationRadius(AZP_GStatusLightRadius);
 			Light->SetCastShadows(false);
 			Light->RegisterComponent();
 			Light->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
-			Light->SetRelativeLocation(FVector(0.f, 0.f, GStatusLightHeight));
+			Light->SetRelativeLocation(FVector(0.f, 0.f, AZP_GStatusLightHeight));
 		}
 		Light->SetLightColor(Color);
 		Light->SetIntensity(Intensity);
@@ -149,7 +149,7 @@ namespace
 	{
 		SetStatusLight(Container,
 			ColorOrDefault(ReadLinearColorProp(Container, TEXT("StatusLightColorIncomplete"), FLinearColor::White), FLinearColor::White),
-			ReadFloatProp(Container, TEXT("StatusLightIntensity"), GDefaultLightIntensity));
+			ReadFloatProp(Container, TEXT("StatusLightIntensity"), AZP_GDefaultLightIntensity));
 	}
 
 	// Once DONE: by default remove the light (no color); or, if bStatusLightOnComplete, recolor it to the
@@ -160,7 +160,7 @@ namespace
 		{
 			SetStatusLight(Container,
 				ColorOrDefault(ReadLinearColorProp(Container, TEXT("StatusLightColorComplete"), FLinearColor::Green), FLinearColor::Green),
-				ReadFloatProp(Container, TEXT("StatusLightIntensity"), GDefaultLightIntensity));
+				ReadFloatProp(Container, TEXT("StatusLightIntensity"), AZP_GDefaultLightIntensity));
 		}
 		else
 		{
@@ -304,8 +304,8 @@ bool UZP_ObjectiveDepositLibrary::SubmitDeposit(AActor* Container, const TArray<
 			{
 				UObject* DA = R.Item.LoadSynchronous();
 				if (!DA) continue;
-				struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-				Params.ItemDataAsset = DA;
+				struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+				Params.AZP_ItemDataAsset = DA;
 				Params.AmountToRemove = FMath::Max(R.Count, 1); // exact total — Moonville rejects over-removal
 				Inv->ProcessEvent(RemoveFunc, &Params);
 			}
@@ -373,6 +373,20 @@ bool UZP_ObjectiveDepositLibrary::ProcessObjectiveDeposit(AActor* Container, con
 	UActorComponent* Inv = FindContainerInventory(Container);
 	if (!Inv || !ValidateDeposit(Inv, RequiredItems))
 	{
+		// The player opened and closed the box without completing it — they have SEEN it. Set
+		// "<ObjectiveFlag>_TOUCHED" so hidden sub-objectives can reveal off the first touch
+		// (e.g. FUSE_BOX_TOUCHED reveals "Find 3 fuses" in the tracker).
+		if (ObjectiveFlag != NAME_None)
+		{
+			if (UZP_ObjectiveSubsystem* Obj = GetObjectiveSubsystem(Container))
+			{
+				const FName TouchedFlag(*(ObjectiveFlag.ToString() + TEXT("_TOUCHED")));
+				if (!Obj->HasFlag(TouchedFlag))
+				{
+					Obj->SetFlag(TouchedFlag);
+				}
+			}
+		}
 		return false; // items still missing — leave it open/interactable, beacon stays lit
 	}
 
@@ -402,7 +416,13 @@ bool UZP_ObjectiveDepositLibrary::TryAutoCompleteObjectiveContainer(AActor* Cont
 
 	// RequiredItems is a BP variable of the actual C++ struct type (FZP_RequiredItem), so the array
 	// memory is layout-compatible with TArray<FZP_RequiredItem> — read it directly via reflection.
+	// Moonville-child containers (BP_ObjectiveContainer) declare it as a BP variable under the
+	// ORIGINAL name; the C++ sibling (AZP_ObjectiveContainer) carries the AZP_-prefixed knob — try both.
 	FArrayProperty* RIProp = CastField<FArrayProperty>(Cls->FindPropertyByName(FName("RequiredItems")));
+	if (!RIProp)
+	{
+		RIProp = CastField<FArrayProperty>(Cls->FindPropertyByName(FName("AZP_RequiredItems")));
+	}
 	if (!RIProp)
 	{
 		return false;

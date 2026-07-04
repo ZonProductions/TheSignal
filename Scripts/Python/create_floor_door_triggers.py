@@ -30,7 +30,7 @@ created = 0
 warnings = []
 
 for trigger in f1_triggers:
-    door_actor = trigger.get_editor_property('door_actor')
+    door_actor = trigger.get_editor_property('AZP_DoorActor')
     if not door_actor:
         warnings.append(f"Trigger {trigger.get_actor_label()} has no DoorActor — skipped")
         continue
@@ -40,10 +40,10 @@ for trigger in f1_triggers:
     door_loc = door_actor.get_actor_location()
 
     # Get trigger config
-    open_mode = trigger.get_editor_property('open_mode')
-    open_angle = trigger.get_editor_property('open_angle')
-    slide_offset = trigger.get_editor_property('slide_offset')
-    interp_speed = trigger.get_editor_property('interp_speed')
+    open_mode = trigger.get_editor_property('AZP_OpenMode')
+    open_angle = trigger.get_editor_property('AZP_OpenAngle')
+    slide_offset = trigger.get_editor_property('AZP_SlideOffset')
+    interp_speed = trigger.get_editor_property('AZP_InterpSpeed')
 
     # Get door class + mesh for matching on other floors
     door_class_name = door_actor.get_class().get_name()
@@ -125,11 +125,11 @@ for trigger in f1_triggers:
             continue
 
         # Copy all properties
-        new_trigger.set_editor_property('door_actor', target_door)
-        new_trigger.set_editor_property('open_mode', open_mode)
-        new_trigger.set_editor_property('open_angle', open_angle)
-        new_trigger.set_editor_property('slide_offset', slide_offset)
-        new_trigger.set_editor_property('interp_speed', interp_speed)
+        new_trigger.set_editor_property('AZP_DoorActor', target_door)
+        new_trigger.set_editor_property('AZP_OpenMode', open_mode)
+        new_trigger.set_editor_property('AZP_OpenAngle', open_angle)
+        new_trigger.set_editor_property('AZP_SlideOffset', slide_offset)
+        new_trigger.set_editor_property('AZP_InterpSpeed', interp_speed)
 
         # Label: DoorTrigger_F{N}_{DoorLabel}_{Mode}
         label = f"DoorTrigger_F{floor_num}_{target_door.get_actor_label()}_{mode_str}"

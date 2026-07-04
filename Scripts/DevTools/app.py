@@ -2201,10 +2201,10 @@ for a in eas.get_all_level_actors():
     z = a.get_actor_location().z
     if z < {z_min} or z > {z_max}:
         continue
-    a.set_editor_property("MapTexture", texture)
-    a.set_editor_property("MapBoundsMin", unreal.Vector2D({bmin_x:.1f}, {bmin_y:.1f}))
-    a.set_editor_property("MapBoundsMax", unreal.Vector2D({bmax_x:.1f}, {bmax_y:.1f}))
-    a.set_editor_property("AreaDisplayName", unreal.Text("Floor {floor}"))
+    a.set_editor_property("AZP_MapTexture", texture)
+    a.set_editor_property("AZP_MapBoundsMin", unreal.Vector2D({bmin_x:.1f}, {bmin_y:.1f}))
+    a.set_editor_property("AZP_MapBoundsMax", unreal.Vector2D({bmax_x:.1f}, {bmax_y:.1f}))
+    a.set_editor_property("AZP_AreaDisplayName", unreal.Text("Floor {floor}"))
     found += 1
     print("Set F{floor} MapPickup: " + a.get_name() + " bounds ({bmin_x:.0f},{bmin_y:.0f}) to ({bmax_x:.0f},{bmax_y:.0f})")
 if not found:

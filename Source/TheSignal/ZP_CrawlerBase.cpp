@@ -19,7 +19,7 @@ AZP_CrawlerBase::AZP_CrawlerBase(const FObjectInitializer& ObjectInitializer)
 		ACharacter::CharacterMovementComponentName))
 {
 	HealthComp = CreateDefaultSubobject<UZP_HealthComponent>(TEXT("HealthComp"));
-	HealthComp->MaxHealth = 50.f;
+	HealthComp->AZP_MaxHealth = 50.f;
 	BehaviorComp = CreateDefaultSubobject<UZP_CrawlerBehaviorComponent>(TEXT("BehaviorComp"));
 
 	// The movement component owns body orientation (it aligns the crawler to its wall). Make sure the
@@ -69,12 +69,12 @@ void AZP_CrawlerBase::BeginPlay()
 	// Apply tentacle material after Monster Randomizer completes.
 	// BP_Monster_Pawn's BeginPlay has a 3s delay before Monster Randomizer runs,
 	// then legs spawn and get their materials. We wait 4.5s to ensure legs exist.
-	if (TentacleMaterial)
+	if (AZP_TentacleMaterial)
 	{
 		GetWorldTimerManager().SetTimer(
 			MaterialSwapTimerHandle, this,
 			&AZP_CrawlerBase::ApplyTentacleMaterial,
-			4.5f, false
+			AZP_TentacleMaterialSwapDelay, false
 		);
 	}
 }
@@ -118,18 +118,18 @@ float AZP_CrawlerBase::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 
 void AZP_CrawlerBase::ApplyTentacleMaterial()
 {
-	if (!TentacleMaterial)
+	if (!AZP_TentacleMaterial)
 	{
 		return;
 	}
 
-	// If RuntimeRoughnessOverride > 0, create a DMI with boosted roughness to blur
+	// If AZP_RuntimeRoughnessOverride > 0, create a DMI with boosted roughness to blur
 	// SSR floor reflections while keeping the wet ink visual intact.
-	UMaterialInterface* MatToApply = TentacleMaterial;
-	if (RuntimeRoughnessOverride > 0.f)
+	UMaterialInterface* MatToApply = AZP_TentacleMaterial;
+	if (AZP_RuntimeRoughnessOverride > 0.f)
 	{
-		UMaterialInstanceDynamic* DMI = UMaterialInstanceDynamic::Create(TentacleMaterial, this);
-		DMI->SetScalarParameterValue(FName("Roughness"), RuntimeRoughnessOverride);
+		UMaterialInstanceDynamic* DMI = UMaterialInstanceDynamic::Create(AZP_TentacleMaterial, this);
+		DMI->SetScalarParameterValue(FName("Roughness"), AZP_RuntimeRoughnessOverride);
 		MatToApply = DMI;
 	}
 
@@ -194,7 +194,7 @@ void AZP_CrawlerBase::ApplyTentacleMaterial()
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] %s: Applied TentacleMaterial to %d mesh components (Roughness override: %.2f)"), *GetName(), SwapCount, RuntimeRoughnessOverride);
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] %s: Applied AZP_TentacleMaterial to %d mesh components (Roughness override: %.2f)"), *GetName(), SwapCount, AZP_RuntimeRoughnessOverride);
 }
 
 /**
@@ -371,12 +371,12 @@ void AZP_CrawlerBase::OnDied()
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CrawlerBase %s: Dead — frozen on ground"), *GetName());
 
 	// 8. Destroy corpse + orphaned parts after 30 seconds
-	SetLifeSpan(30.0f);
+	SetLifeSpan(AZP_CorpseLifeSpan);
 	for (AActor* Orphan : OrphanedActors)
 	{
 		if (Orphan)
 		{
-			Orphan->SetLifeSpan(30.0f);
+			Orphan->SetLifeSpan(AZP_CorpseLifeSpan);
 		}
 	}
 }

@@ -7,18 +7,18 @@
  *
  * Purpose: Drop-in ActorComponent that makes any actor interactable for dialogue.
  *          Handles interaction volume, player detection, prompt, and dialogue routing.
- *          Supports both CodeSpartan DialoguePlugin (PluginDialogue + DialogueWidgetClass)
- *          and our custom system (DialogueData + ZP_DialogueManager) as fallback.
+ *          Supports both CodeSpartan DialoguePlugin (AZP_PluginDialogue + AZP_DialogueWidgetClass)
+ *          and our custom system (AZP_DialogueData + ZP_DialogueManager) as fallback.
  *          Add to BP_NPC (or any actor) — zero Blueprint wiring needed.
  *
  * Owner Subsystem: Gameplay
  *
  * Blueprint Extension Points:
- *   - PluginDialogue: set to a Dialogue asset (from CodeSpartan plugin node editor).
- *   - DialogueWidgetClass: set to your WBP extending DialogueUserWidget.
- *   - DialogueData: fallback to custom ZP_DialogueManager system.
- *   - InteractionPrompt set per-instance in editor.
- *   - bInteractOnce for one-shot NPCs.
+ *   - AZP_PluginDialogue: set to a Dialogue asset (from CodeSpartan plugin node editor).
+ *   - AZP_DialogueWidgetClass: set to your WBP extending DialogueUserWidget.
+ *   - AZP_DialogueData: fallback to custom ZP_DialogueManager system.
+ *   - AZP_InteractionPrompt set per-instance in editor.
+ *   - bAZP_InteractOnce for one-shot NPCs.
  *
  * Dependencies:
  *   - AZP_GraceCharacter (SetCurrentInteractable/ClearCurrentInteractable)
@@ -48,42 +48,70 @@ public:
 	/** Dialogue asset from CodeSpartan's Dialogue Plugin (node editor).
 	 *  Set this to use the plugin's visual dialogue system. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Dialogue Plugin")
-	TObjectPtr<UDataAsset> PluginDialogue;
+	TObjectPtr<UDataAsset> AZP_PluginDialogue;
 
 	/** Widget class extending DialogueUserWidget (from plugin). Created on interact.
 	 *  Set to your custom WBP that handles dialogue display. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Dialogue Plugin")
-	TSubclassOf<UUserWidget> DialogueWidgetClass;
+	TSubclassOf<UUserWidget> AZP_DialogueWidgetClass;
 
 	// --- Custom Dialogue System (fallback) ---
 
-	/** Our custom dialogue DataAsset. Used only if PluginDialogue is NOT set. */
+	/** Our custom dialogue DataAsset. Used only if AZP_PluginDialogue is NOT set. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Custom Dialogue")
-	TObjectPtr<UZP_DialogueData> DialogueData;
+	TObjectPtr<UZP_DialogueData> AZP_DialogueData;
 
 	// --- General ---
 
 	/** Prompt shown to the player (e.g., "Talk", "Examine"). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
-	FText InteractionPrompt = FText::FromString(TEXT("Talk"));
+	FText AZP_InteractionPrompt = FText::FromString(TEXT("Talk"));
 
 	/** If true, interaction disables after first use. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
-	bool bInteractOnce = false;
+	bool bAZP_InteractOnce = false;
+
+	/** Half-extents of the runtime-created box overlap volume that defines the NPC's interaction range. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Interaction")
+	FVector AZP_InteractionVolumeExtent = FVector(300.f, 300.f, 150.f);
 
 	/** Name of the saved character design to load (from Character Designer). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Designer", meta = (GetOptions = "GetSavedCharacterNames"))
-	FName CharacterSaveName;
+	FName AZP_CharacterSaveName;
 
 	// --- Dialogue Behavior ---
 
 	/** Gesture animations to randomly play during dialogue. Assign AnimSequences in editor. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Gestures")
-	TArray<TObjectPtr<UAnimSequenceBase>> GestureAnimations;
+	TArray<TObjectPtr<UAnimSequenceBase>> AZP_GestureAnimations;
+
+	/** Minimum seconds after dialogue starts before the first random gesture can play (GestureTimer = RandRange(2,5)). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Gestures")
+	float AZP_GestureInitialDelayMin = 2.f;
+
+	/** Maximum seconds after dialogue starts before the first random gesture can play (GestureTimer = RandRange(2,5)). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Gestures")
+	float AZP_GestureInitialDelayMax = 5.f;
+
+	/** Minimum seconds between consecutive random gesture montages during dialogue (GestureTimer = RandRange(3,7)). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Gestures")
+	float AZP_GestureIntervalMin = 3.f;
+
+	/** Maximum seconds between consecutive random gesture montages during dialogue (GestureTimer = RandRange(3,7)). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Gestures")
+	float AZP_GestureIntervalMax = 7.f;
+
+	/** Blend-in/blend-out time (both 0.25f in PlaySlotAnimationAsDynamicMontage) for gesture montages; the same 0.25f is also used for StopAllMontages blend-out at ZP_NPCInteractionComponent.cpp:335 and :379. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Gestures")
+	float AZP_GestureBlendTime = 0.25f;
+
+	/** Montage slot name gesture animations are played into; must match a slot in the NPC's AnimBP. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Gestures")
+	FName AZP_GestureSlotName = FName("DefaultSlot");
 
 	/** How fast the NPC rotates to face the player (degrees/sec). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC|Behavior")
-	float FacePlayerSpeed = 5.f;
+	float AZP_FacePlayerSpeed = 5.f;
 
 	/** Returns list of saved character names for dropdown. */
 	UFUNCTION()
@@ -93,7 +121,7 @@ public:
 	void HandleInteract(class ACharacter* Interactor);
 
 	/** Returns the prompt text for the HUD. */
-	FText GetPrompt() const { return InteractionPrompt; }
+	FText GetPrompt() const { return AZP_InteractionPrompt; }
 
 protected:
 	virtual void BeginPlay() override;

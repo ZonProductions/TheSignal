@@ -7,7 +7,7 @@ const FZP_FootstepSurface* UZP_FootstepData::Resolve(EPhysicalSurface InSurfaceT
 	// Pass 1: authored physical-material SurfaceType — exact and intentional, always wins.
 	if (InSurfaceType != SurfaceType_Default)
 	{
-		for (const FZP_FootstepSurface& Row : Surfaces)
+		for (const FZP_FootstepSurface& Row : AZP_Surfaces)
 		{
 			if (Row.SurfaceType == InSurfaceType && Row.Sounds.Num() > 0)
 			{
@@ -17,7 +17,7 @@ const FZP_FootstepSurface* UZP_FootstepData::Resolve(EPhysicalSurface InSurfaceT
 	}
 
 	// Pass 2: material-name keywords — the zero-authoring path for purchased packs.
-	for (const FZP_FootstepSurface& Row : Surfaces)
+	for (const FZP_FootstepSurface& Row : AZP_Surfaces)
 	{
 		if (Row.Sounds.Num() == 0) { continue; } // placeholder slot — not ready yet
 		for (const FString& Key : Row.MaterialNameKeywords)

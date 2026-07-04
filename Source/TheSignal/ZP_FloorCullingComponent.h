@@ -12,8 +12,8 @@
  * Owner Subsystem: PlayerCharacter
  *
  * Blueprint Extension Points:
- *   - FloorHeight, FloorBaseZ, NumFloors configurable per-level
- *   - AdjacentFloorsToShow controls neighbor floor visibility
+ *   - AZP_FloorHeight, AZP_FloorBaseZ, AZP_NumFloors configurable per-level
+ *   - AZP_AdjacentFloorsToShow controls neighbor floor visibility
  *
  * Dependencies:
  *   - Must be attached to player character (reads owner location)
@@ -35,15 +35,15 @@ public:
 
 	/** Height of each floor in UU. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
-	float FloorHeight = 500.0f;
+	float AZP_FloorHeight = 500.0f;
 
 	/** Z position of the bottom of Floor 1. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
-	float FloorBaseZ = 0.0f;
+	float AZP_FloorBaseZ = 0.0f;
 
 	/** Total number of floors. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
-	int32 NumFloors = 5;
+	int32 AZP_NumFloors = 5;
 
 	/** How many floors above and below current to keep visible.
 	 *  99 = culling neutralized: single-floor demo maps (Building1_3rdFloor)
@@ -51,15 +51,34 @@ public:
 	 *  the entire world from floor 3 ("blackbox", session 65). Restore a low
 	 *  value only after CollectActors skips sky/env actors. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
-	int32 AdjacentFloorsToShow = 99;
+	int32 AZP_AdjacentFloorsToShow = 99;
 
 	/** How often to check player floor (seconds). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
-	float CheckInterval = 0.3f;
+	float AZP_CheckInterval = 0.3f;
 
 	/** Zones where actors are NEVER culled (stairwells, atriums, vertical shafts).
 	 *  Actors inside any of these boxes are excluded from both ISM batching and floor culling. */
-	TArray<FBox> AlwaysVisibleZones;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
+	TArray<FBox> AZP_AlwaysVisibleZones;
+
+	/** Class names (Blueprint _C suffix stripped) that are never floor-culled — global/essential actors (sky, fog, post-process, nav). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Culling")
+	TArray<FString> AZP_SkipActorClassNames = {
+		TEXT("SkyAtmosphere"),
+		TEXT("SkyLight"),
+		TEXT("DirectionalLight"),
+		TEXT("ExponentialHeightFog"),
+		TEXT("VolumetricCloud"),
+		TEXT("PostProcessVolume"),
+		TEXT("LightmassImportanceVolume"),
+		TEXT("PlayerStart"),
+		TEXT("WorldSettings"),
+		TEXT("GameModeBase"),
+		TEXT("NavigationData"),
+		TEXT("AbstractNavData"),
+		TEXT("LevelBounds"),
+	};
 
 	/** Current floor the player is on (0-based index). */
 	UPROPERTY(BlueprintReadOnly, Category = "Floor Culling")

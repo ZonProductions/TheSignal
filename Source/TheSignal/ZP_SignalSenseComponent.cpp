@@ -27,10 +27,10 @@ UZP_SignalSenseComponent::UZP_SignalSenseComponent()
 	static ConstructorHelpers::FObjectFinder<USoundBase> RingFinder(TEXT("/Game/Audio/Signal/SFX_Phone_Ring.SFX_Phone_Ring"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> AlarmFinder(TEXT("/Game/Audio/Signal/SFX_Signal_Alarm.SFX_Signal_Alarm"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> SilenceFinder(TEXT("/Game/Audio/Signal/SFX_Phone_Silence.SFX_Phone_Silence"));
-	if (InterferenceFinder.Succeeded()) { InterferenceLoop = InterferenceFinder.Object; }
-	if (RingFinder.Succeeded())         { RingLoop = RingFinder.Object; }
-	if (AlarmFinder.Succeeded())        { AlarmLoop = AlarmFinder.Object; }
-	if (SilenceFinder.Succeeded())      { ClearSting = SilenceFinder.Object; }
+	if (InterferenceFinder.Succeeded()) { AZP_InterferenceLoop = InterferenceFinder.Object; }
+	if (RingFinder.Succeeded())         { AZP_RingLoop = RingFinder.Object; }
+	if (AlarmFinder.Succeeded())        { AZP_AlarmLoop = AlarmFinder.Object; }
+	if (SilenceFinder.Succeeded())      { AZP_ClearSting = SilenceFinder.Object; }
 }
 
 void UZP_SignalSenseComponent::BeginPlay()
@@ -44,7 +44,7 @@ void UZP_SignalSenseComponent::BeginPlay()
 		if (InterferenceComp)
 		{
 			InterferenceComp->bAutoActivate = false;
-			InterferenceComp->SetSound(InterferenceLoop);
+			InterferenceComp->SetSound(AZP_InterferenceLoop);
 			InterferenceComp->RegisterComponent();
 			InterferenceComp->SetVolumeMultiplier(0.f);
 			InterferenceComp->Play();   // loops silently until we drive volume up
@@ -67,7 +67,7 @@ void UZP_SignalSenseComponent::BeginPlay()
 
 	if (UWorld* World = GetWorld())
 	{
-		const float Interval = FMath::Max(0.05f, EvaluateInterval);
+		const float Interval = FMath::Max(0.05f, AZP_EvaluateInterval);
 		World->GetTimerManager().SetTimer(EvalTimer, this, &UZP_SignalSenseComponent::Evaluate, Interval, true);
 	}
 }
@@ -87,19 +87,19 @@ void UZP_SignalSenseComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	WaveformAmplitude = FMath::FInterpTo(WaveformAmplitude, AmplitudeTarget, DeltaTime, 6.f);
+	WaveformAmplitude = FMath::FInterpTo(WaveformAmplitude, AmplitudeTarget, DeltaTime, AZP_AmplitudeSmoothSpeed);
 
 	// Boundary fade: 3s curved attack/release on entering/leaving ALL voids (only at 0<->1).
 	// A grace hold across small gaps between motes keeps mote->gap->mote seamless (no clip).
 	if (bInAnyVoid) { TimeOutOfVoid = 0.f; }
 	else            { TimeOutOfVoid += DeltaTime; }
 
-	const float PhaseRate = DeltaTime / FMath::Max(0.05f, VoidFadeDuration);
+	const float PhaseRate = DeltaTime / FMath::Max(0.05f, AZP_VoidFadeDuration);
 	if (bInAnyVoid)
 	{
 		EnvPhase = FMath::Min(1.f, EnvPhase + PhaseRate);          // attack
 	}
-	else if (TimeOutOfVoid > VoidExitGrace)
+	else if (TimeOutOfVoid > AZP_VoidExitGrace)
 	{
 		EnvPhase = FMath::Max(0.f, EnvPhase - PhaseRate);          // release (only past grace)
 	}
@@ -108,7 +108,7 @@ void UZP_SignalSenseComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 	// In-void crescendo tracks position; rides under the boundary envelope so the volumes
 	// always match at the transition (no pop between fade and crescendo).
-	CrescendoVolume = FMath::FInterpTo(CrescendoVolume, CrescendoTarget, DeltaTime, FMath::Max(0.01f, CrescendoSmoothSpeed));
+	CrescendoVolume = FMath::FInterpTo(CrescendoVolume, CrescendoTarget, DeltaTime, FMath::Max(0.01f, AZP_CrescendoSmoothSpeed));
 
 	InterferenceVolume = CrescendoVolume * BoundaryEnv;
 	if (InterferenceComp)
@@ -121,16 +121,16 @@ void UZP_SignalSenseComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 float UZP_SignalSenseComponent::GetAmpWritePhase() const
 {
-	return (float)AmpWriteHead / (float)AmpHistorySize;
+	return (float)AmpWriteHead / (float)AZP_AmpHistorySize;
 }
 
 void UZP_SignalSenseComponent::InitAmpHistory()
 {
-	AmpBuffer.Init(0, AmpHistorySize);
+	AmpBuffer.Init(0, AZP_AmpHistorySize);
 	AmpWriteHead = 0;
 	AmpSampleAccum = 0.f;
 
-	AmpHistoryTex = UTexture2D::CreateTransient(AmpHistorySize, 1, PF_G8);
+	AmpHistoryTex = UTexture2D::CreateTransient(AZP_AmpHistorySize, 1, PF_G8);
 	if (AmpHistoryTex)
 	{
 		AmpHistoryTex->SRGB = false;
@@ -144,31 +144,31 @@ void UZP_SignalSenseComponent::InitAmpHistory()
 
 void UZP_SignalSenseComponent::PushAmpHistory(float DeltaTime)
 {
-	if (!AmpHistoryTex || AmpBuffer.Num() != AmpHistorySize)
+	if (!AmpHistoryTex || AmpBuffer.Num() != AZP_AmpHistorySize)
 	{
 		return;
 	}
 
-	const float Rate = FMath::Max(1.f, AmpSampleRate);
+	const float Rate = FMath::Max(1.f, AZP_AmpSampleRate);
 	const float Step = 1.f / Rate;
 	AmpSampleAccum += DeltaTime;
 
 	bool bChanged = false;
 	int32 Guard = 0;
-	while (AmpSampleAccum >= Step && Guard++ < AmpHistorySize)
+	while (AmpSampleAccum >= Step && Guard++ < AZP_AmpHistorySize)
 	{
 		AmpSampleAccum -= Step;
 		AmpBuffer[AmpWriteHead] = (uint8)(FMath::Clamp(WaveformAmplitude, 0.f, 1.f) * 255.f);
-		AmpWriteHead = (AmpWriteHead + 1) % AmpHistorySize;
+		AmpWriteHead = (AmpWriteHead + 1) % AZP_AmpHistorySize;
 		bChanged = true;
 	}
 
 	if (bChanged)
 	{
-		uint8* Copy = (uint8*)FMemory::Malloc(AmpHistorySize);
-		FMemory::Memcpy(Copy, AmpBuffer.GetData(), AmpHistorySize);
-		FUpdateTextureRegion2D* Region = new FUpdateTextureRegion2D(0, 0, 0, 0, AmpHistorySize, 1);
-		AmpHistoryTex->UpdateTextureRegions(0, 1, Region, AmpHistorySize, 1, Copy,
+		uint8* Copy = (uint8*)FMemory::Malloc(AZP_AmpHistorySize);
+		FMemory::Memcpy(Copy, AmpBuffer.GetData(), AZP_AmpHistorySize);
+		FUpdateTextureRegion2D* Region = new FUpdateTextureRegion2D(0, 0, 0, 0, AZP_AmpHistorySize, 1);
+		AmpHistoryTex->UpdateTextureRegions(0, 1, Region, AZP_AmpHistorySize, 1, Copy,
 			[](uint8* Data, const FUpdateTextureRegion2D* Reg) { FMemory::Free(Data); delete Reg; });
 	}
 }
@@ -176,12 +176,12 @@ void UZP_SignalSenseComponent::PushAmpHistory(float DeltaTime)
 void UZP_SignalSenseComponent::Evaluate()
 {
 	const float VoidT = BestVoidPenetration();   // 0 centre -> 1 box surface, >1 outside
-	const float EnemyDist = NearestTaggedDistance(EnemyTag, /*bHorizontalOnly=*/false);
+	const float EnemyDist = NearestTaggedDistance(AZP_EnemyTag, /*bHorizontalOnly=*/false);
 	const bool bInVoid = VoidT <= 1.0f;
 
 	EZP_SignalStage NewStage = EZP_SignalStage::None;
-	if (EnemyDist <= MeleeRadius)      NewStage = EZP_SignalStage::Melee;
-	else if (EnemyDist <= EnemyRadius) NewStage = EZP_SignalStage::Enemy;
+	if (EnemyDist <= AZP_MeleeRadius)      NewStage = EZP_SignalStage::Melee;
+	else if (EnemyDist <= AZP_EnemyRadius) NewStage = EZP_SignalStage::Enemy;
 	else if (bInVoid)                  NewStage = EZP_SignalStage::Interference;
 
 	// In-void crescendo target (clamped, so the edge value persists just outside and the
@@ -190,8 +190,8 @@ void UZP_SignalSenseComponent::Evaluate()
 	CrescendoTarget = InterferenceGainForT(VoidT);
 
 	// Waveform amplitude: interference follows its live volume; combat steps up.
-	if (NewStage == EZP_SignalStage::Melee)      AmplitudeTarget = 1.0f;
-	else if (NewStage == EZP_SignalStage::Enemy) AmplitudeTarget = 0.7f;
+	if (NewStage == EZP_SignalStage::Melee)      AmplitudeTarget = AZP_MeleeStageAmplitude;
+	else if (NewStage == EZP_SignalStage::Enemy) AmplitudeTarget = AZP_EnemyStageAmplitude;
 	else                                         AmplitudeTarget = InterferenceVolume;
 
 	if (NewStage != CurrentStage)
@@ -213,13 +213,13 @@ void UZP_SignalSenseComponent::Evaluate()
 float UZP_SignalSenseComponent::BestVoidPenetration() const
 {
 	const AActor* Owner = GetOwner();
-	if (!Owner || VoidmoteTag.IsNone())
+	if (!Owner || AZP_VoidmoteTag.IsNone())
 	{
 		return TNumericLimits<float>::Max();
 	}
 
 	TArray<AActor*> Found;
-	UGameplayStatics::GetAllActorsWithTag(this, VoidmoteTag, Found);
+	UGameplayStatics::GetAllActorsWithTag(this, AZP_VoidmoteTag, Found);
 
 	const FVector P = Owner->GetActorLocation();
 	float Best = TNumericLimits<float>::Max();
@@ -233,7 +233,7 @@ float UZP_SignalSenseComponent::BestVoidPenetration() const
 		A->GetActorBounds(/*bOnlyCollidingComponents=*/false, Origin, Extent);
 		if (Extent.IsNearlyZero())
 		{
-			Extent = FVector(VoidZoneRadius); // fallback if the actor reports no usable bounds
+			Extent = FVector(AZP_VoidZoneRadius); // fallback if the actor reports no usable bounds
 		}
 
 		const FVector D = P - Origin;
@@ -254,8 +254,8 @@ float UZP_SignalSenseComponent::InterferenceGainForT(float T) const
 	//   outer region [0, KneeP]   -> gentle rise to KneeV (e.g. 30% by 60% proximity)
 	//   inner region [KneeP, 1]   -> linear from KneeV up to full at the centre
 	const float P = 1.f - FMath::Clamp(T, 0.f, 1.f);
-	const float KneeP = FMath::Clamp(InterferenceKneeProximity, 0.01f, 0.99f);
-	const float KneeV = FMath::Clamp(InterferenceKneeVolume, 0.f, 1.f);
+	const float KneeP = FMath::Clamp(AZP_InterferenceKneeProximity, 0.01f, 0.99f);
+	const float KneeV = FMath::Clamp(AZP_InterferenceKneeVolume, 0.f, 1.f);
 
 	if (P <= KneeP)
 	{
@@ -334,13 +334,13 @@ void UZP_SignalSenseComponent::CrossfadeEnemyTo(USoundBase* Sound)
 
 	if (CurrentComp->IsPlaying())
 	{
-		CurrentComp->FadeOut(CrossfadeTime, 0.f);
+		CurrentComp->FadeOut(AZP_CrossfadeTime, 0.f);
 	}
 
 	if (Sound)
 	{
 		SpareComp->SetSound(Sound);
-		SpareComp->FadeIn(CrossfadeTime, 1.f);
+		SpareComp->FadeIn(AZP_CrossfadeTime, 1.f);
 	}
 
 	Swap(CurrentComp, SpareComp);
@@ -348,9 +348,9 @@ void UZP_SignalSenseComponent::CrossfadeEnemyTo(USoundBase* Sound)
 
 void UZP_SignalSenseComponent::PlayClearSting()
 {
-	if (CurrentStage == EZP_SignalStage::None && ClearSting)
+	if (CurrentStage == EZP_SignalStage::None && AZP_ClearSting)
 	{
-		UGameplayStatics::PlaySound2D(this, ClearSting);
+		UGameplayStatics::PlaySound2D(this, AZP_ClearSting);
 	}
 }
 
@@ -387,8 +387,8 @@ USoundBase* UZP_SignalSenseComponent::EnemyLoopForStage(EZP_SignalStage S) const
 {
 	switch (S)
 	{
-	case EZP_SignalStage::Enemy: return RingLoop;
-	case EZP_SignalStage::Melee: return AlarmLoop;
+	case EZP_SignalStage::Enemy: return AZP_RingLoop;
+	case EZP_SignalStage::Melee: return AZP_AlarmLoop;
 	default:                     return nullptr;
 	}
 }
@@ -397,8 +397,8 @@ UForceFeedbackEffect* UZP_SignalSenseComponent::RumbleForStage(EZP_SignalStage S
 {
 	switch (S)
 	{
-	case EZP_SignalStage::Enemy: return RingRumble;
-	case EZP_SignalStage::Melee: return AlarmRumble;
+	case EZP_SignalStage::Enemy: return AZP_RingRumble;
+	case EZP_SignalStage::Melee: return AZP_AlarmRumble;
 	default:                     return nullptr;
 	}
 }

@@ -6,10 +6,10 @@ mi = unreal.load_asset('/Game/TheSignal/Materials/Creatures/MI_VoidCrawler')
 print(f"MI loaded: {mi.get_name() if mi else 'None'}")
 
 cdo = unreal.get_default_object(bp.generated_class())
-cdo.set_editor_property('TentacleMaterial', mi)
+cdo.set_editor_property('AZP_TentacleMaterial', mi)
 
 # Verify
-mat = cdo.get_editor_property('TentacleMaterial')
+mat = cdo.get_editor_property('AZP_TentacleMaterial')
 print(f"TentacleMaterial after set: {mat.get_name() if mat else 'None'}")
 
 # Save BP

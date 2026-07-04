@@ -35,7 +35,7 @@ void UZP_DialogueWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 	// Smooth fade
 	if (!FMath::IsNearlyEqual(CurrentOpacity, TargetOpacity, 0.01f))
 	{
-		CurrentOpacity = FMath::FInterpTo(CurrentOpacity, TargetOpacity, InDeltaTime, FadeSpeed);
+		CurrentOpacity = FMath::FInterpTo(CurrentOpacity, TargetOpacity, InDeltaTime, AZP_FadeSpeed);
 		SetRenderOpacity(CurrentOpacity);
 	}
 }
@@ -78,18 +78,18 @@ void UZP_DialogueWidget::ShowChoices(const TArray<FZP_DialogueChoice>& Choices)
 {
 	ClearChoices();
 
-	if (!ChoiceContainer || !ChoiceButtonClass)
+	if (!ChoiceContainer || !AZP_ChoiceButtonClass)
 	{
-		if (!ChoiceButtonClass)
+		if (!AZP_ChoiceButtonClass)
 		{
-			UE_LOG(LogDialogueWidget, Warning, TEXT("No ChoiceButtonClass set — choices won't display. Set in WBP_DialogueBox defaults."));
+			UE_LOG(LogDialogueWidget, Warning, TEXT("No AZP_ChoiceButtonClass set — choices won't display. Set in WBP_DialogueBox defaults."));
 		}
 		return;
 	}
 
 	for (int32 i = 0; i < Choices.Num(); ++i)
 	{
-		UZP_DialogueChoiceButton* ButtonWidget = CreateWidget<UZP_DialogueChoiceButton>(GetOwningPlayer(), ChoiceButtonClass);
+		UZP_DialogueChoiceButton* ButtonWidget = CreateWidget<UZP_DialogueChoiceButton>(GetOwningPlayer(), AZP_ChoiceButtonClass);
 		if (!ButtonWidget) continue;
 
 		ButtonWidget->SetupChoice(i, Choices[i].ChoiceText);
@@ -98,7 +98,7 @@ void UZP_DialogueWidget::ShowChoices(const TArray<FZP_DialogueChoice>& Choices)
 		UVerticalBoxSlot* ChoiceSlot = ChoiceContainer->AddChildToVerticalBox(ButtonWidget);
 		if (ChoiceSlot)
 		{
-			ChoiceSlot->SetPadding(FMargin(0.f, 4.f, 0.f, 4.f));
+			ChoiceSlot->SetPadding(AZP_ChoiceButtonPadding);
 		}
 	}
 

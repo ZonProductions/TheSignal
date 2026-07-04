@@ -45,7 +45,7 @@ public:
 	static bool CreateNoteEntryWidget();
 
 	/**
-	 * Sets WBP_Notes default: NoteEntryWidgetClass = WBP_NoteEntry.
+	 * Sets WBP_Notes default: AZP_NoteEntryWidgetClass = WBP_NoteEntry.
 	 * Call AFTER CreateNoteEntryWidget() and SetupNotesWidget().
 	 */
 	UFUNCTION(BlueprintCallable, Category = "TheSignal|Editor")

@@ -8,7 +8,7 @@
  * Purpose: C++ PARENT class of ABP_Shambler (the main anim instance). Two post-evaluate jobs:
  *          - Grab state: applies the dev-tunable bone-local rotations (GrabArmL/R/Head) on top
  *            of the paired grapple clips so arm clipping / bite angle dial live in PIE.
- *          - Run bursts: WORLD-space head stabilization (RunHeadStabilize 0..1) — the baked
+ *          - Run bursts: WORLD-space head stabilization (AZP_RunHeadStabilize 0..1) — the baked
  *            local-track freeze still rides the torso's run-swing, so the head whipped around
  *            (dev 2026-07-03); holding the head's component-space reference orientation gives
  *            the steady facing-the-player gaze. Inert in every other state.
@@ -40,6 +40,26 @@ class THESIGNAL_API UZP_ShamblerGrabPoseAnimInstance : public UAnimInstance
 
 public:
 	virtual void NativePostEvaluateAnimation() override;
+
+	/** Substring matcher resolving the necromorph head bone (mixamorig_* names vary per export); retune only if the Shambler mesh/skeleton family changes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FString AZP_GrabBoneMatchHead = TEXT("head");
+
+	/** Substring excluding the "headtop_end" tip bone from the head match. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FString AZP_GrabBoneMatchHeadExclude = TEXT("top");
+
+	/** Substring excluding forearm bones from the upper-arm matches. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FString AZP_GrabBoneMatchForearmExclude = TEXT("forearm");
+
+	/** Substring matcher resolving the necromorph left upper-arm bone. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FString AZP_GrabBoneMatchArmL = TEXT("leftarm");
+
+	/** Substring matcher resolving the necromorph right upper-arm bone. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Grab")
+	FString AZP_GrabBoneMatchArmR = TEXT("rightarm");
 
 private:
 	TWeakObjectPtr<UZP_ShamblerBehaviorComponent> Behavior;

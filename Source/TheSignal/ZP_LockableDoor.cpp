@@ -28,9 +28,9 @@ void AZP_LockableDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentState = InitialState;
+	CurrentState = AZP_InitialState;
 
-	if (OpenMode == EZP_DoorOpenMode::Rotate)
+	if (AZP_OpenMode == EZP_DoorOpenMode::Rotate)
 	{
 		InitialYaw = DoorPivot->GetRelativeRotation().Yaw;
 		TargetYaw = InitialYaw;
@@ -43,7 +43,7 @@ void AZP_LockableDoor::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] LockableDoor %s: Initial state = %s, Mode = %s"),
 		*GetName(), *UEnum::GetValueAsString(CurrentState),
-		OpenMode == EZP_DoorOpenMode::Rotate ? TEXT("Rotate") : TEXT("Slide"));
+		AZP_OpenMode == EZP_DoorOpenMode::Rotate ? TEXT("Rotate") : TEXT("Slide"));
 }
 
 void AZP_LockableDoor::Tick(float DeltaTime)
@@ -52,10 +52,10 @@ void AZP_LockableDoor::Tick(float DeltaTime)
 
 	if (CurrentState != EZP_DoorState::Opening) return;
 
-	if (OpenMode == EZP_DoorOpenMode::Rotate)
+	if (AZP_OpenMode == EZP_DoorOpenMode::Rotate)
 	{
 		FRotator CurrentRot = DoorPivot->GetRelativeRotation();
-		float NewYaw = FMath::FInterpTo(CurrentRot.Yaw, TargetYaw, DeltaTime, OpenInterpSpeed);
+		float NewYaw = FMath::FInterpTo(CurrentRot.Yaw, TargetYaw, DeltaTime, AZP_OpenInterpSpeed);
 		DoorPivot->SetRelativeRotation(FRotator(CurrentRot.Pitch, NewYaw, CurrentRot.Roll));
 
 		if (FMath::IsNearlyEqual(NewYaw, TargetYaw, 0.5f))
@@ -69,7 +69,7 @@ void AZP_LockableDoor::Tick(float DeltaTime)
 	else // Slide
 	{
 		FVector CurrentLoc = DoorPivot->GetRelativeLocation();
-		FVector NewLoc = FMath::VInterpTo(CurrentLoc, TargetLocation, DeltaTime, OpenInterpSpeed);
+		FVector NewLoc = FMath::VInterpTo(CurrentLoc, TargetLocation, DeltaTime, AZP_OpenInterpSpeed);
 		DoorPivot->SetRelativeLocation(NewLoc);
 
 		if (FVector::Dist(NewLoc, TargetLocation) < 1.f)
@@ -94,13 +94,13 @@ void AZP_LockableDoor::OpenDoor()
 {
 	if (CurrentState != EZP_DoorState::Closed) return;
 
-	if (OpenMode == EZP_DoorOpenMode::Rotate)
+	if (AZP_OpenMode == EZP_DoorOpenMode::Rotate)
 	{
-		TargetYaw = InitialYaw + OpenAngle;
+		TargetYaw = InitialYaw + AZP_OpenAngle;
 	}
 	else
 	{
-		TargetLocation = InitialLocation + SlideOffset;
+		TargetLocation = InitialLocation + AZP_SlideOffset;
 	}
 
 	SetState(EZP_DoorState::Opening);
@@ -108,7 +108,7 @@ void AZP_LockableDoor::OpenDoor()
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] LockableDoor %s: Opening (%s)"),
 		*GetName(),
-		OpenMode == EZP_DoorOpenMode::Rotate
+		AZP_OpenMode == EZP_DoorOpenMode::Rotate
 			? *FString::Printf(TEXT("target yaw %.1f"), TargetYaw)
 			: *FString::Printf(TEXT("slide to %s"), *TargetLocation.ToString()));
 }

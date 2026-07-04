@@ -13,7 +13,7 @@
  *
  * Blueprint Extension Points:
  *   - DeskMesh: set the static mesh in BP child (BP_SavePoint).
- *   - PromptText: customizable interaction prompt.
+ *   - AZP_PromptText: customizable interaction prompt.
  *   - OnSavePointActivated: BlueprintImplementableEvent for opening save UI.
  *
  * Dependencies:
@@ -54,11 +54,11 @@ public:
 	// --- Config ---
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SavePoint")
-	FText PromptText = FText::FromString(TEXT("Save Progress"));
+	FText AZP_PromptText = FText::FromString(TEXT("Save Progress"));
 
 	/** Widget class to spawn when player interacts. Set to WBP_ESGU_SavesManagerUI in BP defaults. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SavePoint")
-	TSubclassOf<UUserWidget> SaveMenuWidgetClass;
+	TSubclassOf<UUserWidget> AZP_SaveMenuWidgetClass;
 
 	// --- IZP_Interactable ---
 

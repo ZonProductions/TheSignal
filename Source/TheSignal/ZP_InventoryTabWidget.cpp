@@ -45,17 +45,17 @@ void UZP_InventoryTabWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// Auto-load Moonville widget class for viewport searching
-	if (!InventoryWidgetClass)
+	if (!AZP_InventoryWidgetClass)
 	{
-		InventoryWidgetClass = LoadClass<UUserWidget>(nullptr,
-			TEXT("/Game/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_InventoryMenu_Horror.WBP_InventoryMenu_Horror_C"));
+		AZP_InventoryWidgetClass = LoadClass<UUserWidget>(nullptr,
+			*AZP_DefaultInventoryWidgetClassPath.ToString());
 	}
 
 	// Auto-load Notes widget class
-	if (!NotesWidgetClass)
+	if (!AZP_NotesWidgetClass)
 	{
-		NotesWidgetClass = LoadClass<UZP_NotesWidget>(nullptr,
-			TEXT("/Game/EasyGameUI/EasyOptionsMenu/Core/WBP_Notes.WBP_Notes_C"));
+		AZP_NotesWidgetClass = LoadClass<UZP_NotesWidget>(nullptr,
+			*AZP_DefaultNotesWidgetClassPath.ToString());
 	}
 
 	// Non-visual controller but needs to receive key events for tab cycling.
@@ -75,13 +75,13 @@ FReply UZP_InventoryTabWidget::NativeOnKeyDown(const FGeometry& InGeometry, cons
 		return FReply::Unhandled();
 	}
 
-	if (Key == EKeys::Q)
+	if (Key == AZP_TabCycleLeftKey)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Cycling LEFT"));
 		CycleTab(-1);
 		return FReply::Handled();
 	}
-	else if (Key == EKeys::E)
+	else if (Key == AZP_TabCycleRightKey)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Cycling RIGHT"));
 		CycleTab(1);
@@ -259,11 +259,11 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		APlayerController* PC = GetOwningPlayer();
 		if (PC)
 		{
-			if (PC->WasInputKeyJustPressed(EKeys::Q))
+			if (PC->WasInputKeyJustPressed(AZP_TabCycleLeftKey))
 			{
 				CycleTab(-1);
 			}
-			else if (PC->WasInputKeyJustPressed(EKeys::E))
+			else if (PC->WasInputKeyJustPressed(AZP_TabCycleRightKey))
 			{
 				CycleTab(1);
 			}
@@ -298,13 +298,13 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 			}
 
 			// Marker at UV position on the image (image now starts at 0,0)
-			const FVector2D MarkerPos = UV * ImgSize - (TabMarkerSize * 0.5f);
+			const FVector2D MarkerPos = UV * ImgSize - (AZP_TabMarkerSize * 0.5f);
 
 			// Use slot position if canvas, otherwise render translation
 			if (UCanvasPanelSlot* MarkerSlot = Cast<UCanvasPanelSlot>(TabPlayerMarker->Slot))
 			{
 				MarkerSlot->SetPosition(MarkerPos);
-				MarkerSlot->SetSize(TabMarkerSize);
+				MarkerSlot->SetSize(AZP_TabMarkerSize);
 			}
 			else
 			{
@@ -345,11 +345,11 @@ UButton* UZP_InventoryTabWidget::CreateTabButton(const FString& Label)
 
 	UTextBlock* Text = NewObject<UTextBlock>(this);
 	Text->SetText(FText::FromString(Label));
-	Text->SetColorAndOpacity(FSlateColor(InactiveTabColor));
+	Text->SetColorAndOpacity(FSlateColor(AZP_InactiveTabColor));
 	Text->SetJustification(ETextJustify::Center);
 	{
 		FSlateFontInfo Font = Text->GetFont();
-		Font.Size = 14;
+		Font.Size = AZP_TabButtonFontSize;
 		Text->SetFont(Font);
 	}
 
@@ -364,10 +364,10 @@ UButton* UZP_InventoryTabWidget::CreateTabButton(const FString& Label)
 
 void UZP_InventoryTabWidget::FindMoonvilleWidget()
 {
-	if (!InventoryWidgetClass || !GetWorld()) return;
+	if (!AZP_InventoryWidgetClass || !GetWorld()) return;
 
 	TArray<UUserWidget*> Found;
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), Found, InventoryWidgetClass, false);
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), Found, AZP_InventoryWidgetClass, false);
 
 	// Only accept widgets that are ACTUALLY in the viewport — stale removed
 	// widgets still exist as UObjects until GC, but IsInViewport() returns false.
@@ -446,15 +446,15 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 	TabButtonRow = NewObject<UHorizontalBox>(this);
 	TabHeaderPanel->AddChild(TabButtonRow);
 
-	MapTabButton = CreateTabButton(TEXT("MAP"));
+	MapTabButton = CreateTabButton(AZP_MapTabLabel.ToString());
 	TabButtonRow->AddChild(MapTabButton);
 	MapTabButton->OnClicked.AddDynamic(this, &UZP_InventoryTabWidget::OnMapTabClicked);
 
-	InventoryTabButton = CreateTabButton(TEXT("INVENTORY"));
+	InventoryTabButton = CreateTabButton(AZP_InventoryTabLabel.ToString());
 	TabButtonRow->AddChild(InventoryTabButton);
 	InventoryTabButton->OnClicked.AddDynamic(this, &UZP_InventoryTabWidget::OnInventoryTabClicked);
 
-	NotesTabButton = CreateTabButton(TEXT("NOTES"));
+	NotesTabButton = CreateTabButton(AZP_NotesTabLabel.ToString());
 	TabButtonRow->AddChild(NotesTabButton);
 	NotesTabButton->OnClicked.AddDynamic(this, &UZP_InventoryTabWidget::OnNotesTabClicked);
 
@@ -531,7 +531,7 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 		{
 			// Player marker — green triangle (arrow) that rotates with player direction
 			TabPlayerMarker = NewObject<UImage>(this);
-			TabPlayerMarker->SetColorAndOpacity(FLinearColor(0.0f, 1.0f, 0.3f, 1.0f));
+			TabPlayerMarker->SetColorAndOpacity(AZP_PlayerMarkerColor);
 			TabPlayerMarker->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
 
 			// Create sleek chevron arrow: outlined V-shape pointing up
@@ -584,7 +584,7 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 
 			if (UCanvasPanelSlot* CSlot = Cast<UCanvasPanelSlot>(TabPlayerMarker->Slot))
 			{
-				CSlot->SetSize(TabMarkerSize);
+				CSlot->SetSize(AZP_TabMarkerSize);
 				CSlot->SetAutoSize(false);
 				CSlot->SetZOrder(10);
 			}
@@ -599,7 +599,7 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 			TabAreaNameText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
 			{
 				FSlateFontInfo Font = TabAreaNameText->GetFont();
-				Font.Size = 20;
+				Font.Size = AZP_AreaNameFontSize;
 				TabAreaNameText->SetFont(Font);
 			}
 			TabAreaNameText->SetVisibility(ESlateVisibility::Collapsed);
@@ -613,11 +613,11 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 
 			// "No map" text
 			TabNoMapText = NewObject<UTextBlock>(this);
-			TabNoMapText->SetText(FText::FromString(TEXT("No map available")));
+			TabNoMapText->SetText(AZP_NoMapAvailableText);
 			TabNoMapText->SetColorAndOpacity(FSlateColor(FLinearColor(0.5f, 0.5f, 0.5f)));
 			{
 				FSlateFontInfo Font = TabNoMapText->GetFont();
-				Font.Size = 18;
+				Font.Size = AZP_NoMapFontSize;
 				TabNoMapText->SetFont(Font);
 			}
 			TabNoMapText->SetVisibility(ESlateVisibility::Collapsed);
@@ -632,9 +632,9 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 	}
 
 	// --- Notes widget ---
-	if (NotesWidgetClass && MoonvilleMapImage && MoonvilleMapImage->GetParent())
+	if (AZP_NotesWidgetClass && MoonvilleMapImage && MoonvilleMapImage->GetParent())
 	{
-		NotesWidget = CreateWidget<UZP_NotesWidget>(this, NotesWidgetClass);
+		NotesWidget = CreateWidget<UZP_NotesWidget>(this, AZP_NotesWidgetClass);
 		if (NotesWidget)
 		{
 			NotesWidget->SetVisibility(ESlateVisibility::Collapsed);
@@ -661,9 +661,9 @@ void UZP_InventoryTabWidget::WireTabsIntoMoonvilleWidget()
 			UE_LOG(LogTemp, Log, TEXT("[INVTAB-WIRE] NotesWidget created — copied MapImage slot for identical positioning"));
 		}
 	}
-	else if (!NotesWidgetClass)
+	else if (!AZP_NotesWidgetClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-WIRE] NotesWidgetClass is null — notes tab will be empty"));
+		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-WIRE] AZP_NotesWidgetClass is null — notes tab will be empty"));
 	}
 
 	// Start with map/notes content hidden (Inventory is the default tab)
@@ -816,7 +816,7 @@ void UZP_InventoryTabWidget::UpdateTabButtonStyles()
 		if (!Button || Button->GetChildrenCount() == 0) return;
 		if (UTextBlock* Text = Cast<UTextBlock>(Button->GetChildAt(0)))
 		{
-			Text->SetColorAndOpacity(FSlateColor(bActive ? ActiveTabColor : InactiveTabColor));
+			Text->SetColorAndOpacity(FSlateColor(bActive ? AZP_ActiveTabColor : AZP_InactiveTabColor));
 		}
 	};
 
@@ -850,10 +850,10 @@ void UZP_InventoryTabWidget::RefreshMapDisplay()
 	{
 		if (MoonvilleMapImage)  MoonvilleMapImage->SetVisibility(ESlateVisibility::Collapsed);
 		if (TabPlayerMarker)   TabPlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
-		if (TabAreaNameText)   TabAreaNameText->SetText(FText::FromString(TEXT("Unknown Area")));
+		if (TabAreaNameText)   TabAreaNameText->SetText(AZP_UnknownAreaText);
 		if (TabNoMapText)
 		{
-			TabNoMapText->SetText(FText::FromString(TEXT("No map available")));
+			TabNoMapText->SetText(AZP_NoMapAvailableText);
 			TabNoMapText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		CachedVolume = nullptr;
@@ -867,10 +867,10 @@ void UZP_InventoryTabWidget::RefreshMapDisplay()
 	{
 		if (MoonvilleMapImage)  MoonvilleMapImage->SetVisibility(ESlateVisibility::Collapsed);
 		if (TabPlayerMarker)   TabPlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
-		if (TabAreaNameText)   TabAreaNameText->SetText(FText::FromString(TEXT("Unknown Area")));
+		if (TabAreaNameText)   TabAreaNameText->SetText(AZP_UnknownAreaText);
 		if (TabNoMapText)
 		{
-			TabNoMapText->SetText(FText::FromString(TEXT("No map available")));
+			TabNoMapText->SetText(AZP_NoMapAvailableText);
 			TabNoMapText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		CachedVolume = nullptr;
@@ -883,10 +883,10 @@ void UZP_InventoryTabWidget::RefreshMapDisplay()
 	{
 		if (MoonvilleMapImage)  MoonvilleMapImage->SetVisibility(ESlateVisibility::Collapsed);
 		if (TabPlayerMarker)   TabPlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
-		if (TabAreaNameText)   TabAreaNameText->SetText(Volume->AreaDisplayName);
+		if (TabAreaNameText)   TabAreaNameText->SetText(Volume->AZP_AreaDisplayName);
 		if (TabNoMapText)
 		{
-			TabNoMapText->SetText(FText::FromString(TEXT("Map not found yet")));
+			TabNoMapText->SetText(AZP_MapNotFoundText);
 			TabNoMapText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		return;
@@ -894,11 +894,11 @@ void UZP_InventoryTabWidget::RefreshMapDisplay()
 
 	// Show discovered map
 	if (TabNoMapText) TabNoMapText->SetVisibility(ESlateVisibility::Collapsed);
-	if (TabAreaNameText) TabAreaNameText->SetText(Volume->AreaDisplayName);
+	if (TabAreaNameText) TabAreaNameText->SetText(Volume->AZP_AreaDisplayName);
 
-	if (MoonvilleMapImage && Volume->MapTexture)
+	if (MoonvilleMapImage && Volume->AZP_MapTexture)
 	{
-		MoonvilleMapImage->SetBrushFromTexture(Volume->MapTexture);
+		MoonvilleMapImage->SetBrushFromTexture(Volume->AZP_MapTexture);
 		MoonvilleMapImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 	else if (MoonvilleMapImage)

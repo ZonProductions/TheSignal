@@ -6,7 +6,7 @@
  * AZP_MapPickup
  *
  * Purpose: World-placed pickup that unlocks a map for a specific area.
- *          When interacted, calls MapComponent->DiscoverMap(AreaID).
+ *          When interacted, calls MapComponent->DiscoverMap(AZP_AreaID).
  *          Destroys self after pickup. Diegetic: Grace picks up a
  *          facility floor plan, clipboard, etc.
  *
@@ -14,8 +14,8 @@
  *
  * Blueprint Extension Points:
  *   - PickupMesh: set static mesh in BP child (clipboard, rolled map, etc.).
- *   - AreaID: which map area this pickup unlocks.
- *   - PromptText: customizable interaction text.
+ *   - AZP_AreaID: which map area this pickup unlocks.
+ *   - AZP_PromptText: customizable interaction text.
  *
  * Dependencies:
  *   - IZP_Interactable interface
@@ -54,31 +54,59 @@ public:
 
 	/** Which map area this pickup unlocks. Auto-generated if empty. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	FName AreaID;
+	FName AZP_AreaID;
 
 	/** Map texture to display. Set this to your exported PNG texture. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	TObjectPtr<UTexture2D> MapTexture;
+	TObjectPtr<UTexture2D> AZP_MapTexture;
 
 	/** Display name shown on the map widget. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	FText AreaDisplayName = FText::FromString(TEXT("Floor Map"));
+	FText AZP_AreaDisplayName = FText::FromString(TEXT("Floor Map"));
 
 	/** Auto-spawn a MapVolume covering this floor. Disable if placing volumes manually. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	bool bAutoCreateVolume = true;
+	bool bAZP_AutoCreateVolume = true;
 
 	/** World bounds used to render the map texture. Set by Dev Tools export.
 	 *  If set (non-zero), volume uses these exact bounds instead of scanning geometry. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	FVector2D MapBoundsMin = FVector2D::ZeroVector;
+	FVector2D AZP_MapBoundsMin = FVector2D::ZeroVector;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	FVector2D MapBoundsMax = FVector2D::ZeroVector;
+	FVector2D AZP_MapBoundsMax = FVector2D::ZeroVector;
+
+	/** Hardcoded Z-height bands that decide which Building1 floor number this pickup belongs to when picking the map_bounds_F<N>.txt export file - level-specific and will be wrong on any other map. */
+	UPROPERTY(EditAnywhere, Category = "Map|AutoVolume")
+	float AZP_FloorZThresholds[4] = { 1400.f, 900.f, 400.f, 0.f };
+
+	/** Rough whole-level XY bounds used for the auto-spawned MapVolume when no Dev Tools bounds export file is found - level-specific magic numbers. */
+	UPROPERTY(EditAnywhere, Category = "Map|AutoVolume")
+	float AZP_FallbackMapBounds[4] = { -5000.f, -2000.f, 3000.f, 6000.f };
+
+	/** Z half-extent (UU) of the auto-spawned MapVolume's AreaBounds box - must cover the floor's playable height band for map display to trigger. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|AutoVolume")
+	float AZP_AutoVolumeHalfHeight = 300.f;
 
 	/** Text shown on HUD when player is in range. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup")
-	FText PromptText = FText::FromString(TEXT("Pick Up Map"));
+	FText AZP_PromptText = FText::FromString(TEXT("Pick Up Map"));
+
+	/** Box extent of the pickup's interaction/overlap volume - how close the player must be for the prompt; this project has a history of interaction volumes needing shrink/offset tuning (open-through-walls fix). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup|Interaction")
+	FVector AZP_InteractionVolumeExtent = FVector(100.f, 100.f, 80.f);
+
+	/** Point-light intensity of the pickup glow highlight (visual feel: how brightly the map pickup advertises itself in a dark horror level). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup|Glow")
+	float AZP_GlowIntensity = 300.f;
+
+	/** Attenuation radius of the pickup glow light - how far the glow spills into the level. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup|Glow")
+	float AZP_GlowAttenuationRadius = 150.f;
+
+	/** Color of the pickup glow light (currently cool blue, the project's color-code for map pickups). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup|Glow")
+	FLinearColor AZP_GlowColor = FLinearColor(0.4f, 0.7f, 0.9f);
 
 	// --- IZP_Interactable ---
 

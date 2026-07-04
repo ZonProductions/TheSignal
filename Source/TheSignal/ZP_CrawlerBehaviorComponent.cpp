@@ -42,7 +42,7 @@ void UZP_CrawlerBehaviorComponent::BeginPlay()
 		HC->OnHealthChanged.AddDynamic(this, &UZP_CrawlerBehaviorComponent::OnOwnerHealthChanged);
 	}
 
-	if (bAutoInitialize)
+	if (bAZP_AutoInitialize)
 	{
 		InitializeBehavior();
 	}
@@ -65,16 +65,16 @@ void UZP_CrawlerBehaviorComponent::InitializeBehavior()
 
 	CrawlerCMC->SetMovementMode(MOVE_Flying); // PhysFlying owns everything
 	HomeLocation = Owner->GetActorLocation();
-	SetSpeed(HuntSpeed);
+	SetSpeed(AZP_HuntSpeed);
 
 	// Adhere to the placed wall, or — if there's no wall — just start as a ground hunter.
-	if (!bSpawnOnWall || !ClingToSpawnWall())
+	if (!bAZP_SpawnOnWall || !ClingToSpawnWall())
 	{
 		bHasLeftPerch = true;
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(EvalTimer, this,
-		&UZP_CrawlerBehaviorComponent::EvaluateBehavior, EvalInterval, true);
+		&UZP_CrawlerBehaviorComponent::EvaluateBehavior, AZP_EvalInterval, true);
 }
 
 // ───────────────────────────── State ─────────────────────────────
@@ -119,12 +119,12 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 		// ───────── PERCHED ─────────
 		UpdateLurkAudio(Player ? Dist : TNumericLimits<float>::Max(), /*bPerchedAndUnnoticed=*/true);
 
-		if (bExposed && Player && Dist <= PerchDormantRange)
+		if (bExposed && Player && Dist <= AZP_PerchDormantRange)
 		{
 			ChaseTargetActor = Player;
 
 			// (1) Proximity — silent drop into a ground hunt.
-			if (Dist <= DropProximity)
+			if (Dist <= AZP_DropProximity)
 			{
 				DropToGround();
 				return;
@@ -134,14 +134,14 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 			if (IsPlayerLookingAtMe(Player))
 			{
 				const double Now = GetWorld()->GetTimeSeconds();
-				if (Now - LastGazeAlertTime >= GazeAlertCooldown)
+				if (Now - LastGazeAlertTime >= AZP_GazeAlertCooldown)
 				{
-					if (EnemyAudio) { EnemyAudio->PlayAlert(GazeAlertLowPassHz); }
+					if (EnemyAudio) { EnemyAudio->PlayAlert(AZP_GazeAlertLowPassHz); }
 					LastGazeAlertTime = Now;
 				}
 
-				GazeStareTimer += EvalInterval;
-				if (GazeStareTimer >= GazeProvokeTime && Dist <= GazeLaunchRange)
+				GazeStareTimer += AZP_EvalInterval;
+				if (GazeStareTimer >= AZP_GazeProvokeTime && Dist <= AZP_GazeLaunchRange)
 				{
 					LaunchAttack();
 					return;
@@ -160,7 +160,7 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 	}
 
 	// ───────── GROUNDED ─────────
-	if (bExposed && Player && Dist <= DetectionRange)
+	if (bExposed && Player && Dist <= AZP_DetectionRange)
 	{
 		ChaseTargetActor = Player;
 
@@ -172,10 +172,10 @@ void UZP_CrawlerBehaviorComponent::EvaluateBehavior()
 		}
 
 		CrawlerCMC->MoveTargetActor = Player;
-		SetSpeed(HuntSpeed);
+		SetSpeed(AZP_HuntSpeed);
 
 		const double Now = GetWorld()->GetTimeSeconds();
-		if (Dist <= AttackRange && CrawlerCMC->IsOnGround() && (Now - LastAttackTime) >= AttackCooldown)
+		if (Dist <= AZP_AttackRange && CrawlerCMC->IsOnGround() && (Now - LastAttackTime) >= AZP_AttackCooldown)
 		{
 			GroundSlam();
 		}
@@ -197,7 +197,7 @@ void UZP_CrawlerBehaviorComponent::DropToGround()
 	GazeStareTimer = 0.f;
 	CrawlerCMC->ReleaseWall();                 // fall under gravity, then ground-hunt (silent — no vocal)
 	CrawlerCMC->MoveTargetActor = ChaseTargetActor;
-	SetSpeed(HuntSpeed);
+	SetSpeed(AZP_HuntSpeed);
 }
 
 void UZP_CrawlerBehaviorComponent::LaunchAttack()
@@ -216,7 +216,7 @@ void UZP_CrawlerBehaviorComponent::GroundSlam()
 	SetState(ECrawlerState::Attack);
 	if (EnemyAudio) { EnemyAudio->PlayAttack(/*bLunge=*/bFirstStrike); }
 	bFirstStrike = false;
-	CrawlerCMC->BeginSlam(SlamHoldTime);
+	CrawlerCMC->BeginSlam(AZP_SlamHoldTime);
 	LastAttackTime = GetWorld()->GetTimeSeconds();
 }
 
@@ -232,11 +232,11 @@ void UZP_CrawlerBehaviorComponent::ApplyAttackDamage()
 
 	// Never connect through a wall, and only within the impact radius.
 	if (!HasLOSTo(ChaseTargetActor)) { return; }
-	if (FVector::Dist(Owner->GetActorLocation(), ChaseTargetActor->GetActorLocation()) > AttackHitRadius) { return; }
+	if (FVector::Dist(Owner->GetActorLocation(), ChaseTargetActor->GetActorLocation()) > AZP_AttackHitRadius) { return; }
 
 	AController* Instigator = nullptr;
 	if (APawn* OwnerPawn = Cast<APawn>(Owner)) { Instigator = OwnerPawn->GetController(); }
-	UGameplayStatics::ApplyDamage(ChaseTargetActor, AttackDamage, Instigator, Owner, nullptr);
+	UGameplayStatics::ApplyDamage(ChaseTargetActor, AZP_AttackDamage, Instigator, Owner, nullptr);
 }
 
 // ───────────────────────────── Perception ─────────────────────────────
@@ -300,7 +300,7 @@ bool UZP_CrawlerBehaviorComponent::IsPlayerLookingAtMe(const APawn* Player) cons
 	FVector Cam; FRotator Rot;
 	PC->GetPlayerViewPoint(Cam, Rot);
 	const FVector ToCrawler = (Owner->GetActorLocation() - Cam).GetSafeNormal();
-	return FVector::DotProduct(Rot.Vector(), ToCrawler) >= GazeThreshold; // LOS already confirmed by exposure gate
+	return FVector::DotProduct(Rot.Vector(), ToCrawler) >= AZP_GazeThreshold; // LOS already confirmed by exposure gate
 }
 
 // ───────────────────────────── Spawn-on-wall ─────────────────────────────
@@ -327,7 +327,7 @@ bool UZP_CrawlerBehaviorComponent::TraceSpawnWall(FVector& OutWallPoint, FVector
 		const float Angle = (360.f / (float)Count) * (float)i;
 		const FVector Dir(FMath::Cos(FMath::DegreesToRadians(Angle)), FMath::Sin(FMath::DegreesToRadians(Angle)), 0.f);
 		FHitResult Hit;
-		if (World->LineTraceSingleByChannel(Hit, Origin - Dir * BackUp, Origin + Dir * SpawnWallSnapRange, ECC_WorldStatic, Params))
+		if (World->LineTraceSingleByChannel(Hit, Origin - Dir * BackUp, Origin + Dir * AZP_SpawnWallSnapRange, ECC_WorldStatic, Params))
 		{
 			if (FMath::Abs(Hit.ImpactNormal.Z) < 0.5f && Hit.Distance < BestDist) // vertical surfaces only
 			{
@@ -367,13 +367,13 @@ bool UZP_CrawlerBehaviorComponent::ClingToSpawnWall()
 
 void UZP_CrawlerBehaviorComponent::UpdateLurkAudio(float PlayerDist, bool bPerchedAndUnnoticed)
 {
-	const bool bInLurk = bPerchedAndUnnoticed && !bAlerted && PlayerDist <= LurkRange;
+	const bool bInLurk = bPerchedAndUnnoticed && !bAlerted && PlayerDist <= AZP_LurkRange;
 
 	if (!bLurkInit)
 	{
 		bLurkInit = true;
 		bWasInLurkRange = bInLurk;
-		LurkInterval = FMath::FRandRange(LurkIntervalMin, LurkIntervalMax);
+		LurkInterval = FMath::FRandRange(AZP_LurkIntervalMin, AZP_LurkIntervalMax);
 		return; // never growl on the very first eval
 	}
 
@@ -389,16 +389,16 @@ void UZP_CrawlerBehaviorComponent::UpdateLurkAudio(float PlayerDist, bool bPerch
 		// Just entered the room — growl.
 		if (EnemyAudio) { EnemyAudio->PlayLurk(); }
 		LurkTimer = 0.f;
-		LurkInterval = FMath::FRandRange(LurkIntervalMin, LurkIntervalMax);
+		LurkInterval = FMath::FRandRange(AZP_LurkIntervalMin, AZP_LurkIntervalMax);
 	}
 	else
 	{
-		LurkTimer += EvalInterval;
+		LurkTimer += AZP_EvalInterval;
 		if (LurkTimer >= LurkInterval)
 		{
 			if (EnemyAudio) { EnemyAudio->PlayLurk(); }
 			LurkTimer = 0.f;
-			LurkInterval = FMath::FRandRange(LurkIntervalMin, LurkIntervalMax);
+			LurkInterval = FMath::FRandRange(AZP_LurkIntervalMin, AZP_LurkIntervalMax);
 		}
 	}
 	bWasInLurkRange = true;
@@ -434,7 +434,7 @@ void UZP_CrawlerBehaviorComponent::StartHunt(AActor* Target)
 	else
 	{
 		CrawlerCMC->MoveTargetActor = Target;
-		SetSpeed(HuntSpeed);
+		SetSpeed(AZP_HuntSpeed);
 	}
 }
 
@@ -465,7 +465,7 @@ void UZP_CrawlerBehaviorComponent::BroadcastGunshot(UWorld* World, const FVector
 
 		// Cap at the smaller of the broadcast radius and the crawler's own alert range (<= 50m).
 		const FVector CrawlerLoc = Owner->GetActorLocation();
-		const float Reach = FMath::Min(Radius, Crawler->GunshotAlertRadius);
+		const float Reach = FMath::Min(Radius, Crawler->AZP_GunshotAlertRadius);
 		if (FVector::Dist(CrawlerLoc, Location) > Reach) { continue; }
 
 		// SAME GEOMETRY ONLY: a wall between the gunshot and the crawler blocks the alert (no waking the

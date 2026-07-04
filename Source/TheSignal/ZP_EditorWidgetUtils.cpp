@@ -485,7 +485,7 @@ bool UZP_EditorWidgetUtils::CreateNoteEntryWidget()
 }
 
 // ---------------------------------------------------------------------------
-// SetNotesWidgetDefaults — wire NoteEntryWidgetClass on WBP_Notes
+// SetNotesWidgetDefaults — wire AZP_NoteEntryWidgetClass on WBP_Notes
 // ---------------------------------------------------------------------------
 
 bool UZP_EditorWidgetUtils::SetNotesWidgetDefaults()
@@ -525,15 +525,15 @@ bool UZP_EditorWidgetUtils::SetNotesWidgetDefaults()
 	}
 
 	UObject* CDO = NotesClass->GetDefaultObject();
-	FClassProperty* Prop = CastField<FClassProperty>(NotesClass->FindPropertyByName(TEXT("NoteEntryWidgetClass")));
+	FClassProperty* Prop = CastField<FClassProperty>(NotesClass->FindPropertyByName(TEXT("AZP_NoteEntryWidgetClass")));
 	if (Prop)
 	{
 		Prop->SetObjectPropertyValue(Prop->ContainerPtrToValuePtr<void>(CDO), EntryClass);
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] SetNotesWidgetDefaults: NoteEntryWidgetClass set to %s"), *EntryClass->GetName());
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] SetNotesWidgetDefaults: AZP_NoteEntryWidgetClass set to %s"), *EntryClass->GetName());
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[TheSignal] SetNotesWidgetDefaults: NoteEntryWidgetClass property not found"));
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] SetNotesWidgetDefaults: AZP_NoteEntryWidgetClass property not found"));
 		return false;
 	}
 

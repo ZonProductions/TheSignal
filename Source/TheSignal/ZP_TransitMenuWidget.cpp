@@ -65,9 +65,9 @@ void UZP_TransitMenuWidget::BuildBoundList()
 
 	for (const FZP_TransitMenuEntry& E : Entries)
 	{
-		if (RowWidgetClass && PC)
+		if (AZP_RowWidgetClass && PC)
 		{
-			UZP_TransitRowWidget* Row = CreateWidget<UZP_TransitRowWidget>(PC, RowWidgetClass);
+			UZP_TransitRowWidget* Row = CreateWidget<UZP_TransitRowWidget>(PC, AZP_RowWidgetClass);
 			if (Row)
 			{
 				Row->Setup(this, E);
@@ -110,7 +110,7 @@ void UZP_TransitMenuWidget::BuildCodeList()
 	ButtonProxies.Reset();
 
 	RootBox->AddChildToVerticalBox(MakeLabel(WidgetTree,
-		FText::FromString(TEXT("SELECT DESTINATION")), FLinearColor(0.9f, 0.9f, 0.9f), 26));
+		AZP_TransitMenuHeaderText, FLinearColor(0.9f, 0.9f, 0.9f), 26));
 
 	for (const FZP_TransitMenuEntry& E : Entries)
 	{
@@ -138,7 +138,7 @@ void UZP_TransitMenuWidget::BuildCodeList()
 	}
 
 	UButton* Close = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
-	Close->AddChild(MakeLabel(WidgetTree, FText::FromString(TEXT("Close")), FLinearColor(0.8f, 0.8f, 0.8f)));
+	Close->AddChild(MakeLabel(WidgetTree, AZP_TransitCloseButtonText, FLinearColor(0.8f, 0.8f, 0.8f)));
 	UZP_TransitButtonProxy* CloseProxy = NewObject<UZP_TransitButtonProxy>(this);
 	CloseProxy->Menu = this;
 	CloseProxy->bIsClose = true;

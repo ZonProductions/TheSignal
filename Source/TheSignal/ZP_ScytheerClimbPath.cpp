@@ -24,18 +24,18 @@ void AZP_ScytheerClimbPath::OnConstruction(const FTransform& Transform)
 
 	// Resize wall-normal array to match the spline. Pad new entries with world-up so the
 	// dev has a sensible default; existing edits are preserved.
-	if (PerPointWallNormals.Num() < NumPoints)
+	if (AZP_PerPointWallNormals.Num() < NumPoints)
 	{
-		const int32 ToAdd = NumPoints - PerPointWallNormals.Num();
-		PerPointWallNormals.Reserve(NumPoints);
+		const int32 ToAdd = NumPoints - AZP_PerPointWallNormals.Num();
+		AZP_PerPointWallNormals.Reserve(NumPoints);
 		for (int32 i = 0; i < ToAdd; ++i)
 		{
-			PerPointWallNormals.Add(FVector::UpVector);
+			AZP_PerPointWallNormals.Add(FVector::UpVector);
 		}
 	}
-	else if (PerPointWallNormals.Num() > NumPoints)
+	else if (AZP_PerPointWallNormals.Num() > NumPoints)
 	{
-		PerPointWallNormals.SetNum(NumPoints);
+		AZP_PerPointWallNormals.SetNum(NumPoints);
 	}
 }
 
@@ -44,7 +44,7 @@ void AZP_ScytheerClimbPath::AddPointsToEnd()
 {
 	if (!Spline) { return; }
 
-	const int32 Count = FMath::Max(1, PointsPerAdd);
+	const int32 Count = FMath::Max(1, AZP_PointsPerAdd);
 
 	Modify();
 	Spline->Modify();
@@ -68,7 +68,7 @@ void AZP_ScytheerClimbPath::AddPointsToEnd()
 		else if (Num == 1)
 		{
 			const FVector Last = Spline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
-			NewLoc = Last + GetActorForwardVector() * FMath::Max(DefaultStep, 1.f);
+			NewLoc = Last + GetActorForwardVector() * FMath::Max(AZP_DefaultStep, 1.f);
 		}
 		else
 		{
@@ -79,8 +79,8 @@ void AZP_ScytheerClimbPath::AddPointsToEnd()
 
 		// Keep the wall-normal array in lockstep — inherit the previous point's normal
 		// so extending a wall section keeps its orientation (edit it after if it turns).
-		const FVector InheritNormal = PerPointWallNormals.Num() > 0 ? PerPointWallNormals.Last() : FVector::UpVector;
-		PerPointWallNormals.Add(InheritNormal);
+		const FVector InheritNormal = AZP_PerPointWallNormals.Num() > 0 ? AZP_PerPointWallNormals.Last() : FVector::UpVector;
+		AZP_PerPointWallNormals.Add(InheritNormal);
 	}
 
 	Spline->UpdateSpline();
@@ -98,7 +98,7 @@ void AZP_ScytheerClimbPath::SnapWallNormalsToGeometry()
 
 	const int32 Num = Spline->GetNumberOfSplinePoints();
 	if (Num <= 0) { return; }
-	PerPointWallNormals.SetNum(Num);
+	AZP_PerPointWallNormals.SetNum(Num);
 
 	// Probe the 6 axis directions; the surface a point RESTS ON is whichever blocking
 	// static geometry is nearest. Its outward face normal is exactly the "head direction"
@@ -108,7 +108,7 @@ void AZP_ScytheerClimbPath::SnapWallNormalsToGeometry()
 		FVector(1, 0, 0), FVector(-1, 0, 0),
 		FVector(0, 1, 0), FVector(0, -1, 0)
 	};
-	const float Probe = FMath::Max(NormalProbeDistance, 1.f);
+	const float Probe = FMath::Max(AZP_NormalProbeDistance, 1.f);
 
 	Modify();
 
@@ -141,12 +141,12 @@ void AZP_ScytheerClimbPath::SnapWallNormalsToGeometry()
 
 		if (!BestNormal.IsNearlyZero())
 		{
-			PerPointWallNormals[i] = BestNormal.GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
+			AZP_PerPointWallNormals[i] = BestNormal.GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
 			++NumSet;
 		}
-		else if (PerPointWallNormals[i].IsNearlyZero())
+		else if (AZP_PerPointWallNormals[i].IsNearlyZero())
 		{
-			PerPointWallNormals[i] = FVector::UpVector; // nothing found — sane default
+			AZP_PerPointWallNormals[i] = FVector::UpVector; // nothing found — sane default
 		}
 	}
 
@@ -179,15 +179,15 @@ FVector AZP_ScytheerClimbPath::GetForwardAtDistance(float Distance) const
 
 FVector AZP_ScytheerClimbPath::GetWallNormalAtDistance(float Distance) const
 {
-	if (!Spline || PerPointWallNormals.Num() == 0)
+	if (!Spline || AZP_PerPointWallNormals.Num() == 0)
 	{
 		return FVector::UpVector;
 	}
 
-	const int32 NumPoints = PerPointWallNormals.Num();
+	const int32 NumPoints = AZP_PerPointWallNormals.Num();
 	if (NumPoints == 1)
 	{
-		return PerPointWallNormals[0].GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
+		return AZP_PerPointWallNormals[0].GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
 	}
 
 	const float Total = Spline->GetSplineLength();
@@ -201,13 +201,13 @@ FVector AZP_ScytheerClimbPath::GetWallNormalAtDistance(float Distance) const
 		{
 			const float Seg = FMath::Max(Next - Prev, KINDA_SMALL_NUMBER);
 			const float Alpha = (D - Prev) / Seg;
-			return FMath::Lerp(PerPointWallNormals[i], PerPointWallNormals[i + 1], Alpha)
+			return FMath::Lerp(AZP_PerPointWallNormals[i], AZP_PerPointWallNormals[i + 1], Alpha)
 				.GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
 		}
 		Prev = Next;
 	}
 
-	return PerPointWallNormals.Last().GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
+	return AZP_PerPointWallNormals.Last().GetSafeNormal(KINDA_SMALL_NUMBER, FVector::UpVector);
 }
 
 float AZP_ScytheerClimbPath::GetClosestDistanceToPoint(const FVector& WorldPoint) const

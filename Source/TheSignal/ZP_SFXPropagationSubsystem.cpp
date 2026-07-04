@@ -19,7 +19,7 @@ void UZP_SFXPropagationSubsystem::Track(UAudioComponent* AC, const AActor* Ignor
 	float VolMul = 1.f, LPF = 0.f;
 	UZP_SFXStatics::ComputePropagation(GetWorld(), AC->GetComponentLocation(), IgnoreActor, VolMul, LPF);
 	E.CurVolMul = E.TargetVolMul = VolMul;
-	float StartLPF = (LPF > 0.f) ? LPF : LPFOpenHz;
+	float StartLPF = (LPF > 0.f) ? LPF : AZP_LPFOpenHz;
 	if (E.MaxLowPassHz > 0.f) { StartLPF = FMath::Min(StartLPF, E.MaxLowPassHz); }
 	E.CurLPF = E.TargetLPF = StartLPF;
 
@@ -38,7 +38,7 @@ void UZP_SFXPropagationSubsystem::Tick(float DeltaTime)
 
 	// Re-target on an interval (trace + nav query per sound); interpolate every tick.
 	RetargetAccum += DeltaTime;
-	const bool bRetarget = RetargetAccum >= RetargetInterval;
+	const bool bRetarget = RetargetAccum >= AZP_RetargetInterval;
 	if (bRetarget) { RetargetAccum = 0.f; }
 
 	for (int32 i = Tracked.Num() - 1; i >= 0; --i)
@@ -56,12 +56,12 @@ void UZP_SFXPropagationSubsystem::Tick(float DeltaTime)
 			float VolMul = 1.f, LPF = 0.f;
 			UZP_SFXStatics::ComputePropagation(World, AC->GetComponentLocation(), E.Ignore.Get(), VolMul, LPF);
 			E.TargetVolMul = VolMul;
-			E.TargetLPF = (LPF > 0.f) ? LPF : LPFOpenHz;
+			E.TargetLPF = (LPF > 0.f) ? LPF : AZP_LPFOpenHz;
 			if (E.MaxLowPassHz > 0.f) { E.TargetLPF = FMath::Min(E.TargetLPF, E.MaxLowPassHz); }
 		}
 
-		E.CurVolMul = FMath::FInterpTo(E.CurVolMul, E.TargetVolMul, DeltaTime, InterpSpeed);
-		E.CurLPF = FMath::FInterpTo(E.CurLPF, E.TargetLPF, DeltaTime, InterpSpeed);
+		E.CurVolMul = FMath::FInterpTo(E.CurVolMul, E.TargetVolMul, DeltaTime, AZP_InterpSpeed);
+		E.CurLPF = FMath::FInterpTo(E.CurLPF, E.TargetLPF, DeltaTime, AZP_InterpSpeed);
 		AC->SetVolumeMultiplier(E.BaseVolume * E.CurVolMul);
 		AC->SetLowPassFilterFrequency(E.CurLPF);
 	}

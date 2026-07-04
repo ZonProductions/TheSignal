@@ -11,9 +11,9 @@
  * Owner Subsystem: Gameplay
  *
  * Blueprint Extension Points:
- *   - LadderStyle: choose visual style 1-5 from the climbing pack
- *   - LadderHeight: total climbable height in UU
- *   - ClimbSpeed: tune via DataAsset or instance edit
+ *   - AZP_LadderStyle: choose visual style 1-5 from the climbing pack
+ *   - AZP_LadderHeight: total climbable height in UU
+ *   - AZP_ClimbSpeed: tune via DataAsset or instance edit
  *   - BottomAttach / TopAttach: scene components marking mount/dismount points
  *
  * Dependencies:
@@ -100,15 +100,27 @@ public:
 
 	/** Visual style (1-5) from the climbing animation pack. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Config")
-	EZP_LadderStyle LadderStyle = EZP_LadderStyle::Style1;
+	EZP_LadderStyle AZP_LadderStyle = EZP_LadderStyle::Style1;
 
 	/** Total ladder height in UU. TopExitPoint and InteractionVolume auto-adjust. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Config", meta = (ClampMin = "50.0"))
-	float LadderHeight = 585.f;
+	float AZP_LadderHeight = 585.f;
 
 	/** Vertical climb speed in cm/s. ~61.4 = 2x anim-synced speed (2 rungs per 1.533s cycle × 2). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Config")
-	float ClimbSpeed = 61.4f;
+	float AZP_ClimbSpeed = 61.4f;
+
+	/** Local-X distance in front of the ladder face where the player mounts/exits and where the interaction trigger centers (BottomAttachPoint, TopExitPoint, InteractionVolume). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Config")
+	float AZP_MountStandoffX = -100.f;
+
+	/** Half-extents of the front-facing mount trigger pocket (prevents mounting through walls or from the side): X keeps the box short of the ladder face, Y stops sideways bleed, Z = padding added above/below the climbable span. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|Interaction")
+	FVector AZP_InteractionPocketExtent = FVector(60.f, 50.f, 50.f);
+
+	/** Player-facing HUD interaction prompt shown when in range of the ladder. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ladder|UI")
+	FText AZP_InteractionPromptText = FText::FromString(TEXT("Climb Ladder"));
 
 	float GetBottomZ() const;
 	float GetTopZ() const;

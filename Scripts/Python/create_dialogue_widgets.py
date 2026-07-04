@@ -57,9 +57,9 @@ if not EAL.does_asset_exist(da_path):
     da = AssetTools.create_asset('DA_Dialogue_Test', '/Game/Core/Data', None, da_factory)
     if da:
         # Set DialogueID
-        da.set_editor_property('dialogue_id', 'Test_NPC_Greeting')
-        da.set_editor_property('b_one_shot', False)  # repeatable for testing
-        da.set_editor_property('priority', 50)
+        da.set_editor_property('AZP_DialogueID', 'Test_NPC_Greeting')
+        da.set_editor_property('bAZP_OneShot', False)  # repeatable for testing
+        da.set_editor_property('AZP_Priority', 50)
 
         EAL.save_asset(da_path)
         unreal.log(f'Created {da_path}')

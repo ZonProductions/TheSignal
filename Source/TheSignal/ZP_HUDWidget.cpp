@@ -19,33 +19,33 @@ void UZP_HUDWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// Create dynamic material instance for health arc
-	if (HealthArcMaterial && HealthArc)
+	if (AZP_HealthArcMaterial && HealthArc)
 	{
-		HealthArcDMI = UMaterialInstanceDynamic::Create(HealthArcMaterial, this);
+		HealthArcDMI = UMaterialInstanceDynamic::Create(AZP_HealthArcMaterial, this);
 		HealthArc->SetBrushFromMaterial(HealthArcDMI);
 		SetHealth(1.0f);
 	}
 
 	// Create stamina arc DMI — same material, green color, scaled down to fit inside health arc
-	if (HealthArcMaterial && StaminaArc)
+	if (AZP_HealthArcMaterial && StaminaArc)
 	{
-		StaminaArcDMI = UMaterialInstanceDynamic::Create(HealthArcMaterial, this);
+		StaminaArcDMI = UMaterialInstanceDynamic::Create(AZP_HealthArcMaterial, this);
 		StaminaArc->SetBrushFromMaterial(StaminaArcDMI);
-		StaminaArcDMI->SetVectorParameterValue(FName("ArcColor"), FLinearColor(0.2f, 0.9f, 0.3f, 1.0f));
+		StaminaArcDMI->SetVectorParameterValue(FName("ArcColor"), AZP_StaminaArcColor);
 		// Scale down to 65% — fits inside the health arc ring
 		StaminaArc->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
-		StaminaArc->SetRenderScale(FVector2D(0.65f, 0.65f));
+		StaminaArc->SetRenderScale(FVector2D(AZP_StaminaArcScale, AZP_StaminaArcScale));
 		SetStamina(1.0f);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ZP_HUDWidget: HealthArcMaterial or HealthArc widget missing."));
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ZP_HUDWidget: AZP_HealthArcMaterial or HealthArc widget missing."));
 	}
 
 	// SignalSense waveform DMI (the phone readout). Amplitude is driven each tick.
-	if (SignalWaveMaterial && SignalWave)
+	if (AZP_SignalWaveMaterial && SignalWave)
 	{
-		SignalWaveDMI = UMaterialInstanceDynamic::Create(SignalWaveMaterial, this);
+		SignalWaveDMI = UMaterialInstanceDynamic::Create(AZP_SignalWaveMaterial, this);
 		SignalWave->SetBrushFromMaterial(SignalWaveDMI);
 	}
 
@@ -64,19 +64,19 @@ void UZP_HUDWidget::NativeConstruct()
 					IconSlot->SetAlignment(FVector2D(0.5f, 1.f)); // bottom-center pivot
 					const FVector2D P = PromptSlot->GetPosition();
 					const FVector2D S = PromptSlot->GetSize();
-					IconSlot->SetPosition(FVector2D(P.X + S.X * 0.5f, P.Y - 8.f)); // centered above the text
+					IconSlot->SetPosition(FVector2D(P.X + S.X * 0.5f, P.Y + AZP_GrabPromptIconOffsetY)); // centered above the text
 					IconSlot->SetAutoSize(false);
-					IconSlot->SetSize(FVector2D(52.f, 52.f));
+					IconSlot->SetSize(AZP_GrabPromptIconSize);
 				}
 			}
 		}
 	}
 
 	// Initialize vignettes — load materials by path, start hidden
-	auto InitVignette = [](UImage* Widget, const TCHAR* MatPath)
+	auto InitVignette = [](UImage* Widget, const TSoftObjectPtr<UMaterialInterface>& MatAsset)
 	{
 		if (!Widget) return;
-		UMaterialInterface* Mat = LoadObject<UMaterialInterface>(nullptr, MatPath);
+		UMaterialInterface* Mat = MatAsset.LoadSynchronous();
 		if (Mat)
 		{
 			Widget->SetBrushFromMaterial(Mat);
@@ -84,10 +84,10 @@ void UZP_HUDWidget::NativeConstruct()
 		Widget->SetRenderOpacity(0.f);
 	};
 
-	InitVignette(DamageVignette, TEXT("/Game/Materials/UI/M_DamageVignette"));
-	InitVignette(HealVignette, TEXT("/Game/Materials/UI/M_HealVignette"));
-	InitVignette(DamageReductionVignette, TEXT("/Game/Materials/UI/M_DamageReductionVignette"));
-	InitVignette(InvincibilityVignette, TEXT("/Game/Materials/UI/M_InvincibilityVignette"));
+	InitVignette(DamageVignette, AZP_DamageVignetteMaterialAsset);
+	InitVignette(HealVignette, AZP_HealVignetteMaterialAsset);
+	InitVignette(DamageReductionVignette, AZP_DamageReductionVignetteMaterialAsset);
+	InitVignette(InvincibilityVignette, AZP_InvincibilityVignetteMaterialAsset);
 
 	// Resolve the weapon-icon images. BindWidgetOptional catches exact-name
 	// matches; for any that didn't bind (designer named it differently, e.g.
@@ -121,11 +121,11 @@ void UZP_HUDWidget::NativeConstruct()
 			Img->SetBrushFromTexture(Tex, true);
 		}
 	};
-	ApplyIcon(Icon_Pistol, PistolIconTexture);
-	ApplyIcon(Icon_Rifle, RifleIconTexture);
-	ApplyIcon(Icon_Shotgun, ShotgunIconTexture);
-	ApplyIcon(Icon_Pipe, PipeIconTexture);
-	ApplyIcon(Icon_Grenade, GrenadeIconTexture);
+	ApplyIcon(Icon_Pistol, AZP_PistolIconTexture);
+	ApplyIcon(Icon_Rifle, AZP_RifleIconTexture);
+	ApplyIcon(Icon_Shotgun, AZP_ShotgunIconTexture);
+	ApplyIcon(Icon_Pipe, AZP_PipeIconTexture);
+	ApplyIcon(Icon_Grenade, AZP_GrenadeIconTexture);
 
 	// Hide interaction prompt by default
 	HideInteractionPrompt();
@@ -180,16 +180,16 @@ void UZP_HUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 	// Damage vignette — fades to the hold floor (0 normally; raised while grabbed so the
 	// vignette stays up through the struggle, with hits still pulsing it to max on top).
-	FadeVignette(DamageVignette, DamageVignetteOpacity, DamageVignetteHoldOpacity, DamageVignetteFadeSpeed);
+	FadeVignette(DamageVignette, DamageVignetteOpacity, DamageVignetteHoldOpacity, AZP_DamageVignetteFadeSpeed);
 
 	// Heal vignette — always fades to 0 (one-shot flash)
-	FadeVignette(HealVignette, HealVignetteOpacity, 0.f, HealVignetteFadeSpeed);
+	FadeVignette(HealVignette, HealVignetteOpacity, 0.f, AZP_HealVignetteFadeSpeed);
 
 	// Damage reduction vignette — holds at target while active, fades to 0 when cleared
-	FadeVignette(DamageReductionVignette, DamageReductionVignetteOpacity, DamageReductionVignetteTarget, EffectVignetteFadeSpeed);
+	FadeVignette(DamageReductionVignette, DamageReductionVignetteOpacity, DamageReductionVignetteTarget, AZP_EffectVignetteFadeSpeed);
 
 	// Invincibility vignette — holds at target while active, fades to 0 when cleared
-	FadeVignette(InvincibilityVignette, InvincibilityVignetteOpacity, InvincibilityVignetteTarget, EffectVignetteFadeSpeed);
+	FadeVignette(InvincibilityVignette, InvincibilityVignetteOpacity, InvincibilityVignetteTarget, AZP_EffectVignetteFadeSpeed);
 }
 
 void UZP_HUDWidget::SetDamageVignetteHold(float HoldOpacity)
@@ -208,8 +208,8 @@ void UZP_HUDWidget::ShowGrabPrompt(const FText& Text, bool bGamepad)
 	ShowInteractionPrompt(Text);
 	if (GrabPromptIcon)
 	{
-		UTexture2D* Glyph = bGamepad ? GrabPromptGlyphGamepadTexture.LoadSynchronous()
-		                             : GrabPromptGlyphTexture.LoadSynchronous();
+		UTexture2D* Glyph = bGamepad ? AZP_GrabPromptGlyphGamepadTexture.LoadSynchronous()
+		                             : AZP_GrabPromptGlyphTexture.LoadSynchronous();
 		if (Glyph)
 		{
 			GrabPromptIcon->SetBrushFromTexture(Glyph, /*bMatchSize*/false);
@@ -235,13 +235,13 @@ void UZP_HUDWidget::SetHealth(float HealthPercent)
 	{
 		HealthArcDMI->SetScalarParameterValue(FName("HealthPercent"), HealthPercent);
 
-		// Color shifts toward LowHealthColor below threshold
+		// Color shifts toward AZP_LowHealthColor below threshold
 		float ColorAlpha = 1.0f;
-		if (HealthPercent < LowHealthThreshold && LowHealthThreshold > 0.0f)
+		if (HealthPercent < AZP_LowHealthThreshold && AZP_LowHealthThreshold > 0.0f)
 		{
-			ColorAlpha = HealthPercent / LowHealthThreshold;
+			ColorAlpha = HealthPercent / AZP_LowHealthThreshold;
 		}
-		FLinearColor ArcColor = FMath::Lerp(LowHealthColor, FullHealthColor, ColorAlpha);
+		FLinearColor ArcColor = FMath::Lerp(AZP_LowHealthColor, AZP_FullHealthColor, ColorAlpha);
 		HealthArcDMI->SetVectorParameterValue(FName("ArcColor"), ArcColor);
 	}
 }
@@ -404,9 +404,9 @@ void UZP_HUDWidget::BindToCharacter(AZP_GraceCharacter* Character)
 		Character->HealthComp->OnHealthChanged.AddDynamic(this, &UZP_HUDWidget::OnHealthChangedHandler);
 		Character->HealthComp->OnInvincibilityChanged.AddDynamic(this, &UZP_HUDWidget::OnInvincibilityChangedHandler);
 		Character->HealthComp->OnDamageReductionChanged.AddDynamic(this, &UZP_HUDWidget::OnDamageReductionChangedHandler);
-		if (Character->HealthComp->MaxHealth > 0.f)
+		if (Character->HealthComp->AZP_MaxHealth > 0.f)
 		{
-			SetHealth(Character->HealthComp->CurrentHealth / Character->HealthComp->MaxHealth);
+			SetHealth(Character->HealthComp->CurrentHealth / Character->HealthComp->AZP_MaxHealth);
 		}
 	}
 
@@ -435,14 +435,14 @@ void UZP_HUDWidget::OnHealthChangedHandler(float NewHealth, float MaxHealth, flo
 	// Flash damage vignette on hit
 	if (DamageAmount > 0.f && DamageVignette)
 	{
-		DamageVignetteOpacity = DamageVignetteMaxOpacity;
+		DamageVignetteOpacity = AZP_DamageVignetteMaxOpacity;
 		DamageVignette->SetRenderOpacity(DamageVignetteOpacity);
 	}
 
 	// Flash heal vignette on heal (negative DamageAmount = healing)
 	if (DamageAmount < 0.f && HealVignette)
 	{
-		HealVignetteOpacity = HealVignetteMaxOpacity;
+		HealVignetteOpacity = AZP_HealVignetteMaxOpacity;
 		HealVignette->SetRenderOpacity(HealVignetteOpacity);
 	}
 }
@@ -451,8 +451,8 @@ void UZP_HUDWidget::OnInvincibilityChangedHandler(bool bActive)
 {
 	if (bActive)
 	{
-		InvincibilityVignetteTarget = InvincibilityVignetteMaxOpacity;
-		InvincibilityVignetteOpacity = InvincibilityVignetteMaxOpacity;
+		InvincibilityVignetteTarget = AZP_InvincibilityVignetteMaxOpacity;
+		InvincibilityVignetteOpacity = AZP_InvincibilityVignetteMaxOpacity;
 		if (InvincibilityVignette)
 		{
 			InvincibilityVignette->SetRenderOpacity(InvincibilityVignetteOpacity);
@@ -468,8 +468,8 @@ void UZP_HUDWidget::OnDamageReductionChangedHandler(bool bActive)
 {
 	if (bActive)
 	{
-		DamageReductionVignetteTarget = DamageReductionVignetteMaxOpacity;
-		DamageReductionVignetteOpacity = DamageReductionVignetteMaxOpacity;
+		DamageReductionVignetteTarget = AZP_DamageReductionVignetteMaxOpacity;
+		DamageReductionVignetteOpacity = AZP_DamageReductionVignetteMaxOpacity;
 		if (DamageReductionVignette)
 		{
 			DamageReductionVignette->SetRenderOpacity(DamageReductionVignetteOpacity);

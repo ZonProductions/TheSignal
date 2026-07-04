@@ -20,7 +20,23 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session (2026-07-03): SHAMBLER COMPLETE-FOR-NOW, all dev-verified in PIE — dev: "we went
+- Last session (2026-07-03 PM): AZP_ CUSTOM-KNOB SWEEP — every custom C++ tunable exposed as an
+  editor knob and renamed with the AZP_ prefix (bools bAZP_) for quick identification. 956 knobs /
+  72 classes documented in Docs/AZP_CustomKnobs.md (READ IT — it lists conventions + exceptions).
+  ~570 distinctive renames scripted + 592 generic-name renames context-checked by agents + 194 new
+  exposures (180 promoted literals, defaults bit-identical). 659 CoreRedirects PropertyRedirects in
+  DefaultEngine.ini so existing BP/level overrides survive the rename. USTRUCT members deliberately
+  NOT renamed (Objectives.json FJsonObjectConverter + SaveGame name mapping ignore redirects).
+  Reusable Scripts/*.py updated to new names; "_"-prefixed one-offs stay stale. NOTE: property names
+  in older checkpoints/CLAUDE.md (e.g. MapVolume AreaID) are now AZP_-prefixed in code (AZP_AreaID).
+  Full trail: the 2026-07-03_azp_* checkpoints.
+  POST-SWEEP FIXES (both DEV-VERIFIED in PIE): (1) white damage vignette — promoted soft paths were
+  missing the .AssetName suffix (LoadObject auto-completes short paths, FSoftObjectPath does NOT;
+  checkpoint 2026-07-03_white_vignette_softpath_fix). (2) shambler pause at start/end of every
+  swing — flurry now chains at the swing's VISUAL end (pose-hold engage) instead of waiting out the
+  rate-math tail, and the held swing pose blends off on range-exit (checkpoint
+  2026-07-03_shambler_swing_tail_hold_fix; PIE logs show "CHAIN at visual swing end" when active).
+- Earlier session (2026-07-03): SHAMBLER COMPLETE-FOR-NOW, all dev-verified in PIE — dev: "we went
   from a simple lurker to ravenous zombie/shambler/necromorph thingy." Delivered (see the six
   2026-07-03_* checkpoints): combat idle BANNED (wander-only; combat gaps hold the last clip's
   final pose via Tick pose-hold), grab-latch glitch ROOT-CAUSED with [LatchProbe] (early mash

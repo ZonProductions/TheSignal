@@ -56,7 +56,7 @@ bp_grace = unreal.load_asset('/Game/Core/Player/BP_GraceCharacter')
 if bp_grace:
     cdo = unreal.get_default_object(bp_grace.generated_class())
     if cdo:
-        cdo.set_editor_property('map_action', ia_map)
+        cdo.set_editor_property('AZP_MapAction', ia_map)
         unreal.EditorAssetLibrary.save_asset('/Game/Core/Player/BP_GraceCharacter')
         print('OK: Assigned IA_Map to BP_GraceCharacter.MapAction')
     else:

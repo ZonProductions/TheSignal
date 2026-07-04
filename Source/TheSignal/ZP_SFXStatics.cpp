@@ -28,13 +28,13 @@ USoundAttenuation* UZP_SFXStatics::GetCarryAttenuation(EZP_SFXCarry Carry)
 		return Cache[Idx];
 	}
 
-	float Inner = RoomInnerRadius, Falloff = RoomFalloff;
+	float Inner = AZP_RoomInnerRadius, Falloff = AZP_RoomFalloff;
 	const TCHAR* Name = TEXT("ZP_SFXCarry_Room");
 	switch (Carry)
 	{
-	case EZP_SFXCarry::Close: Inner = CloseInnerRadius; Falloff = CloseFalloff; Name = TEXT("ZP_SFXCarry_Close"); break;
+	case EZP_SFXCarry::Close: Inner = AZP_CloseInnerRadius; Falloff = AZP_CloseFalloff; Name = TEXT("ZP_SFXCarry_Close"); break;
 	case EZP_SFXCarry::Room:  break;
-	case EZP_SFXCarry::Far:   Inner = FarInnerRadius;   Falloff = FarFalloff;   Name = TEXT("ZP_SFXCarry_Far");   break;
+	case EZP_SFXCarry::Far:   Inner = AZP_FarInnerRadius;   Falloff = AZP_FarFalloff;   Name = TEXT("ZP_SFXCarry_Far");   break;
 	}
 
 	USoundAttenuation* Attn = NewObject<USoundAttenuation>(GetTransientPackage(), FName(Name));
@@ -72,16 +72,16 @@ USoundAttenuation* UZP_SFXStatics::GetCarryAttenuation(EZP_SFXCarry Carry)
 	// heavy low-pass is reserved for the Transmitted (through-wall) propagation tier.
 	const float MaxRange = Inner + Falloff;
 	S.bAttenuateWithLPF = true;
-	S.LPFRadiusMin = MaxRange * LPFStartFraction;
+	S.LPFRadiusMin = MaxRange * AZP_LPFStartFraction;
 	S.LPFRadiusMax = MaxRange;
 	S.LPFFrequencyAtMin = 20000.f;
-	S.LPFFrequencyAtMax = LPFFrequencyAtFar;
+	S.LPFFrequencyAtMax = AZP_LPFFrequencyAtFar;
 	// Reverb send scales with distance: near = mostly dry, far = mostly hallway tail. Renders
 	// through the facility reverb bed EnsureWorldReverb activates (or any AudioVolume reverb).
 	S.bEnableReverbSend = true;
 	S.ReverbSendMethod = EReverbSendMethod::Linear;
-	S.ReverbWetLevelMin = ReverbWetNear;
-	S.ReverbWetLevelMax = ReverbWetFar;
+	S.ReverbWetLevelMin = AZP_ReverbWetNear;
+	S.ReverbWetLevelMax = AZP_ReverbWetFar;
 	S.ReverbDistanceMin = Inner;
 	S.ReverbDistanceMax = MaxRange;
 	// Engine occlusion stays OFF — in this project it mutes sounds outright (confirmed dead end).
@@ -111,21 +111,21 @@ void UZP_SFXStatics::EnsureWorldReverb(const UObject* WorldContextObject)
 	if (!FacilityReverb)
 	{
 		FacilityReverb = NewObject<UReverbEffect>(GetTransientPackage(), FName(TEXT("ZP_FacilityReverb")));
-		FacilityReverb->DecayTime        = ReverbDecayTime;
-		FacilityReverb->DecayHFRatio     = ReverbDecayHFRatio;
-		FacilityReverb->Gain             = ReverbGain;
-		FacilityReverb->GainHF           = ReverbGainHF;
-		FacilityReverb->ReflectionsGain  = ReverbReflectionsGain;
-		FacilityReverb->ReflectionsDelay = ReverbReflectionsDelay;
-		FacilityReverb->LateGain         = ReverbLateGain;
-		FacilityReverb->LateDelay        = ReverbLateDelay;
-		FacilityReverb->Diffusion        = ReverbDiffusion;
-		FacilityReverb->Density          = ReverbDensity;
+		FacilityReverb->DecayTime        = AZP_ReverbDecayTime;
+		FacilityReverb->DecayHFRatio     = AZP_ReverbDecayHFRatio;
+		FacilityReverb->Gain             = AZP_ReverbGain;
+		FacilityReverb->GainHF           = AZP_ReverbGainHF;
+		FacilityReverb->ReflectionsGain  = AZP_ReverbReflectionsGain;
+		FacilityReverb->ReflectionsDelay = AZP_ReverbReflectionsDelay;
+		FacilityReverb->LateGain         = AZP_ReverbLateGain;
+		FacilityReverb->LateDelay        = AZP_ReverbLateDelay;
+		FacilityReverb->Diffusion        = AZP_ReverbDiffusion;
+		FacilityReverb->Density          = AZP_ReverbDensity;
 		FacilityReverb->AddToRoot();
 	}
 
 	UGameplayStatics::ActivateReverbEffect(World, FacilityReverb, FName(TEXT("ZP_FacilityReverb")),
-		/*Priority=*/1.f, /*Volume=*/ReverbMasterVolume, /*FadeTime=*/2.f);
+		/*Priority=*/1.f, /*Volume=*/AZP_ReverbMasterVolume, /*FadeTime=*/2.f);
 	UE_LOG(LogTemp, Log, TEXT("[SFX] facility reverb bed activated on %s"), *World->GetName());
 }
 
@@ -147,7 +147,7 @@ bool UZP_SFXStatics::IsOccludedFromListener(UWorld* World, const FVector& Source
 		// Only a REAL between-room wall counts. A blocker hugging the source (its own perch/contact
 		// geometry — e.g. a crawler clinging to a wall) is not occlusion.
 		const float DistToSource = FVector::Dist(CamLoc, SourceLoc);
-		return Hit.Distance < DistToSource - OcclusionSelfSkin;
+		return Hit.Distance < DistToSource - AZP_OcclusionSelfSkin;
 	}
 	return false;
 }
@@ -164,7 +164,7 @@ void UZP_SFXStatics::ComputePropagation(UWorld* World, const FVector& SourceLoc,
 	// range (the trace + pathfind would be paid for a sound the listener can't hear anyway).
 	APlayerController* PC = World->GetFirstPlayerController();
 	APawn* Pawn = PC ? PC->GetPawn() : nullptr;
-	if (Pawn && FVector::Dist(Pawn->GetActorLocation(), SourceLoc) > FarInnerRadius + FarFalloff + 500.f) { return; }
+	if (Pawn && FVector::Dist(Pawn->GetActorLocation(), SourceLoc) > AZP_FarInnerRadius + AZP_FarFalloff + 500.f) { return; }
 	if (!IsOccludedFromListener(World, SourceLoc, IgnoreActor)) { return; }
 
 	// Sightline is blocked. Sound doesn't stop at a corner — it bends down open routes. Approximate
@@ -181,13 +181,13 @@ void UZP_SFXStatics::ComputePropagation(UWorld* World, const FVector& SourceLoc,
 				if (Path->IsValid() && !Path->IsPartial())
 				{
 					const float Ratio = Path->GetPathLength() / StraightDist;
-					if (Ratio <= MaxDiffractionDetour)
+					if (Ratio <= AZP_MaxDiffractionDetour)
 					{
 						// DIFFRACTED — around the corner / down the connecting hall. Level drops
 						// with the detour, top end mostly survives. NOT a muffle.
-						const float T = FMath::Clamp((Ratio - 1.f) / (MaxDiffractionDetour - 1.f), 0.f, 1.f);
-						OutVolumeMul = FMath::Lerp(DiffractedVolumeMin, DiffractedVolumeMax, T);
-						OutLowPassHz = FMath::Lerp(DiffractedLPFMinHz, DiffractedLPFMaxHz, T);
+						const float T = FMath::Clamp((Ratio - 1.f) / (AZP_MaxDiffractionDetour - 1.f), 0.f, 1.f);
+						OutVolumeMul = FMath::Lerp(AZP_DiffractedVolumeMin, AZP_DiffractedVolumeMax, T);
+						OutLowPassHz = FMath::Lerp(AZP_DiffractedLPFMinHz, AZP_DiffractedLPFMaxHz, T);
 						return;
 					}
 					// Valid full path with a huge detour: CONFIDENTLY the long way around a wall.
@@ -201,8 +201,8 @@ void UZP_SFXStatics::ComputePropagation(UWorld* World, const FVector& SourceLoc,
 	}
 
 	// TRANSMITTED — no believable open route: genuinely through a wall.
-	OutVolumeMul = TransmittedVolumeScale;
-	OutLowPassHz = TransmittedLowPassHz;
+	OutVolumeMul = AZP_TransmittedVolumeScale;
+	OutLowPassHz = AZP_TransmittedLowPassHz;
 }
 
 UAudioComponent* UZP_SFXStatics::PlaySFXAttached(USoundBase* Sound, USceneComponent* AttachTo,

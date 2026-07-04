@@ -58,7 +58,7 @@ void UZP_PatrolComponent::BeginPlay()
 	}
 
 	// Auto-initialize patrol if configured
-	if (bAutoInitialize)
+	if (bAZP_AutoInitialize)
 	{
 		InitializePatrol();
 	}
@@ -91,9 +91,9 @@ void UZP_PatrolComponent::OnSeePawn(APawn* SeenPawn)
 
 void UZP_PatrolComponent::InitializePatrol()
 {
-	if (PatrolPoints.Num() == 0)
+	if (AZP_PatrolPoints.Num() == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ZP_Patrol] %s: No PatrolPoints set — patrol disabled."),
+		UE_LOG(LogTemp, Warning, TEXT("[ZP_Patrol] %s: No AZP_PatrolPoints set — patrol disabled."),
 			*GetOwner()->GetName());
 		return;
 	}
@@ -105,7 +105,7 @@ void UZP_PatrolComponent::InitializePatrol()
 
 	PatrolTargetActor = GetWorld()->SpawnActor<AZP_PatrolWaypoint>(
 		AZP_PatrolWaypoint::StaticClass(),
-		PatrolPoints[0],
+		AZP_PatrolPoints[0],
 		FRotator::ZeroRotator,
 		SpawnParams
 	);
@@ -128,12 +128,12 @@ void UZP_PatrolComponent::InitializePatrol()
 		PatrolTimerHandle,
 		this,
 		&UZP_PatrolComponent::CheckPatrolArrival,
-		PatrolCheckInterval,
+		AZP_PatrolCheckInterval,
 		true // looping
 	);
 
 	UE_LOG(LogTemp, Log, TEXT("[ZP_Patrol] %s: Patrol initialized with %d waypoints."),
-		*GetOwner()->GetName(), PatrolPoints.Num());
+		*GetOwner()->GetName(), AZP_PatrolPoints.Num());
 }
 
 void UZP_PatrolComponent::StartChase(AActor* ChaseTarget)
@@ -154,9 +154,9 @@ void UZP_PatrolComponent::StopChase()
 {
 	bIsChasing = false;
 
-	if (PatrolTargetActor && PatrolPoints.IsValidIndex(CurrentPatrolIndex))
+	if (PatrolTargetActor && AZP_PatrolPoints.IsValidIndex(CurrentPatrolIndex))
 	{
-		PatrolTargetActor->SetActorLocation(PatrolPoints[CurrentPatrolIndex]);
+		PatrolTargetActor->SetActorLocation(AZP_PatrolPoints[CurrentPatrolIndex]);
 		CallSetTargetLocation(PatrolTargetActor);
 
 		UE_LOG(LogTemp, Log, TEXT("[ZP_Patrol] %s: Returning to patrol (waypoint %d)."),
@@ -166,7 +166,7 @@ void UZP_PatrolComponent::StopChase()
 
 void UZP_PatrolComponent::CheckPatrolArrival()
 {
-	if (bIsChasing || !PatrolTargetActor || PatrolPoints.Num() == 0)
+	if (bIsChasing || !PatrolTargetActor || AZP_PatrolPoints.Num() == 0)
 	{
 		return;
 	}
@@ -177,25 +177,25 @@ void UZP_PatrolComponent::CheckPatrolArrival()
 		return;
 	}
 
-	const float Distance = FVector::Dist(Owner->GetActorLocation(), PatrolPoints[CurrentPatrolIndex]);
+	const float Distance = FVector::Dist(Owner->GetActorLocation(), AZP_PatrolPoints[CurrentPatrolIndex]);
 
-	if (Distance <= ArrivalThreshold)
+	if (Distance <= AZP_ArrivalThreshold)
 	{
 		// Advance to next waypoint (wrap around)
-		CurrentPatrolIndex = (CurrentPatrolIndex + 1) % PatrolPoints.Num();
+		CurrentPatrolIndex = (CurrentPatrolIndex + 1) % AZP_PatrolPoints.Num();
 		MoveToNextWaypoint();
 	}
 }
 
 void UZP_PatrolComponent::MoveToNextWaypoint()
 {
-	if (PatrolTargetActor && PatrolPoints.IsValidIndex(CurrentPatrolIndex))
+	if (PatrolTargetActor && AZP_PatrolPoints.IsValidIndex(CurrentPatrolIndex))
 	{
-		PatrolTargetActor->SetActorLocation(PatrolPoints[CurrentPatrolIndex]);
+		PatrolTargetActor->SetActorLocation(AZP_PatrolPoints[CurrentPatrolIndex]);
 		CallSetTargetLocation(PatrolTargetActor);
 
 		UE_LOG(LogTemp, Log, TEXT("[ZP_Patrol] %s: Moving to waypoint %d at %s"),
 			*GetOwner()->GetName(), CurrentPatrolIndex,
-			*PatrolPoints[CurrentPatrolIndex].ToString());
+			*AZP_PatrolPoints[CurrentPatrolIndex].ToString());
 	}
 }

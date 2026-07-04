@@ -16,7 +16,7 @@
  * Owner Subsystem: EnemyAI
  *
  * Blueprint Extension Points:
- *   - HealthComp: adjust MaxHealth per creature instance
+ *   - HealthComp: adjust AZP_MaxHealth per creature instance
  *   - OnDied delegate on HealthComp: hook additional death VFX/SFX
  *
  * Dependencies:
@@ -50,40 +50,48 @@ public:
 	// ── Creature Configuration ───────────────────────────────────────
 	// Override these per variant BP to control appearance.
 	// Leg count and scale feed into Monster Randomizer (wired in BP_Monster_Pawn).
-	// TentacleMaterial is applied post-spawn via timer.
+	// AZP_TentacleMaterial is applied post-spawn via timer.
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	int32 CreatureSeed = 125;
+	int32 AZP_CreatureSeed = 125;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	int32 MinLegCount = 6;
+	int32 AZP_MinLegCount = 6;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	int32 MaxLegCount = 6;
+	int32 AZP_MaxLegCount = 6;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	float MinGeneralScale = 0.25f;
+	float AZP_MinGeneralScale = 0.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	float MaxGeneralScale = 0.3f;
+	float AZP_MaxGeneralScale = 0.3f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	float MinLegScale = 0.9f;
+	float AZP_MinLegScale = 0.9f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	float MaxLegScale = 1.1f;
+	float AZP_MaxLegScale = 1.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	float CreatureSpeedMultiplier = 0.75f;
+	float AZP_CreatureSpeedMultiplier = 0.75f;
 
 	/** Material override for tentacles. If set, replaces MI_Flesh on all legs after spawn. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config")
-	TObjectPtr<UMaterialInterface> TentacleMaterial;
+	TObjectPtr<UMaterialInterface> AZP_TentacleMaterial;
+
+	/** Seconds after BeginPlay before TentacleMaterial is applied; must exceed BP_Monster_Pawn's 3s Monster Randomizer delay so legs exist when the swap runs. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config|Material Swap")
+	float AZP_TentacleMaterialSwapDelay = 4.5f;
 
 	/** Runtime roughness override to reduce SSR floor reflection bleed on glossy materials.
 	 *  0 = use material's original roughness unchanged. >0 = override roughness on a Dynamic Material Instance. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature Config", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float RuntimeRoughnessOverride = 0.12f;
+	float AZP_RuntimeRoughnessOverride = 0.12f;
+
+	/** Seconds the frozen corpse and its orphaned leg/body/eye actors persist before destruction. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death")
+	float AZP_CorpseLifeSpan = 30.0f;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
@@ -98,7 +106,7 @@ private:
 	UFUNCTION()
 	void OnDied();
 
-	/** Apply TentacleMaterial to all leg skeletal meshes + body. Called via timer after Monster Randomizer completes. */
+	/** Apply AZP_TentacleMaterial to all leg skeletal meshes + body. Called via timer after Monster Randomizer completes. */
 	void ApplyTentacleMaterial();
 	FTimerHandle MaterialSwapTimerHandle;
 };

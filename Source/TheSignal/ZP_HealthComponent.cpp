@@ -10,7 +10,7 @@ UZP_HealthComponent::UZP_HealthComponent()
 void UZP_HealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentHealth = MaxHealth;
+	CurrentHealth = AZP_MaxHealth;
 }
 
 void UZP_HealthComponent::ApplyDamage(float DamageAmount)
@@ -28,12 +28,12 @@ void UZP_HealthComponent::ApplyDamage(float DamageAmount)
 	}
 
 	const float EffectiveDamage = DamageAmount * DamageMultiplier;
-	CurrentHealth = FMath::Clamp(CurrentHealth - EffectiveDamage, 0.f, MaxHealth);
+	CurrentHealth = FMath::Clamp(CurrentHealth - EffectiveDamage, 0.f, AZP_MaxHealth);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] HealthComponent on %s: took %.0f damage (%.0f raw * %.2f mult) — %.0f/%.0f HP remaining"),
-		*GetOwner()->GetName(), EffectiveDamage, DamageAmount, DamageMultiplier, CurrentHealth, MaxHealth);
+		*GetOwner()->GetName(), EffectiveDamage, DamageAmount, DamageMultiplier, CurrentHealth, AZP_MaxHealth);
 
-	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth, EffectiveDamage);
+	OnHealthChanged.Broadcast(CurrentHealth, AZP_MaxHealth, EffectiveDamage);
 
 	if (CurrentHealth <= 0.f)
 	{
@@ -51,28 +51,28 @@ void UZP_HealthComponent::Heal(float Amount)
 	}
 
 	const float OldHealth = CurrentHealth;
-	CurrentHealth = FMath::Min(CurrentHealth + Amount, MaxHealth);
+	CurrentHealth = FMath::Min(CurrentHealth + Amount, AZP_MaxHealth);
 	const float ActualHeal = CurrentHealth - OldHealth;
 
 	if (ActualHeal > 0.f)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] HealthComponent on %s: healed %.0f — %.0f/%.0f HP"),
-			*GetOwner()->GetName(), ActualHeal, CurrentHealth, MaxHealth);
+			*GetOwner()->GetName(), ActualHeal, CurrentHealth, AZP_MaxHealth);
 
 		// Broadcast with negative "damage" to indicate healing
-		OnHealthChanged.Broadcast(CurrentHealth, MaxHealth, -ActualHeal);
+		OnHealthChanged.Broadcast(CurrentHealth, AZP_MaxHealth, -ActualHeal);
 	}
 }
 
 void UZP_HealthComponent::ResetHealth()
 {
-	CurrentHealth = MaxHealth;
+	CurrentHealth = AZP_MaxHealth;
 	bIsDead = false;
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] HealthComponent on %s: health reset to %.0f/%.0f"),
-		*GetOwner()->GetName(), CurrentHealth, MaxHealth);
+		*GetOwner()->GetName(), CurrentHealth, AZP_MaxHealth);
 
-	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth, 0.f);
+	OnHealthChanged.Broadcast(CurrentHealth, AZP_MaxHealth, 0.f);
 }
 
 void UZP_HealthComponent::ApplyInvincibility(float Duration)

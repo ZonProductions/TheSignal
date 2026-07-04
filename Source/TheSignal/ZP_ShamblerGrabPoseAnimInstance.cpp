@@ -49,13 +49,13 @@ void UZP_ShamblerGrabPoseAnimInstance::NativePostEvaluateAnimation()
 		if (!Behavior.IsValid()) return;
 	}
 	const bool bGrab = (Behavior->State == EShamblerState::Grab);
-	const float HeadStab = FMath::Clamp(Behavior->RunHeadStabilize, 0.f, 1.f);
+	const float HeadStab = FMath::Clamp(Behavior->AZP_RunHeadStabilize, 0.f, 1.f);
 	const bool bRunStabilize = !bGrab && HeadStab > 0.f && Behavior->IsRunBurstActive();
 	if (!bGrab && !bRunStabilize) return;
 
-	const FRotator& RotL = Behavior->GrabArmLRotation;
-	const FRotator& RotR = Behavior->GrabArmRRotation;
-	const FRotator& RotH = Behavior->GrabHeadRotation;
+	const FRotator& RotL = Behavior->AZP_GrabArmLRotation;
+	const FRotator& RotR = Behavior->AZP_GrabArmRRotation;
+	const FRotator& RotH = Behavior->AZP_GrabHeadRotation;
 	if (bGrab && RotL.IsNearlyZero() && RotR.IsNearlyZero() && RotH.IsNearlyZero()) return;
 
 	const FReferenceSkeleton& RefSkel = Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
@@ -70,10 +70,10 @@ void UZP_ShamblerGrabPoseAnimInstance::NativePostEvaluateAnimation()
 		for (int32 i = 0; i < RefSkel.GetNum(); ++i)
 		{
 			const FString Name = RefSkel.GetBoneName(i).ToString().ToLower();
-			if (HeadBone == INDEX_NONE && Name.Contains(TEXT("head")) && !Name.Contains(TEXT("top"))) { HeadBone = i; }
-			if (Name.Contains(TEXT("forearm"))) continue;
-			if (ArmLBone == INDEX_NONE && Name.Contains(TEXT("leftarm"))) { ArmLBone = i; }
-			if (ArmRBone == INDEX_NONE && Name.Contains(TEXT("rightarm"))) { ArmRBone = i; }
+			if (HeadBone == INDEX_NONE && Name.Contains(AZP_GrabBoneMatchHead) && !Name.Contains(AZP_GrabBoneMatchHeadExclude)) { HeadBone = i; }
+			if (Name.Contains(AZP_GrabBoneMatchForearmExclude)) continue;
+			if (ArmLBone == INDEX_NONE && Name.Contains(AZP_GrabBoneMatchArmL)) { ArmLBone = i; }
+			if (ArmRBone == INDEX_NONE && Name.Contains(AZP_GrabBoneMatchArmR)) { ArmRBone = i; }
 		}
 		if (HeadBone != INDEX_NONE)
 		{

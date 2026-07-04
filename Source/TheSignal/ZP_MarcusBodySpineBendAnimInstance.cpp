@@ -50,9 +50,9 @@ void UZP_MarcusBodySpineBendAnimInstance::NativePostEvaluateAnimation()
 	const float FwdZ = FMath::Clamp(Grace->FirstPersonCamera->GetForwardVector().Z, -1.f, 1.f);
 	const float LookDownDeg = -FMath::RadiansToDegrees(FMath::Asin(FwdZ));
 
-	const float Threshold = Grace->SpineBendThresholdDeg;
-	const float MaxBend   = Grace->SpineBendMaxDeg;
-	const float Speed     = FMath::Max(0.1f, Grace->SpineBendInterpSpeed);
+	const float Threshold = Grace->AZP_SpineBendThresholdDeg;
+	const float MaxBend   = Grace->AZP_SpineBendMaxDeg;
+	const float Speed     = FMath::Max(0.1f, Grace->AZP_SpineBendInterpSpeed);
 
 	float TargetBend = 0.f;
 	if (LookDownDeg > Threshold && MaxBend > KINDA_SMALL_NUMBER)
@@ -81,7 +81,7 @@ void UZP_MarcusBodySpineBendAnimInstance::NativePostEvaluateAnimation()
 		GP == EZP_GrabPhase::Entry || GP == EZP_GrabPhase::Munch || GP == EZP_GrabPhase::Wrestle ||
 		GP == EZP_GrabPhase::EscapeKick || GP == EZP_GrabPhase::EscapePush;
 	const bool bGrabPose = b3PGrab &&
-		(!Grace->GrabArmLRotation.IsNearlyZero() || !Grace->GrabArmRRotation.IsNearlyZero());
+		(!Grace->AZP_GrabArmLRotation.IsNearlyZero() || !Grace->AZP_GrabArmRRotation.IsNearlyZero());
 	const bool bBend = !FMath::IsNearlyZero(SpineBendCurrent, 0.01f);
 	if (!bBend && !bGrabPose) return;
 
@@ -96,14 +96,14 @@ void UZP_MarcusBodySpineBendAnimInstance::NativePostEvaluateAnimation()
 		// than the waist - looks natural and shuts the gap quickly.
 		struct FSpineBend { const TCHAR* BoneName; float Weight; };
 		const FSpineBend Bends[] = {
-			{ TEXT("spine_01"), 0.10f },
-			{ TEXT("spine_02"), 0.15f },
-			{ TEXT("spine_03"), 0.20f },
-			{ TEXT("spine_04"), 0.25f },
-			{ TEXT("spine_05"), 0.30f },
+			{ TEXT("spine_01"), AZP_SpineBendWeights[0] },
+			{ TEXT("spine_02"), AZP_SpineBendWeights[1] },
+			{ TEXT("spine_03"), AZP_SpineBendWeights[2] },
+			{ TEXT("spine_04"), AZP_SpineBendWeights[3] },
+			{ TEXT("spine_05"), AZP_SpineBendWeights[4] },
 		};
 
-		const FVector LocalAxis = Grace->SpineBendBoneLocalAxis.GetSafeNormal();
+		const FVector LocalAxis = Grace->AZP_SpineBendBoneLocalAxis.GetSafeNormal();
 		if (!LocalAxis.IsNearlyZero())
 		{
 			for (const FSpineBend& B : Bends)
@@ -128,8 +128,8 @@ void UZP_MarcusBodySpineBendAnimInstance::NativePostEvaluateAnimation()
 		// Bone-LOCAL additive arm rotations: consistent knob behavior regardless of facing.
 		struct FPoseFix { const TCHAR* BoneName; const FRotator* Rot; };
 		const FPoseFix Fixes[] = {
-			{ TEXT("upperarm_l"), &Grace->GrabArmLRotation },
-			{ TEXT("upperarm_r"), &Grace->GrabArmRRotation },
+			{ TEXT("upperarm_l"), &Grace->AZP_GrabArmLRotation },
+			{ TEXT("upperarm_r"), &Grace->AZP_GrabArmRRotation },
 		};
 		for (const FPoseFix& F : Fixes)
 		{

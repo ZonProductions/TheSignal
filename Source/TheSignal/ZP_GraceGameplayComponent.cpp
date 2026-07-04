@@ -22,12 +22,12 @@ void UZP_GraceGameplayComponent::BeginPlay()
 	// Tick AFTER owner so crouch offset is set before we consume it
 	AddTickPrerequisiteActor(Owner);
 
-	// Guarantee MovementConfig is never null — create transient default if none assigned.
+	// Guarantee AZP_MovementConfig is never null — create transient default if none assigned.
 	// All values come from UPROPERTY defaults in ZP_GraceMovementConfig.h.
-	if (!MovementConfig)
+	if (!AZP_MovementConfig)
 	{
-		MovementConfig = NewObject<UZP_GraceMovementConfig>(this);
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] GraceGameplayComponent: No DataAsset assigned — created default MovementConfig from C++ defaults."));
+		AZP_MovementConfig = NewObject<UZP_GraceMovementConfig>(this);
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] GraceGameplayComponent: No DataAsset assigned — created default AZP_MovementConfig from C++ defaults."));
 	}
 
 	// Cache CharacterMovementComponent
@@ -37,15 +37,15 @@ void UZP_GraceGameplayComponent::BeginPlay()
 	}
 
 	// Auto-discover camera if not explicitly set
-	if (!CameraComponent)
+	if (!AZP_CameraComponent)
 	{
 		for (UActorComponent* Comp : Owner->GetComponents())
 		{
 			if (UCameraComponent* Cam = Cast<UCameraComponent>(Comp))
 			{
-				if (Cam->GetName() == TEXT("FirstPersonCamera"))
+				if (Cam->GetName() == AZP_CameraAutoDiscoverName.ToString())
 				{
-					CameraComponent = Cam;
+					AZP_CameraComponent = Cam;
 					break;
 				}
 			}
@@ -65,9 +65,9 @@ void UZP_GraceGameplayComponent::BeginPlay()
 	// the character constructor) to keep it ahead of the body geometry through
 	// spine lean. Capture both X and Z from the camera's initial relative pos
 	// so peek/bob math preserves the offset.
-	if (CameraComponent)
+	if (AZP_CameraComponent)
 	{
-		const FVector InitRel = CameraComponent->GetRelativeLocation();
+		const FVector InitRel = AZP_CameraComponent->GetRelativeLocation();
 		BaseCameraX = InitRel.X;
 		BaseCameraZ = InitRel.Z;
 	}
@@ -78,9 +78,9 @@ void UZP_GraceGameplayComponent::BeginPlay()
 
 	// Cache the PlayerMesh (camera's attach parent) for mesh-level peek.
 	// Peek offsets go to the mesh so the gun follows the lean.
-	if (CameraComponent)
+	if (AZP_CameraComponent)
 	{
-		CachedMeshComponent = CameraComponent->GetAttachParent();
+		CachedMeshComponent = AZP_CameraComponent->GetAttachParent();
 		if (CachedMeshComponent)
 		{
 			CachedMeshBaseLocation = CachedMeshComponent->GetRelativeLocation();
@@ -89,12 +89,12 @@ void UZP_GraceGameplayComponent::BeginPlay()
 	}
 
 	// Initialize stamina
-	CurrentStamina = MovementConfig->MaxStamina;
+	CurrentStamina = AZP_MovementConfig->AZP_MaxStamina;
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] GraceGameplayComponent BeginPlay — Config: %s, Stamina: %.0f, Camera: %s"),
-		*MovementConfig->GetName(),
+		*AZP_MovementConfig->GetName(),
 		CurrentStamina,
-		CameraComponent ? *CameraComponent->GetName() : TEXT("NONE"));
+		AZP_CameraComponent ? *AZP_CameraComponent->GetName() : TEXT("NONE"));
 }
 
 void UZP_GraceGameplayComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -104,15 +104,15 @@ void UZP_GraceGameplayComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// Smooth crouch camera transition — lerp compensation offset toward 0
 	if (CrouchMeshOffsetZ != 0.0f)
 	{
-		const float InterpSpeed = MovementConfig ? MovementConfig->CrouchCameraInterpSpeed : 10.0f;
-		CrouchMeshOffsetZ = FMath::FInterpTo(CrouchMeshOffsetZ, 0.0f, DeltaTime, InterpSpeed);
+		const float AZP_InterpSpeed = AZP_MovementConfig ? AZP_MovementConfig->AZP_CrouchCameraInterpSpeed : 10.0f;
+		CrouchMeshOffsetZ = FMath::FInterpTo(CrouchMeshOffsetZ, 0.0f, DeltaTime, AZP_InterpSpeed);
 		if (FMath::Abs(CrouchMeshOffsetZ) < 0.01f)
 		{
 			CrouchMeshOffsetZ = 0.0f;
 		}
 	}
 
-	if (bUseBuiltInHeadBob)
+	if (bAZP_UseBuiltInHeadBob)
 	{
 		UpdateHeadBob(DeltaTime);
 	}
@@ -127,23 +127,23 @@ void UZP_GraceGameplayComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 void UZP_GraceGameplayComponent::ApplyMovementConfig()
 {
-	if (!MovementConfig) return;
+	if (!AZP_MovementConfig) return;
 
 	if (CachedMovement)
 	{
-		CachedMovement->MaxWalkSpeed = MovementConfig->WalkSpeed;
-		CachedMovement->BrakingDecelerationWalking = MovementConfig->BrakingDeceleration;
-		CachedMovement->MaxAcceleration = MovementConfig->MaxAcceleration;
-		CachedMovement->GroundFriction = MovementConfig->GroundFriction;
-		CachedMovement->JumpZVelocity = MovementConfig->JumpZVelocity;
-		CachedMovement->AirControl = MovementConfig->AirControl;
+		CachedMovement->MaxWalkSpeed = AZP_MovementConfig->AZP_WalkSpeed;
+		CachedMovement->BrakingDecelerationWalking = AZP_MovementConfig->AZP_BrakingDeceleration;
+		CachedMovement->MaxAcceleration = AZP_MovementConfig->AZP_MaxAcceleration;
+		CachedMovement->GroundFriction = AZP_MovementConfig->AZP_GroundFriction;
+		CachedMovement->JumpZVelocity = AZP_MovementConfig->AZP_JumpZVelocity;
+		CachedMovement->AirControl = AZP_MovementConfig->AZP_AirControl;
 	}
 
-	if (CameraComponent)
+	if (AZP_CameraComponent)
 	{
 		// Camera position is driven by FPCamera socket attachment — don't override with height offset.
 		// Only set FOV from config.
-		CameraComponent->SetFieldOfView(MovementConfig->DefaultFOV);
+		AZP_CameraComponent->SetFieldOfView(AZP_MovementConfig->AZP_DefaultFOV);
 	}
 }
 
@@ -165,7 +165,7 @@ void UZP_GraceGameplayComponent::StartSprint()
 
 	if (CachedMovement)
 	{
-		CachedMovement->MaxWalkSpeed = MovementConfig->SprintSpeed;
+		CachedMovement->MaxWalkSpeed = AZP_MovementConfig->AZP_SprintSpeed;
 	}
 
 	if (EventBroadcaster)
@@ -180,11 +180,11 @@ void UZP_GraceGameplayComponent::StopSprint()
 
 	if (CachedMovement)
 	{
-		CachedMovement->MaxWalkSpeed = MovementConfig->WalkSpeed;
+		CachedMovement->MaxWalkSpeed = AZP_MovementConfig->AZP_WalkSpeed;
 	}
 
 	// Start regen delay timer
-	StaminaRegenTimer = MovementConfig->StaminaRegenDelay;
+	StaminaRegenTimer = AZP_MovementConfig->AZP_StaminaRegenDelay;
 
 	if (EventBroadcaster)
 	{
@@ -194,9 +194,9 @@ void UZP_GraceGameplayComponent::StopSprint()
 
 bool UZP_GraceGameplayComponent::TryConsumeStaminaPercent(float Percent)
 {
-	if (!MovementConfig) return false;
+	if (!AZP_MovementConfig) return false;
 
-	const float MaxStam = MovementConfig->MaxStamina;
+	const float MaxStam = AZP_MovementConfig->AZP_MaxStamina;
 	const float Cost = MaxStam * (Percent / 100.0f);
 	if (Cost <= 0.0f) return true; // free action
 
@@ -205,7 +205,7 @@ bool UZP_GraceGameplayComponent::TryConsumeStaminaPercent(float Percent)
 	CurrentStamina = FMath::Max(0.0f, CurrentStamina - Cost);
 
 	// Hold off auto-regen so a dodge actually costs something.
-	StaminaRegenTimer = MovementConfig->StaminaRegenDelay;
+	StaminaRegenTimer = AZP_MovementConfig->AZP_StaminaRegenDelay;
 
 	if (EventBroadcaster && MaxStam > 0.0f)
 	{
@@ -216,13 +216,13 @@ bool UZP_GraceGameplayComponent::TryConsumeStaminaPercent(float Percent)
 
 bool UZP_GraceGameplayComponent::DrainStaminaPercent(float Percent)
 {
-	if (!MovementConfig || Percent <= 0.0f) { return CurrentStamina > 0.0f; }
+	if (!AZP_MovementConfig || Percent <= 0.0f) { return CurrentStamina > 0.0f; }
 
-	const float MaxStam = MovementConfig->MaxStamina;
+	const float MaxStam = AZP_MovementConfig->AZP_MaxStamina;
 	CurrentStamina = FMath::Max(0.0f, CurrentStamina - MaxStam * (Percent / 100.0f));
 
 	// Continuous costs (holding block) also hold off auto-regen — no regen while the pose is held.
-	StaminaRegenTimer = MovementConfig->StaminaRegenDelay;
+	StaminaRegenTimer = AZP_MovementConfig->AZP_StaminaRegenDelay;
 
 	if (EventBroadcaster && MaxStam > 0.0f)
 	{
@@ -233,8 +233,8 @@ bool UZP_GraceGameplayComponent::DrainStaminaPercent(float Percent)
 
 float UZP_GraceGameplayComponent::GetStaminaFraction() const
 {
-	if (!MovementConfig || MovementConfig->MaxStamina <= 0.0f) { return 0.0f; }
-	return CurrentStamina / MovementConfig->MaxStamina;
+	if (!AZP_MovementConfig || AZP_MovementConfig->AZP_MaxStamina <= 0.0f) { return 0.0f; }
+	return CurrentStamina / AZP_MovementConfig->AZP_MaxStamina;
 }
 
 // --- Head Bob ---
@@ -245,18 +245,18 @@ void UZP_GraceGameplayComponent::UpdateHeadBob(float DeltaTime)
 	if (!Owner || !CachedMovement) return;
 
 	const float Speed = Owner->GetVelocity().Size2D();
-	const float MinSpeedForBob = 10.0f;
+	const float MinSpeedForBob = AZP_MinSpeedForBob;
 
 	// Config values
-	const float BobFreq = MovementConfig->HeadBobFrequency;
-	const float BobVertAmp = MovementConfig->HeadBobVerticalAmplitude;
-	const float BobHorizAmp = MovementConfig->HeadBobHorizontalAmplitude;
-	const float SprintFreqMult = MovementConfig->SprintBobFrequencyMultiplier;
-	const float SprintAmpMult = MovementConfig->SprintBobAmplitudeMultiplier;
-	const float ReturnSpeed = MovementConfig->HeadBobReturnSpeed;
+	const float BobFreq = AZP_MovementConfig->AZP_HeadBobFrequency;
+	const float BobVertAmp = AZP_MovementConfig->AZP_HeadBobVerticalAmplitude;
+	const float BobHorizAmp = AZP_MovementConfig->AZP_HeadBobHorizontalAmplitude;
+	const float SprintFreqMult = AZP_MovementConfig->AZP_SprintBobFrequencyMultiplier;
+	const float SprintAmpMult = AZP_MovementConfig->AZP_SprintBobAmplitudeMultiplier;
+	const float ReturnSpeed = AZP_MovementConfig->AZP_HeadBobReturnSpeed;
 
 	// Peek damping: reduce bob when peeking
-	const float PeekDamp = FMath::Lerp(1.0f, MovementConfig->HeadBobPeekDamping, PeekAlpha);
+	const float PeekDamp = FMath::Lerp(1.0f, AZP_MovementConfig->AZP_HeadBobPeekDamping, PeekAlpha);
 
 	if (Speed > MinSpeedForBob && CachedMovement->IsMovingOnGround())
 	{
@@ -283,9 +283,9 @@ void UZP_GraceGameplayComponent::UpdateHeadBob(float DeltaTime)
 
 void UZP_GraceGameplayComponent::UpdateStamina(float DeltaTime)
 {
-	const float MaxStam = MovementConfig->MaxStamina;
-	const float DrainRate = MovementConfig->StaminaDrainRate;
-	const float RegenRate = MovementConfig->StaminaRegenRate;
+	const float MaxStam = AZP_MovementConfig->AZP_MaxStamina;
+	const float DrainRate = AZP_MovementConfig->AZP_StaminaDrainRate;
+	const float RegenRate = AZP_MovementConfig->AZP_StaminaRegenRate;
 
 	const bool bOnGround = CachedMovement && CachedMovement->IsMovingOnGround();
 	const FVector Velocity = CachedMovement ? CachedMovement->Velocity : FVector::ZeroVector;
@@ -298,13 +298,13 @@ void UZP_GraceGameplayComponent::UpdateStamina(float DeltaTime)
 	// Actively sprint-moving (and therefore draining). Regen is gated on THIS, not on whether
 	// the sprint key is still held — holding sprint while standing still must still regen. Crouch
 	// never drains (you can't sprint crouched), so crouching always regens.
-	const bool bDraining = bIsSprinting && bOnGround && bWantsForward && ForwardSpeed > 50.0f && !bCrouched;
+	const bool bDraining = bIsSprinting && bOnGround && bWantsForward && ForwardSpeed > AZP_SprintDrainForwardSpeedThreshold && !bCrouched;
 
 	// Wall stall: pressing forward on ground but not actually moving → killed by wall.
-	if (bIsSprinting && bOnGround && bWantsForward && PlanarSpeed < 30.0f)
+	if (bIsSprinting && bOnGround && bWantsForward && PlanarSpeed < AZP_WallStuckSpeedThreshold)
 	{
 		WallStuckTimer += DeltaTime;
-		if (WallStuckTimer > 0.25f)
+		if (WallStuckTimer > AZP_WallStuckCancelTime)
 		{
 			StopSprint();
 			WallStuckTimer = 0.0f;
@@ -318,7 +318,7 @@ void UZP_GraceGameplayComponent::UpdateStamina(float DeltaTime)
 	if (bDraining)
 	{
 		// Hold the regen delay full while draining, so the countdown begins the instant you stop.
-		StaminaRegenTimer = MovementConfig->StaminaRegenDelay;
+		StaminaRegenTimer = AZP_MovementConfig->AZP_StaminaRegenDelay;
 		CurrentStamina = FMath::Max(0.0f, CurrentStamina - DrainRate * DeltaTime);
 		if (CurrentStamina <= 0.0f)
 		{
@@ -360,8 +360,8 @@ void UZP_GraceGameplayComponent::UpdateGASPState()
 		// Use walk speed as threshold — below it we're walking, above we're running.
 		// CharacterMovementComponent controls actual speed; we just classify it.
 		const float Speed = GetOwner() ? GetOwner()->GetVelocity().Size2D() : 0.0f;
-		const float WalkThreshold = MovementConfig ? MovementConfig->WalkSpeed : 115.0f;
-		GASPGait = (Speed > WalkThreshold * 0.5f) ? 1 : 0;
+		const float WalkThreshold = AZP_MovementConfig ? AZP_MovementConfig->AZP_WalkSpeed : 115.0f;
+		GASPGait = (Speed > WalkThreshold * AZP_GaitRunSpeedRatio) ? 1 : 0;
 	}
 }
 
@@ -369,12 +369,12 @@ void UZP_GraceGameplayComponent::UpdateGASPState()
 
 void UZP_GraceGameplayComponent::UpdateInteractionTrace()
 {
-	if (!CameraComponent) return;
+	if (!AZP_CameraComponent) return;
 
-	const float TraceRange = MovementConfig->InteractionTraceRange;
+	const float TraceRange = AZP_MovementConfig->AZP_InteractionTraceRange;
 
-	FVector Start = CameraComponent->GetComponentLocation();
-	FVector End = Start + CameraComponent->GetForwardVector() * TraceRange;
+	FVector Start = AZP_CameraComponent->GetComponentLocation();
+	FVector End = Start + AZP_CameraComponent->GetForwardVector() * TraceRange;
 
 	FHitResult Hit;
 	FCollisionQueryParams Params;
@@ -402,10 +402,10 @@ void UZP_GraceGameplayComponent::UpdateInteractionTrace()
 
 int32 UZP_GraceGameplayComponent::TracePeekSide(const FVector& Origin, const FVector& Forward, const FVector& Right, float DirectionSign) const
 {
-	const float TraceRange = MovementConfig->PeekWallDetectionRange;
-	const float TraceRadius = MovementConfig->PeekTraceRadius;
-	const float FanHalfAngle = MovementConfig->PeekTraceFanHalfAngle;
-	const float MaxWallAngle = MovementConfig->PeekMaxWallAngleFromVertical;
+	const float TraceRange = AZP_MovementConfig->AZP_PeekWallDetectionRange;
+	const float TraceRadius = AZP_MovementConfig->AZP_PeekTraceRadius;
+	const float FanHalfAngle = AZP_MovementConfig->AZP_PeekTraceFanHalfAngle;
+	const float MaxWallAngle = AZP_MovementConfig->AZP_PeekMaxWallAngleFromVertical;
 
 	const FVector SideDir = Right * DirectionSign;
 
@@ -441,11 +441,11 @@ EZP_PeekDirection UZP_GraceGameplayComponent::DetectPeekDirection() const
 {
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	AController* Controller = OwnerPawn ? OwnerPawn->GetController() : nullptr;
-	if (!Controller || !CameraComponent) return EZP_PeekDirection::None;
+	if (!Controller || !AZP_CameraComponent) return EZP_PeekDirection::None;
 
-	const int32 Threshold = MovementConfig->PeekWallHitThreshold;
+	const int32 Threshold = AZP_MovementConfig->AZP_PeekWallHitThreshold;
 
-	const FVector Origin = CameraComponent->GetComponentLocation();
+	const FVector Origin = AZP_CameraComponent->GetComponentLocation();
 	const FRotator ControlRot = Controller->GetControlRotation();
 	const FVector Forward = FRotationMatrix(FRotator(0.0f, ControlRot.Yaw, 0.0f)).GetUnitAxis(EAxis::X);
 	const FVector Right = FRotationMatrix(FRotator(0.0f, ControlRot.Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
@@ -470,7 +470,7 @@ EZP_PeekDirection UZP_GraceGameplayComponent::DetectPeekDirection() const
 
 void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 {
-	if (!CameraComponent || !CachedMovement) return;
+	if (!AZP_CameraComponent || !CachedMovement) return;
 
 	// Block/dodge forward camera clearance — a transient nudge that covers the
 	// stance lean-IN, then settles. Snap to full INSTANTLY when active so there's
@@ -479,19 +479,19 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 	// settles to the normal eye position instead of floating forward forever.
 	if (bForwardClearanceActive)
 	{
-		CurrentForwardClearance = BlockDodgeForwardClearance;
+		CurrentForwardClearance = AZP_BlockDodgeForwardClearance;
 	}
 	else
 	{
 		CurrentForwardClearance = FMath::FInterpTo(
-			CurrentForwardClearance, 0.0f, DeltaTime, ForwardClearanceInterpSpeed);
+			CurrentForwardClearance, 0.0f, DeltaTime, AZP_ForwardClearanceInterpSpeed);
 	}
 
-	const float InterpSpeed = MovementConfig->PeekInterpSpeed;
-	const float ReturnSpeed = MovementConfig->PeekReturnInterpSpeed;
-	const float LateralOffset = MovementConfig->PeekLateralOffset;
-	const float ForwardOffset = MovementConfig->PeekForwardOffset;
-	const float RollAngle = MovementConfig->PeekRollAngle;
+	const float AZP_InterpSpeed = AZP_MovementConfig->AZP_PeekInterpSpeed;
+	const float ReturnSpeed = AZP_MovementConfig->AZP_PeekReturnInterpSpeed;
+	const float LateralOffset = AZP_MovementConfig->AZP_PeekLateralOffset;
+	const float ForwardOffset = AZP_MovementConfig->AZP_PeekForwardOffset;
+	const float RollAngle = AZP_MovementConfig->AZP_PeekRollAngle;
 
 	// Determine desired peek direction
 	// Q key (bWantsPeek): camera-only lean, direction locked on press
@@ -539,7 +539,7 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 
 	// Alpha interpolation
 	const float TargetAlpha = (CurrentPeekDirection != EZP_PeekDirection::None) ? 1.0f : 0.0f;
-	const float Speed = (TargetAlpha > PeekAlpha) ? InterpSpeed : ReturnSpeed;
+	const float Speed = (TargetAlpha > PeekAlpha) ? AZP_InterpSpeed : ReturnSpeed;
 	PeekAlpha = FMath::FInterpTo(PeekAlpha, TargetAlpha, DeltaTime, Speed);
 
 	if (PeekAlpha < 0.001f)
@@ -563,8 +563,8 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 	// --- Socket-space transform helper ---
 	auto ToSocketSpace = [&](const FVector& CapsuleOffset) -> FVector
 	{
-		USceneComponent* AttachParent = CameraComponent->GetAttachParent();
-		FName AttachSocket = CameraComponent->GetAttachSocketName();
+		USceneComponent* AttachParent = AZP_CameraComponent->GetAttachParent();
+		FName AttachSocket = AZP_CameraComponent->GetAttachSocketName();
 		if (AttachParent && AttachSocket != NAME_None)
 		{
 			const FQuat SocketWorldRot = AttachParent->GetSocketQuaternion(AttachSocket);
@@ -577,8 +577,8 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 
 	// Marcus eye-offset while unarmed/melee; the separate ranged offsets while a ranged
 	// weapon is up (Operator arms show — a different body needing its own framing).
-	const float EffCamForward = bCameraOffsetActive ? CameraExtraForward : CameraRangedForward;
-	const float EffCamHeight  = bCameraOffsetActive ? CameraExtraHeight  : CameraRangedHeight;
+	const float EffCamForward = bCameraOffsetActive ? AZP_CameraExtraForward : AZP_CameraRangedForward;
+	const float EffCamHeight  = bCameraOffsetActive ? AZP_CameraExtraHeight  : AZP_CameraRangedHeight;
 
 	// --- Apply peek position based on source ---
 	if (bPeekFromAim && CachedMeshComponent)
@@ -594,7 +594,7 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 		// preserves the forward offset from the constructor. WeaponActionCamOffset
 		// pushes the lens off the body during reload/switch/swing/block.
 		FVector BobCapsule(BaseCameraX + CurrentForwardClearance + EffCamForward + WeaponActionCamOffset.X, HeadBobOffsetY + WeaponActionCamOffset.Y, BaseCameraZ + HeadBobOffsetZ + EffCamHeight + WeaponActionCamOffset.Z);
-		CameraComponent->SetRelativeLocation(ToSocketSpace(BobCapsule));
+		AZP_CameraComponent->SetRelativeLocation(ToSocketSpace(BobCapsule));
 	}
 	else
 	{
@@ -607,16 +607,16 @@ void UZP_GraceGameplayComponent::UpdatePeek(float DeltaTime)
 		}
 
 		FVector CapsuleOffset(BaseCameraX + PeekX + CurrentForwardClearance + EffCamForward + WeaponActionCamOffset.X, HeadBobOffsetY + PeekY + WeaponActionCamOffset.Y, BaseCameraZ + HeadBobOffsetZ + EffCamHeight + WeaponActionCamOffset.Z);
-		CameraComponent->SetRelativeLocation(ToSocketSpace(CapsuleOffset));
+		AZP_CameraComponent->SetRelativeLocation(ToSocketSpace(CapsuleOffset));
 	}
 
 	// --- Peek roll (rotation) ---
 	const float TargetRoll = RollAngle * DirSign * PeekAlpha;
 	CurrentPeekRoll = FMath::FInterpTo(CurrentPeekRoll, TargetRoll, DeltaTime, Speed);
 
-	FRotator CameraRot = CameraComponent->GetRelativeRotation();
+	FRotator CameraRot = AZP_CameraComponent->GetRelativeRotation();
 	CameraRot.Roll = CurrentPeekRoll;
-	CameraComponent->SetRelativeRotation(CameraRot);
+	AZP_CameraComponent->SetRelativeRotation(CameraRot);
 
 	// Clear bPeekFromAim once fully returned
 	if (PeekAlpha == 0.0f)

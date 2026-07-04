@@ -16,9 +16,9 @@ def make_da(name, path, dialogue_id, one_shot=False, priority=50):
     else:
         da = unreal.load_asset(full)
     if da:
-        da.set_editor_property('dialogue_id', dialogue_id)
-        da.set_editor_property('one_shot', one_shot)
-        da.set_editor_property('priority', priority)
+        da.set_editor_property('AZP_DialogueID', dialogue_id)
+        da.set_editor_property('bAZP_OneShot', one_shot)
+        da.set_editor_property('AZP_Priority', priority)
     return da
 
 def make_line(speaker, text, duration=3.0, post_delay=0.3, audio=None, beat=None):
@@ -60,7 +60,7 @@ if da_a:
     lines_a = unreal.Array(unreal.ZP_DialogueLine)
     lines_a.append(make_line('NPC', 'Oh good. The breaker panel is through that door on the left. Watch yourself — I heard something moving in there.', 5.0))
     lines_a.append(make_line('NPC', 'And hey... if you see anyone else down here, tell them to get topside. This place gives me the creeps.', 4.5, 0.0))
-    da_a.set_editor_property('lines', lines_a)
+    da_a.set_editor_property('AZP_Lines', lines_a)
     EAL.save_asset(f'{data_path}/DA_Dialogue_Test_ResponseA')
     unreal.log('Created DA_Dialogue_Test_ResponseA')
 
@@ -70,7 +70,7 @@ if da_b:
     lines_b = unreal.Array(unreal.ZP_DialogueLine)
     lines_b.append(make_line('NPC', 'A way out? Buddy, the elevators are locked down. Only way is through the service corridor past the east wing.', 5.0))
     lines_b.append(make_line('NPC', 'But I wouldn\'t go that way if I were you. Not alone.', 3.5, 0.0))
-    da_b.set_editor_property('lines', lines_b)
+    da_b.set_editor_property('AZP_Lines', lines_b)
     EAL.save_asset(f'{data_path}/DA_Dialogue_Test_ResponseB')
     unreal.log('Created DA_Dialogue_Test_ResponseB')
 
@@ -80,7 +80,7 @@ if da_c:
     lines_c = unreal.Array(unreal.ZP_DialogueLine)
     lines_c.append(make_line('NPC', '...', 1.5, 0.5))
     lines_c.append(make_line('NPC', 'Right. Okay. Well, I\'m not getting paid enough for this.', 3.5, 0.0))
-    da_c.set_editor_property('lines', lines_c)
+    da_c.set_editor_property('AZP_Lines', lines_c)
     EAL.save_asset(f'{data_path}/DA_Dialogue_Test_ResponseC')
     unreal.log('Created DA_Dialogue_Test_ResponseC')
 
@@ -106,7 +106,7 @@ if da_main:
     line3.set_editor_property('choices', choices)
     lines.append(line3)
 
-    da_main.set_editor_property('lines', lines)
+    da_main.set_editor_property('AZP_Lines', lines)
     EAL.save_asset(f'{data_path}/DA_Dialogue_Test')
     unreal.log('DA_Dialogue_Test configured: 3 lines, 3 branching choices')
 

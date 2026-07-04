@@ -23,10 +23,10 @@ struct FZP_MapAreaData
 	FName AreaID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	FText AreaDisplayName;
+	FText AZP_AreaDisplayName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	TObjectPtr<UTexture2D> MapTexture = nullptr;
+	TObjectPtr<UTexture2D> AZP_MapTexture = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Map")
 	FVector2D WorldBoundsMin = FVector2D::ZeroVector;

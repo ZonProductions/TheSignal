@@ -45,17 +45,17 @@ void AZP_KeyPickup::BeginPlay()
 
 FText AZP_KeyPickup::GetInteractionPrompt_Implementation()
 {
-	return PromptText;
+	return AZP_PromptText;
 }
 
 void AZP_KeyPickup::OnInteract_Implementation(ACharacter* Interactor)
 {
 	if (bPickedUp) return;
 
-	UObject* ItemDA = ItemDataAsset.LoadSynchronous();
+	UObject* ItemDA = AZP_ItemDataAsset.LoadSynchronous();
 	if (!ItemDA)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] KeyPickup %s: ItemDataAsset failed to load!"), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] KeyPickup %s: AZP_ItemDataAsset failed to load!"), *GetName());
 		return;
 	}
 
@@ -73,11 +73,11 @@ void AZP_KeyPickup::OnInteract_Implementation(ACharacter* Interactor)
 	{
 		struct { UObject* ItemToAdd; int32 Amount; } Params;
 		Params.ItemToAdd = ItemDA;
-		Params.Amount = ItemAmount;
+		Params.Amount = AZP_ItemAmount;
 		Grace->MoonvilleInventoryComp->ProcessEvent(AddFunc, &Params);
 
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KeyPickup %s: Added %s x%d to inventory"),
-			*GetName(), *ItemDA->GetName(), ItemAmount);
+			*GetName(), *ItemDA->GetName(), AZP_ItemAmount);
 	}
 	else
 	{
@@ -113,7 +113,7 @@ void AZP_KeyPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(Grace->GetController());
 	if (PC && PC->HUDWidget)
 	{
-		PC->HUDWidget->ShowInteractionPrompt(PromptText);
+		PC->HUDWidget->ShowInteractionPrompt(AZP_PromptText);
 	}
 }
 

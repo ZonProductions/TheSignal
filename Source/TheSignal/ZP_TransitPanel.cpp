@@ -36,7 +36,7 @@ AZP_TransitPanel::AZP_TransitPanel()
 	InteractionVolume->SetGenerateOverlapEvents(true);
 
 	// Default to the fully-C++ transit menu so a placed panel works with no WBP. Override in BP for custom visuals.
-	TransitMenuWidgetClass = UZP_TransitMenuWidget::StaticClass();
+	AZP_TransitMenuWidgetClass = UZP_TransitMenuWidget::StaticClass();
 }
 
 void AZP_TransitPanel::BeginPlay()
@@ -48,29 +48,29 @@ void AZP_TransitPanel::BeginPlay()
 
 	// In-map elevator panels are mounted inside the car — ride with it so the console (and its
 	// interaction volume) stay reachable at every floor. KeepWorld preserves the placed transform.
-	if (LinkedElevator && LinkedElevator->PlatformMesh)
+	if (AZP_LinkedElevator && AZP_LinkedElevator->PlatformMesh)
 	{
-		AttachToComponent(LinkedElevator->PlatformMesh, FAttachmentTransformRules::KeepWorldTransform);
+		AttachToComponent(AZP_LinkedElevator->PlatformMesh, FAttachmentTransformRules::KeepWorldTransform);
 	}
 }
 
 FText AZP_TransitPanel::GetInteractionPrompt_Implementation()
 {
-	return PromptText;
+	return AZP_PromptText;
 }
 
 void AZP_TransitPanel::OnInteract_Implementation(ACharacter* Interactor)
 {
-	if (!TransitMenuWidgetClass)
+	if (!AZP_TransitMenuWidgetClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitPanel %s: No TransitMenuWidgetClass set!"), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitPanel %s: No AZP_TransitMenuWidgetClass set!"), *GetName());
 		return;
 	}
 
 	APlayerController* PC = Interactor ? Cast<APlayerController>(Interactor->GetController()) : nullptr;
 	if (!PC) return;
 
-	UUserWidget* Menu = CreateWidget<UUserWidget>(PC, TransitMenuWidgetClass);
+	UUserWidget* Menu = CreateWidget<UUserWidget>(PC, AZP_TransitMenuWidgetClass);
 	if (!Menu) return;
 
 	Menu->AddToViewport(100);
@@ -96,7 +96,7 @@ void AZP_TransitPanel::OnInteract_Implementation(ACharacter* Interactor)
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] TransitPanel %s: Opened transit menu (%d destinations)"),
-		*GetName(), Destinations.Num());
+		*GetName(), AZP_Destinations.Num());
 }
 
 void AZP_TransitPanel::BuildMenuEntries(TArray<FZP_TransitMenuEntry>& OutEntries) const
@@ -104,19 +104,19 @@ void AZP_TransitPanel::BuildMenuEntries(TArray<FZP_TransitMenuEntry>& OutEntries
 	OutEntries.Reset();
 	ACharacter* User = CurrentUser.Get();
 
-	for (int32 i = 0; i < Destinations.Num(); ++i)
+	for (int32 i = 0; i < AZP_Destinations.Num(); ++i)
 	{
-		const FZP_TransitDestination& D = Destinations[i];
+		const FZP_TransitDestination& D = AZP_Destinations[i];
 		const bool bAvail = IsDestinationAvailable(D, User);
 
 		// HiddenUntilKnown: omit locked destinations entirely until they become available.
 		if (!bAvail && D.LockStyle == EZP_TransitLockStyle::HiddenUntilKnown) continue;
 
 		// In-map elevator: hide the floor the car is already parked at (can't travel to where you are).
-		if (D.DestType == EZP_TransitDestType::InMapElevator && LinkedElevator && D.ElevatorLocation)
+		if (D.DestType == EZP_TransitDestType::InMapElevator && AZP_LinkedElevator && D.ElevatorLocation)
 		{
-			const float TargetRelZ = D.ElevatorLocation->GetActorLocation().Z - LinkedElevator->GetOriginZ();
-			if (FMath::Abs(LinkedElevator->GetCurrentRelativeZ() - TargetRelZ) < CurrentFloorTolerance)
+			const float TargetRelZ = D.ElevatorLocation->GetActorLocation().Z - AZP_LinkedElevator->GetOriginZ();
+			if (FMath::Abs(AZP_LinkedElevator->GetCurrentRelativeZ() - TargetRelZ) < AZP_CurrentFloorTolerance)
 			{
 				continue;
 			}
@@ -191,13 +191,13 @@ bool AZP_TransitPanel::IsDestinationAvailable(const FZP_TransitDestination& Dest
 
 void AZP_TransitPanel::TravelToDestination(int32 DestinationIndex)
 {
-	if (!Destinations.IsValidIndex(DestinationIndex))
+	if (!AZP_Destinations.IsValidIndex(DestinationIndex))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitPanel %s: invalid destination index %d"), *GetName(), DestinationIndex);
 		return;
 	}
 
-	const FZP_TransitDestination& D = Destinations[DestinationIndex];
+	const FZP_TransitDestination& D = AZP_Destinations[DestinationIndex];
 
 	if (!IsDestinationAvailable(D, CurrentUser.Get()))
 	{
@@ -208,20 +208,20 @@ void AZP_TransitPanel::TravelToDestination(int32 DestinationIndex)
 	// --- In-map elevator: move the linked car within this map instead of loading a level. ---
 	if (D.DestType == EZP_TransitDestType::InMapElevator)
 	{
-		if (LinkedElevator)
+		if (AZP_LinkedElevator)
 		{
 			// Prefer the linked stop marker (Z computed against the car's origin); else the raw fallback.
 			const float RelZ = D.ElevatorLocation
-				? (D.ElevatorLocation->GetActorLocation().Z - LinkedElevator->GetOriginZ())
+				? (D.ElevatorLocation->GetActorLocation().Z - AZP_LinkedElevator->GetOriginZ())
 				: D.ElevatorTargetRelativeZ;
-			LinkedElevator->MoveToRelativeZ(RelZ);
+			AZP_LinkedElevator->MoveToRelativeZ(RelZ);
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] TransitPanel %s: elevator %s -> relative Z %.1f (loc=%s)"),
-				*GetName(), *LinkedElevator->GetName(), RelZ,
+				*GetName(), *AZP_LinkedElevator->GetName(), RelZ,
 				D.ElevatorLocation ? *D.ElevatorLocation->GetName() : TEXT("none"));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitPanel %s: destination %s is InMapElevator but LinkedElevator is unset"),
+			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitPanel %s: destination %s is InMapElevator but AZP_LinkedElevator is unset"),
 				*GetName(), *D.DestinationId.ToString());
 		}
 		return;
@@ -256,7 +256,7 @@ void AZP_TransitPanel::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(Grace->GetController());
 	if (PC && PC->HUDWidget)
 	{
-		PC->HUDWidget->ShowInteractionPrompt(PromptText);
+		PC->HUDWidget->ShowInteractionPrompt(AZP_PromptText);
 	}
 }
 

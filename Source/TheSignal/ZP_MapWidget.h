@@ -13,7 +13,7 @@
  *
  * Blueprint Extension Points:
  *   - All BindWidget references configurable in WBP_Map.
- *   - MarkerSize tunable in editor.
+ *   - AZP_MarkerSize tunable in editor.
  *
  * Dependencies:
  *   - UZP_MapComponent (map area data, discovery state)
@@ -37,7 +37,7 @@ struct FZP_DoorMarkerInfo
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TWeakObjectPtr<AActor> DoorActor;
+	TWeakObjectPtr<AActor> AZP_DoorActor;
 
 	UPROPERTY()
 	TObjectPtr<UImage> MarkerWidget = nullptr;
@@ -78,19 +78,35 @@ public:
 
 	/** Size of the player marker widget (pixels). */
 	UPROPERTY(EditDefaultsOnly, Category = "Map|Marker")
-	FVector2D MarkerSize = FVector2D(12.0f, 12.0f);
+	FVector2D AZP_MarkerSize = FVector2D(12.0f, 12.0f);
+
+	/** Degrees added to the negated control yaw so the player-marker art points the correct way; must change if the marker texture's authored orientation changes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Marker")
+	float AZP_PlayerMarkerAngleOffset = 90.0f;
 
 	/** Size of door marker icons (pixels). */
 	UPROPERTY(EditDefaultsOnly, Category = "Map|Doors")
-	FVector2D DoorMarkerSize = FVector2D(8.0f, 8.0f);
+	FVector2D AZP_DoorMarkerSize = FVector2D(8.0f, 8.0f);
 
 	/** Color for unlocked / interactable doors (RE-style blue). */
 	UPROPERTY(EditDefaultsOnly, Category = "Map|Doors")
-	FLinearColor UnlockedDoorColor = FLinearColor(0.2f, 0.4f, 1.0f, 1.0f);
+	FLinearColor AZP_UnlockedDoorColor = FLinearColor(0.2f, 0.4f, 1.0f, 1.0f);
 
 	/** Color for locked doors (RE-style red). */
 	UPROPERTY(EditDefaultsOnly, Category = "Map|Doors")
-	FLinearColor LockedDoorColor = FLinearColor(1.0f, 0.15f, 0.15f, 1.0f);
+	FLinearColor AZP_LockedDoorColor = FLinearColor(1.0f, 0.15f, 0.15f, 1.0f);
+
+	/** Player-facing area title shown when no MapVolume covers the player (hardcoded UI string; violates the expose-player-facing-text rule). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Text")
+	FText AZP_UnknownAreaText = FText::FromString(TEXT("Unknown Area"));
+
+	/** Player-facing message shown when no map exists for the current location (hardcoded UI string; violates the expose-player-facing-text rule). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Text")
+	FText AZP_NoMapAvailableText = FText::FromString(TEXT("No map available"));
+
+	/** Player-facing message shown when the area has a map but the player has not picked it up yet (hardcoded UI string; violates the expose-player-facing-text rule). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Text")
+	FText AZP_MapNotFoundText = FText::FromString(TEXT("Map not found yet"));
 
 	// --- API ---
 

@@ -73,7 +73,7 @@ void UZP_RuntimeISMBatcher::BatchStaticMeshes()
 		TArray<AActor*> SourceActors;
 	};
 
-	FloorISMCs.SetNum(NumFloors);
+	FloorISMCs.SetNum(AZP_NumFloors);
 
 	TMap<FISMBatchKey, FMeshGroup> Groups;
 
@@ -89,7 +89,7 @@ void UZP_RuntimeISMBatcher::BatchStaticMeshes()
 		{
 			const FVector Loc = SMA->GetActorLocation();
 			bool bInZone = false;
-			for (const FBox& Zone : AlwaysVisibleZones)
+			for (const FBox& Zone : AZP_AlwaysVisibleZones)
 			{
 				if (Zone.IsInsideOrOn(Loc))
 				{
@@ -150,7 +150,7 @@ void UZP_RuntimeISMBatcher::BatchStaticMeshes()
 	{
 		FMeshGroup& Group = Pair.Value;
 
-		if (Group.Transforms.Num() < MinInstanceCount)
+		if (Group.Transforms.Num() < AZP_MinInstanceCount)
 		{
 			Skipped += Group.Transforms.Num();
 			continue;
@@ -192,8 +192,8 @@ void UZP_RuntimeISMBatcher::BatchStaticMeshes()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("ISMBatcher: Batched %d actors into %d ISMs across %d floors (%d actors below threshold, kept individual)"),
-		TotalBatched, TotalISMs, NumFloors, Skipped);
-	for (int32 i = 0; i < NumFloors; ++i)
+		TotalBatched, TotalISMs, AZP_NumFloors, Skipped);
+	for (int32 i = 0; i < AZP_NumFloors; ++i)
 	{
 		UE_LOG(LogTemp, Log, TEXT("  Floor %d: %d ISMs"), i + 1, FloorISMCs[i].Num());
 	}
@@ -215,6 +215,6 @@ void UZP_RuntimeISMBatcher::SetFloorVisible(int32 FloorIndex, bool bVisible)
 
 int32 UZP_RuntimeISMBatcher::GetFloorForZ(float Z) const
 {
-	const int32 Floor = FMath::FloorToInt((Z - FloorBaseZ) / FloorHeight);
-	return FMath::Clamp(Floor, 0, NumFloors - 1);
+	const int32 Floor = FMath::FloorToInt((Z - AZP_FloorBaseZ) / AZP_FloorHeight);
+	return FMath::Clamp(Floor, 0, AZP_NumFloors - 1);
 }

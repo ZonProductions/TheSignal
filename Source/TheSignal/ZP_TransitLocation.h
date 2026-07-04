@@ -14,7 +14,7 @@
  * Owner Subsystem: Transit
  *
  * Blueprint Extension Points:
- *   - LocationId / DisplayName: identify the stop (DisplayName optional; the destination row keeps its
+ *   - AZP_LocationId / DisplayName: identify the stop (DisplayName optional; the destination row keeps its
  *     own label).
  *   - Place at the elevator's RESTING PIVOT height for the floor (not the floor surface) so the
  *     "currently here" comparison matches the elevator pivot.
@@ -38,7 +38,7 @@ public:
 
 	/** Stable id for this stop (e.g. Floor1). Optional but handy for logs/debugging. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")
-	FName LocationId = NAME_None;
+	FName AZP_LocationId = NAME_None;
 
 	/** Optional human label for the floor (the transit destination row keeps its own DisplayName). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")

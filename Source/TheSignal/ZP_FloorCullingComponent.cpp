@@ -8,24 +8,8 @@
 #include "Components/LightComponent.h"
 
 // Actor types that should NEVER be culled (global/essential)
-static bool ShouldSkipActor(AActor* Actor)
+static bool ShouldSkipActor(AActor* Actor, const TArray<FString>& SkipClasses)
 {
-	static const TSet<FString> SkipClasses = {
-		TEXT("SkyAtmosphere"),
-		TEXT("SkyLight"),
-		TEXT("DirectionalLight"),
-		TEXT("ExponentialHeightFog"),
-		TEXT("VolumetricCloud"),
-		TEXT("PostProcessVolume"),
-		TEXT("LightmassImportanceVolume"),
-		TEXT("PlayerStart"),
-		TEXT("WorldSettings"),
-		TEXT("GameModeBase"),
-		TEXT("NavigationData"),
-		TEXT("AbstractNavData"),
-		TEXT("LevelBounds"),
-	};
-
 	FString ClassName = Actor->GetClass()->GetName();
 	// Strip _C suffix from Blueprint classes
 	ClassName.RemoveFromEnd(TEXT("_C"));
@@ -53,7 +37,7 @@ void UZP_FloorCullingComponent::Initialize()
 		FloorCheckTimerHandle,
 		this,
 		&UZP_FloorCullingComponent::CheckPlayerFloor,
-		CheckInterval,
+		AZP_CheckInterval,
 		true
 	);
 }
@@ -88,7 +72,7 @@ void UZP_FloorCullingComponent::EndPlay(const EEndPlayReason::Type EndPlayReason
 
 void UZP_FloorCullingComponent::CollectActors()
 {
-	FloorActors.SetNum(NumFloors);
+	FloorActors.SetNum(AZP_NumFloors);
 
 	AActor* Owner = GetOwner();
 	int32 TotalCollected = 0;
@@ -119,7 +103,7 @@ void UZP_FloorCullingComponent::CollectActors()
 		}
 
 		// Skip global/essential actor types
-		if (ShouldSkipActor(Actor))
+		if (ShouldSkipActor(Actor, AZP_SkipActorClassNames))
 		{
 			continue;
 		}
@@ -135,7 +119,7 @@ void UZP_FloorCullingComponent::CollectActors()
 		{
 			const FVector Loc = Actor->GetActorLocation();
 			bool bInZone = false;
-			for (const FBox& Zone : AlwaysVisibleZones)
+			for (const FBox& Zone : AZP_AlwaysVisibleZones)
 			{
 				if (Zone.IsInsideOrOn(Loc))
 				{
@@ -161,8 +145,8 @@ void UZP_FloorCullingComponent::CollectActors()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("FloorCulling: Collected %d actors (%d lights), skipped %d batched, across %d floors:"),
-		TotalCollected, LightsCollected, SkippedBatched, NumFloors);
-	for (int32 i = 0; i < NumFloors; ++i)
+		TotalCollected, LightsCollected, SkippedBatched, AZP_NumFloors);
+	for (int32 i = 0; i < AZP_NumFloors; ++i)
 	{
 		UE_LOG(LogTemp, Log, TEXT("  Floor %d: %d actors"), i + 1, FloorActors[i].Num());
 	}
@@ -183,16 +167,16 @@ void UZP_FloorCullingComponent::CheckPlayerFloor()
 
 		UE_LOG(LogTemp, Log, TEXT("FloorCulling: Player on floor %d, showing floors %d-%d"),
 			Floor + 1,
-			FMath::Max(1, Floor + 1 - AdjacentFloorsToShow),
-			FMath::Min(NumFloors, Floor + 1 + AdjacentFloorsToShow));
+			FMath::Max(1, Floor + 1 - AZP_AdjacentFloorsToShow),
+			FMath::Min(AZP_NumFloors, Floor + 1 + AZP_AdjacentFloorsToShow));
 	}
 }
 
 void UZP_FloorCullingComponent::ApplyFloorVisibility(int32 TargetFloor)
 {
-	for (int32 i = 0; i < NumFloors; ++i)
+	for (int32 i = 0; i < AZP_NumFloors; ++i)
 	{
-		const bool bShouldBeVisible = FMath::Abs(i - TargetFloor) <= AdjacentFloorsToShow;
+		const bool bShouldBeVisible = FMath::Abs(i - TargetFloor) <= AZP_AdjacentFloorsToShow;
 
 		// Toggle ISM visibility for batched actors on this floor
 		if (ISMBatcher)
@@ -220,6 +204,6 @@ void UZP_FloorCullingComponent::ApplyFloorVisibility(int32 TargetFloor)
 
 int32 UZP_FloorCullingComponent::GetFloorForZ(float Z) const
 {
-	const int32 Floor = FMath::FloorToInt((Z - FloorBaseZ) / FloorHeight);
-	return FMath::Clamp(Floor, 0, NumFloors - 1);
+	const int32 Floor = FMath::FloorToInt((Z - AZP_FloorBaseZ) / AZP_FloorHeight);
+	return FMath::Clamp(Floor, 0, AZP_NumFloors - 1);
 }

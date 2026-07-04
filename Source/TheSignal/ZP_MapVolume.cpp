@@ -62,7 +62,7 @@ void AZP_MapVolume::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 
 	if (UZP_MapComponent* MapComp = Char->FindComponentByClass<UZP_MapComponent>())
 	{
-		MapComp->SetCurrentArea(AreaID);
+		MapComp->SetCurrentArea(AZP_AreaID);
 	}
 }
 
@@ -74,6 +74,6 @@ void AZP_MapVolume::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Ot
 
 	if (UZP_MapComponent* MapComp = Char->FindComponentByClass<UZP_MapComponent>())
 	{
-		MapComp->ClearCurrentArea(AreaID);
+		MapComp->ClearCurrentArea(AZP_AreaID);
 	}
 }

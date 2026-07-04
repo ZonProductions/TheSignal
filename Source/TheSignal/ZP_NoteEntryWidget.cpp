@@ -12,7 +12,7 @@ void UZP_NoteEntryWidget::NativeConstruct()
 	if (EntryButton)
 	{
 		EntryButton->OnClicked.AddDynamic(this, &UZP_NoteEntryWidget::HandleClicked);
-		EntryButton->SetBackgroundColor(UnselectedBgColor);
+		EntryButton->SetBackgroundColor(AZP_UnselectedBgColor);
 	}
 }
 
@@ -30,19 +30,19 @@ void UZP_NoteEntryWidget::SetSelected(bool bSelected)
 {
 	if (EntryTitle)
 	{
-		EntryTitle->SetColorAndOpacity(FSlateColor(bSelected ? SelectedColor : UnselectedColor));
+		EntryTitle->SetColorAndOpacity(FSlateColor(bSelected ? AZP_SelectedColor : AZP_UnselectedColor));
 	}
 
 	if (EntryButton)
 	{
-		EntryButton->SetBackgroundColor(bSelected ? SelectedBgColor : UnselectedBgColor);
+		EntryButton->SetBackgroundColor(bSelected ? AZP_SelectedBgColor : AZP_UnselectedBgColor);
 	}
 
 	// Folder-tab indent via ScrollBox slot padding
 	if (UScrollBoxSlot* SBSlot = Cast<UScrollBoxSlot>(Slot))
 	{
-		float Left = bSelected ? SelectedLeftMargin : UnselectedLeftMargin;
-		float Right = bSelected ? 0.0f : 6.0f;
+		float Left = bSelected ? AZP_SelectedLeftMargin : AZP_UnselectedLeftMargin;
+		float Right = bSelected ? 0.0f : AZP_UnselectedRightMargin;
 		SBSlot->SetPadding(FMargin(Left, 2.0f, Right, 2.0f));
 	}
 }

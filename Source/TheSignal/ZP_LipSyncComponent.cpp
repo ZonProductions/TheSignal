@@ -19,63 +19,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogLipSync, Log, All);
 // 0=sil, 1=PP, 2=FF, 3=TH, 4=DD, 5=kk, 6=CH, 7=SS,
 // 8=nn, 9=RR, 10=aa, 11=E, 12=ih, 13=oh, 14=ou
 
-// Viseme -> jawOpen morph weight
-static const float VisemeToJaw[15] = {
-	0.00f, // sil
-	0.15f, // PP
-	0.35f, // FF
-	0.45f, // TH
-	0.60f, // DD
-	0.55f, // kk
-	0.50f, // CH
-	0.30f, // SS
-	0.20f, // nn
-	0.50f, // RR
-	1.00f, // aa
-	0.70f, // E
-	0.55f, // ih
-	0.80f, // oh
-	0.60f, // ou
-};
-
-// Viseme -> lower lip raise (bilabials/labiodentals: PP, FF, OU)
-static const float VisemeToLipUp[15] = {
-	0.00f, // sil
-	0.70f, // PP — lips pressed together
-	0.50f, // FF — lower lip curls up
-	0.10f, // TH
-	0.00f, // DD
-	0.00f, // kk
-	0.00f, // CH
-	0.00f, // SS
-	0.10f, // nn
-	0.00f, // RR
-	0.00f, // aa
-	0.00f, // E
-	0.00f, // ih
-	0.00f, // oh
-	0.30f, // ou
-};
-
-// Viseme -> mouth width (positive = spread, negative = purse)
-static const float VisemeToWidth[15] = {
-	0.00f, // sil
-	-0.40f,// PP — lips together/narrow
-	-0.15f,// FF
-	0.00f, // TH
-	0.00f, // DD
-	0.00f, // kk
-	0.15f, // CH
-	0.25f, // SS — teeth visible, spread
-	0.00f, // nn
-	0.00f, // RR
-	0.50f, // aa — wide open
-	0.60f, // E  — spread
-	0.50f, // ih — spread
-	-0.50f,// oh — rounded
-	-0.60f,// ou — pursed
-};
-
 // ============================================================================
 // Submix proxy
 // ============================================================================
@@ -166,7 +109,7 @@ USkeletalMeshComponent* UZP_LipSyncComponent::FindMeshWithJawBone() const
 	for (USkeletalMeshComponent* Mesh : Meshes)
 	{
 		if (!Mesh || !Mesh->GetSkeletalMeshAsset()) continue;
-		if (Mesh->GetBoneIndex(FName("jaw")) != INDEX_NONE)
+		if (Mesh->GetBoneIndex(AZP_JawBoneName) != INDEX_NONE)
 		{
 			return Mesh;
 		}
@@ -414,9 +357,9 @@ void UZP_LipSyncComponent::ApplyVisemes(float DeltaTime)
 		for (int32 i = 0; i < FMath::Min(VisemesGameThread.Num(), 15); ++i)
 		{
 			float V = VisemesGameThread[i];
-			TargetJaw += V * VisemeToJaw[i];
-			TargetLipUp += V * VisemeToLipUp[i];
-			TargetWidth += V * VisemeToWidth[i];
+			TargetJaw += V * AZP_VisemeToJaw[i];
+			TargetLipUp += V * AZP_VisemeToLipUp[i];
+			TargetWidth += V * AZP_VisemeToWidth[i];
 		}
 		TargetJaw = FMath::Clamp(TargetJaw, 0.f, 1.f);
 		TargetLipUp = FMath::Clamp(TargetLipUp, 0.f, 1.f);
@@ -424,12 +367,12 @@ void UZP_LipSyncComponent::ApplyVisemes(float DeltaTime)
 	}
 
 	// Smooth interpolation
-	float JawSpeed = (TargetJaw > CurrentJawOpen) ? 25.f : 8.f;
+	float JawSpeed = (TargetJaw > CurrentJawOpen) ? AZP_JawOpenInterpSpeed : AZP_JawCloseInterpSpeed;
 	CurrentJawOpen = FMath::FInterpTo(CurrentJawOpen, TargetJaw, DeltaTime, JawSpeed);
 	if (CurrentJawOpen < 0.005f) CurrentJawOpen = 0.f;
 
-	SmoothedLipUp = FMath::FInterpTo(SmoothedLipUp, TargetLipUp, DeltaTime, 18.f);
-	SmoothedWidth = FMath::FInterpTo(SmoothedWidth, TargetWidth, DeltaTime, 15.f);
+	SmoothedLipUp = FMath::FInterpTo(SmoothedLipUp, TargetLipUp, DeltaTime, AZP_LipUpInterpSpeed);
+	SmoothedWidth = FMath::FInterpTo(SmoothedWidth, TargetWidth, DeltaTime, AZP_MouthWidthInterpSpeed);
 
 	// --- Apply bone rotation DELTAS on top of copied pose ---
 	// SetBoneRotationByName REPLACES the rotation. We must get the current
@@ -444,18 +387,18 @@ void UZP_LipSyncComponent::ApplyVisemes(float DeltaTime)
 	};
 
 	// Jaw — open
-	float JawAngleDeg = CurrentJawOpen * 25.f;
-	ApplyBoneDelta(FName("jaw"), FRotator(0.f, JawAngleDeg, 0.f));
+	float JawAngleDeg = CurrentJawOpen * AZP_MaxJawOpenAngleDeg;
+	ApplyBoneDelta(AZP_JawBoneName, FRotator(0.f, JawAngleDeg, 0.f));
 
 	// Lower lips — raise for bilabials (PP, FF)
-	float LipAngle = SmoothedLipUp * -12.f;
-	ApplyBoneDelta(FName("lip_lower_r"), FRotator(0.f, LipAngle, 0.f));
-	ApplyBoneDelta(FName("lip_lower_l"), FRotator(0.f, LipAngle, 0.f));
+	float LipAngle = SmoothedLipUp * AZP_MaxLipRaiseAngleDeg;
+	ApplyBoneDelta(AZP_LipLowerRightBoneName, FRotator(0.f, LipAngle, 0.f));
+	ApplyBoneDelta(AZP_LipLowerLeftBoneName, FRotator(0.f, LipAngle, 0.f));
 
 	// Mouth corners — spread/purse
-	float WidthAngle = SmoothedWidth * 8.f;
-	ApplyBoneDelta(FName("mouth_r"), FRotator(0.f, 0.f, WidthAngle));
-	ApplyBoneDelta(FName("mouth_l"), FRotator(0.f, 0.f, -WidthAngle));
+	float WidthAngle = SmoothedWidth * AZP_MaxMouthWidthAngleDeg;
+	ApplyBoneDelta(AZP_MouthRightBoneName, FRotator(0.f, 0.f, WidthAngle));
+	ApplyBoneDelta(AZP_MouthLeftBoneName, FRotator(0.f, 0.f, -WidthAngle));
 
 	// Log periodically
 	static int32 LogCounter = 0;

@@ -14,8 +14,8 @@
  *
  * Blueprint Extension Points:
  *   - PickupMesh: set static mesh in BP child.
- *   - ItemDataAsset / ItemAmount: configure per-instance.
- *   - PromptText: customizable interaction text.
+ *   - AZP_ItemDataAsset / AZP_ItemAmount: configure per-instance.
+ *   - AZP_PromptText: customizable interaction text.
  *
  * Dependencies:
  *   - IZP_Interactable interface
@@ -55,15 +55,15 @@ public:
 
 	/** The Moonville PDA_Item data asset to grant on pickup. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup")
-	TSoftObjectPtr<UObject> ItemDataAsset;
+	TSoftObjectPtr<UObject> AZP_ItemDataAsset;
 
 	/** Number of items to add. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup")
-	int32 ItemAmount = 1;
+	int32 AZP_ItemAmount = 1;
 
 	/** Text shown on HUD when player is in range. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup")
-	FText PromptText = FText::FromString(TEXT("Pick Up"));
+	FText AZP_PromptText = FText::FromString(TEXT("Pick Up"));
 
 	// --- IZP_Interactable ---
 

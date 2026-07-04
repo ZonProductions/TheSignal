@@ -13,7 +13,7 @@
  *
  * Blueprint Extension Points:
  *   - BindWidget properties map to UMG designer widget names.
- *   - ChoiceButtonClass: set to WBP_DialogueChoiceButton in Blueprint defaults.
+ *   - AZP_ChoiceButtonClass: set to WBP_DialogueChoiceButton in Blueprint defaults.
  *   - All Show/Hide functions are BlueprintCallable.
  *
  * Dependencies:
@@ -62,11 +62,15 @@ public:
 	/** Widget class for choice buttons. Must be UZP_DialogueChoiceButton subclass.
 	 *  Set to WBP_DialogueChoiceButton in Blueprint defaults. */
 	UPROPERTY(EditDefaultsOnly, Category = "Dialogue|UI")
-	TSubclassOf<UZP_DialogueChoiceButton> ChoiceButtonClass;
+	TSubclassOf<UZP_DialogueChoiceButton> AZP_ChoiceButtonClass;
 
 	/** How fast the widget fades in/out. */
 	UPROPERTY(EditDefaultsOnly, Category = "Dialogue|UI")
-	float FadeSpeed = 8.f;
+	float AZP_FadeSpeed = 8.f;
+
+	/** Vertical padding applied to each spawned choice button in the choice list - the only layout value of the choice stack not authorable in UMG because the buttons are spawned in C++. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue|UI")
+	FMargin AZP_ChoiceButtonPadding = FMargin(0.f, 4.f, 0.f, 4.f);
 
 	// --- API ---
 

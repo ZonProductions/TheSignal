@@ -9,7 +9,7 @@
  *          Procedural Monsters v2's BPC_3D_Pathfinding system.
  *
  *          Spawns an invisible AZP_PatrolWaypoint actor and teleports it between
- *          PatrolPoints. Calls SetTargetLocation() on the pathfinding component
+ *          AZP_PatrolPoints. Calls SetTargetLocation() on the pathfinding component
  *          directly via UE reflection (no BP wiring needed).
  *
  *          Auto-binds PawnSensingComponent.OnSeePawn for chase detection.
@@ -21,10 +21,10 @@
  * Owner Subsystem: EnemyAI
  *
  * Blueprint Extension Points:
- *   - PatrolPoints array: set per-instance in editor
+ *   - AZP_PatrolPoints array: set per-instance in editor
  *   - OnRequestSetTarget delegate: optional BP hook for additional behavior
  *   - StartChase / StopChase: callable from BP for custom triggers
- *   - bAutoInitialize: set false to defer InitializePatrol() call
+ *   - bAZP_AutoInitialize: set false to defer InitializePatrol() call
  *
  * Dependencies:
  *   - AZP_PatrolWaypoint (spawned at runtime)
@@ -53,23 +53,23 @@ public:
 
 	/** World-space patrol waypoints. Creature cycles through these in order. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol", meta = (MakeEditWidget = true))
-	TArray<FVector> PatrolPoints;
+	TArray<FVector> AZP_PatrolPoints;
 
 	/** Distance threshold to consider "arrived" at a waypoint. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol")
-	float ArrivalThreshold = 300.0f;
+	float AZP_ArrivalThreshold = 300.0f;
 
 	/** How often (seconds) to check if creature arrived at waypoint. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol")
-	float PatrolCheckInterval = 0.5f;
+	float AZP_PatrolCheckInterval = 0.5f;
 
 	/** If >= 0, overrides the creature's Monster Randomizer seed for deterministic appearance. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol")
-	int32 PatrolSeed = -1;
+	int32 AZP_PatrolSeed = -1;
 
 	/** If true, InitializePatrol() is called automatically from BeginPlay. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol")
-	bool bAutoInitialize = true;
+	bool bAZP_AutoInitialize = true;
 
 	// --- State (read-only from BP) ---
 
@@ -121,7 +121,7 @@ private:
 	/** Timer callback — checks distance to current waypoint, advances if arrived. */
 	void CheckPatrolArrival();
 
-	/** Teleport waypoint actor to PatrolPoints[CurrentPatrolIndex] and set target. */
+	/** Teleport waypoint actor to AZP_PatrolPoints[CurrentPatrolIndex] and set target. */
 	void MoveToNextWaypoint();
 
 	/** PawnSensing callback — auto-bound in BeginPlay. */

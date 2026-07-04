@@ -26,7 +26,7 @@ AZP_MapPickup::AZP_MapPickup()
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(Root);
-	InteractionVolume->SetBoxExtent(FVector(100.f, 100.f, 80.f));
+	InteractionVolume->SetBoxExtent(AZP_InteractionVolumeExtent);
 	InteractionVolume->SetRelativeLocation(FVector(0.f, 0.f, 40.f));
 	InteractionVolume->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	InteractionVolume->SetGenerateOverlapEvents(true);
@@ -34,9 +34,9 @@ AZP_MapPickup::AZP_MapPickup()
 	PickupGlow = CreateDefaultSubobject<UPointLightComponent>(TEXT("PickupGlow"));
 	PickupGlow->SetupAttachment(Root);
 	PickupGlow->SetRelativeLocation(FVector(0.f, 0.f, 30.f));
-	PickupGlow->SetIntensity(300.f);
-	PickupGlow->SetAttenuationRadius(150.f);
-	PickupGlow->SetLightColor(FLinearColor(0.4f, 0.7f, 0.9f)); // cool blue for maps
+	PickupGlow->SetIntensity(AZP_GlowIntensity);
+	PickupGlow->SetAttenuationRadius(AZP_GlowAttenuationRadius);
+	PickupGlow->SetLightColor(AZP_GlowColor); // cool blue for maps
 }
 
 void AZP_MapPickup::BeginPlay()
@@ -46,14 +46,14 @@ void AZP_MapPickup::BeginPlay()
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_MapPickup::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_MapPickup::OnOverlapEnd);
 
-	// Auto-generate AreaID from actor name if empty
-	if (AreaID.IsNone())
+	// Auto-generate AZP_AreaID from actor name if empty
+	if (AZP_AreaID.IsNone())
 	{
-		AreaID = FName(*GetName());
+		AZP_AreaID = FName(*GetName());
 	}
 
 	// Auto-spawn a MapVolume covering this floor
-	if (bAutoCreateVolume && MapTexture)
+	if (bAZP_AutoCreateVolume && AZP_MapTexture)
 	{
 		float MinX, MinY, MaxX, MaxY;
 		int32 FoundActors = 0;
@@ -62,10 +62,10 @@ void AZP_MapPickup::BeginPlay()
 
 		// Determine which floor (by Z height)
 		int32 FloorNum = 1;
-		if (MyZ > 1400) FloorNum = 5;
-		else if (MyZ > 900) FloorNum = 4;
-		else if (MyZ > 400) FloorNum = 3;
-		else if (MyZ > 0) FloorNum = 2;
+		if (MyZ > AZP_FloorZThresholds[0]) FloorNum = 5;
+		else if (MyZ > AZP_FloorZThresholds[1]) FloorNum = 4;
+		else if (MyZ > AZP_FloorZThresholds[2]) FloorNum = 3;
+		else if (MyZ > AZP_FloorZThresholds[3]) FloorNum = 2;
 
 		// Try to read bounds from Dev Tools export file
 		FString BoundsPath = FPaths::ProjectDir() / FString::Printf(TEXT("Scripts/FloorPlans/map_bounds_F%d.txt"), FloorNum);
@@ -90,12 +90,12 @@ void AZP_MapPickup::BeginPlay()
 		{
 			UE_LOG(LogTemp, Error, TEXT("[TheSignal] MapPickup %s: No bounds file found at %s. Export from Dev Tools first!"), *GetName(), *BoundsPath);
 			// Use the entire level as a rough fallback
-			MinX = -5000.f; MinY = -2000.f;
-			MaxX = 3000.f; MaxY = 6000.f;
+			MinX = AZP_FallbackMapBounds[0]; MinY = AZP_FallbackMapBounds[1];
+			MaxX = AZP_FallbackMapBounds[2]; MaxY = AZP_FallbackMapBounds[3];
 		}
 
 		const FVector Center((MinX + MaxX) * 0.5f, (MinY + MaxY) * 0.5f, MyZ);
-		const FVector HalfExtent((MaxX - MinX) * 0.5f, (MaxY - MinY) * 0.5f, 300.f);
+		const FVector HalfExtent((MaxX - MinX) * 0.5f, (MaxY - MinY) * 0.5f, AZP_AutoVolumeHalfHeight);
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;
@@ -105,9 +105,9 @@ void AZP_MapPickup::BeginPlay()
 
 		if (Volume)
 		{
-			Volume->AreaID = AreaID;
-			Volume->AreaDisplayName = AreaDisplayName;
-			Volume->MapTexture = MapTexture;
+			Volume->AZP_AreaID = AZP_AreaID;
+			Volume->AZP_AreaDisplayName = AZP_AreaDisplayName;
+			Volume->AZP_MapTexture = AZP_MapTexture;
 
 			if (Volume->AreaBounds)
 			{
@@ -115,7 +115,7 @@ void AZP_MapPickup::BeginPlay()
 			}
 
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] MapPickup %s: Auto-created MapVolume '%s' from %d actors. Bounds: (%.0f,%.0f) to (%.0f,%.0f)"),
-				*GetName(), *AreaID.ToString(), FoundActors, MinX, MinY, MaxX, MaxY);
+				*GetName(), *AZP_AreaID.ToString(), FoundActors, MinX, MinY, MaxX, MaxY);
 
 			// Write actual volume bounds for debugging
 			FString VolBoundsPath = FPaths::ProjectDir() / TEXT("Scripts/FloorPlans/volume_bounds.txt");
@@ -127,7 +127,7 @@ void AZP_MapPickup::BeginPlay()
 
 FText AZP_MapPickup::GetInteractionPrompt_Implementation()
 {
-	return PromptText;
+	return AZP_PromptText;
 }
 
 void AZP_MapPickup::OnInteract_Implementation(ACharacter* Interactor)
@@ -141,7 +141,7 @@ void AZP_MapPickup::OnInteract_Implementation(ACharacter* Interactor)
 		return;
 	}
 
-	MapComp->DiscoverMap(AreaID);
+	MapComp->DiscoverMap(AZP_AreaID);
 	bPickedUp = true;
 
 	// Clear interaction prompt
@@ -157,7 +157,7 @@ void AZP_MapPickup::OnInteract_Implementation(ACharacter* Interactor)
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] MapPickup %s: Discovered map for area '%s'"),
-		*GetName(), *AreaID.ToString());
+		*GetName(), *AZP_AreaID.ToString());
 
 	Destroy();
 }
@@ -176,7 +176,7 @@ void AZP_MapPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(Grace->GetController());
 	if (PC && PC->HUDWidget)
 	{
-		PC->HUDWidget->ShowInteractionPrompt(PromptText);
+		PC->HUDWidget->ShowInteractionPrompt(AZP_PromptText);
 	}
 }
 

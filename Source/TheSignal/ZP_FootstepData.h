@@ -12,7 +12,7 @@
  *               moment floor assets get PhysMats authored);
  *            2. Material-NAME keywords (works TODAY on purchased packs with no PhysMats).
  *          The player's stepper resolves the floor under it per step; unmatched floors use
- *          DefaultSounds. Footsteps are core plumbing, not per-asset sound design.
+ *          AZP_DefaultSounds. Footsteps are core plumbing, not per-asset sound design.
  *
  * Owner Subsystem: Audio / PlayerCharacter
  *
@@ -46,7 +46,7 @@ struct FZP_FootstepSurface
 	TArray<FString> MaterialNameKeywords;
 
 	/** Step variations for this surface, one picked at random per step. Empty = row is a
-	 *  placeholder slot (falls through to DefaultSounds until sounds are dropped in). */
+	 *  placeholder slot (falls through to AZP_DefaultSounds until sounds are dropped in). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Surface")
 	TArray<TObjectPtr<USoundBase>> Sounds;
 
@@ -68,13 +68,13 @@ class THESIGNAL_API UZP_FootstepData : public UDataAsset
 public:
 	/** Surface rows, matched top-down (SurfaceType first, then name keywords). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	TArray<FZP_FootstepSurface> Surfaces;
+	TArray<FZP_FootstepSurface> AZP_Surfaces;
 
 	/** Fallback set for unmatched floors (and rows whose Sounds are still empty). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	TArray<TObjectPtr<USoundBase>> DefaultSounds;
+	TArray<TObjectPtr<USoundBase>> AZP_DefaultSounds;
 
 	/** Best row for a floor: authored SurfaceType match wins, else first keyword match on the
-	 *  material name, else nullptr (caller uses DefaultSounds). Rows with EMPTY Sounds never win. */
+	 *  material name, else nullptr (caller uses AZP_DefaultSounds). Rows with EMPTY Sounds never win. */
 	const FZP_FootstepSurface* Resolve(EPhysicalSurface InSurfaceType, const FString& MaterialNameLower) const;
 };

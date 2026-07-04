@@ -31,7 +31,7 @@ void AZP_NPC::BeginPlay()
 	Super::BeginPlay();
 
 	// Crowd NPCs don't need interaction
-	if (NPCRole == EZP_NPCNPCRole::Crowd)
+	if (AZP_NPCRole == EZP_NPCNPCRole::Crowd)
 	{
 		InteractionVolume->SetGenerateOverlapEvents(false);
 		InteractionVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -43,18 +43,18 @@ void AZP_NPC::BeginPlay()
 FText AZP_NPC::GetInteractionPrompt_Implementation()
 {
 	// Custom override takes priority
-	if (!InteractionPromptOverride.IsEmpty())
+	if (!AZP_InteractionPromptOverride.IsEmpty())
 	{
-		return InteractionPromptOverride;
+		return AZP_InteractionPromptOverride;
 	}
 
 	// Auto-generate from role
-	switch (NPCRole)
+	switch (AZP_NPCRole)
 	{
 	case EZP_NPCNPCRole::Interactive:
 		return FText::FromString(TEXT("Talk"));
 	case EZP_NPCNPCRole::Corpse:
-		return DialogueData ? FText::FromString(TEXT("Examine")) : FText::GetEmpty();
+		return AZP_DialogueData ? FText::FromString(TEXT("Examine")) : FText::GetEmpty();
 	case EZP_NPCNPCRole::Crowd:
 	default:
 		return FText::GetEmpty();
@@ -66,15 +66,15 @@ void AZP_NPC::OnInteract_Implementation(ACharacter* Interactor)
 	if (!Interactor) return;
 
 	// One-shot guard
-	if (bInteractOnce && bHasBeenInteracted) return;
+	if (bAZP_InteractOnce && bHasBeenInteracted) return;
 
 	// Crowd NPCs are not interactable
-	if (NPCRole == EZP_NPCNPCRole::Crowd) return;
+	if (AZP_NPCRole == EZP_NPCNPCRole::Crowd) return;
 
 	// Need dialogue data to do anything
-	if (!DialogueData)
+	if (!AZP_DialogueData)
 	{
-		UE_LOG(LogZPNPC, Warning, TEXT("NPC '%s': OnInteract but no DialogueData assigned."), *GetName());
+		UE_LOG(LogZPNPC, Warning, TEXT("NPC '%s': OnInteract but no AZP_DialogueData assigned."), *GetName());
 		return;
 	}
 
@@ -91,12 +91,12 @@ void AZP_NPC::OnInteract_Implementation(ACharacter* Interactor)
 
 	UE_LOG(LogZPNPC, Log, TEXT("NPC '%s' (%s) — playing dialogue '%s'."),
 		*GetName(),
-		NPCRole == EZP_NPCNPCRole::Interactive ? TEXT("Interactive") : TEXT("Corpse"),
-		*DialogueData->DialogueID.ToString());
+		AZP_NPCRole == EZP_NPCNPCRole::Interactive ? TEXT("Interactive") : TEXT("Corpse"),
+		*AZP_DialogueData->AZP_DialogueID.ToString());
 
-	Manager->PlayDialogue(DialogueData);
+	Manager->PlayDialogue(AZP_DialogueData);
 
-	if (bInteractOnce)
+	if (bAZP_InteractOnce)
 	{
 		bHasBeenInteracted = true;
 	}

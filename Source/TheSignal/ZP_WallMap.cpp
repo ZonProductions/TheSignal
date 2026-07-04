@@ -9,27 +9,27 @@ bool FZP_WallMap::bBuilt = false;
 // --- Scan configuration ---
 
 // How far from center to scan in each direction (UU)
-static constexpr float ScanExtent = 10000.f;
+static constexpr float AZP_ScanExtent = 10000.f;
 
 // Distance between grid scan points (UU). Lower = more detail, more traces.
-static constexpr float GridStep = 500.f;
+static constexpr float AZP_GridStep = 500.f;
 
 // How far each horizontal trace extends (UU)
-static constexpr float TraceLength = 2000.f;
+static constexpr float AZP_TraceLength = 2000.f;
 
 // Heights to scan at (UU, world Z). Multiple heights catch elevated walls.
-static constexpr float ScanHeights[] = { 100.f, 400.f, 800.f };
-static constexpr int32 NumScanHeights = UE_ARRAY_COUNT(ScanHeights);
+static constexpr float AZP_ScanHeights[] = { 100.f, 400.f, 800.f };
+static constexpr int32 NumScanHeights = UE_ARRAY_COUNT(AZP_ScanHeights);
 
 // Step size when tracing up a wall to find its top (UU)
-static constexpr float WallTopTraceStep = 50.f;
+static constexpr float AZP_WallTopTraceStep = 50.f;
 
 // Max height to trace upward looking for wall top (UU)
-static constexpr float WallTopTraceMax = 3000.f;
+static constexpr float AZP_WallTopTraceMax = 3000.f;
 
 // Minimum wall height to be worth recording (UU). 250 = 2.5m — taller than any furniture
 // (desks/partitions/armchairs), so the map targets only real room walls, not "desk != wall".
-static constexpr float MinWallHeight = 250.f;
+static constexpr float AZP_MinWallHeight = 250.f;
 
 // --- Build ---
 
@@ -51,25 +51,25 @@ void FZP_WallMap::Build(UWorld* World, const FVector& ScanCenter)
 		FVector(0.f, -1.f, 0.f)
 	};
 
-	const float MinX = ScanCenter.X - ScanExtent;
-	const float MaxX = ScanCenter.X + ScanExtent;
-	const float MinY = ScanCenter.Y - ScanExtent;
-	const float MaxY = ScanCenter.Y + ScanExtent;
+	const float MinX = ScanCenter.X - AZP_ScanExtent;
+	const float MaxX = ScanCenter.X + AZP_ScanExtent;
+	const float MinY = ScanCenter.Y - AZP_ScanExtent;
+	const float MaxY = ScanCenter.Y + AZP_ScanExtent;
 
 	for (int32 H = 0; H < NumScanHeights; ++H)
 	{
-		const float ScanZ = ScanCenter.Z + ScanHeights[H];
+		const float ScanZ = ScanCenter.Z + AZP_ScanHeights[H];
 
-		for (float X = MinX; X <= MaxX; X += GridStep)
+		for (float X = MinX; X <= MaxX; X += AZP_GridStep)
 		{
-			for (float Y = MinY; Y <= MaxY; Y += GridStep)
+			for (float Y = MinY; Y <= MaxY; Y += AZP_GridStep)
 			{
 				const FVector Origin(X, Y, ScanZ);
 
 				for (const FVector& Dir : Dirs)
 				{
 					FHitResult Hit;
-					if (World->LineTraceSingleByChannel(Hit, Origin, Origin + Dir * TraceLength,
+					if (World->LineTraceSingleByChannel(Hit, Origin, Origin + Dir * AZP_TraceLength,
 						ECC_GameTraceChannel1, Params))
 					{
 						// Wall surface: normal is roughly horizontal
@@ -79,7 +79,7 @@ void FZP_WallMap::Build(UWorld* World, const FVector& ScanCenter)
 							const float WallHeight = TopZ - Hit.ImpactPoint.Z;
 
 							// Skip tiny walls (curbs, trim, etc.)
-							if (WallHeight < MinWallHeight)
+							if (WallHeight < AZP_MinWallHeight)
 							{
 								continue;
 							}
@@ -174,7 +174,7 @@ float FZP_WallMap::TraceWallTop(UWorld* World, const FVector& WallPoint, const F
 
 	// Trace INTO the wall at increasing heights.
 	// When the trace stops hitting: the wall has ended at that height.
-	for (float DZ = WallTopTraceStep; DZ < WallTopTraceMax; DZ += WallTopTraceStep)
+	for (float DZ = AZP_WallTopTraceStep; DZ < AZP_WallTopTraceMax; DZ += AZP_WallTopTraceStep)
 	{
 		// Start offset from the wall, trace perpendicular into it
 		const FVector Start = WallPoint + WallNormal * 100.f + FVector(0.f, 0.f, DZ);

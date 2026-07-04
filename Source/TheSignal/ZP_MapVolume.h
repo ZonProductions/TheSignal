@@ -12,8 +12,8 @@
  * Owner Subsystem: FacilitySystemsManager
  *
  * Blueprint Extension Points:
- *   - AreaID, AreaDisplayName, MapTexture configurable per-instance.
- *   - CaptureHeight for automated texture generation.
+ *   - AZP_AreaID, AZP_AreaDisplayName, AZP_MapTexture configurable per-instance.
+ *   - AZP_CaptureHeight for automated texture generation.
  *
  * Dependencies:
  *   - UZP_MapComponent (on player character)
@@ -33,21 +33,21 @@ class THESIGNAL_API AZP_MapVolume : public AActor
 public:
 	AZP_MapVolume();
 
-	/** Unique ID for this area. Must match MapPickup's AreaID. */
+	/** Unique ID for this area. Must match MapPickup's AZP_AreaID. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	FName AreaID;
+	FName AZP_AreaID;
 
 	/** Display name shown on the map widget. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	FText AreaDisplayName;
+	FText AZP_AreaDisplayName;
 
 	/** Captured map texture. Assigned after running capture script or manually. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map")
-	TObjectPtr<UTexture2D> MapTexture;
+	TObjectPtr<UTexture2D> AZP_MapTexture;
 
 	/** Height above the volume center to place capture camera. Set below ceiling height. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Map|Capture")
-	float CaptureHeight = 280.0f;
+	float AZP_CaptureHeight = 280.0f;
 
 	/** Box defining the area bounds. Also used for overlap detection. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Map")

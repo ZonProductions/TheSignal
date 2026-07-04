@@ -102,7 +102,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// 20cm forward keeps the camera ahead of the body geometry through normal
 	// spine lean. BaseCameraX is captured in GameplayComp so peek/bob preserves
 	// the offset each tick.
-	FirstPersonCamera->SetRelativeLocation(FVector(20.0f, 0.0f, 0.0f));
+	FirstPersonCamera->SetRelativeLocation(FVector(AZP_CameraForwardOffset, 0.0f, 0.0f));
 	FirstPersonCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	FirstPersonCamera->bUsePawnControlRotation = false;
 
@@ -244,17 +244,17 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// Toned down for the repeating grab-bite spurts: intensity 1, one wall + one floor splat per
 	// burst, no aftermath pool, and no body wounds (Marcus's meshes don't run M_ZP_CreatureSkin).
 	BloodFXComp = CreateDefaultSubobject<UZP_BloodFXComponent>(TEXT("BloodFXComp"));
-	BloodFXComp->BloodIntensity = 1;
-	BloodFXComp->BloodColor = FLinearColor(0.32f, 0.012f, 0.012f, 1.f);
-	BloodFXComp->SmokeColor = FLinearColor(0.10f, 0.015f, 0.015f, 1.f);
-	BloodFXComp->DecalColor = FLinearColor(0.14f, 0.005f, 0.006f, 1.f);
-	BloodFXComp->BloodScale = 1.0f;
-	BloodFXComp->NumWallSplats = 1;
-	BloodFXComp->NumFloorSplats = 1;
-	BloodFXComp->DecalSizeMin = 14.f;
-	BloodFXComp->DecalSizeMax = 30.f;
-	BloodFXComp->bDelayedFloorPool = false;
-	BloodFXComp->bBodyWounds = false;
+	BloodFXComp->AZP_BloodIntensity = 1;
+	BloodFXComp->AZP_BloodColor = FLinearColor(0.32f, 0.012f, 0.012f, 1.f);
+	BloodFXComp->AZP_SmokeColor = FLinearColor(0.10f, 0.015f, 0.015f, 1.f);
+	BloodFXComp->AZP_DecalColor = FLinearColor(0.14f, 0.005f, 0.006f, 1.f);
+	BloodFXComp->AZP_BloodScale = 1.0f;
+	BloodFXComp->AZP_NumWallSplats = 1;
+	BloodFXComp->AZP_NumFloorSplats = 1;
+	BloodFXComp->AZP_DecalSizeMin = 14.f;
+	BloodFXComp->AZP_DecalSizeMax = 30.f;
+	BloodFXComp->bAZP_DelayedFloorPool = false;
+	BloodFXComp->bAZP_BodyWounds = false;
 
 	// Map component — tracks discovered maps and current area
 	MapComp = CreateDefaultSubobject<UZP_MapComponent>(TEXT("MapComp"));
@@ -283,18 +283,18 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// Histogram mode (default) with negative bias + clamped range.
 	// NOT manual mode — manual with default physical camera settings crushes everything to black.
 	DeathVignetteComp->Settings.bOverride_AutoExposureBias = true;
-	DeathVignetteComp->Settings.AutoExposureBias = -0.5f; // darker bias without crushing
+	DeathVignetteComp->Settings.AutoExposureBias = AZP_AutoExposureBias; // darker bias without crushing
 	// Exposure window (session 64): 0.8 floor made the 2 AM exterior render
 	// near-black through every window/opening (night luminance ~0.1-0.3 sits
 	// far below an interior-tuned clamp). 0.2 lets eyes adapt enough to read
 	// moonlit night; sealed dark rooms (~0.01) still clamp 4x below the floor
 	// so they stay dark (the session-63 "warm lamps" bug needed 0.01 to return).
 	DeathVignetteComp->Settings.bOverride_AutoExposureMinBrightness = true;
-	DeathVignetteComp->Settings.AutoExposureMinBrightness = 0.2f;
+	DeathVignetteComp->Settings.AutoExposureMinBrightness = AZP_AutoExposureMinBrightness;
 	DeathVignetteComp->Settings.bOverride_AutoExposureMaxBrightness = true;
-	DeathVignetteComp->Settings.AutoExposureMaxBrightness = 1.2f;
+	DeathVignetteComp->Settings.AutoExposureMaxBrightness = AZP_AutoExposureMaxBrightness;
 	DeathVignetteComp->Settings.bOverride_BloomIntensity = true;
-	DeathVignetteComp->Settings.BloomIntensity = 0.2f; // kill bloom glow, keep darkness crisp
+	DeathVignetteComp->Settings.BloomIntensity = AZP_PlayerBloomIntensity; // kill bloom glow, keep darkness crisp
 
 	// Enable Lumen GI for flashlight bounce — the flashlight is the player's one source
 	// of truth for seeing the environment. Its light MUST bounce off surfaces naturally.
@@ -315,10 +315,10 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// wide soft spill. Concentrated inner cone + high intensity = real THROW down a corridor
 	// (clear read ~20-30 m, visible reach to ~50 m under the pinned horror exposure); the wide
 	// outer cone keeps close quarters covered like a phone's flood.
-	FlashlightComp->SetIntensity(25000.0f);        // throw — reads surfaces far down the hallway
-	FlashlightComp->SetInnerConeAngle(16.0f);      // concentrated hotspot = distance punch
-	FlashlightComp->SetOuterConeAngle(40.0f);      // wide phone-LED spill for close range
-	FlashlightComp->SetAttenuationRadius(5000.0f); // 50 m potential reach; inverse-square shapes it
+	FlashlightComp->SetIntensity(AZP_FlashlightIntensity);        // throw — reads surfaces far down the hallway
+	FlashlightComp->SetInnerConeAngle(AZP_FlashlightInnerConeAngle);      // concentrated hotspot = distance punch
+	FlashlightComp->SetOuterConeAngle(AZP_FlashlightOuterConeAngle);      // wide phone-LED spill for close range
+	FlashlightComp->SetAttenuationRadius(AZP_FlashlightAttenuationRadius); // 50 m potential reach; inverse-square shapes it
 	FlashlightComp->SetLightColor(FLinearColor(1.0f, 0.93f, 0.82f)); // slightly warmer/dingier
 	FlashlightComp->SetSourceRadius(0.5f);         // sharp shadow edges
 	FlashlightComp->CastShadows = true;
@@ -330,8 +330,8 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	FlashlightFillComp = CreateDefaultSubobject<UPointLightComponent>(TEXT("FlashlightFillComp"));
 	FlashlightFillComp->SetupAttachment(FirstPersonCamera);
 	FlashlightFillComp->SetRelativeLocation(FVector(20.0f, 0.0f, -15.0f)); // slightly forward and below
-	FlashlightFillComp->SetIntensity(670.0f);         // dim ambient — enough to see walls, not a lantern
-	FlashlightFillComp->SetAttenuationRadius(600.0f); // covers nearby room area
+	FlashlightFillComp->SetIntensity(AZP_FlashlightFillIntensity);         // dim ambient — enough to see walls, not a lantern
+	FlashlightFillComp->SetAttenuationRadius(AZP_FlashlightFillAttenuationRadius); // covers nearby room area
 	FlashlightFillComp->SetLightColor(FLinearColor(1.0f, 0.93f, 0.82f)); // match flashlight warmth
 	FlashlightFillComp->SetSourceRadius(20.0f);       // very soft shadows (diffuse bounce feel)
 	FlashlightFillComp->CastShadows = false;           // bounce light doesn't cast sharp shadows
@@ -342,7 +342,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 		TEXT("/Game/CharacterCustomizer/Components/Tools/Tool_Flashlight/Click"));
 	if (FlashlightClickFinder.Succeeded())
 	{
-		FlashlightClickSound = FlashlightClickFinder.Object;
+		AZP_FlashlightClickSound = FlashlightClickFinder.Object;
 	}
 
 	// Footstep variations — Moonville hard-surface set (6 clips, randomized per step). The player's
@@ -354,7 +354,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 			StepIdx, StepIdx));
 		if (StepFinder.Succeeded())
 		{
-			FootstepSounds.Add(StepFinder.Object);
+			AZP_FootstepSounds.Add(StepFinder.Object);
 		}
 	}
 	// Surface-specific sounds live in DA_Footsteps (UZP_FootstepData), lazily loaded in
@@ -365,102 +365,102 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	// Movement config DataAsset
 	static ConstructorHelpers::FObjectFinder<UZP_GraceMovementConfig> MovementConfigFinder(
 		TEXT("/Game/Core/Data/DA_GraceMovement_Default"));
-	if (MovementConfigFinder.Succeeded()) MovementConfig = MovementConfigFinder.Object;
+	if (MovementConfigFinder.Succeeded()) AZP_MovementConfig = MovementConfigFinder.Object;
 
 	// Core input actions
 	static ConstructorHelpers::FObjectFinder<UInputAction> MoveActionFinder(TEXT("/Game/Core/Input/Actions/IA_Move"));
-	if (MoveActionFinder.Succeeded()) MoveAction = MoveActionFinder.Object;
+	if (MoveActionFinder.Succeeded()) AZP_MoveAction = MoveActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> LookActionFinder(TEXT("/Game/Core/Input/Actions/IA_Look"));
-	if (LookActionFinder.Succeeded()) LookAction = LookActionFinder.Object;
+	if (LookActionFinder.Succeeded()) AZP_LookAction = LookActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> SprintActionFinder(TEXT("/Game/Core/Input/Actions/IA_Sprint"));
-	if (SprintActionFinder.Succeeded()) SprintAction = SprintActionFinder.Object;
+	if (SprintActionFinder.Succeeded()) AZP_SprintAction = SprintActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> JumpActionFinder(TEXT("/Game/Core/Input/Actions/IA_Jump"));
-	if (JumpActionFinder.Succeeded()) JumpAction = JumpActionFinder.Object;
+	if (JumpActionFinder.Succeeded()) AZP_JumpAction = JumpActionFinder.Object;
 
 	// Dodge/block anims — Kubold FPP set on the Operator skeleton. (REVERTED
 	// 2026-06-20 from the Marcus_/CCMH retargets — they collapsed on the CCMH
 	// view-model; back to the proven Operator-skeleton clips for SKM_Operator_Mono.)
-	DodgeAnim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_DodgeAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/FPPMeleeAnimset/Animations/SwordnShield/FPP_sns_Dodge.FPP_sns_Dodge")));
 
-	BlockLoopAnim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_BlockLoopAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockLoop.A_MeleePipe_BlockLoop")));
-	BlockWalkAnim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_BlockWalkAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockWalk.A_MeleePipe_BlockWalk")));
-	BlockStartAnim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_BlockStartAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockStart.A_MeleePipe_BlockStart")));
-	BlockStopAnim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_BlockStopAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockStop.A_MeleePipe_BlockStop")));
-	BlockImpact1Anim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_BlockImpact1Anim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact1.A_MeleePipe_BlockImpact1")));
-	BlockImpact2Anim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_BlockImpact2Anim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact2.A_MeleePipe_BlockImpact2")));
-	BlockImpact3Anim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_BlockImpact3Anim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact3.A_MeleePipe_BlockImpact3")));
-	// MUST match Kinemation's MeleeIdleAnim (A_MeleePipe_Idle). Pointing this
+	// MUST match Kinemation's AZP_MeleeIdleAnim (A_MeleePipe_Idle). Pointing this
 	// at FPP_Longs_Idle (Kubold longsword) made block-release / non-forward
 	// dodge return to a chest-forward longsword pose that persisted forever —
 	// dev report 2026-06-19 "camera shifts behind body and never unshifts".
-	MeleeIdleHoldAnim = TSoftObjectPtr<UAnimSequenceBase>(
+	AZP_MeleeIdleHoldAnim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_Idle.A_MeleePipe_Idle")));
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractActionFinder(TEXT("/Game/Core/Input/Actions/IA_Interact"));
-	if (InteractActionFinder.Succeeded()) InteractAction = InteractActionFinder.Object;
+	if (InteractActionFinder.Succeeded()) AZP_InteractAction = InteractActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchActionFinder(TEXT("/Game/Core/Input/Actions/IA_Crouch"));
-	if (CrouchActionFinder.Succeeded()) CrouchAction = CrouchActionFinder.Object;
+	if (CrouchActionFinder.Succeeded()) AZP_CrouchAction = CrouchActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> PeekActionFinder(TEXT("/Game/Core/Input/Actions/IA_Peek"));
-	if (PeekActionFinder.Succeeded()) PeekAction = PeekActionFinder.Object;
+	if (PeekActionFinder.Succeeded()) AZP_PeekAction = PeekActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> AimActionFinder(TEXT("/Game/Core/Input/Actions/IA_Aim"));
-	if (AimActionFinder.Succeeded()) AimAction = AimActionFinder.Object;
+	if (AimActionFinder.Succeeded()) AZP_AimAction = AimActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> FireActionFinder(TEXT("/Game/Core/Input/Actions/IA_Fire"));
-	if (FireActionFinder.Succeeded()) FireAction = FireActionFinder.Object;
+	if (FireActionFinder.Succeeded()) AZP_FireAction = FireActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> ReloadActionFinder(TEXT("/Game/Core/Input/Actions/IA_Reload"));
-	if (ReloadActionFinder.Succeeded()) ReloadAction = ReloadActionFinder.Object;
+	if (ReloadActionFinder.Succeeded()) AZP_ReloadAction = ReloadActionFinder.Object;
 
 	// Map + tab cycling
 	static ConstructorHelpers::FObjectFinder<UInputAction> MapActionFinder(TEXT("/Game/Core/Input/IA_Map"));
-	if (MapActionFinder.Succeeded()) MapAction = MapActionFinder.Object;
+	if (MapActionFinder.Succeeded()) AZP_MapAction = MapActionFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> TabLeftFinder(TEXT("/Game/Core/Input/Actions/IA_TabCycleLeft"));
-	if (TabLeftFinder.Succeeded()) TabCycleLeftAction = TabLeftFinder.Object;
+	if (TabLeftFinder.Succeeded()) AZP_TabCycleLeftAction = TabLeftFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> TabRightFinder(TEXT("/Game/Core/Input/Actions/IA_TabCycleRight"));
-	if (TabRightFinder.Succeeded()) TabCycleRightAction = TabRightFinder.Object;
+	if (TabRightFinder.Succeeded()) AZP_TabCycleRightAction = TabRightFinder.Object;
 
 	// Inventory actions (Moonville's)
 	static ConstructorHelpers::FObjectFinder<UInputAction> InvMenuFinder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventoryMenuOpen"));
-	if (InvMenuFinder.Succeeded()) InventoryMenuAction = InvMenuFinder.Object;
+	if (InvMenuFinder.Succeeded()) AZP_InventoryMenuAction = InvMenuFinder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> Slot0Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot0"));
-	if (Slot0Finder.Succeeded()) InventorySlot0Action = Slot0Finder.Object;
+	if (Slot0Finder.Succeeded()) AZP_InventorySlot0Action = Slot0Finder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> Slot1Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot1"));
-	if (Slot1Finder.Succeeded()) InventorySlot1Action = Slot1Finder.Object;
+	if (Slot1Finder.Succeeded()) AZP_InventorySlot1Action = Slot1Finder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> Slot2Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot2"));
-	if (Slot2Finder.Succeeded()) InventorySlot2Action = Slot2Finder.Object;
+	if (Slot2Finder.Succeeded()) AZP_InventorySlot2Action = Slot2Finder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> Slot3Finder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventorySlot3"));
-	if (Slot3Finder.Succeeded()) InventorySlot3Action = Slot3Finder.Object;
+	if (Slot3Finder.Succeeded()) AZP_InventorySlot3Action = Slot3Finder.Object;
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> FlashlightFinder(TEXT("/Game/InventorySystemPro/Blueprints/Input/InventoryCharacter/IA_InventoryFlashlight"));
-	if (FlashlightFinder.Succeeded()) FlashlightAction = FlashlightFinder.Object;
+	if (FlashlightFinder.Succeeded()) AZP_FlashlightAction = FlashlightFinder.Object;
 
 	// Starting weapon (soft reference — doesn't force-load the asset)
-	StartingWeaponItem = TSoftObjectPtr<UObject>(FSoftObjectPath(TEXT("/Game/Core/Items/DA_Pipe.DA_Pipe")));
+	AZP_StartingWeaponItem = TSoftObjectPtr<UObject>(FSoftObjectPath(TEXT("/Game/Core/Items/DA_Pipe.DA_Pipe")));
 
 	// Bullet decal materials (soft references)
-	BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_01.MI_BulletHole_Metal_01"))));
-	BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_02.MI_BulletHole_Metal_02"))));
-	BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_03.MI_BulletHole_Metal_03"))));
+	AZP_BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_01.MI_BulletHole_Metal_01"))));
+	AZP_BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_02.MI_BulletHole_Metal_02"))));
+	AZP_BulletDecalMaterials.Add(TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/UniversalWallClutter/Materials/BulletHoles/MI_BulletHole_Metal_03.MI_BulletHole_Metal_03"))));
 
 	// Movement defaults (overridden by DataAsset in GameplayComp's BeginPlay)
 	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
@@ -479,59 +479,59 @@ void AZP_GraceCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// Guarantee MovementConfig is never null — create transient default if none assigned.
+	// Guarantee AZP_MovementConfig is never null — create transient default if none assigned.
 	// All values come from UPROPERTY defaults in ZP_GraceMovementConfig.h.
-	if (!MovementConfig)
+	if (!AZP_MovementConfig)
 	{
-		MovementConfig = NewObject<UZP_GraceMovementConfig>(this);
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter: No DataAsset assigned — created default MovementConfig from C++ defaults."));
+		AZP_MovementConfig = NewObject<UZP_GraceMovementConfig>(this);
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter: No DataAsset assigned — created default AZP_MovementConfig from C++ defaults."));
 	}
 
 	// Apply config to capsule, mesh, and movement component
-	GetCapsuleComponent()->SetCapsuleSize(MovementConfig->CapsuleRadius, MovementConfig->CapsuleHalfHeight);
-	PlayerMesh->SetRelativeLocation(FVector(0.0f, 0.0f, MovementConfig->PlayerMeshOffsetZ));
+	GetCapsuleComponent()->SetCapsuleSize(AZP_MovementConfig->AZP_CapsuleRadius, AZP_MovementConfig->AZP_CapsuleHalfHeight);
+	PlayerMesh->SetRelativeLocation(FVector(0.0f, 0.0f, AZP_MovementConfig->AZP_PlayerMeshOffsetZ));
 
 	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
-	MoveComp->MaxWalkSpeed = MovementConfig->WalkSpeed;
-	MoveComp->BrakingDecelerationWalking = MovementConfig->BrakingDeceleration;
-	MoveComp->MaxAcceleration = MovementConfig->MaxAcceleration;
-	MoveComp->GroundFriction = MovementConfig->GroundFriction;
-	MoveComp->JumpZVelocity = MovementConfig->JumpZVelocity;
-	MoveComp->AirControl = MovementConfig->AirControl;
-	MoveComp->SetCrouchedHalfHeight(MovementConfig->CrouchedHalfHeight);
-	MoveComp->MaxWalkSpeedCrouched = MovementConfig->CrouchWalkSpeed;
+	MoveComp->MaxWalkSpeed = AZP_MovementConfig->AZP_WalkSpeed;
+	MoveComp->BrakingDecelerationWalking = AZP_MovementConfig->AZP_BrakingDeceleration;
+	MoveComp->MaxAcceleration = AZP_MovementConfig->AZP_MaxAcceleration;
+	MoveComp->GroundFriction = AZP_MovementConfig->AZP_GroundFriction;
+	MoveComp->JumpZVelocity = AZP_MovementConfig->AZP_JumpZVelocity;
+	MoveComp->AirControl = AZP_MovementConfig->AZP_AirControl;
+	MoveComp->SetCrouchedHalfHeight(AZP_MovementConfig->AZP_CrouchedHalfHeight);
+	MoveComp->MaxWalkSpeedCrouched = AZP_MovementConfig->AZP_CrouchWalkSpeed;
 
 	// Apply locomotion skeletal mesh to the hidden inherited Mesh
-	if (LocomotionSkeletalMesh)
+	if (AZP_LocomotionSkeletalMesh)
 	{
-		GetMesh()->SetSkeletalMeshAsset(LocomotionSkeletalMesh);
+		GetMesh()->SetSkeletalMeshAsset(AZP_LocomotionSkeletalMesh);
 	}
 
 	// Propagate config from character to components
 	// This runs BEFORE BeginPlay, so components see the config when they initialize
 	if (GameplayComp)
 	{
-		GameplayComp->MovementConfig = MovementConfig;
-		GameplayComp->CameraComponent = FirstPersonCamera;
+		GameplayComp->AZP_MovementConfig = AZP_MovementConfig;
+		GameplayComp->AZP_CameraComponent = FirstPersonCamera;
 	}
 
 	if (KinemationComp)
 	{
-		KinemationComp->WeaponClass = WeaponClass;
+		KinemationComp->AZP_WeaponClass = AZP_WeaponClass;
 		KinemationComp->CameraComponent = FirstPersonCamera;
 		KinemationComp->PlayerMeshComponent = PlayerMesh;
 
-		// Propagate ADS config from MovementConfig
-		KinemationComp->DefaultFOV = MovementConfig->DefaultFOV;
-		KinemationComp->AdsFOV = MovementConfig->AdsFOV;
-		KinemationComp->AdsFOVInterpSpeed = MovementConfig->AdsFOVInterpSpeed;
+		// Propagate ADS config from AZP_MovementConfig
+		KinemationComp->AZP_DefaultFOV = AZP_MovementConfig->AZP_DefaultFOV;
+		KinemationComp->AZP_AdsFOV = AZP_MovementConfig->AZP_AdsFOV;
+		KinemationComp->AZP_AdsFOVInterpSpeed = AZP_MovementConfig->AZP_AdsFOVInterpSpeed;
 
 		// Resolve soft references and propagate decal materials
-		for (const TSoftObjectPtr<UMaterialInterface>& SoftMat : BulletDecalMaterials)
+		for (const TSoftObjectPtr<UMaterialInterface>& SoftMat : AZP_BulletDecalMaterials)
 		{
 			if (UMaterialInterface* Mat = SoftMat.LoadSynchronous())
 			{
-				KinemationComp->BulletDecalMaterials.Add(Mat);
+				KinemationComp->AZP_BulletDecalMaterials.Add(Mat);
 			}
 		}
 	}
@@ -549,8 +549,8 @@ void AZP_GraceCharacter::BeginPlay()
 	{
 		if (PC->PlayerCameraManager)
 		{
-			PC->PlayerCameraManager->ViewPitchMin = -CameraPitchDownLimitDeg;
-			PC->PlayerCameraManager->ViewPitchMax =  CameraPitchUpLimitDeg;
+			PC->PlayerCameraManager->ViewPitchMin = -AZP_CameraPitchDownLimitDeg;
+			PC->PlayerCameraManager->ViewPitchMax =  AZP_CameraPitchUpLimitDeg;
 		}
 	}
 
@@ -569,7 +569,7 @@ void AZP_GraceCharacter::BeginPlay()
 	{
 		USkeletalMeshComponent* LocoMesh = GetMesh();
 		LocoMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-		UAnimSequenceBase* StartAnim = IdleAnimation ? IdleAnimation : WalkAnimation;
+		UAnimSequenceBase* StartAnim = AZP_IdleAnimation ? AZP_IdleAnimation : AZP_WalkAnimation;
 		if (StartAnim)
 		{
 			if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(LocoMesh->GetAnimInstance()))
@@ -678,13 +678,13 @@ void AZP_GraceCharacter::BeginPlay()
 		// Actors in these zones are excluded from both batching and floor culling.
 		// Building 1 stairwell: X 800-1050, Y -1500 to -1150, full Z height
 		FBox StairwellZone(FVector(780.0f, -1520.0f, -50.0f), FVector(1070.0f, -1130.0f, 2550.0f));
-		FloorCullingComp->AlwaysVisibleZones.Add(StairwellZone);
+		FloorCullingComp->AZP_AlwaysVisibleZones.Add(StairwellZone);
 
 		// Sync floor params from floor culling to ISM batcher
-		ISMBatcherComp->FloorHeight = FloorCullingComp->FloorHeight;
-		ISMBatcherComp->FloorBaseZ = FloorCullingComp->FloorBaseZ;
-		ISMBatcherComp->NumFloors = FloorCullingComp->NumFloors;
-		ISMBatcherComp->AlwaysVisibleZones = FloorCullingComp->AlwaysVisibleZones;
+		ISMBatcherComp->AZP_FloorHeight = FloorCullingComp->AZP_FloorHeight;
+		ISMBatcherComp->AZP_FloorBaseZ = FloorCullingComp->AZP_FloorBaseZ;
+		ISMBatcherComp->AZP_NumFloors = FloorCullingComp->AZP_NumFloors;
+		ISMBatcherComp->AZP_AlwaysVisibleZones = FloorCullingComp->AZP_AlwaysVisibleZones;
 
 		// Batch all static mesh actors into per-floor ISMCs
 		ISMBatcherComp->BatchStaticMeshes();
@@ -705,7 +705,7 @@ void AZP_GraceCharacter::BeginPlay()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter BeginPlay — Config: %s, Weapon: %s, Kinemation: %s"),
-		MovementConfig ? *MovementConfig->GetName() : TEXT("NONE"),
+		AZP_MovementConfig ? *AZP_MovementConfig->GetName() : TEXT("NONE"),
 		KinemationComp && KinemationComp->ActiveWeapon ? *KinemationComp->ActiveWeapon->GetName() : TEXT("NONE"),
 		KinemationComp && KinemationComp->IsKinemationActive() ? TEXT("ACTIVE") : TEXT("OFF"));
 }
@@ -716,10 +716,10 @@ FVector AZP_GraceCharacter::GetActiveMeleeHandOffset(bool bRight) const
 	// MeleeHand offset) as its base, so the hands grip the weapon identically.
 	// The per-hand Block offset is an OPTIONAL fine-tune added on top — leave it
 	// at zero and block inherits the exact non-block connection.
-	const FVector Base = bRight ? MeleeHandROffset : MeleeHandLOffset;
+	const FVector Base = bRight ? AZP_MeleeHandROffset : AZP_MeleeHandLOffset;
 	if (bIsBlocking)
 	{
-		return Base + (bRight ? BlockHandROffset : BlockHandLOffset);
+		return Base + (bRight ? AZP_BlockHandROffset : AZP_BlockHandLOffset);
 	}
 	return Base;
 }
@@ -784,43 +784,43 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	// Live-tunable Marcus body facing (base -90 yaw + dev-dialed offset).
 	if (MarcusBody)
 	{
-		MarcusBody->SetRelativeRotation(FRotator(MarcusBodyPitch, -90.0f + MarcusBodyYaw, 0.0f));
+		MarcusBody->SetRelativeRotation(FRotator(AZP_MarcusBodyPitch, -90.0f + AZP_MarcusBodyYaw, 0.0f));
 	}
 
 	// Per-action CAMERA offset during weapon actions (lerped, fed to GameplayComp).
 	// Priority on overlap: swing > block > reload > switch.
 	{
 		FVector TargetOffset = FVector::ZeroVector;
-		if (KinemationComp && KinemationComp->IsSwingingState())        TargetOffset = SwingCamOffset;
-		else if (bIsBlocking)                                          TargetOffset = BlockCamOffset;
+		if (KinemationComp && KinemationComp->IsSwingingState())        TargetOffset = AZP_SwingCamOffset;
+		else if (bIsBlocking)                                          TargetOffset = AZP_BlockCamOffset;
 		else if (DodgeClearanceRemaining > 0.f)
 		{
 			const bool bDodgeMelee = KinemationComp
 				&& KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee;
-			TargetOffset = bDodgeMelee ? DodgeCamOffsetMelee : DodgeCamOffsetRanged;
+			TargetOffset = bDodgeMelee ? AZP_DodgeCamOffsetMelee : AZP_DodgeCamOffsetRanged;
 		}
-		else if (KinemationComp && KinemationComp->IsReloadingState()) TargetOffset = ReloadCamOffset;
-		else if (KinemationComp && KinemationComp->IsSwitchingState()) TargetOffset = SwitchCamOffset;
-		CurrentWeaponActionOffset = FMath::VInterpTo(CurrentWeaponActionOffset, TargetOffset, DeltaTime, WeaponActionOffsetSpeed);
+		else if (KinemationComp && KinemationComp->IsReloadingState()) TargetOffset = AZP_ReloadCamOffset;
+		else if (KinemationComp && KinemationComp->IsSwitchingState()) TargetOffset = AZP_SwitchCamOffset;
+		CurrentWeaponActionOffset = FMath::VInterpTo(CurrentWeaponActionOffset, TargetOffset, DeltaTime, AZP_WeaponActionOffsetSpeed);
 		if (GameplayComp) GameplayComp->WeaponActionCamOffset = CurrentWeaponActionOffset;
 	}
 
 	// Live-tunable framing for the Marcus weapon-arm view-model. While blocking, add the
-	// block-specific placement (BlockViewOffset) so the arms can sit differently in a guard.
+	// block-specific placement (AZP_BlockViewOffset) so the arms can sit differently in a guard.
 	if (MeleeViewMesh)
 	{
-		const FVector ViewLoc = MeleeViewOffset + (bIsBlocking ? BlockViewOffset : FVector::ZeroVector);
+		const FVector ViewLoc = AZP_MeleeViewOffset + (bIsBlocking ? AZP_BlockViewOffset : FVector::ZeroVector);
 		MeleeViewMesh->SetRelativeLocation(ViewLoc);
-		MeleeViewMesh->SetRelativeRotation(MeleeViewRotation);
-		MeleeViewMesh->SetRelativeScale3D(FVector(MeleeViewScale));
+		MeleeViewMesh->SetRelativeRotation(AZP_MeleeViewRotation);
+		MeleeViewMesh->SetRelativeScale3D(FVector(AZP_MeleeViewScale));
 	}
 
 	// Live-tunable offset for the RANGED arm view-model — all three move together so
 	// arms, hands and sleeve stay aligned (on top of the leader-posed Kinemation aim).
 	{
-		const FVector  ROff = RangedArmsOffset;
-		const FRotator RRot = RangedArmsRotation;
-		const FVector  RScl(RangedArmsScale);
+		const FVector  ROff = AZP_RangedArmsOffset;
+		const FRotator RRot = AZP_RangedArmsRotation;
+		const FVector  RScl(AZP_RangedArmsScale);
 		if (RangedArms)   { RangedArms->SetRelativeLocation(ROff);   RangedArms->SetRelativeRotation(RRot);   RangedArms->SetRelativeScale3D(RScl); }
 		if (RangedHands)  { RangedHands->SetRelativeLocation(ROff);  RangedHands->SetRelativeRotation(RRot);  RangedHands->SetRelativeScale3D(RScl); }
 		if (RangedSleeve) { RangedSleeve->SetRelativeLocation(ROff); RangedSleeve->SetRelativeRotation(RRot); RangedSleeve->SetRelativeScale3D(RScl); }
@@ -985,17 +985,17 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 
 			// Position-driven climb animation: anim time mapped from height on ladder.
 			// One anim cycle (1.533s) = 2 rungs (47 UU). Each 23.5 UU = half cycle = hands alternate.
-			if (!bLadderTopExiting && LadderClimbUpAnimation && Ladder)
+			if (!bLadderTopExiting && AZP_LadderClimbUpAnimation && Ladder)
 			{
-				if (SNI->GetCurrentAsset() != LadderClimbUpAnimation)
+				if (SNI->GetCurrentAsset() != AZP_LadderClimbUpAnimation)
 				{
-					SNI->SetAnimationAsset(LadderClimbUpAnimation, true, 1.0f);
+					SNI->SetAnimationAsset(AZP_LadderClimbUpAnimation, true, 1.0f);
 					SNI->SetPlaying(false); // we control position manually
 				}
 
-				const float RungSpacing = 23.5f;
+				const float RungSpacing = AZP_LadderRungSpacing;
 				float HeightInLadder = GetActorLocation().Z - Ladder->GetBottomZ();
-				float AnimDuration = LadderClimbUpAnimation->GetPlayLength();
+				float AnimDuration = AZP_LadderClimbUpAnimation->GetPlayLength();
 				float HeightPerCycle = 2.f * RungSpacing; // 47 UU per full anim cycle
 				float AnimFrac = FMath::Fmod(HeightInLadder / HeightPerCycle, 1.f);
 				if (AnimFrac < 0.f) AnimFrac += 1.f;
@@ -1005,8 +1005,8 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 
 			if (!bLadderTopExiting && Ladder)
 			{
-				const float RungSpacing = 23.5f;
-				const float TopClimbZ = Ladder->GetTopZ() - 80.f;
+				const float RungSpacing = AZP_LadderRungSpacing;
+				const float TopClimbZ = Ladder->GetTopZ() - AZP_LadderTopClearance;
 				float HeightInLadder = GetActorLocation().Z - Ladder->GetBottomZ();
 
 				// Accept new input only when not already moving to a rung
@@ -1035,7 +1035,7 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 					float Progress = FMath::Clamp(1.f - (DistToTarget / RungSpacing), 0.f, 1.f);
 					float SpeedMult = 0.3f + 1.4f * FMath::Sin(Progress * PI);
 
-					float NewZ = CurrentZ + Direction * Ladder->ClimbSpeed * SpeedMult * DeltaTime;
+					float NewZ = CurrentZ + Direction * Ladder->AZP_ClimbSpeed * SpeedMult * DeltaTime;
 
 					// Snap when arrived (or overshot)
 					if ((Direction > 0.f && NewZ >= LadderTargetRungZ) ||
@@ -1102,17 +1102,17 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 
 			if (bIsCrouched)
 			{
-				DesiredAnim = CrouchIdleAnimation ? CrouchIdleAnimation : IdleAnimation;
-				if (Speed > 10.0f && CrouchWalkAnimation)
-					DesiredAnim = CrouchWalkAnimation;
+				DesiredAnim = AZP_CrouchIdleAnimation ? AZP_CrouchIdleAnimation : AZP_IdleAnimation;
+				if (Speed > AZP_LocoWalkSpeedThreshold && AZP_CrouchWalkAnimation)
+					DesiredAnim = AZP_CrouchWalkAnimation;
 			}
 			else
 			{
-				DesiredAnim = IdleAnimation;
-				if (Speed > 150.0f && RunAnimation)
-					DesiredAnim = RunAnimation;
-				else if (Speed > 10.0f && WalkAnimation)
-					DesiredAnim = WalkAnimation;
+				DesiredAnim = AZP_IdleAnimation;
+				if (Speed > AZP_LocoRunSpeedThreshold && AZP_RunAnimation)
+					DesiredAnim = AZP_RunAnimation;
+				else if (Speed > AZP_LocoWalkSpeedThreshold && AZP_WalkAnimation)
+					DesiredAnim = AZP_WalkAnimation;
 			}
 
 			if (DesiredAnim && SNI->GetCurrentAsset() != DesiredAnim)
@@ -1126,16 +1126,16 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			// = no shuffle. (Weapon/aim arm poses come from MeleeViewMesh, not the body.)
 			if (MarcusBody && MarcusBody->GetSkeletalMeshAsset())
 			{
-				UAnimSequenceBase* MDesired = MarcusIdle;
+				UAnimSequenceBase* MDesired = AZP_MarcusIdle;
 				if (bIsCrouched)
 				{
-					MDesired = MarcusCrouchIdle ? MarcusCrouchIdle : MarcusIdle;
-					if (Speed > 10.0f && MarcusCrouchWalk) MDesired = MarcusCrouchWalk;
+					MDesired = AZP_MarcusCrouchIdle ? AZP_MarcusCrouchIdle : AZP_MarcusIdle;
+					if (Speed > AZP_LocoWalkSpeedThreshold && AZP_MarcusCrouchWalk) MDesired = AZP_MarcusCrouchWalk;
 				}
 				else
 				{
-					if (Speed > 150.0f && MarcusRun) MDesired = MarcusRun;
-					else if (Speed > 10.0f && MarcusWalk) MDesired = MarcusWalk;
+					if (Speed > AZP_LocoRunSpeedThreshold && AZP_MarcusRun) MDesired = AZP_MarcusRun;
+					else if (Speed > AZP_LocoWalkSpeedThreshold && AZP_MarcusWalk) MDesired = AZP_MarcusWalk;
 				}
 				if (UAnimSingleNodeInstance* MSNI = MarcusBody->GetSingleNodeInstance())
 				{
@@ -1181,9 +1181,9 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 				// Re-add the gameplay context we pulled in OpenSaveMenu, then hand input back to the game.
 				if (AZP_PlayerController* ZPC = Cast<AZP_PlayerController>(PC))
 				{
-					if (ZPC->DefaultMappingContext)
+					if (ZPC->AZP_DefaultMappingContext)
 					{
-						ZPC->AddMappingContext(ZPC->DefaultMappingContext, ZPC->DefaultMappingPriority);
+						ZPC->AddMappingContext(ZPC->AZP_DefaultMappingContext, ZPC->AZP_DefaultMappingPriority);
 					}
 				}
 				PC->SetInputMode(FInputModeGameOnly());
@@ -1219,14 +1219,14 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 				if (bPickupNow)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("[UIProbe] PICKUP OPEN: widget=%s"), *PickupW->GetName());
-					if (ZPC && ZPC->DefaultMappingContext) { ZPC->RemoveMappingContext(ZPC->DefaultMappingContext); }
+					if (ZPC && ZPC->AZP_DefaultMappingContext) { ZPC->RemoveMappingContext(ZPC->AZP_DefaultMappingContext); }
 					PC->SetInputMode(FInputModeGameOnly());
 					PC->SetShowMouseCursor(false);
 				}
 				else
 				{
 					UE_LOG(LogTemp, Warning, TEXT("[UIProbe] PICKUP CLOSED — restoring game input"));
-					if (ZPC && ZPC->DefaultMappingContext) { ZPC->AddMappingContext(ZPC->DefaultMappingContext, ZPC->DefaultMappingPriority); }
+					if (ZPC && ZPC->AZP_DefaultMappingContext) { ZPC->AddMappingContext(ZPC->AZP_DefaultMappingContext, ZPC->AZP_DefaultMappingPriority); }
 					PC->SetInputMode(FInputModeGameOnly());
 					PC->SetShowMouseCursor(false);
 				}
@@ -1243,7 +1243,7 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			{
 				if (AZP_PlayerController* ZPC = Cast<AZP_PlayerController>(PC))
 				{
-					if (ZPC->DefaultMappingContext) { ZPC->RemoveMappingContext(ZPC->DefaultMappingContext); }
+					if (ZPC->AZP_DefaultMappingContext) { ZPC->RemoveMappingContext(ZPC->AZP_DefaultMappingContext); }
 				}
 				PC->SetInputMode(FInputModeGameOnly());
 
@@ -1324,8 +1324,8 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	if (FlashlightComp && bFlashlightOn && FirstPersonCamera)
 	{
 		FRotator TargetRot = FirstPersonCamera->GetComponentRotation();
-		TargetRot.Pitch += FlashlightPitchOffset;
-		FRotator NewRot = FMath::RInterpTo(FlashlightComp->GetComponentRotation(), TargetRot, DeltaTime, FlashlightInterpSpeed);
+		TargetRot.Pitch += AZP_FlashlightPitchOffset;
+		FRotator NewRot = FMath::RInterpTo(FlashlightComp->GetComponentRotation(), TargetRot, DeltaTime, AZP_FlashlightInterpSpeed);
 		FlashlightComp->SetWorldRotation(NewRot);
 	}
 
@@ -1335,10 +1335,10 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	// in the player's collision: hold the whole capsule a gun-length off any
 	// wall the player faces so the muzzle can't penetrate. We move the CAPSULE
 	// (camera rides it  normal); we never touch PlayerMesh/weapon (dead-end).
-	if (GunCollisionReach > 0.f && FirstPersonCamera && !bOnLadder)
+	if (AZP_GunCollisionReach > 0.f && FirstPersonCamera && !bOnLadder)
 	{
 		const FVector CamLoc = FirstPersonCamera->GetComponentLocation();
-		const FVector ProbeEnd = CamLoc + FirstPersonCamera->GetForwardVector() * GunCollisionReach;
+		const FVector ProbeEnd = CamLoc + FirstPersonCamera->GetForwardVector() * AZP_GunCollisionReach;
 
 		FHitResult GunHit;
 		FCollisionQueryParams GunParams;
@@ -1346,13 +1346,13 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		FCollisionObjectQueryParams GunObj;
 		GunObj.AddObjectTypesToQuery(ECC_WorldStatic);
 		if (GetWorld()->SweepSingleByObjectType(GunHit, CamLoc, ProbeEnd, FQuat::Identity,
-			GunObj, FCollisionShape::MakeSphere(GunCollisionRadius), GunParams))
+			GunObj, FCollisionShape::MakeSphere(AZP_GunCollisionRadius), GunParams))
 		{
 			// Walls only  ignore floor/ceiling so looking down doesn't shove you.
 			// Skip start-penetrating (camera already buried) to avoid a yank.
 			if (!GunHit.bStartPenetrating && FMath::Abs(GunHit.ImpactNormal.Z) < 0.7f)
 			{
-				const float Overshoot = GunCollisionReach - GunHit.Distance;
+				const float Overshoot = AZP_GunCollisionReach - GunHit.Distance;
 				if (Overshoot > 0.f)
 				{
 					FVector Push = GunHit.ImpactNormal * Overshoot;
@@ -1382,7 +1382,7 @@ void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult
 		const FRotator YawRot(0.f, GetActorRotation().Yaw, 0.f);
 		const FVector Fwd = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
 		const FVector Right = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-		FVector CamPos = Anchor - Fwd * GrabCamBack + Right * GrabCamRight + FVector(0.f, 0.f, GrabCamUp);
+		FVector CamPos = Anchor - Fwd * AZP_GrabCamBack + Right * AZP_GrabCamRight + FVector(0.f, 0.f, AZP_GrabCamUp);
 
 		// Hand-rolled spring-arm probe (no spring arm exists on this rig): clamp to geometry so
 		// the shoulder camera never ends up inside a wall in tight corridors.
@@ -1440,14 +1440,14 @@ void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult
 
 	Super::CalcCamera(DeltaTime, OutResult);
 
-	// Re-apply input clamps each frame so live edits to CameraPitchDownLimitDeg /
-	// CameraPitchUpLimitDeg take effect without restarting PIE.
+	// Re-apply input clamps each frame so live edits to AZP_CameraPitchDownLimitDeg /
+	// AZP_CameraPitchUpLimitDeg take effect without restarting PIE.
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		if (PC->PlayerCameraManager)
 		{
-			PC->PlayerCameraManager->ViewPitchMin = -CameraPitchDownLimitDeg;
-			PC->PlayerCameraManager->ViewPitchMax =  CameraPitchUpLimitDeg;
+			PC->PlayerCameraManager->ViewPitchMin = -AZP_CameraPitchDownLimitDeg;
+			PC->PlayerCameraManager->ViewPitchMax =  AZP_CameraPitchUpLimitDeg;
 		}
 	}
 
@@ -1456,7 +1456,7 @@ void AZP_GraceCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult
 	// so the camera never reaches the body's interior cavity. Normalize first to
 	// handle wrapped values from socket transforms.
 	FRotator R = OutResult.Rotation;
-	R.Pitch = FMath::Clamp(FRotator::NormalizeAxis(R.Pitch), -CameraPitchDownLimitDeg, CameraPitchUpLimitDeg);
+	R.Pitch = FMath::Clamp(FRotator::NormalizeAxis(R.Pitch), -AZP_CameraPitchDownLimitDeg, AZP_CameraPitchUpLimitDeg);
 	OutResult.Rotation = R;
 }
 
@@ -1467,8 +1467,8 @@ void AZP_GraceCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfH
 	// Snapshot lower body bones BEFORE Super adjusts anything
 	if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
 	{
-		const float InterpSpeed = MovementConfig ? MovementConfig->CrouchCameraInterpSpeed : 8.0f;
-		AnimInst->StartBoneBlend(InterpSpeed);
+		const float AZP_InterpSpeed = AZP_MovementConfig ? AZP_MovementConfig->AZP_CrouchCameraInterpSpeed : 8.0f;
+		AnimInst->StartBoneBlend(AZP_InterpSpeed);
 	}
 
 	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
@@ -1486,8 +1486,8 @@ void AZP_GraceCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHei
 	// Snapshot lower body bones BEFORE Super adjusts anything
 	if (UZP_GracePlayerAnimInstance* AnimInst = Cast<UZP_GracePlayerAnimInstance>(PlayerMesh->GetAnimInstance()))
 	{
-		const float InterpSpeed = MovementConfig ? MovementConfig->CrouchCameraInterpSpeed : 8.0f;
-		AnimInst->StartBoneBlend(InterpSpeed);
+		const float AZP_InterpSpeed = AZP_MovementConfig ? AZP_MovementConfig->AZP_CrouchCameraInterpSpeed : 8.0f;
+		AnimInst->StartBoneBlend(AZP_InterpSpeed);
 	}
 
 	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
@@ -1512,95 +1512,95 @@ void AZP_GraceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		return;
 	}
 
-	if (MoveAction)
+	if (AZP_MoveAction)
 	{
-		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AZP_GraceCharacter::Input_Move);
-		EIC->BindAction(MoveAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_MoveCompleted);
+		EIC->BindAction(AZP_MoveAction, ETriggerEvent::Triggered, this, &AZP_GraceCharacter::Input_Move);
+		EIC->BindAction(AZP_MoveAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_MoveCompleted);
 	}
-	if (LookAction)
+	if (AZP_LookAction)
 	{
-		EIC->BindAction(LookAction, ETriggerEvent::Triggered, this, &AZP_GraceCharacter::Input_Look);
+		EIC->BindAction(AZP_LookAction, ETriggerEvent::Triggered, this, &AZP_GraceCharacter::Input_Look);
 	}
-	if (SprintAction)
+	if (AZP_SprintAction)
 	{
-		EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_SprintStarted);
-		EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_SprintCompleted);
+		EIC->BindAction(AZP_SprintAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_SprintStarted);
+		EIC->BindAction(AZP_SprintAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_SprintCompleted);
 	}
-	if (JumpAction)
+	if (AZP_JumpAction)
 	{
-		EIC->BindAction(JumpAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Jump);
+		EIC->BindAction(AZP_JumpAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Jump);
 	}
-	if (InteractAction)
+	if (AZP_InteractAction)
 	{
-		EIC->BindAction(InteractAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Interact);
+		EIC->BindAction(AZP_InteractAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Interact);
 	}
-	if (CrouchAction)
+	if (AZP_CrouchAction)
 	{
 		// Toggle crouch: press once to crouch, press again to stand. (No Completed/release bind.)
-		EIC->BindAction(CrouchAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_CrouchStarted);
+		EIC->BindAction(AZP_CrouchAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_CrouchStarted);
 	}
-	if (PeekAction)
+	if (AZP_PeekAction)
 	{
-		EIC->BindAction(PeekAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_PeekStarted);
-		EIC->BindAction(PeekAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_PeekCompleted);
+		EIC->BindAction(AZP_PeekAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_PeekStarted);
+		EIC->BindAction(AZP_PeekAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_PeekCompleted);
 	}
-	if (AimAction)
+	if (AZP_AimAction)
 	{
-		EIC->BindAction(AimAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_AimStarted);
-		EIC->BindAction(AimAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_AimCompleted);
+		EIC->BindAction(AZP_AimAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_AimStarted);
+		EIC->BindAction(AZP_AimAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_AimCompleted);
 	}
-	if (FireAction)
+	if (AZP_FireAction)
 	{
-		EIC->BindAction(FireAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_FireStarted);
-		EIC->BindAction(FireAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_FireCompleted);
+		EIC->BindAction(AZP_FireAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_FireStarted);
+		EIC->BindAction(AZP_FireAction, ETriggerEvent::Completed, this, &AZP_GraceCharacter::Input_FireCompleted);
 	}
-	if (ReloadAction)
+	if (AZP_ReloadAction)
 	{
-		EIC->BindAction(ReloadAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_ReloadStarted);
+		EIC->BindAction(AZP_ReloadAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_ReloadStarted);
 	}
-	if (InventoryMenuAction)
+	if (AZP_InventoryMenuAction)
 	{
-		EIC->BindAction(InventoryMenuAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_InventoryMenu);
+		EIC->BindAction(AZP_InventoryMenuAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_InventoryMenu);
 	}
-	if (FlashlightAction)
+	if (AZP_FlashlightAction)
 	{
-		EIC->BindAction(FlashlightAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Flashlight);
+		EIC->BindAction(AZP_FlashlightAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Flashlight);
 	}
-	if (MapAction)
+	if (AZP_MapAction)
 	{
-		EIC->BindAction(MapAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Map);
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: MapAction BOUND (%s)"), *MapAction->GetName());
+		EIC->BindAction(AZP_MapAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_Map);
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP DEBUG: AZP_MapAction BOUND (%s)"), *AZP_MapAction->GetName());
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: MapAction is NULL — M key will not work!"));
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] MAP DEBUG: AZP_MapAction is NULL — M key will not work!"));
 	}
-	if (TabCycleLeftAction)
+	if (AZP_TabCycleLeftAction)
 	{
-		EIC->BindAction(TabCycleLeftAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_TabCycleLeft);
+		EIC->BindAction(AZP_TabCycleLeftAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_TabCycleLeft);
 	}
-	if (TabCycleRightAction)
+	if (AZP_TabCycleRightAction)
 	{
-		EIC->BindAction(TabCycleRightAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_TabCycleRight);
+		EIC->BindAction(AZP_TabCycleRightAction, ETriggerEvent::Started, this, &AZP_GraceCharacter::Input_TabCycleRight);
 	}
 	// Weapon slot keys are handled via raw key polling in Tick() to bypass
 	// Enhanced Input IMC conflicts between IMC_Grace and IMC_InventoryCharacter.
 
 	UE_LOG(LogTemp, Warning, TEXT("[TheSignal] Slot keys: raw polling in Tick. InvMenu=%s"),
-		InventoryMenuAction ? TEXT("BOUND") : TEXT("NULL"));
+		AZP_InventoryMenuAction ? TEXT("BOUND") : TEXT("NULL"));
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] ZP_GraceCharacter: Input bound — Move:%s Look:%s Sprint:%s Jump:%s Interact:%s Crouch:%s Peek:%s Aim:%s Fire:%s Reload:%s Inventory:%s"),
-		MoveAction ? TEXT("OK") : TEXT("MISSING"),
-		LookAction ? TEXT("OK") : TEXT("MISSING"),
-		SprintAction ? TEXT("OK") : TEXT("MISSING"),
-		JumpAction ? TEXT("OK") : TEXT("MISSING"),
-		InteractAction ? TEXT("OK") : TEXT("MISSING"),
-		CrouchAction ? TEXT("OK") : TEXT("MISSING"),
-		PeekAction ? TEXT("OK") : TEXT("MISSING"),
-		AimAction ? TEXT("OK") : TEXT("MISSING"),
-		FireAction ? TEXT("OK") : TEXT("MISSING"),
-		ReloadAction ? TEXT("OK") : TEXT("MISSING"),
-		InventoryMenuAction ? TEXT("OK") : TEXT("MISSING"));
+		AZP_MoveAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_LookAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_SprintAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_JumpAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_InteractAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_CrouchAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_PeekAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_AimAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_FireAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_ReloadAction ? TEXT("OK") : TEXT("MISSING"),
+		AZP_InventoryMenuAction ? TEXT("OK") : TEXT("MISSING"));
 }
 
 // --- Input Handlers ---
@@ -1631,12 +1631,12 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 		const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector RightDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// Backward penalty: scale backward input by BackpedalSpeedMul (knob, was hardcoded 0.55).
+		// Backward penalty: scale backward input by AZP_BackpedalSpeedMul (knob, was hardcoded 0.55).
 		// CMC's AnalogInputModifier reads input magnitude → reduces MaxSpeed proportionally.
 		float ForwardScale = MoveInput.Y;
 		if (ForwardScale < 0.f)
 		{
-			ForwardScale *= FMath::Clamp(BackpedalSpeedMul, 0.05f, 1.f);
+			ForwardScale *= FMath::Clamp(AZP_BackpedalSpeedMul, 0.05f, 1.f);
 		}
 		AddMovementInput(ForwardDir, ForwardScale);
 		AddMovementInput(RightDir, MoveInput.X);
@@ -1751,7 +1751,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 			FRotator CamRot;
 			PC->GetPlayerViewPoint(CamLoc, CamRot);
 
-			FVector TraceEnd = CamLoc + CamRot.Vector() * 300.0f;
+			FVector TraceEnd = CamLoc + CamRot.Vector() * AZP_InteractTraceDistance;
 			FHitResult Hit;
 			FCollisionQueryParams Params;
 			Params.AddIgnoredActor(this);
@@ -1898,7 +1898,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 							{
 								GrabAllGrabbedActors.Add(SeedFirst);
 							}
-							GrabAllTicksRemaining = 20;
+							GrabAllTicksRemaining = AZP_GrabAllSweepTicks;
 						}
 
 						UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
@@ -1974,9 +1974,9 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 				// locker was closest ("doors blocked by other interactions",
 				// session 63).
 				FVector DoorTargetLoc = CurrentInteractable->GetActorLocation();
-				if (LOSDoor->DoorActor)
+				if (LOSDoor->AZP_DoorActor)
 				{
-					DoorTargetLoc = LOSDoor->DoorActor->GetActorLocation();
+					DoorTargetLoc = LOSDoor->AZP_DoorActor->GetActorLocation();
 				}
 				else if (LOSDoor->DoorMesh && LOSDoor->DoorMesh->GetStaticMesh())
 				{
@@ -1985,10 +1985,10 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 
 				FVector ToDoor = (DoorTargetLoc - LOSCamLoc).GetSafeNormal();
 				float Dot = FVector::DotProduct(LOSCamRot.Vector(), ToDoor);
-				bShouldInteract = (Dot > 0.5f); // ~60° cone
+				bShouldInteract = (Dot > AZP_DoorLOSDotThreshold); // ~60° cone
 				UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 2 door LOS check: Dot=%.2f (target %s), Pass=%d"),
 					Dot,
-					LOSDoor->DoorActor ? *LOSDoor->DoorActor->GetName() : TEXT("self DoorMesh"),
+					LOSDoor->AZP_DoorActor ? *LOSDoor->AZP_DoorActor->GetName() : TEXT("self DoorMesh"),
 					bShouldInteract);
 			}
 		}
@@ -2074,7 +2074,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 			// doesn't re-grab it while it lingers (the x5 bug).
 			GrabAllGrabbedActors.Reset();
 			GrabAllGrabbedActors.Add(FirstPickup);
-			GrabAllTicksRemaining = 20;
+			GrabAllTicksRemaining = AZP_GrabAllSweepTicks;
 		}
 
 		UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));
@@ -2201,7 +2201,7 @@ void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
 		return;
 	}
 	const float Speed = GetVelocity().Size2D();
-	if (Speed < 60.f) // standing / drifting — no steps
+	if (Speed < AZP_FootstepMinSpeed) // standing / drifting — no steps
 	{
 		FootstepDistanceAccum = 0.f;
 		return;
@@ -2209,17 +2209,17 @@ void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
 
 	const bool bCrouched = Move->IsCrouching();
 	const bool bSprint = GameplayComp && GameplayComp->bIsSprinting;
-	const float Stride = bSprint ? FootstepSprintStride
-	                             : (bCrouched ? FootstepWalkStride * 0.85f : FootstepWalkStride);
+	const float Stride = bSprint ? AZP_FootstepSprintStride
+	                             : (bCrouched ? AZP_FootstepWalkStride * AZP_FootstepCrouchStrideMul : AZP_FootstepWalkStride);
 
 	FootstepDistanceAccum += Speed * DeltaTime;
 	if (FootstepDistanceAccum >= Stride)
 	{
 		FootstepDistanceAccum = 0.f;
 
-		if (!FootstepData)
+		if (!AZP_FootstepData)
 		{
-			FootstepData = LoadObject<UZP_FootstepData>(nullptr, TEXT("/Game/Core/Data/DA_Footsteps.DA_Footsteps"));
+			AZP_FootstepData = LoadObject<UZP_FootstepData>(nullptr, TEXT("/Game/Core/Data/DA_Footsteps.DA_Footsteps"));
 		}
 
 		// Resolve the FLOOR under our feet against the surface table: authored PhysMat SurfaceType
@@ -2229,7 +2229,7 @@ void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
 		FCollisionQueryParams Q(FName(TEXT("ZPFootstepSurface")), false);
 		Q.AddIgnoredActor(this);
 		Q.bReturnPhysicalMaterial = true;
-		if (FootstepData && GetWorld()->LineTraceSingleByChannel(Floor, GetActorLocation(),
+		if (AZP_FootstepData && GetWorld()->LineTraceSingleByChannel(Floor, GetActorLocation(),
 			GetActorLocation() - FVector(0.f, 0.f, 160.f), ECC_WorldStatic, Q))
 		{
 			EPhysicalSurface FloorSurface = SurfaceType_Default;
@@ -2245,12 +2245,12 @@ void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
 					MatName = FloorMat->GetName().ToLower();
 				}
 			}
-			Surface = FootstepData->Resolve(FloorSurface, MatName);
+			Surface = AZP_FootstepData->Resolve(FloorSurface, MatName);
 		}
 
 		// Sound pool priority: matched surface row -> table default set -> hard C++ fallback.
-		const TArray<TObjectPtr<USoundBase>>* Set = &FootstepSounds;
-		float SurfaceVolMul = 1.f, PitchMin = 0.92f, PitchMax = 1.08f;
+		const TArray<TObjectPtr<USoundBase>>* Set = &AZP_FootstepSounds;
+		float SurfaceVolMul = 1.f, PitchMin = AZP_FootstepPitchMinDefault, PitchMax = AZP_FootstepPitchMaxDefault;
 		if (Surface)
 		{
 			Set = &Surface->Sounds;
@@ -2258,9 +2258,9 @@ void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
 			PitchMin = Surface->PitchMin;
 			PitchMax = Surface->PitchMax;
 		}
-		else if (FootstepData && FootstepData->DefaultSounds.Num() > 0)
+		else if (AZP_FootstepData && AZP_FootstepData->AZP_DefaultSounds.Num() > 0)
 		{
-			Set = &FootstepData->DefaultSounds;
+			Set = &AZP_FootstepData->AZP_DefaultSounds;
 		}
 
 		if (Set->Num() > 0)
@@ -2269,8 +2269,8 @@ void AZP_GraceCharacter::UpdateFootsteps(float DeltaTime)
 			{
 				// Own-body foley: 2D, quiet, slight pitch jitter so repeats don't machine-gun.
 				// Sprint steps land heavier.
-				const float Vol = FootstepVolume * SurfaceVolMul
-					* (bCrouched ? 0.5f : 1.f) * (bSprint ? SprintFootstepVolumeMul : 1.f);
+				const float Vol = AZP_FootstepVolume * SurfaceVolMul
+					* (bCrouched ? AZP_FootstepCrouchVolumeMul : 1.f) * (bSprint ? AZP_SprintFootstepVolumeMul : 1.f);
 				UGameplayStatics::PlaySound2D(this, Step, Vol, FMath::FRandRange(PitchMin, PitchMax));
 			}
 		}
@@ -2283,11 +2283,11 @@ void AZP_GraceCharacter::TryEngageBufferedBlock()
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder || GrabPhase != EZP_GrabPhase::None) { return; }
 	if (!KinemationComp || KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee) { return; }
 	// The strike + follow-through always play in full; once the swing passes
-	// MeleeBlockCancelFraction only return-to-idle dead frames remain, and the held guard cancels
+	// AZP_MeleeBlockCancelFraction only return-to-idle dead frames remain, and the held guard cancels
 	// into them — no perceived clipping AND no perceived pause between swing and block.
 	if (KinemationComp->bMeleeSwingActive && !KinemationComp->bMeleeSwingTailCancelable) { return; }
 	// You can't raise a guard you can't pay for — needs one blocked hit's worth of stamina.
-	if (GameplayComp && GameplayComp->GetStaminaFraction() < BlockMinStaminaFractionToStart) { return; }
+	if (GameplayComp && GameplayComp->GetStaminaFraction() < AZP_BlockMinStaminaFractionToStart) { return; }
 
 	if (KinemationComp->bMeleeSwingActive)
 	{
@@ -2318,7 +2318,7 @@ void AZP_GraceCharacter::StartBlockNow()
 	bBlockWalkActive = false;
 	BlockImpactLockRemaining = 0.f;
 	BlockStartLockRemaining = 0.f;
-	BlockClearanceRemaining = BlockClearanceWindow; // transient camera nudge over the lean-in
+	BlockClearanceRemaining = AZP_BlockClearanceWindow; // transient camera nudge over the lean-in
 
 	// Probe: dump camera state for 30 frames so we see when block shifts the view.
 	CameraProbeTag = TEXT("BLOCK");
@@ -2329,7 +2329,7 @@ void AZP_GraceCharacter::StartBlockNow()
 	// is gated by BlockStartLockRemaining so it can't yank Start out and snap
 	// to BlockLoop early. When the lock decays, UpdateBlockAnimation takes
 	// over and swaps to BlockLoop / BlockWalk based on motion.
-	UAnimSequenceBase* StartAnim = BlockStartAnim.LoadSynchronous();
+	UAnimSequenceBase* StartAnim = AZP_BlockStartAnim.LoadSynchronous();
 	if (MeleeViewMesh && StartAnim)
 	{
 		if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
@@ -2342,7 +2342,7 @@ void AZP_GraceCharacter::StartBlockNow()
 	else if (MeleeViewMesh)
 	{
 		// Fallback if Start asset is missing — go straight to loop.
-		if (UAnimSequenceBase* LoopAnim = BlockLoopAnim.LoadSynchronous())
+		if (UAnimSequenceBase* LoopAnim = AZP_BlockLoopAnim.LoadSynchronous())
 		{
 			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
 			{
@@ -2364,12 +2364,12 @@ void AZP_GraceCharacter::ReleaseBlock()
 	// Mirror the block-START forward nudge so the BlockStop lean-OUT doesn't
 	// swing the body through the lens. Without this the unblock pose-out clips
 	// the camera (dev report: "body swings into my camera, looks messy").
-	BlockClearanceRemaining = BlockClearanceWindow;
+	BlockClearanceRemaining = AZP_BlockClearanceWindow;
 
 	// Play BlockStop (non-loop) first — the pose-out motion. Schedule a
 	// timer to settle into MeleeIdle when Stop finishes so the pose doesn't
 	// snap back to neutral. Same pattern as the dodge return at line ~2654.
-	UAnimSequenceBase* StopAnim = BlockStopAnim.LoadSynchronous();
+	UAnimSequenceBase* StopAnim = AZP_BlockStopAnim.LoadSynchronous();
 	if (MeleeViewMesh && StopAnim)
 	{
 		if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
@@ -2389,7 +2389,7 @@ void AZP_GraceCharacter::ReleaseBlock()
 			{
 				return;
 			}
-			UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous();
+			UAnimSequenceBase* IdleAnim = AZP_MeleeIdleHoldAnim.LoadSynchronous();
 			if (!IdleAnim || !MeleeViewMesh) return;
 			if (UAnimSingleNodeInstance* IdleSNI = MeleeViewMesh->GetSingleNodeInstance())
 			{
@@ -2398,11 +2398,11 @@ void AZP_GraceCharacter::ReleaseBlock()
 			}
 		}, StopLen, false);
 	}
-	else if (MeleeViewMesh && MeleeIdleHoldAnim.IsValid())
+	else if (MeleeViewMesh && AZP_MeleeIdleHoldAnim.IsValid())
 	{
 		bBlockResolving = false; // no stop clip — nothing to cover
 		// Fallback if Stop asset is missing — go straight to idle.
-		if (UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous())
+		if (UAnimSequenceBase* IdleAnim = AZP_MeleeIdleHoldAnim.LoadSynchronous())
 		{
 			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
 			{
@@ -2601,7 +2601,7 @@ void AZP_GraceCharacter::OnThrowableConsumedHandler()
 
 	// Find the grenade's item DA by scanning ItemSlots for matching weapon class
 	UObject* FoundItemDA = nullptr;
-	TSubclassOf<AActor> ConsumedClass = KinemationComp ? KinemationComp->WeaponClass : nullptr;
+	TSubclassOf<AActor> ConsumedClass = KinemationComp ? KinemationComp->AZP_WeaponClass : nullptr;
 	if (ConsumedClass)
 	{
 		FProperty* SlotsProp = MoonvilleInventoryComp->GetClass()->FindPropertyByName(FName("ItemSlots"));
@@ -2651,8 +2651,8 @@ void AZP_GraceCharacter::OnThrowableConsumedHandler()
 		UFunction* RemoveFunc = MoonvilleInventoryComp->FindFunction(FName("RemoveItemByDataAsset"));
 		if (RemoveFunc)
 		{
-			struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-			Params.ItemDataAsset = FoundItemDA;
+			struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+			Params.AZP_ItemDataAsset = FoundItemDA;
 			Params.AmountToRemove = 1;
 			MoonvilleInventoryComp->ProcessEvent(RemoveFunc, &Params);
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Throwable consumed — removed %s from inventory"),
@@ -2822,7 +2822,7 @@ bool AZP_GraceCharacter::TransferAllFromOpenContainer()
 	// GATE 2 — the in-use container must be at arm's reach. A stale flag on a
 	// locker across the map must never hijack the Interact key.
 	if (FVector::DistSquared(ContainerActor->GetActorLocation(), GetActorLocation())
-		> FMath::Square(500.f))
+		> FMath::Square(AZP_ContainerReachDistance))
 	{
 		UE_LOG(LogTemp, Log, TEXT("[TransferAll] ignoring stale in-use flag on distant %s"),
 			*ContainerActor->GetName());
@@ -3124,8 +3124,8 @@ void AZP_GraceCharacter::RemoveInventoryAmmo(EZP_WeaponIcon Icon, int32 Rounds)
 	{
 		if (Remaining <= 0) break;
 		const int32 Take = FMath::Min(Remaining, P.Value);
-		struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-		Params.ItemDataAsset = P.Key;
+		struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+		Params.AZP_ItemDataAsset = P.Key;
 		Params.AmountToRemove = Take;
 		MoonvilleInventoryComp->ProcessEvent(RemoveFunc, &Params);
 		Remaining -= Take;
@@ -3364,7 +3364,7 @@ void AZP_GraceCharacter::Input_InventorySlot(int32 SlotIndex)
 		}
 
 		// Don't re-equip same weapon class
-		if (KinemationComp->ActiveWeapon && KinemationComp->WeaponClass == SlotWeaponClass)
+		if (KinemationComp->ActiveWeapon && KinemationComp->AZP_WeaponClass == SlotWeaponClass)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Weapon in slot %d already equipped"), SlotIndex);
 			return;
@@ -3553,8 +3553,8 @@ UObject* AZP_GraceCharacter::GetPickupItemDA(AActor* PickupActor)
 {
 	if (!PickupActor) return nullptr;
 
-	// BP_ItemPickup designers set "Item"; "ItemDataAsset" is the runtime mirror.
-	for (const TCHAR* PropName : { TEXT("Item"), TEXT("ItemDataAsset") })
+	// BP_ItemPickup designers set "Item"; "AZP_ItemDataAsset" is the runtime mirror.
+	for (const TCHAR* PropName : { TEXT("Item"), TEXT("AZP_ItemDataAsset") })
 	{
 		if (FObjectProperty* ItemProp = CastField<FObjectProperty>(
 				PickupActor->GetClass()->FindPropertyByName(FName(PropName))))
@@ -3700,7 +3700,7 @@ void AZP_GraceCharacter::UpdateHealthVignette(float NewHealth, float MaxHealth, 
 
 	const float HealthPct = NewHealth / MaxHealth;
 
-	if (HealthPct >= 0.5f)
+	if (HealthPct >= AZP_VignetteHealthThreshold)
 	{
 		DeathVignetteComp->Settings.VignetteIntensity = 0.f;
 	}
@@ -3708,7 +3708,7 @@ void AZP_GraceCharacter::UpdateHealthVignette(float NewHealth, float MaxHealth, 
 	{
 		// Lerp from 0 (at 50% HP) to 1.5 (at 0% HP)
 		DeathVignetteComp->Settings.VignetteIntensity =
-			FMath::GetMappedRangeValueClamped(FVector2D(0.5f, 0.f), FVector2D(0.f, 1.5f), HealthPct);
+			FMath::GetMappedRangeValueClamped(FVector2D(AZP_VignetteHealthThreshold, 0.f), FVector2D(0.f, AZP_VignetteMaxIntensity), HealthPct);
 	}
 }
 
@@ -3733,7 +3733,7 @@ void AZP_GraceCharacter::ToggleFlashlight()
 		if (bFlashlightOn && FirstPersonCamera)
 		{
 			FRotator SnapRot = FirstPersonCamera->GetComponentRotation();
-			SnapRot.Pitch += FlashlightPitchOffset;
+			SnapRot.Pitch += AZP_FlashlightPitchOffset;
 			FlashlightComp->SetWorldRotation(SnapRot);
 		}
 	}
@@ -3744,9 +3744,9 @@ void AZP_GraceCharacter::ToggleFlashlight()
 		FlashlightFillComp->SetVisibility(bFlashlightOn);
 	}
 
-	if (FlashlightClickSound)
+	if (AZP_FlashlightClickSound)
 	{
-		UGameplayStatics::PlaySound2D(this, FlashlightClickSound);
+		UGameplayStatics::PlaySound2D(this, AZP_FlashlightClickSound);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Flashlight %s"), bFlashlightOn ? TEXT("ON") : TEXT("OFF"));
@@ -3780,19 +3780,19 @@ void AZP_GraceCharacter::Landed(const FHitResult& Hit)
 	const float DropDistance = FallPeakZ - GetActorLocation().Z;
 
 	// Below the safe threshold: no damage (normal jumps/short hops).
-	if (DropDistance <= FallDamageMinDistance)
+	if (DropDistance <= AZP_FallDamageMinDistance)
 	{
 		return;
 	}
 
 	// Lerp min→max damage across the [min,max] distance band; clamp above max.
-	float FallDamage = FallDamageMaxAmount;
-	if (FallDamageMaxDistance > FallDamageMinDistance)
+	float FallDamage = AZP_FallDamageMaxAmount;
+	if (AZP_FallDamageMaxDistance > AZP_FallDamageMinDistance)
 	{
 		const float Alpha = FMath::Clamp(
-			(DropDistance - FallDamageMinDistance) / (FallDamageMaxDistance - FallDamageMinDistance),
+			(DropDistance - AZP_FallDamageMinDistance) / (AZP_FallDamageMaxDistance - AZP_FallDamageMinDistance),
 			0.f, 1.f);
-		FallDamage = FMath::Lerp(FallDamageMinAmount, FallDamageMaxAmount, Alpha);
+		FallDamage = FMath::Lerp(AZP_FallDamageMinAmount, AZP_FallDamageMaxAmount, Alpha);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Fall: drop %.0fcm -> %.0f damage"), DropDistance, FallDamage);
@@ -3815,7 +3815,7 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	// Downed i-frames: while knocked down / getting up after a failed grab struggle, the player
 	// cannot respond — hits are free shots on a helpless target. The fail already cost
-	// FailDamageChunk; nothing else lands until Marcus is back on his feet.
+	// AZP_FailDamageChunk; nothing else lands until Marcus is back on his feet.
 	if (GrabPhase == EZP_GrabPhase::FailKnockdown || GrabPhase == EZP_GrabPhase::GetUp)
 	{
 		return 0.f;
@@ -3827,15 +3827,15 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		// A blocked hit COSTS stamina (~1/3 of max). Not enough left = GUARD BREAK: the guard
 		// drops, this hit lands at FULL damage, no counter-stagger — blocking is a resource,
 		// not a free wall. (With RMB still held, the guard re-raises once stamina recovers past
-		// BlockMinStaminaFractionToStart.)
-		if (GameplayComp && !GameplayComp->TryConsumeStaminaPercent(BlockHitStaminaPercent))
+		// AZP_BlockMinStaminaFractionToStart.)
+		if (GameplayComp && !GameplayComp->TryConsumeStaminaPercent(AZP_BlockHitStaminaPercent))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] GUARD BREAK — blocked hit with insufficient stamina, full damage taken"));
 			ReleaseBlock();
 		}
 		else
 		{
-			IncomingDamage *= BlockDamageReductionMul;
+			IncomingDamage *= AZP_BlockDamageReductionMul;
 
 			// Probe: capture camera state through the impact reaction.
 			CameraProbeTag = TEXT("BLOCK-HIT");
@@ -3845,18 +3845,18 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			// Random FPP_Longs_BlockImpact 1/2/3 plays on the view mesh.
 			PlayBlockImpactAnim();
 
-			// Stagger the attacker on a successful block — rate-limited by BlockStaggerCooldown so
+			// Stagger the attacker on a successful block — rate-limited by AZP_BlockStaggerCooldown so
 			// blocking can't permanently stun-lock an enemy. Routed through IZP_Staggerable so it
 			// works for any enemy (Shambler, Scytheer, and future types) with no per-enemy code.
 			const double NowBlock = GetWorld()->GetTimeSeconds();
-			if ((NowBlock - LastBlockStaggerTime) >= BlockStaggerCooldown)
+			if ((NowBlock - LastBlockStaggerTime) >= AZP_BlockStaggerCooldown)
 			{
 				LastBlockStaggerTime = NowBlock;
 				if (EventInstigator)
 				{
 					if (APawn* AttackerPawn = EventInstigator->GetPawn())
 					{
-						StaggerEnemy(AttackerPawn, BlockStaggerDuration);
+						StaggerEnemy(AttackerPawn, AZP_BlockStaggerDuration);
 					}
 				}
 			}
@@ -3917,12 +3917,12 @@ void AZP_GraceCharacter::MeleeStaggerEnemy(AActor* Enemy)
 {
 	// Rate-limit melee-hit staggers (0 = every hit staggers; the swing cooldown still paces it).
 	const double Now = GetWorld()->GetTimeSeconds();
-	if ((Now - LastHitStaggerTime) < HitStaggerCooldown)
+	if ((Now - LastHitStaggerTime) < AZP_HitStaggerCooldown)
 	{
 		return;
 	}
 	LastHitStaggerTime = Now;
-	StaggerEnemy(Enemy, HitStaggerDuration);
+	StaggerEnemy(Enemy, AZP_HitStaggerDuration);
 }
 
 void AZP_GraceCharacter::OpenSaveMenu(UUserWidget* Menu)
@@ -3943,12 +3943,12 @@ void AZP_GraceCharacter::OpenSaveMenu(UUserWidget* Menu)
 	UE_LOG(LogTemp, Warning, TEXT("[UIProbe] OpenSaveMenu: widget=%s  ZPC=%s  DefaultMC=%s"),
 		*Menu->GetClass()->GetName(),
 		ZPC ? TEXT("OK") : TEXT("NULL(cast failed!)"),
-		(ZPC && ZPC->DefaultMappingContext) ? *ZPC->DefaultMappingContext->GetName() : TEXT("NULL"));
-	if (ZPC && ZPC->DefaultMappingContext)
+		(ZPC && ZPC->AZP_DefaultMappingContext) ? *ZPC->AZP_DefaultMappingContext->GetName() : TEXT("NULL"));
+	if (ZPC && ZPC->AZP_DefaultMappingContext)
 	{
-		ZPC->RemoveMappingContext(ZPC->DefaultMappingContext);
+		ZPC->RemoveMappingContext(ZPC->AZP_DefaultMappingContext);
 		UE_LOG(LogTemp, Warning, TEXT("[UIProbe] OpenSaveMenu: removed gameplay context %s"),
-			*ZPC->DefaultMappingContext->GetName());
+			*ZPC->AZP_DefaultMappingContext->GetName());
 	}
 
 	// NOTE: Back is handled manually in Tick (Face Right / Esc) — this widget is shown via raw
@@ -3984,10 +3984,10 @@ void AZP_GraceCharacter::OpenSaveMenu(UUserWidget* Menu)
 
 void AZP_GraceCharacter::GrantStartingItems()
 {
-	// Add StartingWeaponItem to Moonville inventory.
+	// Add AZP_StartingWeaponItem to Moonville inventory.
 	// Moonville's AutoAssignShortcut handles shortcut bar placement.
 	// Quick-slot keys read from Moonville's ShortcutSlots[] at press time.
-	UObject* ItemDA = StartingWeaponItem.LoadSynchronous();
+	UObject* ItemDA = AZP_StartingWeaponItem.LoadSynchronous();
 	if (ItemDA && MoonvilleInventoryComp)
 	{
 		UFunction* AddFunc = MoonvilleInventoryComp->FindFunction(FName("AddItemSimple"));
@@ -4002,7 +4002,7 @@ void AZP_GraceCharacter::GrantStartingItems()
 	}
 	else if (!ItemDA)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] StartingWeaponItem not set — no starting item granted"));
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] AZP_StartingWeaponItem not set — no starting item granted"));
 	}
 }
 
@@ -4060,9 +4060,9 @@ void AZP_GraceCharacter::OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjec
 		JsonObject.JsonObject->SetNumberField(SizeYKey, Size.Y);
 		// Remember which weapon was in-hand so we re-equip it on load (the grid restore alone leaves you
 		// holding the default weapon).
-		if (KinemationComp && KinemationComp->WeaponClass.Get())
+		if (KinemationComp && KinemationComp->AZP_WeaponClass.Get())
 		{
-			JsonObject.JsonObject->SetStringField(EquipKey, KinemationComp->WeaponClass.Get()->GetPathName());
+			JsonObject.JsonObject->SetStringField(EquipKey, KinemationComp->AZP_WeaponClass.Get()->GetPathName());
 		}
 		// Also persist the quick-slot bar (ShortcutSlots). LoadInventoryFromSavegame only restores the GRID
 		// (ItemSlots), so without this the D-pad/number quick-slots come back empty (weapons not assigned) and
@@ -4076,7 +4076,7 @@ void AZP_GraceCharacter::OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjec
 		}
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory SAVE -> EGUI json (%d chars)"), InvText.Len());
 
-		// Objectives are save-file-tied too (bAutoPersist=false → fresh PIE starts clean). Persist on save.
+		// Objectives are save-file-tied too (bAZP_AutoPersist=false → fresh PIE starts clean). Persist on save.
 		if (UGameInstance* GI = GetGameInstance())
 		{
 			if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>()) { Obj->SaveObjectiveState(); }
@@ -4122,7 +4122,7 @@ void AZP_GraceCharacter::OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjec
 			}
 		}
 
-		// Objectives: restore from the save file (bAutoPersist=false, so this hook is the only restore path).
+		// Objectives: restore from the save file (bAZP_AutoPersist=false, so this hook is the only restore path).
 		if (UGameInstance* GI = GetGameInstance())
 		{
 			if (UZP_ObjectiveSubsystem* Obj = GI->GetSubsystem<UZP_ObjectiveSubsystem>()) { Obj->LoadObjectiveState(); }
@@ -4321,16 +4321,16 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 	// against our custom dual-mesh source ("shuffle"); native SingleNode playback is
 	// deterministic = no shuffle. Speed-driven in the locomotion update (UpdateLocoAnim).
 	MarcusBody->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-	MarcusIdle       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Stand_Idle_Loop.Marcus_M_Neutral_Stand_Idle_Loop"));
-	MarcusWalk       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Walk_Loop_F.Marcus_M_Neutral_Walk_Loop_F"));
-	MarcusRun        = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Run_Loop_F.Marcus_M_Neutral_Run_Loop_F"));
-	MarcusCrouchIdle = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Crouch_Idle_Loop.Marcus_M_Neutral_Crouch_Idle_Loop"));
-	MarcusCrouchWalk = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Crouch_Loop_F.Marcus_M_Neutral_Crouch_Loop_F"));
-	if (MarcusIdle)
+	AZP_MarcusIdle       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Stand_Idle_Loop.Marcus_M_Neutral_Stand_Idle_Loop"));
+	AZP_MarcusWalk       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Walk_Loop_F.Marcus_M_Neutral_Walk_Loop_F"));
+	AZP_MarcusRun        = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Run_Loop_F.Marcus_M_Neutral_Run_Loop_F"));
+	AZP_MarcusCrouchIdle = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Crouch_Idle_Loop.Marcus_M_Neutral_Crouch_Idle_Loop"));
+	AZP_MarcusCrouchWalk = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Crouch_Loop_F.Marcus_M_Neutral_Crouch_Loop_F"));
+	if (AZP_MarcusIdle)
 	{
 		if (UAnimSingleNodeInstance* SNI = MarcusBody->GetSingleNodeInstance())
 		{
-			SNI->SetAnimationAsset(MarcusIdle, true, 1.0f);
+			SNI->SetAnimationAsset(AZP_MarcusIdle, true, 1.0f);
 			SNI->SetPlaying(true);
 		}
 	}
@@ -4359,7 +4359,7 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 	// down showed only floor + feet. Scaling around the foot-level component origin
 	// drops his eyes to the camera while keeping feet on the floor. Measured live:
 	// camera 124cm above floor, eyes 143cm → 124/143 = 0.869.
-	MarcusBody->SetRelativeScale3D(FVector(0.869f));
+	MarcusBody->SetRelativeScale3D(FVector(AZP_MarcusBodyScale));
 
 	// Apparel: same CCMH skeleton -> leader-pose to MarcusBody. Per Marcus save:
 	//   Overalls_01 (Male upper+lower body), Sneaker_02 (Male, color variant 1), Cap_01.
@@ -4506,7 +4506,7 @@ void AZP_GraceCharacter::PerformDodge()
 	}
 
 	// Costs stamina — and is blocked entirely if you don't have enough.
-	if (GameplayComp && !GameplayComp->TryConsumeStaminaPercent(DodgeStaminaCostPercent))
+	if (GameplayComp && !GameplayComp->TryConsumeStaminaPercent(AZP_DodgeStaminaCostPercent))
 	{
 		return;
 	}
@@ -4528,13 +4528,13 @@ void AZP_GraceCharacter::PerformDodge()
 	// LaunchCharacter sets PendingLaunchVelocity, which overrides the CMC input
 	// controller's per-tick velocity-write — actually dashes. AddImpulse was
 	// getting eaten by input damping (probe shows ~10 cm/s net velocity change
-	// at DodgeImpulse=400). bXYOverride=true is the original Launch behavior;
+	// at AZP_DodgeImpulse=400). bXYOverride=true is the original Launch behavior;
 	// the camera spike at the previous 700 came from velocity-spiking the
 	// locomotion blend, not from the override mechanic itself.
-	LaunchCharacter(LaunchDir * DodgeImpulse, /*bXYOverride*/ true, /*bZOverride*/ false);
-	DodgeCooldownRemaining = DodgeCooldown;
-	DodgeClearanceRemaining = DodgeClearanceWindow;
-	DodgeLockRemaining = DodgeLockWindow; // locks sprint + weapon swap for the dash
+	LaunchCharacter(LaunchDir * AZP_DodgeImpulse, /*bXYOverride*/ true, /*bZOverride*/ false);
+	DodgeCooldownRemaining = AZP_DodgeCooldown;
+	DodgeClearanceRemaining = AZP_DodgeClearanceWindow;
+	DodgeLockRemaining = AZP_DodgeLockWindow; // locks sprint + weapon swap for the dash
 	LogCameraProbe(TEXT("POST-LAUNCH"));
 
 	// Keep the pipe GLUED to the hand through the dash. There is no pipe-fitted
@@ -4543,12 +4543,12 @@ void AZP_GraceCharacter::PerformDodge()
 	// grip, so it floated the pipe off the hand (dev report). Instead, hold the
 	// seated idle grip (A_MeleePipe_Idle) so hand_r stays at the fitted pose and
 	// the pipe never leaves the hand — the dash reads from body movement + the
-	// dodge camera offset. (DodgeAnim left wired for a future fitted clip.)
+	// dodge camera offset. (AZP_DodgeAnim left wired for a future fitted clip.)
 	const bool bMeleeUp = KinemationComp
 		&& KinemationComp->CurrentWeaponType == EZP_WeaponType::Melee;
 	if (bMeleeUp && MeleeViewMesh && !bIsBlocking)
 	{
-		if (UAnimSequenceBase* IdleAnim = MeleeIdleHoldAnim.LoadSynchronous())
+		if (UAnimSequenceBase* IdleAnim = AZP_MeleeIdleHoldAnim.LoadSynchronous())
 		{
 			if (UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance())
 			{
@@ -4571,11 +4571,11 @@ void AZP_GraceCharacter::UpdateBlockAnimation()
 	if (BlockStartLockRemaining > 0.f) return;  // start transition owns playback
 
 	const float Speed2D = GetVelocity().Size2D();
-	const bool bShouldWalk = Speed2D > 50.f;
+	const bool bShouldWalk = Speed2D > AZP_BlockWalkSpeedThreshold;
 
 	UAnimSequenceBase* Target = bShouldWalk
-		? BlockWalkAnim.LoadSynchronous()
-		: BlockLoopAnim.LoadSynchronous();
+		? AZP_BlockWalkAnim.LoadSynchronous()
+		: AZP_BlockLoopAnim.LoadSynchronous();
 	if (!Target) return;
 
 	UAnimSingleNodeInstance* SNI = MeleeViewMesh->GetSingleNodeInstance();
@@ -4594,7 +4594,7 @@ void AZP_GraceCharacter::PlayBlockImpactAnim()
 	if (!MeleeViewMesh) return;
 
 	TSoftObjectPtr<UAnimSequenceBase>* Choices[3] = {
-		&BlockImpact1Anim, &BlockImpact2Anim, &BlockImpact3Anim
+		&AZP_BlockImpact1Anim, &AZP_BlockImpact2Anim, &AZP_BlockImpact3Anim
 	};
 	const int32 Idx = FMath::RandRange(0, 2);
 	UAnimSequenceBase* Anim = Choices[Idx]->LoadSynchronous();
@@ -5025,8 +5025,8 @@ void AZP_GraceCharacter::FilterLockerAmmo(AActor* LockerActor)
 
 	for (const TPair<UObject*, int32>& P : AmmoToRemove)
 	{
-		struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-		Params.ItemDataAsset = P.Key;
+		struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+		Params.AZP_ItemDataAsset = P.Key;
 		Params.AmountToRemove = P.Value; // EXACT total — over-removal is silently rejected by Moonville
 		LockerInvComp->ProcessEvent(RemoveFunc, &Params);
 		UE_LOG(LogTemp, Log, TEXT("[LootLocker] Removed %s x%d from locker %s"), *P.Key->GetName(), P.Value, *LockerActor->GetName());
@@ -5220,16 +5220,16 @@ void AZP_GraceCharacter::LoadGrabAnims()
 	bGrabAnimsLoaded = true;
 	// Lazy-load (LoadAnimDefaults pattern — never hard-reference retargeted clips from a ctor).
 	auto L = [](const TCHAR* P) { return LoadObject<UAnimSequenceBase>(nullptr, P); };
-	GrabAnimEntry       = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabEntry.A_Marcus_GrabEntry"));
-	GrabAnimMunch       = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabMunch.A_Marcus_GrabMunch"));
-	GrabAnimWrestle     = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabWrestle.A_Marcus_GrabWrestle"));
-	GrabAnimKick        = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabKick.A_Marcus_GrabKick"));
-	GrabAnimPush        = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabPush.A_Marcus_GrabPush"));
-	GrabAnimKnockdownFP = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_KnockdownFP.A_Marcus_KnockdownFP"));
-	GrabAnimGetUpBack   = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GetUpBack.A_Marcus_GetUpBack"));
+	AZP_GrabAnimEntry       = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabEntry.A_Marcus_GrabEntry"));
+	AZP_GrabAnimMunch       = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabMunch.A_Marcus_GrabMunch"));
+	AZP_GrabAnimWrestle     = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabWrestle.A_Marcus_GrabWrestle"));
+	AZP_GrabAnimKick        = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabKick.A_Marcus_GrabKick"));
+	AZP_GrabAnimPush        = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GrabPush.A_Marcus_GrabPush"));
+	AZP_GrabAnimKnockdownFP = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_KnockdownFP.A_Marcus_KnockdownFP"));
+	AZP_GrabAnimGetUpBack   = L(TEXT("/Game/Marcus/GrabAnims/A_Marcus_GetUpBack.A_Marcus_GetUpBack"));
 	UE_LOG(LogTemp, Log, TEXT("[Grab] anims loaded: entry=%d munch=%d wrestle=%d kick=%d push=%d knockdown=%d getup=%d"),
-		GrabAnimEntry != nullptr, GrabAnimMunch != nullptr, GrabAnimWrestle != nullptr,
-		GrabAnimKick != nullptr, GrabAnimPush != nullptr, GrabAnimKnockdownFP != nullptr, GrabAnimGetUpBack != nullptr);
+		AZP_GrabAnimEntry != nullptr, AZP_GrabAnimMunch != nullptr, AZP_GrabAnimWrestle != nullptr,
+		AZP_GrabAnimKick != nullptr, AZP_GrabAnimPush != nullptr, AZP_GrabAnimKnockdownFP != nullptr, AZP_GrabAnimGetUpBack != nullptr);
 }
 
 EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
@@ -5309,7 +5309,7 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 	// Freeze + face the grabber. The BODY snaps (the paired clips need exact alignment), but the
 	// VIEW swings on smoothly: the old one-frame SetControlRotation teleport was the residual
 	// "camera jerk" at the latch no blend curve could hide (dev 2026-07-03 — "cutscene-like").
-	// UpdateGrab eases the control rotation to the target over GrabFaceBlendTime; look input is
+	// UpdateGrab eases the control rotation to the target over AZP_GrabFaceBlendTime; look input is
 	// gated for the whole grab, and by Munch it has settled — the 1P return stays snap-free.
 	FVector ToGrabber = Grabber->GetActorLocation() - GetActorLocation();
 	ToGrabber.Z = 0.f;
@@ -5318,7 +5318,7 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 		const float Yaw = ToGrabber.Rotation().Yaw;
 		GrabFaceTargetRot = FRotator(0.f, Yaw, 0.f);
 		GrabFaceStartRot = Controller ? Controller->GetControlRotation() : GetActorRotation();
-		GrabFaceAlpha = (GrabFaceBlendTime > KINDA_SMALL_NUMBER) ? 0.f : 1.f;
+		GrabFaceAlpha = (AZP_GrabFaceBlendTime > KINDA_SMALL_NUMBER) ? 0.f : 1.f;
 		if (GrabFaceAlpha >= 1.f && Controller)
 		{
 			Controller->SetControlRotation(GrabFaceTargetRot); // knob at 0 = old instant snap
@@ -5343,19 +5343,19 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 	if (MarcusBrows) { MarcusBrows->SetVisibility(true); }
 
 	// DIM the flashlight for the duration (full-off was an overcorrection — a pitch-dark room
-	// went black for the whole grapple). GrabFlashlightDimMul drops beam+fill to a silhouette
+	// went black for the whole grapple). AZP_GrabFlashlightDimMul drops beam+fill to a silhouette
 	// read; original intensities restored in EndGrab. Toggling is input-gated mid-grab.
 	if (bFlashlightOn)
 	{
 		if (FlashlightComp)
 		{
 			PreGrabFlashlightIntensity = FlashlightComp->Intensity;
-			FlashlightComp->SetIntensity(PreGrabFlashlightIntensity * GrabFlashlightDimMul);
+			FlashlightComp->SetIntensity(PreGrabFlashlightIntensity * AZP_GrabFlashlightDimMul);
 		}
 		if (FlashlightFillComp)
 		{
 			PreGrabFlashlightFillIntensity = FlashlightFillComp->Intensity;
-			FlashlightFillComp->SetIntensity(PreGrabFlashlightFillIntensity * GrabFlashlightDimMul);
+			FlashlightFillComp->SetIntensity(PreGrabFlashlightFillIntensity * AZP_GrabFlashlightDimMul);
 		}
 	}
 
@@ -5365,13 +5365,13 @@ EZP_GrabAttemptResult AZP_GraceCharacter::TryBeginGrab(AActor* Grabber)
 	{
 		if (PC->HUDWidget)
 		{
-			PC->HUDWidget->ShowGrabPrompt(GrabPromptText, bGrabPromptGamepad);
-			PC->HUDWidget->SetDamageVignetteHold(GrabVignetteHold);
+			PC->HUDWidget->ShowGrabPrompt(AZP_GrabPromptText, bGrabPromptGamepad);
+			PC->HUDWidget->SetDamageVignetteHold(AZP_GrabVignetteHold);
 		}
 	}
 
 	EscapeProgress = 0.f;
-	StruggleTimeRemaining = StruggleTimeLimit;
+	StruggleTimeRemaining = AZP_StruggleTimeLimit;
 	GrabHeldTime = 0.f;
 	GrabNextTickIn = 1.f;
 	bGrabEscapeHeld = false;
@@ -5425,27 +5425,27 @@ void AZP_GraceCharacter::SetGrabPhase(EZP_GrabPhase NewPhase)
 	switch (NewPhase)
 	{
 	case EZP_GrabPhase::Entry:
-		PlayGrabClipOnBody(GrabAnimEntry, /*bLoop*/false);
-		GrabPhaseTimeRemaining = GrabAnimEntry ? GrabAnimEntry->GetPlayLength() : 0.6f;
+		PlayGrabClipOnBody(AZP_GrabAnimEntry, /*bLoop*/false);
+		GrabPhaseTimeRemaining = AZP_GrabAnimEntry ? AZP_GrabAnimEntry->GetPlayLength() : 0.6f;
 		break;
 
 	case EZP_GrabPhase::Munch:
-		PlayGrabClipOnBody(GrabAnimMunch, /*bLoop*/true);
+		PlayGrabClipOnBody(AZP_GrabAnimMunch, /*bLoop*/true);
 		NotifyGrabberPhase(EZP_GrabPhase::Munch);
 		break;
 
 	case EZP_GrabPhase::Wrestle:
-		PlayGrabClipOnBody(GrabAnimWrestle, /*bLoop*/true);
+		PlayGrabClipOnBody(AZP_GrabAnimWrestle, /*bLoop*/true);
 		NotifyGrabberPhase(EZP_GrabPhase::Wrestle);
 		break;
 
 	case EZP_GrabPhase::EscapeKick:
 	case EZP_GrabPhase::EscapePush:
 	{
-		UAnimSequenceBase* Clip = (NewPhase == EZP_GrabPhase::EscapeKick) ? GrabAnimKick : GrabAnimPush;
+		UAnimSequenceBase* Clip = (NewPhase == EZP_GrabPhase::EscapeKick) ? AZP_GrabAnimKick : AZP_GrabAnimPush;
 		PlayGrabClipOnBody(Clip, /*bLoop*/false);
 		GrabPhaseTimeRemaining = Clip ? Clip->GetPlayLength() : 2.3f;
-		GrabImmunityRemaining = PostEscapeGrabImmunity; // anti-chain-grab window
+		GrabImmunityRemaining = AZP_PostEscapeGrabImmunity; // anti-chain-grab window
 		NotifyGrabberPhase(NewPhase); // grabber: paired reaction + knockback + stun
 		// The camera returns to 1P NOW (UpdateGrab's bWants3P excludes the escape phases), so the
 		// head meshes — which sit exactly at the FP camera — must go back to hidden immediately or
@@ -5491,9 +5491,9 @@ void AZP_GraceCharacter::SetGrabPhase(EZP_GrabPhase NewPhase)
 				AnimInst->bCopyAllBones = true;
 			}
 		}
-		PlayGrabClipOnFPRig(GrabAnimKnockdownFP);
-		GrabPhaseTimeRemaining = GrabAnimKnockdownFP ? GrabAnimKnockdownFP->GetPlayLength() : 3.87f;
-		GrabImmunityRemaining = FMath::Max(GrabImmunityRemaining, PostEscapeGrabImmunity); // no grabs off the floor
+		PlayGrabClipOnFPRig(AZP_GrabAnimKnockdownFP);
+		GrabPhaseTimeRemaining = AZP_GrabAnimKnockdownFP ? AZP_GrabAnimKnockdownFP->GetPlayLength() : 3.87f;
+		GrabImmunityRemaining = FMath::Max(GrabImmunityRemaining, AZP_PostEscapeGrabImmunity); // no grabs off the floor
 		UE_LOG(LogTemp, Warning, TEXT("[Grab] STRUGGLE FAILED — knockdown"));
 		break;
 	}
@@ -5503,8 +5503,8 @@ void AZP_GraceCharacter::SetGrabPhase(EZP_GrabPhase NewPhase)
 		// so FailKnockdown ends straight into EndGrab. Re-wiring this back in reintroduces the
 		// "two separate get up animations" bug. Kept only in case a knockdown clip WITHOUT a
 		// built-in rise ever replaces the current one.
-		PlayGrabClipOnFPRig(GrabAnimGetUpBack);
-		GrabPhaseTimeRemaining = GrabAnimGetUpBack ? GrabAnimGetUpBack->GetPlayLength() : 1.5f;
+		PlayGrabClipOnFPRig(AZP_GrabAnimGetUpBack);
+		GrabPhaseTimeRemaining = AZP_GrabAnimGetUpBack ? AZP_GrabAnimGetUpBack->GetPlayLength() : 1.5f;
 		break;
 
 	case EZP_GrabPhase::None:
@@ -5525,7 +5525,7 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 	// stays where it is — still no snap).
 	if (GrabFaceAlpha < 1.f && GrabPhase != EZP_GrabPhase::None && Controller)
 	{
-		GrabFaceAlpha = FMath::Min(1.f, GrabFaceAlpha + DeltaTime / FMath::Max(GrabFaceBlendTime, 0.05f));
+		GrabFaceAlpha = FMath::Min(1.f, GrabFaceAlpha + DeltaTime / FMath::Max(AZP_GrabFaceBlendTime, 0.05f));
 		const float T = GrabFaceAlpha;
 		const float S = T * T * T * (T * (T * 6.f - 15.f) + 10.f);
 		const FQuat Q = FQuat::Slerp(GrabFaceStartRot.Quaternion(), GrabFaceTargetRot.Quaternion(), S);
@@ -5541,7 +5541,7 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 		GrabPhase == EZP_GrabPhase::Munch ||
 		GrabPhase == EZP_GrabPhase::Wrestle;
 	const float TargetW = bWants3P ? 1.f : 0.f;
-	const float BlendTime = (TargetW > GrabCamWeight) ? GrabCamBlendIn : GrabCamBlendOut;
+	const float BlendTime = (TargetW > GrabCamWeight) ? AZP_GrabCamBlendIn : AZP_GrabCamBlendOut;
 	GrabCamWeight = FMath::FInterpConstantTo(GrabCamWeight, TargetW, DeltaTime,
 		(BlendTime > KINDA_SMALL_NUMBER) ? (1.f / BlendTime) : 1000.f);
 
@@ -5564,9 +5564,9 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 		GrabHeldTime += DeltaTime;
 
 		// Buffered wrestle switch: a press (or a Hold-mode hold) that landed inside the
-		// GrabMinMunchTime window engages the struggle the moment the bite beat has played.
-		if (GrabPhase == EZP_GrabPhase::Munch && GrabHeldTime >= GrabMinMunchTime
-			&& (bWrestleQueued || (bEscapeHoldMode && bGrabEscapeHeld)))
+		// AZP_GrabMinMunchTime window engages the struggle the moment the bite beat has played.
+		if (GrabPhase == EZP_GrabPhase::Munch && GrabHeldTime >= AZP_GrabMinMunchTime
+			&& (bWrestleQueued || (bAZP_EscapeHoldMode && bGrabEscapeHeld)))
 		{
 			bWrestleQueued = false;
 			UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] buffered wrestle FIRING (bite %.2fs done)"), GrabHeldTime);
@@ -5579,23 +5579,23 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 			bGrabPromptGamepad = bLastInputGamepad;
 			if (AZP_PlayerController* PC = Cast<AZP_PlayerController>(GetController()))
 			{
-				if (PC->HUDWidget) { PC->HUDWidget->ShowGrabPrompt(GrabPromptText, bGrabPromptGamepad); }
+				if (PC->HUDWidget) { PC->HUDWidget->ShowGrabPrompt(AZP_GrabPromptText, bGrabPromptGamepad); }
 			}
 		}
 
 		// Meter: Hold accessibility mode fills while attack is held; Tap mode decays between presses.
-		if (bEscapeHoldMode)
+		if (bAZP_EscapeHoldMode)
 		{
-			if (bGrabEscapeHeld) { EscapeProgress += HoldFillPerSecond * DeltaTime; }
+			if (bGrabEscapeHeld) { EscapeProgress += AZP_HoldFillPerSecond * DeltaTime; }
 		}
 		else
 		{
-			EscapeProgress = FMath::Max(0.f, EscapeProgress - MashDecayPerSecond * DeltaTime);
+			EscapeProgress = FMath::Max(0.f, EscapeProgress - AZP_MashDecayPerSecond * DeltaTime);
 		}
 
-		// Ticking damage — GrabTickDamagePerSecond lands once per second HELD (munch AND wrestle),
+		// Ticking damage — AZP_GrabTickDamagePerSecond lands once per second HELD (munch AND wrestle),
 		// direct through HealthComp (fall-damage precedent: no block logic, no camera flinch; the
-		// HUD vignette pulses via OnHealthChanged). By design: fastest escape (GrabMinTrappedTime)
+		// HUD vignette pulses via OnHealthChanged). By design: fastest escape (AZP_GrabMinTrappedTime)
 		// = half a normal attack; riding out the full struggle = one full attack, then the fall.
 		GrabNextTickIn -= DeltaTime;
 		if (GrabNextTickIn <= 0.f)
@@ -5632,23 +5632,23 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 			}
 			if (HealthComp)
 			{
-				HealthComp->ApplyDamage(GrabTickDamagePerSecond);
+				HealthComp->ApplyDamage(AZP_GrabTickDamagePerSecond);
 				if (HealthComp->bIsDead) { return; } // HandleDeath already tore the grab down
 			}
 		}
 
 		// Escape is gated by the minimum trapped time — the meter can be full earlier; the
 		// break fires the moment the gate opens.
-		if (EscapeProgress >= 1.f && GrabHeldTime >= GrabMinTrappedTime)
+		if (EscapeProgress >= 1.f && GrabHeldTime >= AZP_GrabMinTrappedTime)
 		{
 			SetGrabPhase(FMath::RandBool() ? EZP_GrabPhase::EscapeKick : EZP_GrabPhase::EscapePush);
 		}
 		else if (StruggleTimeRemaining <= 0.f)
 		{
-			// FAIL: ticks already totaled a full attack; FailDamageChunk is optional extra on top.
-			if (FailDamageChunk > 0.f && HealthComp)
+			// FAIL: ticks already totaled a full attack; AZP_FailDamageChunk is optional extra on top.
+			if (AZP_FailDamageChunk > 0.f && HealthComp)
 			{
-				HealthComp->ApplyDamage(FailDamageChunk);
+				HealthComp->ApplyDamage(AZP_FailDamageChunk);
 				if (HealthComp->bIsDead) { return; }
 			}
 			SetGrabPhase(EZP_GrabPhase::FailKnockdown);
@@ -5675,7 +5675,7 @@ void AZP_GraceCharacter::UpdateGrab(float DeltaTime)
 			// 2026-07-03). The knockdown clip's own rise IS the get-up. NEVER re-enter GetUp.
 			// Re-arm the anti-chain-grab window HERE (at stand-up) — armed at knockdown entry it
 			// decays away during the 3.9s clip while GrabPhase!=None already blocks grabs.
-			GrabImmunityRemaining = PostEscapeGrabImmunity;
+			GrabImmunityRemaining = AZP_PostEscapeGrabImmunity;
 			EndGrab(/*bAborted*/false);
 		}
 		break;
@@ -5699,22 +5699,22 @@ void AZP_GraceCharacter::GrabMashPressed()
 	{
 		// First press: the struggle engages — both bodies switch to the wrestle pair.
 		// The press ALWAYS counts its meter gain; the visual pair-switch waits out
-		// GrabMinMunchTime — a press 0.02s into the bite double-cut Marcus's single-node body
+		// AZP_GrabMinMunchTime — a press 0.02s into the bite double-cut Marcus's single-node body
 		// within ~3 frames and left the shambler 0.3s of blend behind: THE latch glitch
 		// ([LatchProbe] root cause, 2026-07-03). UpdateGrab fires the buffered switch.
-		if (!bEscapeHoldMode) { EscapeProgress += MashGainPerPress; }
-		if (GrabHeldTime < GrabMinMunchTime)
+		if (!bAZP_EscapeHoldMode) { EscapeProgress += AZP_MashGainPerPress; }
+		if (GrabHeldTime < AZP_GrabMinMunchTime)
 		{
 			bWrestleQueued = true;
 			UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] mash press BUFFERED (bite %.2f/%.2fs) — wrestle queued"),
-				GrabHeldTime, GrabMinMunchTime);
+				GrabHeldTime, AZP_GrabMinMunchTime);
 			return;
 		}
 		SetGrabPhase(EZP_GrabPhase::Wrestle);
 	}
-	else if (GrabPhase == EZP_GrabPhase::Wrestle && !bEscapeHoldMode)
+	else if (GrabPhase == EZP_GrabPhase::Wrestle && !bAZP_EscapeHoldMode)
 	{
-		EscapeProgress = FMath::Min(EscapeProgress + MashGainPerPress, 1.5f);
+		EscapeProgress = FMath::Min(EscapeProgress + AZP_MashGainPerPress, 1.5f);
 	}
 }
 
@@ -5931,14 +5931,14 @@ void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
 	}
 
 	// TopClimbZ: highest point the player can BE on the ladder.
-	const float TopClimbZ = Ladder->GetTopZ() - 80.f;
+	const float TopClimbZ = Ladder->GetTopZ() - AZP_LadderTopClearance;
 	// Snap Z to nearest rung so player always starts at a clean rung position
-	const float RungSpacing = 23.5f;
+	const float RungSpacing = AZP_LadderRungSpacing;
 	float RawHeight = GetActorLocation().Z - Ladder->GetBottomZ();
 	float SnappedHeight = FMath::RoundToFloat(RawHeight / RungSpacing) * RungSpacing;
 	float ClampedZ = FMath::Clamp(Ladder->GetBottomZ() + SnappedHeight, Ladder->GetBottomZ(), TopClimbZ);
 	FVector LadderCenter = Ladder->GetLadderCenter();
-	const float StandoffDist = 75.f;
+	const float StandoffDist = AZP_LadderStandoffDist;
 	float MidZ = (Ladder->GetBottomZ() + Ladder->GetTopZ()) * 0.5f;
 	bool bClimbingDown = GetActorLocation().Z >= MidZ;
 
@@ -6026,9 +6026,9 @@ void AZP_GraceCharacter::EnterLadder(AActor* LadderActor)
 	// Set ladder idle animation on hidden mesh
 	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
 	{
-		if (LadderIdleAnimation)
+		if (AZP_LadderIdleAnimation)
 		{
-			SNI->SetAnimationAsset(LadderIdleAnimation, true, 1.0f);
+			SNI->SetAnimationAsset(AZP_LadderIdleAnimation, true, 1.0f);
 			SNI->SetPlaying(true);
 		}
 	}
@@ -6108,7 +6108,7 @@ void AZP_GraceCharacter::ExitLadder(bool bExitTop)
 			ToLadder.Z = 0.f;
 			if (ToLadder.SizeSquared() > 1.f)
 			{
-				ExitLoc += ToLadder.GetSafeNormal() * 120.f;
+				ExitLoc += ToLadder.GetSafeNormal() * AZP_LadderTopExitPush;
 			}
 
 			SetActorLocation(ExitLoc);
@@ -6182,7 +6182,7 @@ void AZP_GraceCharacter::ExitLadder(bool bExitTop)
 void AZP_GraceCharacter::BeginLadderTopExit(AZP_Ladder* Ladder)
 {
 	// No ladder or no animation configured -> fall back to the instant exit.
-	if (!Ladder || !LadderTopExitAnimation)
+	if (!Ladder || !AZP_LadderTopExitAnimation)
 	{
 		ExitLadder(true);
 		return;
@@ -6190,7 +6190,7 @@ void AZP_GraceCharacter::BeginLadderTopExit(AZP_Ladder* Ladder)
 
 	bLadderTopExiting = true;
 	LadderTopExitElapsed = 0.f;
-	LadderTopExitDuration = LadderTopExitAnimation->GetPlayLength();
+	LadderTopExitDuration = AZP_LadderTopExitAnimation->GetPlayLength();
 	bLadderMovingToRung = false;
 
 	// Resting spot = the same place the legacy instant exit landed: floor height,
@@ -6201,7 +6201,7 @@ void AZP_GraceCharacter::BeginLadderTopExit(AZP_Ladder* Ladder)
 	ToLadder.Z = 0.f;
 	if (ToLadder.SizeSquared() > 1.f)
 	{
-		EndLoc += ToLadder.GetSafeNormal() * 120.f;
+		EndLoc += ToLadder.GetSafeNormal() * AZP_LadderTopExitPush;
 	}
 	LadderTopExitEndLoc = EndLoc;
 
@@ -6216,18 +6216,18 @@ void AZP_GraceCharacter::BeginLadderTopExit(AZP_Ladder* Ladder)
 	// does the travelling, then we snap the capsule to EndLoc at the end.
 	if (UAnimSingleNodeInstance* SNI = Cast<UAnimSingleNodeInstance>(GetMesh()->GetAnimInstance()))
 	{
-		SNI->SetAnimationAsset(LadderTopExitAnimation, false, 1.0f);
+		SNI->SetAnimationAsset(AZP_LadderTopExitAnimation, false, 1.0f);
 		SNI->SetPlaying(false);
 		SNI->SetPosition(0.f, false);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] BeginLadderTopExit: anim=%s dur=%.2f end=(%.0f,%.0f,%.0f)"),
-		*LadderTopExitAnimation->GetName(), LadderTopExitDuration, EndLoc.X, EndLoc.Y, EndLoc.Z);
+		*AZP_LadderTopExitAnimation->GetName(), LadderTopExitDuration, EndLoc.X, EndLoc.Y, EndLoc.Z);
 }
 
 void AZP_GraceCharacter::UpdateLadderTopExit(float DeltaTime)
 {
-	LadderTopExitElapsed += DeltaTime * LadderTopExitPlayRate;
+	LadderTopExitElapsed += DeltaTime * AZP_LadderTopExitPlayRate;
 	const float Frac = (LadderTopExitDuration > 0.f)
 		? FMath::Clamp(LadderTopExitElapsed / LadderTopExitDuration, 0.f, 1.f) : 1.f;
 

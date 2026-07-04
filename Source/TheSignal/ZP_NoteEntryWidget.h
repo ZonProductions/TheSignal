@@ -55,27 +55,31 @@ public:
 
 	/** Color for the selected entry title. */
 	UPROPERTY(EditDefaultsOnly, Category = "Notes|Style")
-	FLinearColor SelectedColor = FLinearColor(0.92f, 0.92f, 0.92f, 1.0f);
+	FLinearColor AZP_SelectedColor = FLinearColor(0.92f, 0.92f, 0.92f, 1.0f);
 
 	/** Color for unselected entry titles. */
 	UPROPERTY(EditDefaultsOnly, Category = "Notes|Style")
-	FLinearColor UnselectedColor = FLinearColor(0.45f, 0.45f, 0.45f, 0.9f);
+	FLinearColor AZP_UnselectedColor = FLinearColor(0.45f, 0.45f, 0.45f, 0.9f);
 
 	/** Button background when selected (teal accent). */
 	UPROPERTY(EditDefaultsOnly, Category = "Notes|Style")
-	FLinearColor SelectedBgColor = FLinearColor(0.05f, 0.16f, 0.12f, 1.0f);
+	FLinearColor AZP_SelectedBgColor = FLinearColor(0.05f, 0.16f, 0.12f, 1.0f);
 
 	/** Button background when unselected. */
 	UPROPERTY(EditDefaultsOnly, Category = "Notes|Style")
-	FLinearColor UnselectedBgColor = FLinearColor(0.04f, 0.04f, 0.04f, 0.6f);
+	FLinearColor AZP_UnselectedBgColor = FLinearColor(0.04f, 0.04f, 0.04f, 0.6f);
 
 	/** Left margin when selected (folder-tab indent). */
 	UPROPERTY(EditDefaultsOnly, Category = "Notes|Style")
-	float SelectedLeftMargin = 14.0f;
+	float AZP_SelectedLeftMargin = 14.0f;
 
 	/** Left margin when unselected. */
 	UPROPERTY(EditDefaultsOnly, Category = "Notes|Style")
-	float UnselectedLeftMargin = 0.0f;
+	float AZP_UnselectedLeftMargin = 0.0f;
+
+	/** Right slot padding applied when the entry is unselected (selected uses 0) - the mirror half of the folder-tab indent that is currently hardcoded while its left-margin siblings are knobs. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Notes|Style")
+	float AZP_UnselectedRightMargin = 6.0f;
 
 protected:
 	virtual void NativeConstruct() override;

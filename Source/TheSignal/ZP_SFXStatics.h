@@ -55,35 +55,35 @@ public:
 	//    continuous differential real ears expect. Full volume only inside InnerRadius (~1.5 m);
 	//    half amplitude at 2x inner, quarter at 4x, and so on. The profiles differ mainly in how
 	//    far they stay mixed before going sub-audible. 100 UU = 1 m.
-	static constexpr float CloseInnerRadius = 100.f;
-	static constexpr float CloseFalloff     = 2900.f;   // sub-audible past ~30 m
-	static constexpr float RoomInnerRadius  = 150.f;
-	static constexpr float RoomFalloff      = 5850.f;   // sub-audible past ~60 m
-	static constexpr float FarInnerRadius   = 150.f;
-	static constexpr float FarFalloff       = 7850.f;   // sub-audible past ~80 m
+	static constexpr float AZP_CloseInnerRadius = 100.f;
+	static constexpr float AZP_CloseFalloff     = 2900.f;   // sub-audible past ~30 m
+	static constexpr float AZP_RoomInnerRadius  = 150.f;
+	static constexpr float AZP_RoomFalloff      = 5850.f;   // sub-audible past ~60 m
+	static constexpr float AZP_FarInnerRadius   = 150.f;
+	static constexpr float AZP_FarFalloff       = 7850.f;   // sub-audible past ~80 m
 
 	// ── Distance feel: air absorption + reverb ratio (why "far" actually SOUNDS far) ──
 	// Distance character indoors = QUIETER + WETTER (more hallway tail), with a gentle top-end
 	// shelf. Heavy low-pass belongs ONLY to through-wall transmission — never plain distance.
-	static constexpr float LPFStartFraction   = 0.35f;    // top-end shelf starts past this fraction of max range
-	static constexpr float LPFFrequencyAtFar  = 7000.f;   // Hz at max range — a shelf, not a blanket
-	static constexpr float ReverbWetNear      = 0.08f;    // subtle tail on close sounds
-	static constexpr float ReverbWetFar       = 0.7f;     // distant sounds are echo-dominant
+	static constexpr float AZP_LPFStartFraction   = 0.35f;    // top-end shelf starts past this fraction of max range
+	static constexpr float AZP_LPFFrequencyAtFar  = 7000.f;   // Hz at max range — a shelf, not a blanket
+	static constexpr float AZP_ReverbWetNear      = 0.08f;    // subtle tail on close sounds
+	static constexpr float AZP_ReverbWetFar       = 0.7f;     // distant sounds are echo-dominant
 
 	// ── Facility reverb bed (concrete corridor). Auto-activated once per world on the first
 	//    world SFX, so every reverb send above actually renders. AudioVolumes with higher
 	//    priority can override per-room later; this is the level-wide default space. ──
-	static constexpr float ReverbMasterVolume     = 0.35f;
-	static constexpr float ReverbDecayTime        = 2.3f;   // s — long concrete tail
-	static constexpr float ReverbDecayHFRatio     = 0.55f;  // concrete keeps the low end ringing
-	static constexpr float ReverbGain             = 0.32f;
-	static constexpr float ReverbGainHF           = 0.55f;
-	static constexpr float ReverbReflectionsGain  = 0.14f;
-	static constexpr float ReverbReflectionsDelay = 0.012f; // s — hallway-width early slap
-	static constexpr float ReverbLateGain         = 1.1f;
-	static constexpr float ReverbLateDelay        = 0.02f;
-	static constexpr float ReverbDiffusion        = 0.85f;
-	static constexpr float ReverbDensity          = 1.0f;
+	static constexpr float AZP_ReverbMasterVolume     = 0.35f;
+	static constexpr float AZP_ReverbDecayTime        = 2.3f;   // s — long concrete tail
+	static constexpr float AZP_ReverbDecayHFRatio     = 0.55f;  // concrete keeps the low end ringing
+	static constexpr float AZP_ReverbGain             = 0.32f;
+	static constexpr float AZP_ReverbGainHF           = 0.55f;
+	static constexpr float AZP_ReverbReflectionsGain  = 0.14f;
+	static constexpr float AZP_ReverbReflectionsDelay = 0.012f; // s — hallway-width early slap
+	static constexpr float AZP_ReverbLateGain         = 1.1f;
+	static constexpr float AZP_ReverbLateDelay        = 0.02f;
+	static constexpr float AZP_ReverbDiffusion        = 0.85f;
+	static constexpr float AZP_ReverbDensity          = 1.0f;
 
 	// ── Propagation (manual — engine occlusion is a project dead end, see header) ──
 	// CONTINUOUS model, re-evaluated for the whole life of every sound by
@@ -97,16 +97,16 @@ public:
 	//   TRANSMITTED — no open route: genuinely through a wall. Heavy muffle IS the correct physics.
 	/** Detour ratio (nav path length / straight line) above which "around the corner" stops being
 	 *  believable and the sound counts as through-wall. */
-	static constexpr float MaxDiffractionDetour   = 2.4f;
-	static constexpr float DiffractedVolumeMin    = 1.0f;   // detour ratio ~1: same as Direct (seamless blend)
-	static constexpr float DiffractedVolumeMax    = 0.5f;   // long detour, several corners
-	static constexpr float DiffractedLPFMinHz     = 15000.f; // inaudible filtering at ratio ~1
-	static constexpr float DiffractedLPFMaxHz     = 3200.f;
-	static constexpr float TransmittedVolumeScale = 0.3f;
-	static constexpr float TransmittedLowPassHz   = 500.f;
+	static constexpr float AZP_MaxDiffractionDetour   = 2.4f;
+	static constexpr float AZP_DiffractedVolumeMin    = 1.0f;   // detour ratio ~1: same as Direct (seamless blend)
+	static constexpr float AZP_DiffractedVolumeMax    = 0.5f;   // long detour, several corners
+	static constexpr float AZP_DiffractedLPFMinHz     = 15000.f; // inaudible filtering at ratio ~1
+	static constexpr float AZP_DiffractedLPFMaxHz     = 3200.f;
+	static constexpr float AZP_TransmittedVolumeScale = 0.3f;
+	static constexpr float AZP_TransmittedLowPassHz   = 500.f;
 	/** A blocker within this many UU of the source is the source's OWN perch/contact geometry
 	 *  (e.g. a crawler clinging to the wall it's heard through), not a wall between rooms. */
-	static constexpr float OcclusionSelfSkin      = 150.f;
+	static constexpr float AZP_OcclusionSelfSkin      = 150.f;
 
 	/** Play a world SFX following a component (enemy voice, machine hum burst, etc.).
 	 *  bPropagate: run the 3-tier Direct/Diffracted/Transmitted model (default ON for every world

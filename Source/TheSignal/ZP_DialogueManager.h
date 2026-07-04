@@ -15,7 +15,7 @@
  * Blueprint Extension Points:
  *   - All delegates are BlueprintAssignable for widget binding.
  *   - PlayDialogue / StopDialogue / SelectChoice are BlueprintCallable.
- *   - DialogueLookupTable maps FName DialogueIDs to DataAssets (set in Blueprint).
+ *   - AZP_DialogueLookupTable maps FName DialogueIDs to DataAssets (set in Blueprint).
  *
  * Dependencies:
  *   - UZP_DialogueData, FZP_DialogueLine, FZP_DialogueChoice (ZP_DialogueTypes.h)
@@ -53,7 +53,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void PlayDialogue(UZP_DialogueData* Dialogue);
 
-	/** Play a dialogue by ID lookup. Requires DialogueLookupTable to be populated. */
+	/** Play a dialogue by ID lookup. Requires AZP_DialogueLookupTable to be populated. */
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void PlayDialogueByID(FName DialogueID);
 
@@ -115,11 +115,19 @@ public:
 
 	// --- Config ---
 
-	/** Map of DialogueID → DialogueData for ID-based lookups and choice jumps.
+	/** Map of AZP_DialogueID → AZP_DialogueData for ID-based lookups and choice jumps.
 	 *  Auto-populated: RegisterDialogue() called when NPC interaction components register,
 	 *  and PlayDialogue auto-registers any DA it plays. Can also be pre-populated in editor. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
-	TMap<FName, TObjectPtr<UZP_DialogueData>> DialogueLookupTable;
+	TMap<FName, TObjectPtr<UZP_DialogueData>> AZP_DialogueLookupTable;
+
+	/** Minimum on-screen time in seconds for a text-only dialogue line (no audio, no explicit Duration) before auto-advancing. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue|Timing")
+	float AZP_MinSubtitleDuration = 2.f;
+
+	/** Reading-speed fallback for text-only lines: seconds of display time added per subtitle character (~50ms/char) when a line has no audio and no explicit Duration. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue|Timing")
+	float AZP_SubtitleSecondsPerChar = 0.05f;
 
 	/** Register a dialogue DA for ID-based lookup. Called automatically by NPCInteractionComponent. */
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")

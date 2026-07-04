@@ -6,8 +6,8 @@
  * AZP_ScytheerBase
  *
  * Purpose: Ground-roaming Scytheer enemy. Wanders the navmesh at a slow pace; when the player
- *          enters DetectionRange with line of sight, transitions to Alert (plays idle pose +
- *          alert SFX for AlertHoldTime), then Chase (runs toward player). On reach, swings one
+ *          enters AZP_DetectionRange with line of sight, transitions to Alert (plays idle pose +
+ *          alert SFX for AZP_AlertHoldTime), then Chase (runs toward player). On reach, swings one
  *          of three attack variants and applies damage at the clip midpoint. Takes bullets
  *          (capsule blocks Visibility — same pattern as the Shambler). 5 body shots = dead.
  *
@@ -22,7 +22,7 @@
  *
  * Blueprint Extension Points:
  *   - Mesh: SkeletalMesh asset set in the child BP. The inherited Character Mesh is used.
- *   - SingleAnim: the source clip to slice.
+ *   - AZP_SingleAnim: the source clip to slice.
  *   - SFX properties: all default to Crawler/Shambler placeholders — swap in editor for real audio.
  *
  * Dependencies: UZP_HealthComponent, AAIController, NavigationSystem.
@@ -78,65 +78,97 @@ public:
 	/** Straight-line distance to consider the player for aggro. Final gate is the navmesh
 	 *  reachability check — only the same connected navmesh region (= same geometry) qualifies. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
-	float DetectionRange = 1000.f;
+	float AZP_DetectionRange = 1000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
-	float LoseSightTime = 4.f;
+	float AZP_LoseSightTime = 4.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
-	float GiveUpRange = 2200.f;
+	float AZP_GiveUpRange = 2200.f;
 
 	/** Max navmesh PATH length (UU) that counts as "same geometry". A closed door blocks the
 	 *  navmesh, so even a 200-UU straight-line gap reads as unreachable -> no aggro. An open door
-	 *  with navmesh through it reads as reachable -> aggro. 1.6x DetectionRange covers a typical
+	 *  with navmesh through it reads as reachable -> aggro. 1.6x AZP_DetectionRange covers a typical
 	 *  in-room S-shape but rejects "all the way around the building" paths. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
-	float MaxReachablePathLength = 1600.f;
+	float AZP_MaxReachablePathLength = 1600.f;
+
+	/** Height above the actor pivot the LOS trace starts from (the Scytheer's 'eye'); also used by the aggro debug trace. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
+	float AZP_LOSEyeZOffset = 30.f;
+
+	/** Height above the target's pivot the LOS trace aims at (roughly chest height on the player); also used by the aggro debug trace. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
+	float AZP_LOSTargetZOffset = 40.f;
 
 	// ── Damage / Death ─────────────────────────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Damage")
-	float MaxHealth = 100.f;
+	float AZP_MaxHealth = 100.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Damage")
-	float BodyShotDamage = 20.f;
+	float AZP_BodyShotDamage = 20.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Damage")
-	float HeadShotDamage = 50.f;
+	float AZP_HeadShotDamage = 50.f;
 
 	/** Hits above this Z (above the actor pivot) count as headshots. Capsule hits carry no bone. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Damage")
-	float HeadshotMinZ = 40.f;
+	float AZP_HeadshotMinZ = 40.f;
 
 	// ── Attack ─────────────────────────────────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
-	float AttackRange = 200.f;
+	float AZP_AttackRange = 200.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
-	float AttackCooldown = 0.7f;
+	float AZP_AttackCooldown = 0.7f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
-	float AttackDamage = 20.f;
+	float AZP_AttackDamage = 20.f;
+
+	/** Grace multiplier on AZP_AttackRange at the swing's damage midpoint — the player must be within AZP_AttackRange * this (and visible) for the swipe to connect. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float AZP_AttackHitRangeMultiplier = 1.4f;
 
 	/** Min seconds between hit-react flinches. Without a CD the Scytheer can be perma-stunlocked
 	 *  by sustained fire — every bullet triggers a fresh Hit state. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
-	float HitReactCooldown = 1.0f;
+	float AZP_HitReactCooldown = 1.0f;
 
 	/** Z above the patrol spline's ground point that counts as "on the wall" — controls whether
 	 *  aggro transitions through WallDescent or straight into Alert. 100 UU keeps the climb-and-
 	 *  back-down on the floor portion of the spline from falsely triggering descent every time. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
-	float OnWallZThreshold = 100.f;
+	float AZP_OnWallZThreshold = 100.f;
 
 	// ── Movement (drive CharacterMovement) ─────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
-	float WanderSpeed = 60.f;
+	float AZP_WanderSpeed = 60.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
-	float ChaseSpeed = 280.f;
+	float AZP_ChaseSpeed = 280.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
-	float CombatTurnRate = 300.f;
+	float AZP_CombatTurnRate = 300.f;
+
+	/** Movement (UU) below which the chase body counts as 'not moving' for stuck detection (compared squared). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
+	float AZP_ChaseStuckMoveThreshold = 30.f;
+
+	/** Seconds stuck during Chase before retrying MoveToActor with a wider acceptance radius (the 2.5f re-hold after the retry is mechanism, not a knob). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
+	float AZP_ChaseStuckRepathTime = 2.f;
+
+	/** Seconds of not moving during Chase before the Scytheer de-aggros and returns to patrol/wander (anti door-jam watchdog). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
+	float AZP_ChaseStuckGiveUpTime = 4.f;
+
+	/** Subtracted from AZP_AttackRange to form the MoveToActor acceptance radius so the body closes inside swing distance; used by both the relaxed stuck-retry (floor 200) and the normal chase move (floor 40). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
+	float AZP_ChaseAcceptanceOffset = 60.f;
+
+	/** Acceptance/arrival radius for non-chase MoveToLocation calls — ReturnToPatrol arrival + goal and wander-point moves. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Move")
+	float AZP_MoveAcceptanceRadius = 80.f;
 
 	// ── Patrol (optional designer-guided path) ─────────────────────
 	/** If set, Wander walks back and forth along this spline instead of picking random navmesh points.
@@ -144,49 +176,53 @@ public:
 	 *  points must sit on the navmesh for the AI to walk between them. Chase still uses navmesh; on
 	 *  losing the player the Scytheer rejoins the nearest point on the path and resumes patrol. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
-	TObjectPtr<AZP_ScytheerClimbPath> PatrolPath;
+	TObjectPtr<AZP_ScytheerClimbPath> AZP_PatrolPath;
 
 	/** Distance between consecutive patrol waypoints along the spline (UU). Smaller = the AI re-paths
 	 *  more often (smoother curves but more CPU); larger = it cuts corners on tight bends. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
-	float PatrolStep = 200.f;
+	float AZP_PatrolStep = 200.f;
 
 	/** Max rotational speed (deg/s) the body uses while patrolling. Without a cap, reversing
 	 *  direction at the spline endpoints flips the body 180° in a single frame (snap). 360 = the
 	 *  reversal takes 0.5s; lower = more deliberate-looking turns. Set very high (e.g. 9999) for
 	 *  the original instant-flip behaviour. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Patrol")
-	float PatrolTurnRate = 360.f;
+	float AZP_PatrolTurnRate = 360.f;
 
-	// ── Wander (random-roam fallback when PatrolPath is unset) ─────
+	// ── Wander (random-roam fallback when AZP_PatrolPath is unset) ─────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Wander")
-	float WanderRadius = 600.f;
+	float AZP_WanderRadius = 600.f;
+
+	/** 2D distance to the random wander destination that counts as arrival, triggering the pause-then-repick cycle. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Wander")
+	float AZP_WanderArriveRadius = 120.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Wander")
-	float PauseMin = 1.5f;
+	float AZP_PauseMin = 1.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Wander")
-	float PauseMax = 3.5f;
+	float AZP_PauseMax = 3.5f;
 
 	// ── Alert (plays after first detection, before Chase) ──────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Alert")
-	float AlertHoldTime = 2.0f;
+	float AZP_AlertHoldTime = 2.0f;
 
 	// ── Audio placeholders ─────────────────────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
-	TObjectPtr<USoundBase> AlertSound;
+	TObjectPtr<USoundBase> AZP_AlertSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
-	TObjectPtr<USoundBase> AttackSound;
+	TObjectPtr<USoundBase> AZP_AttackSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
-	TObjectPtr<USoundBase> HitSound;
+	TObjectPtr<USoundBase> AZP_HitSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
-	TObjectPtr<USoundBase> DeathSound;
+	TObjectPtr<USoundBase> AZP_DeathSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
-	TObjectPtr<USoundBase> LurkSound;
+	TObjectPtr<USoundBase> AZP_LurkSound;
 
 	/** LEGACY — no longer used. Voice SFX route through UZP_SFXStatics (Far carry, ~120 m natural
 	 *  falloff, C++-owned) so carry can't silently drift in a .uasset; the old SA_EnemyVoice asset
@@ -196,40 +232,40 @@ public:
 
 	// ── Animation source ───────────────────────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	TObjectPtr<UAnimSequence> SingleAnim;
+	TObjectPtr<UAnimSequence> AZP_SingleAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 WalkStartFrame = 1;
+	int32 AZP_WalkStartFrame = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 WalkEndFrame = 33;
+	int32 AZP_WalkEndFrame = 33;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 RunStartFrame = 35;
+	int32 AZP_RunStartFrame = 35;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 RunEndFrame = 53;
+	int32 AZP_RunEndFrame = 53;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 IdleStartFrame = 55;
+	int32 AZP_IdleStartFrame = 55;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 IdleEndFrame = 190;
+	int32 AZP_IdleEndFrame = 190;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 Attack1StartFrame = 192;
+	int32 AZP_Attack1StartFrame = 192;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 Attack1EndFrame = 222;
+	int32 AZP_Attack1EndFrame = 222;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 Attack2StartFrame = 223;
+	int32 AZP_Attack2StartFrame = 223;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 Attack2EndFrame = 288;
+	int32 AZP_Attack2EndFrame = 288;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 Attack3StartFrame = 291;
+	int32 AZP_Attack3StartFrame = 291;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 Attack3EndFrame = 321;
+	int32 AZP_Attack3EndFrame = 321;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 HitStartFrame = 323;
+	int32 AZP_HitStartFrame = 323;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 HitEndFrame = 353;
+	int32 AZP_HitEndFrame = 353;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 DieStartFrame = 354;
+	int32 AZP_DieStartFrame = 354;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Anim")
-	int32 DieEndFrame = 500;
+	int32 AZP_DieEndFrame = 500;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scytheer|State")
 	EScytheerState State = EScytheerState::Wander;
@@ -285,7 +321,7 @@ private:
 	float Frame2Time(int32 Frame) const;
 	APawn* GetPlayer() const;
 	bool HasLOS(const AActor* Target) const;
-	/** Is the player reachable on the same connected navmesh region within MaxReachablePathLength?
+	/** Is the player reachable on the same connected navmesh region within AZP_MaxReachablePathLength?
 	 *  Closed doors block navmesh, so this returns false through any solid barrier. The
 	 *  "same geometry" gate the dev asked for. */
 	bool IsPlayerReachable(const AActor* Target) const;

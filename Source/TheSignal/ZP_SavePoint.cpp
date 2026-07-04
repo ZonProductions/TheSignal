@@ -50,7 +50,7 @@ void AZP_SavePoint::BeginPlay()
 
 FText AZP_SavePoint::GetInteractionPrompt_Implementation()
 {
-	return PromptText;
+	return AZP_PromptText;
 }
 
 void AZP_SavePoint::OnInteract_Implementation(ACharacter* Interactor)
@@ -59,12 +59,12 @@ void AZP_SavePoint::OnInteract_Implementation(ACharacter* Interactor)
 		*GetName(), *Interactor->GetName());
 
 	// Open save menu widget
-	if (SaveMenuWidgetClass)
+	if (AZP_SaveMenuWidgetClass)
 	{
 		APlayerController* PC = Cast<APlayerController>(Interactor->GetController());
 		if (PC)
 		{
-			UUserWidget* SaveMenu = CreateWidget<UUserWidget>(PC, SaveMenuWidgetClass);
+			UUserWidget* SaveMenu = CreateWidget<UUserWidget>(PC, AZP_SaveMenuWidgetClass);
 			if (SaveMenu)
 			{
 				SaveMenu->AddToViewport(100);
@@ -112,11 +112,11 @@ void AZP_SavePoint::OnInteract_Implementation(ACharacter* Interactor)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] SavePoint %s: No SaveMenuWidgetClass set!"), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] SavePoint %s: No AZP_SaveMenuWidgetClass set!"), *GetName());
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow,
-				TEXT("SavePoint: No SaveMenuWidgetClass assigned in BP defaults"));
+				TEXT("SavePoint: No AZP_SaveMenuWidgetClass assigned in BP defaults"));
 		}
 	}
 
@@ -138,7 +138,7 @@ void AZP_SavePoint::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(Grace->GetController());
 	if (PC && PC->HUDWidget)
 	{
-		PC->HUDWidget->ShowInteractionPrompt(PromptText);
+		PC->HUDWidget->ShowInteractionPrompt(AZP_PromptText);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] SavePoint %s: Player entered range"), *GetName());

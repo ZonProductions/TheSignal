@@ -8,15 +8,15 @@
  * Purpose: Drop-in level volume that drives the campaign ObjectiveSubsystem when the player walks in.
  *          On first overlap it performs one configurable action — set a progression flag, or
  *          complete / start an objective or sub-objective. Used for "reach a place" beats such as
- *          "Go to the empty floor" (Action = SetFlag, TargetId = the flag a stage requirement gates on).
+ *          "Go to the empty floor" (AZP_Action = SetFlag, AZP_TargetId = the flag a stage requirement gates on).
  *          The ObjectiveSubsystem is GameInstance-scoped, so this works across level travel.
  *
  * Owner Subsystem: UZP_ObjectiveSubsystem
  *
  * Blueprint Extension Points:
  *   - TriggerVolume: size/position the box in the placed instance.
- *   - Action / TargetId: configure what fires per-instance.
- *   - bOneShot: fire once (default) or every entry.
+ *   - AZP_Action / AZP_TargetId: configure what fires per-instance.
+ *   - bAZP_OneShot: fire once (default) or every entry.
  */
 
 #include "CoreMinimal.h"
@@ -47,20 +47,20 @@ public:
 
 	/** What to do on the global ObjectiveSubsystem when the player enters. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ObjectiveTrigger")
-	EZP_ObjectiveTriggerAction Action = EZP_ObjectiveTriggerAction::SetFlag;
+	EZP_ObjectiveTriggerAction AZP_Action = EZP_ObjectiveTriggerAction::SetFlag;
 
 	/** The flag / objective id / sub-objective id passed to the action (e.g. "reached_empty_floor"). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ObjectiveTrigger")
-	FName TargetId = NAME_None;
+	FName AZP_TargetId = NAME_None;
 
 	/** Fire only once, then ignore further overlaps. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ObjectiveTrigger")
-	bool bOneShot = true;
+	bool bAZP_OneShot = true;
 
 	/** Optional gate: only fire while this main objective is active (None = no gate). Stops an
 	 *  "arrival" trigger firing before the player is actually on that leg of the campaign. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ObjectiveTrigger")
-	FName RequiresActiveObjective = NAME_None;
+	FName AZP_RequiresActiveObjective = NAME_None;
 
 protected:
 	virtual void BeginPlay() override;

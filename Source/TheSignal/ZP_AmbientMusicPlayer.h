@@ -11,7 +11,7 @@
  * Owner Subsystem: Audio
  *
  * Blueprint Extension Points:
- *   - SoundToPlay, Volume, FadeInTime, FadeOutTime, MinInterval, MaxInterval
+ *   - AZP_SoundToPlay, AZP_Volume, AZP_FadeInTime, AZP_FadeOutTime, AZP_MinInterval, AZP_MaxInterval
  *
  * Dependencies:
  *   - None
@@ -33,27 +33,35 @@ public:
 
 	/** The sound to play. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
-	TObjectPtr<USoundBase> SoundToPlay;
+	TObjectPtr<USoundBase> AZP_SoundToPlay;
 
 	/** Playback volume (0-1). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float Volume = 0.4f;
+	float AZP_Volume = 0.4f;
 
 	/** Fade in duration in seconds. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
-	float FadeInTime = 3.0f;
+	float AZP_FadeInTime = 3.0f;
 
 	/** Fade out duration in seconds. Starts this many seconds before the sound ends. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
-	float FadeOutTime = 3.0f;
+	float AZP_FadeOutTime = 3.0f;
 
 	/** Minimum silence between plays (seconds). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
-	float MinInterval = 10.0f;
+	float AZP_MinInterval = 10.0f;
 
 	/** Maximum silence between plays (seconds). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
-	float MaxInterval = 30.0f;
+	float AZP_MaxInterval = 30.0f;
+
+	/** Lower bound of the random delay before the very first play after BeginPlay (FMath::RandRange(1.0f, 5.0f)). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
+	float AZP_FirstPlayDelayMin = 1.0f;
+
+	/** Upper bound of the random delay before the very first play after BeginPlay (FMath::RandRange(1.0f, 5.0f)). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
+	float AZP_FirstPlayDelayMax = 5.0f;
 
 protected:
 	virtual void BeginPlay() override;

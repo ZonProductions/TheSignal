@@ -5,13 +5,13 @@
 /**
  * AZP_FloorSign
  *
- * Purpose: Drag-and-drop floor number sign. Set FloorNumber in Details,
+ * Purpose: Drag-and-drop floor number sign. Set AZP_FloorNumber in Details,
  *          material updates automatically in editor and at runtime.
  *
  * Owner Subsystem: FacilitySystemsManager
  *
  * Blueprint Extension Points:
- *   - FloorNumber (1-6) editable per instance
+ *   - AZP_FloorNumber (1-6) editable per instance
  *
  * Dependencies:
  *   - MI_FloorSign_1 through MI_FloorSign_6 in /Game/TheSignal/Materials/
@@ -36,7 +36,11 @@ public:
 
 	/** Floor number to display (1-6). Changes material automatically. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Sign", meta = (ClampMin = "1", ClampMax = "6"))
-	int32 FloorNumber = 1;
+	int32 AZP_FloorNumber = 1;
+
+	/** Hardcoded material-instance path pattern the sign loads per floor number; promoting lets BP children point at a different sign material family without code. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor Sign")
+	FString AZP_FloorSignMaterialPathFormat = TEXT("/Game/TheSignal/Materials/MI_FloorSign_%d.MI_FloorSign_%d");
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;

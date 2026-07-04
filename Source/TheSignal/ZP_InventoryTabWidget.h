@@ -24,6 +24,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "InputCoreTypes.h"
+#include "UObject/SoftObjectPath.h"
 #include "ZP_InventoryTabTypes.h"
 #include "ZP_InventoryTabWidget.generated.h"
 
@@ -50,23 +52,79 @@ public:
 
 	/** Size of the player marker on the map (pixels). */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab|Map")
-	FVector2D TabMarkerSize = FVector2D(20.0f, 20.0f);
+	FVector2D AZP_TabMarkerSize = FVector2D(20.0f, 20.0f);
+
+	/** Tint color of the player chevron marker on the map (currently green). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Map")
+	FLinearColor AZP_PlayerMarkerColor = FLinearColor(0.0f, 1.0f, 0.3f, 1.0f);
 
 	/** Color for the active tab button text. */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab|Style")
-	FLinearColor ActiveTabColor = FLinearColor(0.85f, 0.85f, 0.85f, 1.0f);
+	FLinearColor AZP_ActiveTabColor = FLinearColor(0.85f, 0.85f, 0.85f, 1.0f);
 
 	/** Color for inactive tab button text. */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab|Style")
-	FLinearColor InactiveTabColor = FLinearColor(0.3f, 0.3f, 0.3f, 0.6f);
+	FLinearColor AZP_InactiveTabColor = FLinearColor(0.3f, 0.3f, 0.3f, 0.6f);
+
+	/** Font size of the injected MAP/INVENTORY/NOTES tab button labels. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Style")
+	int32 AZP_TabButtonFontSize = 14;
+
+	/** Font size of the area display-name header on the map tab. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Style")
+	int32 AZP_AreaNameFontSize = 20;
+
+	/** Font size of the 'No map available' / 'Map not found yet' message text. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Style")
+	int32 AZP_NoMapFontSize = 18;
+
+	/** Key that cycles to the previous tab while the menu is open (Enhanced Input is blocked in UI mode). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Input")
+	FKey AZP_TabCycleLeftKey = EKeys::Q;
+
+	/** Key that cycles to the next tab while the menu is open. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Input")
+	FKey AZP_TabCycleRightKey = EKeys::E;
+
+	/** Player-facing label of the Map tab button. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Text")
+	FText AZP_MapTabLabel = FText::FromString(TEXT("MAP"));
+
+	/** Player-facing label of the Inventory tab button. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Text")
+	FText AZP_InventoryTabLabel = FText::FromString(TEXT("INVENTORY"));
+
+	/** Player-facing label of the Notes tab button. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Text")
+	FText AZP_NotesTabLabel = FText::FromString(TEXT("NOTES"));
+
+	/** Player-facing message shown on the map tab when the player is outside any MapVolume. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Text")
+	FText AZP_NoMapAvailableText = FText::FromString(TEXT("No map available"));
+
+	/** Player-facing message shown when the player is in a mapped area but has not picked up that area's map item yet. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Text")
+	FText AZP_MapNotFoundText = FText::FromString(TEXT("Map not found yet"));
+
+	/** Player-facing area title shown when no map area can be resolved. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Text")
+	FText AZP_UnknownAreaText = FText::FromString(TEXT("Unknown Area"));
 
 	/** Widget class for Moonville inventory (used to find it in viewport). */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab")
-	TSubclassOf<UUserWidget> InventoryWidgetClass;
+	TSubclassOf<UUserWidget> AZP_InventoryWidgetClass;
+
+	/** Fallback asset path auto-loaded into InventoryWidgetClass when no class is set. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab")
+	FSoftClassPath AZP_DefaultInventoryWidgetClassPath = FSoftClassPath(TEXT("/Game/InventorySystemPro/ExampleContent/Horror/UI/Menus/WBP_InventoryMenu_Horror.WBP_InventoryMenu_Horror_C"));
 
 	/** Widget class for the Notes panel (WBP_Notes). Auto-loaded if not set. */
 	UPROPERTY(EditDefaultsOnly, Category = "InventoryTab")
-	TSubclassOf<UZP_NotesWidget> NotesWidgetClass;
+	TSubclassOf<UZP_NotesWidget> AZP_NotesWidgetClass;
+
+	/** Fallback asset path auto-loaded into NotesWidgetClass when no class is set. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab")
+	FSoftClassPath AZP_DefaultNotesWidgetClassPath = FSoftClassPath(TEXT("/Game/EasyGameUI/EasyOptionsMenu/Core/WBP_Notes.WBP_Notes_C"));
 
 	// --- API ---
 

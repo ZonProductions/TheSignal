@@ -39,20 +39,20 @@ AZP_GrenadeProjectile::AZP_GrenadeProjectile()
 	// Projectile movement — lobbed arc, not a rocket
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->UpdatedComponent = CollisionSphere;
-	ProjectileMovement->InitialSpeed = 800.f;
-	ProjectileMovement->MaxSpeed = 800.f;
+	ProjectileMovement->InitialSpeed = AZP_GrenadeThrowSpeed;
+	ProjectileMovement->MaxSpeed = AZP_GrenadeThrowSpeed;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
-	ProjectileMovement->Bounciness = 0.3f;
-	ProjectileMovement->Friction = 0.5f;
-	ProjectileMovement->ProjectileGravityScale = 1.5f;
+	ProjectileMovement->Bounciness = AZP_GrenadeBounciness;
+	ProjectileMovement->Friction = AZP_GrenadeFriction;
+	ProjectileMovement->ProjectileGravityScale = AZP_GrenadeGravityScale;
 
 	// Load explosion Niagara system
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FXFinder(
 		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Effects/Particles/Explosion/NS_Grenade_Explosion"));
 	if (FXFinder.Succeeded())
 	{
-		ExplosionFX = FXFinder.Object;
+		AZP_ExplosionFX = FXFinder.Object;
 	}
 
 	// Load explosion sound cue
@@ -60,7 +60,7 @@ AZP_GrenadeProjectile::AZP_GrenadeProjectile()
 		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Sounds/Weapons/Explosions/SC_Grenade_Explosion"));
 	if (SoundFinder.Succeeded())
 	{
-		ExplosionSound = SoundFinder.Object;
+		AZP_ExplosionSound = SoundFinder.Object;
 	}
 
 	// Don't block the thrower
@@ -79,10 +79,10 @@ void AZP_GrenadeProjectile::BeginPlay()
 
 	// Start fuse timer
 	GetWorldTimerManager().SetTimer(FuseTimerHandle, this,
-		&AZP_GrenadeProjectile::Explode, FuseTime, false);
+		&AZP_GrenadeProjectile::Explode, AZP_FuseTime, false);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] GrenadeProjectile spawned — fuse %.1fs, velocity %s"),
-		FuseTime, *GetVelocity().ToString());
+		AZP_FuseTime, *GetVelocity().ToString());
 }
 
 void AZP_GrenadeProjectile::Explode()
@@ -92,11 +92,11 @@ void AZP_GrenadeProjectile::Explode()
 	// Two-tier radial damage with falloff
 	UGameplayStatics::ApplyRadialDamageWithFalloff(
 		GetWorld(),
-		InnerDamage,           // BaseDamage (at center)
-		OuterDamage,           // MinimumDamage (at outer edge)
+		AZP_InnerDamage,           // BaseDamage (at center)
+		AZP_OuterDamage,           // MinimumDamage (at outer edge)
 		Location,              // Origin
-		InnerRadius,           // DamageInnerRadius (full damage)
-		OuterRadius,           // DamageOuterRadius (falloff ends)
+		AZP_InnerRadius,       // DamageInnerRadius (full damage)
+		AZP_OuterRadius,       // DamageOuterRadius (falloff ends)
 		1.f,                   // DamageFalloff exponent (linear)
 		nullptr,               // DamageTypeClass
 		TArray<AActor*>(),     // IgnoreActors
@@ -108,19 +108,19 @@ void AZP_GrenadeProjectile::Explode()
 	// Debug spheres removed — explosion VFX handles visual feedback
 
 	// Spawn explosion VFX
-	if (ExplosionFX)
+	if (AZP_ExplosionFX)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(), ExplosionFX, Location, FRotator::ZeroRotator,
+			GetWorld(), AZP_ExplosionFX, Location, FRotator::ZeroRotator,
 			FVector(1.f), true, true, ENCPoolMethod::None);
 	}
 
 	// Play explosion sound — Far carry (loudest world event in the game; a bare PlaySoundAtLocation
 	// was at the mercy of the pack cue's internal attenuation, or silent past 40 m without one).
-	UZP_SFXStatics::PlaySFXAtLocation(GetWorld(), ExplosionSound, Location, EZP_SFXCarry::Far);
+	UZP_SFXStatics::PlaySFXAtLocation(GetWorld(), AZP_ExplosionSound, Location, EZP_SFXCarry::Far);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] GrenadeProjectile EXPLODED at %s — Inner: %.0f dmg/%.0f UU, Outer: %.0f dmg/%.0f UU"),
-		*Location.ToString(), InnerDamage, InnerRadius, OuterDamage, OuterRadius);
+		*Location.ToString(), AZP_InnerDamage, AZP_InnerRadius, AZP_OuterDamage, AZP_OuterRadius);
 
 	Destroy();
 }

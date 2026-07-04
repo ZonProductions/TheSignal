@@ -11,14 +11,14 @@ void UZP_NotesWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// Auto-load NoteEntryWidgetClass if BP default wasn't set
-	if (!NoteEntryWidgetClass)
+	// Auto-load AZP_NoteEntryWidgetClass if BP default wasn't set
+	if (!AZP_NoteEntryWidgetClass)
 	{
-		NoteEntryWidgetClass = LoadClass<UZP_NoteEntryWidget>(nullptr,
+		AZP_NoteEntryWidgetClass = LoadClass<UZP_NoteEntryWidget>(nullptr,
 			TEXT("/Game/EasyGameUI/EasyOptionsMenu/Core/WBP_NoteEntry.WBP_NoteEntry_C"));
 
-		UE_LOG(LogTemp, Log, TEXT("[NotesWidget] Auto-loaded NoteEntryWidgetClass: %s"),
-			NoteEntryWidgetClass ? *NoteEntryWidgetClass->GetName() : TEXT("FAILED"));
+		UE_LOG(LogTemp, Log, TEXT("[NotesWidget] Auto-loaded AZP_NoteEntryWidgetClass: %s"),
+			AZP_NoteEntryWidgetClass ? *AZP_NoteEntryWidgetClass->GetName() : TEXT("FAILED"));
 	}
 
 	// Ensure content scroll box is configured for scrolling
@@ -39,9 +39,9 @@ void UZP_NotesWidget::BindToNoteComponent(UZP_NoteComponent* InNoteComp)
 
 void UZP_NotesWidget::RefreshNoteList()
 {
-	UE_LOG(LogTemp, Log, TEXT("[NotesWidget] RefreshNoteList called. CachedNoteComp valid=%s, NoteEntryWidgetClass=%s, NoteListScrollBox=%s"),
+	UE_LOG(LogTemp, Log, TEXT("[NotesWidget] RefreshNoteList called. CachedNoteComp valid=%s, AZP_NoteEntryWidgetClass=%s, NoteListScrollBox=%s"),
 		CachedNoteComp.IsValid() ? TEXT("YES") : TEXT("NO"),
-		NoteEntryWidgetClass ? *NoteEntryWidgetClass->GetName() : TEXT("null"),
+		AZP_NoteEntryWidgetClass ? *AZP_NoteEntryWidgetClass->GetName() : TEXT("null"),
 		NoteListScrollBox ? TEXT("valid") : TEXT("null"));
 
 	ClearEntries();
@@ -52,7 +52,7 @@ void UZP_NotesWidget::RefreshNoteList()
 		UE_LOG(LogTemp, Warning, TEXT("[NotesWidget] CachedNoteComp is INVALID — showing empty state"));
 		if (NotesEmptyText)
 		{
-			NotesEmptyText->SetText(FText::FromString(TEXT("No notes collected")));
+			NotesEmptyText->SetText(AZP_NotesEmptyFallbackText);
 			NotesEmptyText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		return;
@@ -66,7 +66,7 @@ void UZP_NotesWidget::RefreshNoteList()
 		UE_LOG(LogTemp, Log, TEXT("[NotesWidget] Zero notes — showing empty state"));
 		if (NotesEmptyText)
 		{
-			NotesEmptyText->SetText(FText::FromString(TEXT("No notes collected")));
+			NotesEmptyText->SetText(AZP_NotesEmptyFallbackText);
 			NotesEmptyText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		return;
@@ -79,15 +79,15 @@ void UZP_NotesWidget::RefreshNoteList()
 	}
 
 	// Create entry widgets
-	if (!NoteEntryWidgetClass)
+	if (!AZP_NoteEntryWidgetClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[NotesWidget] NoteEntryWidgetClass is null — cannot create entries"));
+		UE_LOG(LogTemp, Warning, TEXT("[NotesWidget] AZP_NoteEntryWidgetClass is null — cannot create entries"));
 		return;
 	}
 
 	for (int32 i = 0; i < Notes.Num(); ++i)
 	{
-		UZP_NoteEntryWidget* Entry = CreateWidget<UZP_NoteEntryWidget>(this, NoteEntryWidgetClass);
+		UZP_NoteEntryWidget* Entry = CreateWidget<UZP_NoteEntryWidget>(this, AZP_NoteEntryWidgetClass);
 		if (!Entry) continue;
 
 		Entry->SetNoteData(Notes[i].Title, i);

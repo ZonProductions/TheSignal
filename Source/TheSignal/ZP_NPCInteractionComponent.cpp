@@ -31,7 +31,7 @@ UZP_NPCInteractionComponent::UZP_NPCInteractionComponent()
 		TEXT("/DialoguePlugin/UI/DemoDialogueWidget"));
 	if (DefaultWidget.Succeeded())
 	{
-		DialogueWidgetClass = DefaultWidget.Class;
+		AZP_DialogueWidgetClass = DefaultWidget.Class;
 	}
 }
 
@@ -85,7 +85,7 @@ void UZP_NPCInteractionComponent::BeginPlay()
 
 	// Create the interaction overlap volume at runtime
 	InteractionVolume = NewObject<UBoxComponent>(Owner, TEXT("NPCInteractionVolume"));
-	InteractionVolume->SetBoxExtent(FVector(300.f, 300.f, 150.f));
+	InteractionVolume->SetBoxExtent(AZP_InteractionVolumeExtent);
 	InteractionVolume->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
 	InteractionVolume->SetGenerateOverlapEvents(true);
 	InteractionVolume->SetupAttachment(Owner->GetRootComponent());
@@ -117,13 +117,13 @@ void UZP_NPCInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		{
 			FRotator TargetRot = Direction.Rotation();
 			FRotator CurrentRot = Owner->GetActorRotation();
-			FRotator NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, FacePlayerSpeed);
+			FRotator NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, AZP_FacePlayerSpeed);
 			Owner->SetActorRotation(NewRot);
 		}
 	}
 
 	// --- Gesture animations (only when dialogue audio is playing) ---
-	if (GestureAnimations.Num() > 0)
+	if (AZP_GestureAnimations.Num() > 0)
 	{
 		// Check if dialogue audio is actually playing
 		bool bAudioPlaying = false;
@@ -160,15 +160,15 @@ void UZP_NPCInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 					if (AnimInst && !AnimInst->IsAnyMontagePlaying())
 					{
-						int32 Idx = FMath::RandRange(0, GestureAnimations.Num() - 1);
-						if (GestureAnimations[Idx])
+						int32 Idx = FMath::RandRange(0, AZP_GestureAnimations.Num() - 1);
+						if (AZP_GestureAnimations[Idx])
 						{
 							AnimInst->PlaySlotAnimationAsDynamicMontage(
-								GestureAnimations[Idx], FName("DefaultSlot"), 0.25f, 0.25f);
+								AZP_GestureAnimations[Idx], AZP_GestureSlotName, AZP_GestureBlendTime, AZP_GestureBlendTime);
 						}
 					}
 				}
-				GestureTimer = FMath::RandRange(3.f, 7.f);
+				GestureTimer = FMath::RandRange(AZP_GestureIntervalMin, AZP_GestureIntervalMax);
 			}
 		}
 	}
@@ -177,13 +177,13 @@ void UZP_NPCInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 void UZP_NPCInteractionComponent::HandleInteract(ACharacter* Interactor)
 {
 	if (!Interactor) return;
-	if (bInteractOnce && bHasBeenInteracted) return;
+	if (bAZP_InteractOnce && bHasBeenInteracted) return;
 
 	APlayerController* PC = Cast<APlayerController>(Interactor->GetController());
 	if (!PC) return;
 
 	// --- Path 1: CodeSpartan Dialogue Plugin (preferred) ---
-	if (PluginDialogue && DialogueWidgetClass)
+	if (AZP_PluginDialogue && AZP_DialogueWidgetClass)
 	{
 		// Don't double-create if a dialogue widget is already active
 		if (ActiveDialogueWidget.IsValid() && ActiveDialogueWidget->IsInViewport())
@@ -192,7 +192,7 @@ void UZP_NPCInteractionComponent::HandleInteract(ACharacter* Interactor)
 			return;
 		}
 
-		UUserWidget* Widget = CreateWidget<UUserWidget>(PC, DialogueWidgetClass);
+		UUserWidget* Widget = CreateWidget<UUserWidget>(PC, AZP_DialogueWidgetClass);
 		if (!Widget)
 		{
 			UE_LOG(LogNPCInteraction, Error, TEXT("NPC '%s': Failed to create dialogue widget."), *GetOwner()->GetName());
@@ -214,7 +214,7 @@ void UZP_NPCInteractionComponent::HandleInteract(ACharacter* Interactor)
 		if (DialogueProp)
 		{
 			DialogueProp->SetObjectPropertyValue(
-				DialogueProp->ContainerPtrToValuePtr<void>(Widget), PluginDialogue.Get());
+				DialogueProp->ContainerPtrToValuePtr<void>(Widget), AZP_PluginDialogue.Get());
 		}
 		else
 		{
@@ -227,7 +227,7 @@ void UZP_NPCInteractionComponent::HandleInteract(ACharacter* Interactor)
 		// Start dialogue behaviors (face player, gestures)
 		bInDialogue = true;
 		DialogueInteractor = Interactor;
-		GestureTimer = FMath::RandRange(2.f, 5.f);
+		GestureTimer = FMath::RandRange(AZP_GestureInitialDelayMin, AZP_GestureInitialDelayMax);
 		GestureSound2DProp = CastField<FObjectProperty>(
 			Widget->GetClass()->FindPropertyByName(TEXT("Sound2D")));
 		SetComponentTickEnabled(true);
@@ -251,7 +251,7 @@ void UZP_NPCInteractionComponent::HandleInteract(ACharacter* Interactor)
 
 		UE_LOG(LogNPCInteraction, Log, TEXT("NPC '%s': Plugin dialogue started."), *GetOwner()->GetName());
 
-		if (bInteractOnce)
+		if (bAZP_InteractOnce)
 		{
 			bHasBeenInteracted = true;
 		}
@@ -259,9 +259,9 @@ void UZP_NPCInteractionComponent::HandleInteract(ACharacter* Interactor)
 	}
 
 	// --- Path 2: Custom ZP_DialogueManager (fallback) ---
-	if (!DialogueData)
+	if (!AZP_DialogueData)
 	{
-		UE_LOG(LogNPCInteraction, Warning, TEXT("NPC '%s': No PluginDialogue or DialogueData assigned."), *GetOwner()->GetName());
+		UE_LOG(LogNPCInteraction, Warning, TEXT("NPC '%s': No AZP_PluginDialogue or AZP_DialogueData assigned."), *GetOwner()->GetName());
 		return;
 	}
 
@@ -273,11 +273,11 @@ void UZP_NPCInteractionComponent::HandleInteract(ACharacter* Interactor)
 	}
 
 	UE_LOG(LogNPCInteraction, Log, TEXT("NPC '%s' — playing dialogue '%s'."),
-		*GetOwner()->GetName(), *DialogueData->DialogueID.ToString());
+		*GetOwner()->GetName(), *AZP_DialogueData->AZP_DialogueID.ToString());
 
-	Manager->PlayDialogue(DialogueData);
+	Manager->PlayDialogue(AZP_DialogueData);
 
-	if (bInteractOnce)
+	if (bAZP_InteractOnce)
 	{
 		bHasBeenInteracted = true;
 	}
@@ -296,7 +296,7 @@ void UZP_NPCInteractionComponent::OnBeginOverlap(UPrimitiveComponent* Overlapped
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(Grace->GetController());
 	if (PC && PC->HUDWidget)
 	{
-		PC->HUDWidget->ShowInteractionPrompt(InteractionPrompt);
+		PC->HUDWidget->ShowInteractionPrompt(AZP_InteractionPrompt);
 	}
 }
 
@@ -332,7 +332,7 @@ void UZP_NPCInteractionComponent::CloseDialogue()
 	{
 		if (UAnimInstance* AnimInst = Char->GetMesh() ? Char->GetMesh()->GetAnimInstance() : nullptr)
 		{
-			AnimInst->StopAllMontages(0.25f);
+			AnimInst->StopAllMontages(AZP_GestureBlendTime);
 		}
 	}
 
@@ -376,7 +376,7 @@ void UZP_NPCInteractionComponent::CheckDialogueWidget()
 		{
 			if (UAnimInstance* AnimInst = Char->GetMesh() ? Char->GetMesh()->GetAnimInstance() : nullptr)
 			{
-				AnimInst->StopAllMontages(0.25f);
+				AnimInst->StopAllMontages(AZP_GestureBlendTime);
 			}
 		}
 

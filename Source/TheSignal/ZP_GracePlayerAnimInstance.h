@@ -31,6 +31,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Locomotion")
 	TObjectPtr<USkeletalMeshComponent> SourceMeshComponent;
 
+	/** Skeleton bone at and above which bones are treated as Kinemation-owned upper body and skipped by the lower-body locomotion copy. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Locomotion")
+	FName AZP_UpperBodyBoundaryBoneName = TEXT("spine_01");
+
 	/** When true, copies ALL bones from source (full body) instead of just lower body.
 	 *  Used during ladder climbing to override Kinemation's upper body with climb anim. */
 	bool bCopyAllBones = false;
@@ -45,16 +49,16 @@ public:
 	 *  the grip spread is active (negative pitch opens a UE-manny curl).
 	 *  Tune live in PIE via MCP. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
-	FRotator GripSpreadPerJoint = FRotator(-20.f, 0.f, 0.f);
+	FRotator AZP_GripSpreadPerJoint = FRotator(-20.f, 0.f, 0.f);
 
 	/** Index finger gets this fraction of the spread (full spread splays it
 	 *  too wide — dev verdict, session 63 screenshot). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
-	float GripSpreadIndexScale = 0.4f;
+	float AZP_GripSpreadIndexScale = 0.4f;
 
 	/** Thumb gets this fraction of the spread (same reason as index). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays")
-	float GripSpreadThumbScale = 0.3f;
+	float AZP_GripSpreadThumbScale = 0.3f;
 
 	/** Copy matching bone transforms from source mesh to this mesh.
 	 *  Call AFTER animation evaluation (e.g. from Character Tick). */
@@ -104,15 +108,46 @@ private:
 
 	/** Elapsed time into melee swing (negative = inactive). */
 	float MeleeSwingTime = -1.f;
-	float MeleeSwingDuration = 0.35f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|Melee", meta = (AllowPrivateAccess = "true"))
+	float AZP_MeleeSwingDuration = 0.35f;
+
+	/** Peak pull-back/right angle (degrees) of the melee swing wind-up phase. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|Melee", meta = (AllowPrivateAccess = "true"))
+	float AZP_MeleeSwingWindupAngle = -35.f;
+
+	/** Peak sweep-left angle (degrees) of the melee strike; follow-through overshoots this by 5 degrees. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|Melee", meta = (AllowPrivateAccess = "true"))
+	float AZP_MeleeSwingStrikeAngle = 60.f;
+
+	/** Maximum downward arm dip in cm during the melee strike phase for weight feel. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|Melee", meta = (AllowPrivateAccess = "true"))
+	float AZP_MeleeSwingDropAmount = 8.f;
 
 	/** Elapsed time into grenade throw (negative = inactive). */
 	float GrenadeThrowTime = -1.f;
-	float GrenadeThrowDuration = 0.4f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|Grenade", meta = (AllowPrivateAccess = "true"))
+	float AZP_GrenadeThrowDuration = 0.4f;
+
+	/** Peak raise-arm-back angle (degrees) of the grenade throw wind-up. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|Grenade", meta = (AllowPrivateAccess = "true"))
+	float AZP_GrenadeThrowWindupAngle = -30.f;
+
+	/** Peak forward sweep angle (degrees) of the grenade throw. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|Grenade", meta = (AllowPrivateAccess = "true"))
+	float AZP_GrenadeThrowReleaseAngle = 25.f;
 
 	/** Elapsed time into weapon switch (negative = inactive). */
 	float WeaponSwitchTime = -1.f;
-	float WeaponSwitchDuration = 0.5f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|WeaponSwitch", meta = (AllowPrivateAccess = "true"))
+	float AZP_WeaponSwitchDuration = 0.5f;
+
+	/** How far (cm) both clavicles translate down at the bottom of the weapon-switch arm-lower overlay. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|WeaponSwitch", meta = (AllowPrivateAccess = "true"))
+	float AZP_WeaponSwitchDropDistance = 20.f;
+
+	/** How far (degrees) both upper arms tilt downward at the bottom of the weapon-switch arm-lower overlay. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Overlays|WeaponSwitch", meta = (AllowPrivateAccess = "true"))
+	float AZP_WeaponSwitchDropRotation = 25.f;
 
 	/** Apply additive rotation to a bone in component space. */
 	void ApplyBoneRotationCS(TArray<FTransform>& CSTransforms, const FReferenceSkeleton& RefSkel,

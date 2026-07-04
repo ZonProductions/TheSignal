@@ -37,8 +37,8 @@ void AZP_TransitReturn::BeginPlay()
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_TransitReturn::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_TransitReturn::OnOverlapEnd);
 
-	// Cache the nearest stop marker now (used only when ReturnLocation isn't explicitly set).
-	if (!ReturnLocation && bAutoFindNearestLocation)
+	// Cache the nearest stop marker now (used only when AZP_ReturnLocation isn't explicitly set).
+	if (!AZP_ReturnLocation && bAZP_AutoFindNearestLocation)
 	{
 		AZP_TransitLocation* Nearest = nullptr;
 		float NearestDistSq = TNumericLimits<float>::Max();
@@ -63,13 +63,13 @@ void AZP_TransitReturn::BeginPlay()
 
 AZP_TransitLocation* AZP_TransitReturn::ResolveReturnLocation()
 {
-	if (ReturnLocation) return ReturnLocation;
+	if (AZP_ReturnLocation) return AZP_ReturnLocation;
 	return CachedNearestLocation.Get();
 }
 
 FText AZP_TransitReturn::GetInteractionPrompt_Implementation()
 {
-	return PromptText;
+	return AZP_PromptText;
 }
 
 void AZP_TransitReturn::OnInteract_Implementation(ACharacter* Interactor)
@@ -79,25 +79,25 @@ void AZP_TransitReturn::OnInteract_Implementation(ACharacter* Interactor)
 
 void AZP_TransitReturn::CallElevatorHere()
 {
-	if (!LinkedElevator)
+	if (!AZP_LinkedElevator)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitReturn %s: LinkedElevator is unset — cannot recall."), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitReturn %s: AZP_LinkedElevator is unset — cannot recall."), *GetName());
 		return;
 	}
 
 	AZP_TransitLocation* Loc = ResolveReturnLocation();
 	if (!Loc)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitReturn %s: no ReturnLocation (and none auto-found) — cannot recall."), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] TransitReturn %s: no AZP_ReturnLocation (and none auto-found) — cannot recall."), *GetName());
 		return;
 	}
 
 	// Convert the floor marker's world Z into a move relative to the car's BeginPlay origin.
-	const float RelZ = Loc->GetActorLocation().Z - LinkedElevator->GetOriginZ();
-	LinkedElevator->MoveToRelativeZ(RelZ);
+	const float RelZ = Loc->GetActorLocation().Z - AZP_LinkedElevator->GetOriginZ();
+	AZP_LinkedElevator->MoveToRelativeZ(RelZ);
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] TransitReturn %s: recalling elevator %s -> relative Z %.1f (loc=%s)"),
-		*GetName(), *LinkedElevator->GetName(), RelZ, *Loc->GetName());
+		*GetName(), *AZP_LinkedElevator->GetName(), RelZ, *Loc->GetName());
 }
 
 void AZP_TransitReturn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

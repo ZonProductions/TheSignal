@@ -18,7 +18,7 @@
  *     the same loop with no cut-off and no cooldown. Void uses HORIZONTAL distance.
  *   - ENEMY / MELEE: enemy proximity (Ring near, Alarm melee), crossfaded ping-pong voices.
  *   - NOTIFY: one-shot, fired only when you LEAVE combat (Enemy/Melee -> non-combat).
- *   - CLEAR sting: one-shot, ClearDelay seconds after everything is fully quiet (None).
+ *   - CLEAR sting: one-shot, AZP_ClearDelay seconds after everything is fully quiet (None).
  *
  * Detection: tag-based on a low-frequency timer.
  */
@@ -53,76 +53,76 @@ public:
 
 	// --- Detection ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
-	FName VoidmoteTag = TEXT("Voidmote");
+	FName AZP_VoidmoteTag = TEXT("Voidmote");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
-	FName EnemyTag = TEXT("Enemy");
+	FName AZP_EnemyTag = TEXT("Enemy");
 
 	/** Fallback box half-size used only if a tagged void actor reports no usable bounds. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
-	float VoidZoneRadius = 500.f;
+	float AZP_VoidZoneRadius = 500.f;
 
 	/** Enemy "in range" radius -> Ring. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
-	float EnemyRadius = 1400.f;
+	float AZP_EnemyRadius = 1400.f;
 
 	/** Enemy "on you" radius -> Alarm. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
-	float MeleeRadius = 250.f;
+	float AZP_MeleeRadius = 250.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
-	float EvaluateInterval = 0.25f;
+	float AZP_EvaluateInterval = 0.25f;
 
 	// --- Audio (matched 10.38s loop stems, drone baked in) ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	TObjectPtr<USoundBase> InterferenceLoop;   // MS_Signal_InterferenceBed (in-void drone)
+	TObjectPtr<USoundBase> AZP_InterferenceLoop;   // MS_Signal_InterferenceBed (in-void drone)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	TObjectPtr<USoundBase> RingLoop;           // SFX_Phone_Ring (enemy near)
+	TObjectPtr<USoundBase> AZP_RingLoop;           // SFX_Phone_Ring (enemy near)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	TObjectPtr<USoundBase> AlarmLoop;          // SFX_Signal_Alarm (enemy melee)
+	TObjectPtr<USoundBase> AZP_AlarmLoop;          // SFX_Signal_Alarm (enemy melee)
 
-	/** One-shot "all clear" sting, ClearDelay seconds after fully quiet. */
+	/** One-shot "all clear" sting, AZP_ClearDelay seconds after fully quiet. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	TObjectPtr<USoundBase> ClearSting;         // SFX_Phone_Silence
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	float CrossfadeTime = 0.6f;
+	TObjectPtr<USoundBase> AZP_ClearSting;         // SFX_Phone_Silence
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	float ClearDelay = 4.0f;
+	float AZP_CrossfadeTime = 0.6f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
+	float AZP_ClearDelay = 4.0f;
 
 	/** Crescendo knee: proximity-to-centre (0 = box surface, 1 = centre) where the gentle outer
 	 *  region ends and the ramp to full begins. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	float InterferenceKneeProximity = 0.6f;
+	float AZP_InterferenceKneeProximity = 0.6f;
 
 	/** Volume at the knee. Outer region rises gently to this; inner region ramps linearly from
 	 *  here to full at the centre. (Dev spec: 30% up to 60% proximity, then linear.) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	float InterferenceKneeVolume = 0.3f;
+	float AZP_InterferenceKneeVolume = 0.3f;
 
 	/** Seconds for the curved fade-in/out at the void boundary (entering/leaving ALL voids).
 	 *  Only fires at the 0<->1 void transition — never between chained/overlapping voids. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	float VoidFadeDuration = 3.0f;
+	float AZP_VoidFadeDuration = 3.0f;
 
 	/** How fast the in-void crescendo tracks your position (higher = snappier to centre/edge). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	float CrescendoSmoothSpeed = 5.0f;
+	float AZP_CrescendoSmoothSpeed = 5.0f;
 
-	/** Grace before the fade-out starts after leaving all voids. Matched to VoidFadeDuration so
+	/** Grace before the fade-out starts after leaving all voids. Matched to AZP_VoidFadeDuration so
 	 *  any gap crossed faster than the fade holds the bed seamlessly (no clip, no dip). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
-	float VoidExitGrace = 3.0f;
+	float AZP_VoidExitGrace = 3.0f;
 
 	// --- Haptics (gamepad only; null-safe until assets exist) ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Haptics")
-	TObjectPtr<UForceFeedbackEffect> RingRumble;
+	TObjectPtr<UForceFeedbackEffect> AZP_RingRumble;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Haptics")
-	TObjectPtr<UForceFeedbackEffect> AlarmRumble;
+	TObjectPtr<UForceFeedbackEffect> AZP_AlarmRumble;
 
 	// --- Outputs ---
 	UPROPERTY(BlueprintAssignable, Category = "SignalSense")
@@ -147,7 +147,19 @@ public:
 
 	/** Scope sample rate (samples/sec). Higher = faster scroll, less time on screen. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Waveform")
-	float AmpSampleRate = 60.f;
+	float AZP_AmpSampleRate = 60.f;
+
+	/** FInterpTo speed with which the HUD waveform amplitude eases toward its stage target — the feel of how quickly the scope reacts. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Waveform")
+	float AZP_AmplitudeSmoothSpeed = 6.f;
+
+	/** HUD waveform amplitude target while in the Melee (Alarm) stage. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Waveform")
+	float AZP_MeleeStageAmplitude = 1.0f;
+
+	/** HUD waveform amplitude target while in the Enemy (Ring) stage. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Waveform")
+	float AZP_EnemyStageAmplitude = 0.7f;
 
 protected:
 	virtual void BeginPlay() override;
@@ -186,12 +198,12 @@ private:
 	float InterferenceVolume = 0.f;   // final = CrescendoVolume * boundary envelope
 	float CrescendoVolume = 0.f;      // in-void position crescendo (edge -> centre)
 	float CrescendoTarget = 0.f;
-	float EnvPhase = 0.f;             // 0..1 boundary fade phase (VoidFadeDuration), smoothstepped
+	float EnvPhase = 0.f;             // 0..1 boundary fade phase (AZP_VoidFadeDuration), smoothstepped
 	float TimeOutOfVoid = 0.f;       // seconds since leaving all voids (grace before fade-out)
 	bool bInAnyVoid = false;
 
 	// Chronological scope: rolling amplitude history pushed into a texture each frame.
-	static constexpr int32 AmpHistorySize = 256;
+	static constexpr int32 AZP_AmpHistorySize = 256;
 	UPROPERTY(Transient) TObjectPtr<UTexture2D> AmpHistoryTex;
 	TArray<uint8> AmpBuffer;
 	int32 AmpWriteHead = 0;

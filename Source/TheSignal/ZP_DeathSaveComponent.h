@@ -11,7 +11,7 @@
  *            2. LOAD: if the enemy was dead, restores it to its corpse state IN PLACE (via IZP_Revivable),
  *               instead of destroying it — so it can still be brought back later.
  *            3. REVIVE: binds the global UZP_ObjectiveSubsystem and, when this enemy's configured
- *               ReviveOnObjective (an objective / sub-objective id, or a flag) fires, resets a dead enemy
+ *               AZP_ReviveOnObjective (an objective / sub-objective id, or a flag) fires, resets a dead enemy
  *               to a fully alive patrolling state (via IZP_Revivable::ReviveEnemy).
  *
  *          This REPLACES the old Destroy()+RegisterDestruction approach, which was permanent (EGUI has no
@@ -26,7 +26,7 @@
  *   - The enemy must have a UZP_HealthComponent (all ZP enemies do).
  *   - For revival, the enemy must implement IZP_Revivable (Shambler + Scytheer do). Without it, death
  *     still persists (generic re-kill on load) but the enemy cannot be revived.
- *   - Per placed instance, set ReviveOnObjective to the Objectives.json Id that should bring it back
+ *   - Per placed instance, set AZP_ReviveOnObjective to the Objectives.json Id that should bring it back
  *     (leave None for an enemy that simply stays dead once killed).
  */
 
@@ -51,7 +51,7 @@ public:
 	 *  per stage. Matches an OnObjectiveCompleted, OnSubObjectiveCompleted, or OnFlagSet broadcast. None =
 	 *  this enemy never auto-revives (stays dead once killed). Settable per placed instance in the level. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Persistence")
-	FName ReviveOnObjective = NAME_None;
+	FName AZP_ReviveOnObjective = NAME_None;
 
 protected:
 	virtual void BeginPlay() override;
@@ -72,13 +72,13 @@ private:
 	UFUNCTION() void OnSubObjectiveCompletedEvt(FName SubObjectiveId);
 	UFUNCTION() void OnFlagSetEvt(FName Flag);
 
-	/** If Id matches ReviveOnObjective and the enemy is currently dead, revive it. */
+	/** If Id matches AZP_ReviveOnObjective and the enemy is currently dead, revive it. */
 	void HandleReviveTrigger(FName Id);
 
 	/** Restore the dead/corpse state in place (IZP_Revivable, or a generic re-kill fallback). */
 	void RestoreDeadState();
 
-	/** True if ReviveOnObjective is already satisfied in the ObjectiveSubsystem (objective/sub complete or
+	/** True if AZP_ReviveOnObjective is already satisfied in the ObjectiveSubsystem (objective/sub complete or
 	 *  flag set) — used on load so an enemy whose revive beat already passed comes back ALIVE, not as a corpse. */
 	bool IsReviveConditionMet() const;
 

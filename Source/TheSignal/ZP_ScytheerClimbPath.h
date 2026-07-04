@@ -12,7 +12,7 @@
  *          between adjacent points so one path can run up a wall and curve onto the floor.
  *
  *          MVP usage: drop the actor, shape the spline (start on a wall, end on the floor),
- *          edit PerPointWallNormals in the details panel so each point's normal faces
+ *          edit AZP_PerPointWallNormals in the details panel so each point's normal faces
  *          OUT of the surface that point is sitting on. The Scytheer ping-pongs along it.
  *
  * Owner Subsystem: EnemyAI / ScytheerAmbush
@@ -42,28 +42,28 @@ public:
 	 *  in OnConstruction to match the spline's current point count. Edit per-point in the
 	 *  details panel — for a wall pointing +X, the wall normal is +X. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Path|Scytheer")
-	TArray<FVector> PerPointWallNormals;
+	TArray<FVector> AZP_PerPointWallNormals;
 
 	// ── Editor authoring ─────────────────────────────────────────────
 #if WITH_EDITORONLY_DATA
 	/** Number of points a single "Add Points To End" click appends. */
 	UPROPERTY(EditAnywhere, Category = "Path|Authoring", meta = (ClampMin = "1", ClampMax = "50"))
-	int32 PointsPerAdd = 1;
+	int32 AZP_PointsPerAdd = 1;
 
 	/** Step (UU) used for the new point(s) when the path has fewer than 2 points
 	 *  to extrapolate a direction from. Once there are 2+ points, the spacing of
 	 *  the last segment is reused instead. */
 	UPROPERTY(EditAnywhere, Category = "Path|Authoring", meta = (ClampMin = "1"))
-	float DefaultStep = 200.f;
+	float AZP_DefaultStep = 200.f;
 
 	/** How far (UU) "Snap Wall Normals To Geometry" probes around each point to find the
 	 *  surface that point rests on. Raise it if your points sit a little off the wall/floor. */
 	UPROPERTY(EditAnywhere, Category = "Path|Authoring", meta = (ClampMin = "1"))
-	float NormalProbeDistance = 100.f;
+	float AZP_NormalProbeDistance = 100.f;
 #endif
 
 #if WITH_EDITOR
-	/** Details-panel button: appends PointsPerAdd point(s) to the END of the path,
+	/** Details-panel button: appends AZP_PointsPerAdd point(s) to the END of the path,
 	 *  continuing the last segment's direction so you can keep extending it while you
 	 *  map the route. The new point inherits the last point's wall normal. */
 	UFUNCTION(CallInEditor, Category = "Path|Authoring")

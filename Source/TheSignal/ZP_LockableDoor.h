@@ -14,8 +14,8 @@
  *
  * Blueprint Extension Points:
  *   - DoorMesh / FrameMesh: set static meshes in BP child.
- *   - OpenMode: Rotate (hinged door) or Slide (chain fence / gate).
- *   - OpenAngle / SlideOffset / OpenInterpSpeed: tunable per-instance.
+ *   - AZP_OpenMode: Rotate (hinged door) or Slide (chain fence / gate).
+ *   - AZP_OpenAngle / AZP_SlideOffset / AZP_OpenInterpSpeed: tunable per-instance.
  *   - OnDoorStateChanged: delegate for audio/VFX hooks.
  *
  * Dependencies: None — standalone actor.
@@ -41,7 +41,7 @@ UENUM(BlueprintType)
 enum class EZP_DoorOpenMode : uint8
 {
 	Rotate,   // Hinged door — rotates DoorPivot yaw
-	Slide     // Sliding fence/gate — translates DoorPivot along SlideOffset
+	Slide     // Sliding fence/gate — translates DoorPivot along AZP_SlideOffset
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDoorStateChanged, EZP_DoorState, NewState);
@@ -74,23 +74,23 @@ public:
 	// --- Config ---
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
-	EZP_DoorState InitialState = EZP_DoorState::Locked;
+	EZP_DoorState AZP_InitialState = EZP_DoorState::Locked;
 
 	/** How the door opens: Rotate (hinged) or Slide (translate). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
-	EZP_DoorOpenMode OpenMode = EZP_DoorOpenMode::Rotate;
+	EZP_DoorOpenMode AZP_OpenMode = EZP_DoorOpenMode::Rotate;
 
 	/** Target yaw rotation when fully open (degrees). Only used in Rotate mode. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door", meta = (EditCondition = "OpenMode == EZP_DoorOpenMode::Rotate"))
-	float OpenAngle = 90.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door", meta = (EditCondition = "AZP_OpenMode == EZP_DoorOpenMode::Rotate"))
+	float AZP_OpenAngle = 90.f;
 
 	/** Relative offset to slide to when fully open. Only used in Slide mode. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door", meta = (EditCondition = "OpenMode == EZP_DoorOpenMode::Slide"))
-	FVector SlideOffset = FVector(0.f, 300.f, 0.f);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door", meta = (EditCondition = "AZP_OpenMode == EZP_DoorOpenMode::Slide"))
+	FVector AZP_SlideOffset = FVector(0.f, 300.f, 0.f);
 
 	/** FInterpTo speed for door movement. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
-	float OpenInterpSpeed = 3.f;
+	float AZP_OpenInterpSpeed = 3.f;
 
 	// --- Delegate ---
 

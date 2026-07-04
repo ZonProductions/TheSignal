@@ -5,10 +5,10 @@
 /**
  * AZP_VentDoor
  *
- * Purpose: One-shot, key-gated vent panel. Player needs RequiredItemDA in
+ * Purpose: One-shot, key-gated vent panel. Player needs AZP_RequiredItemDA in
  *          inventory to open. When opened, the mesh tilts outward around a
- *          top edge hinge (HingeOffset is the hinge location in actor-local
- *          space; VentMesh is offset by -HingeOffset so its visual position
+ *          top edge hinge (AZP_HingeOffset is the hinge location in actor-local
+ *          space; VentMesh is offset by -AZP_HingeOffset so its visual position
  *          stays put at construction). After full open: collision disabled
  *          and interaction volume deactivated — cannot be re-closed.
  *
@@ -18,8 +18,8 @@
  *
  * Blueprint Extension Points:
  *   - VentMesh: set static mesh in BP child.
- *   - RequiredItemDA / RequiredItemName: configure per-instance.
- *   - HingeOffset / OpenRotation: per-instance hinge geometry.
+ *   - AZP_RequiredItemDA / AZP_RequiredItemName: configure per-instance.
+ *   - AZP_HingeOffset / AZP_OpenRotation: per-instance hinge geometry.
  *
  * Dependencies:
  *   - IZP_Interactable
@@ -58,48 +58,48 @@ public:
 
 	/** The Moonville PDA_Item data asset required to open this vent. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	TSoftObjectPtr<UObject> RequiredItemDA;
+	TSoftObjectPtr<UObject> AZP_RequiredItemDA;
 
 	/** Display name of the required item (shown in HUD prompts). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	FText RequiredItemName = FText::FromString(TEXT("Screwdriver"));
+	FText AZP_RequiredItemName = FText::FromString(TEXT("Screwdriver"));
 
 	/** Prompt shown when player has no required item. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	FText LockedPrompt = FText::FromString(TEXT("Needs something to unscrew this..."));
+	FText AZP_LockedPrompt = FText::FromString(TEXT("Needs something to unscrew this..."));
 
-	/** Prompt shown when player has the required item. {0} = RequiredItemName. */
+	/** Prompt shown when player has the required item. {0} = AZP_RequiredItemName. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	FText UnlockedPromptFormat = FText::FromString(TEXT("Use {0} to open it up"));
+	FText AZP_UnlockedPromptFormat = FText::FromString(TEXT("Use {0} to open it up"));
 
 	/**
-	 * Hinge location in actor-local space. The VentMesh is offset by -HingeOffset
+	 * Hinge location in actor-local space. The VentMesh is offset by -AZP_HingeOffset
 	 * so its visible position stays at actor origin when HingePivot rotation = 0.
 	 * For SM_AirDuct_Vent at scale (6.5, 2.5, 1.0) with mesh long-axis on actor +X:
-	 *   HingeOffset = (76.5, 0, 0)  // top edge in actor-local
+	 *   AZP_HingeOffset = (76.5, 0, 0)  // top edge in actor-local
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	FVector HingeOffset = FVector(76.5f, 0.f, 0.f);
+	FVector AZP_HingeOffset = FVector(76.5f, 0.f, 0.f);
 
 	/** Relative rotation applied to HingePivot when fully open (tilts mesh outward). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	FRotator OpenRotation = FRotator(-90.f, 0.f, 0.f);
+	FRotator AZP_OpenRotation = FRotator(-90.f, 0.f, 0.f);
 
 	/** Seconds to play the open animation. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	float OpenDuration = 0.7f;
+	float AZP_OpenDuration = 0.7f;
 
 	/** Half-extents of the interaction box (player must enter this volume to interact). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	FVector InteractionVolumeExtent = FVector(100.f, 100.f, 100.f);
+	FVector AZP_InteractionVolumeExtent = FVector(100.f, 100.f, 100.f);
 
 	/** Relative offset of the interaction box from actor origin. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	FVector InteractionVolumeOffset = FVector(0.f, 0.f, 0.f);
+	FVector AZP_InteractionVolumeOffset = FVector(0.f, 0.f, 0.f);
 
-	/** If true, consume one of RequiredItemDA from inventory on use. Default false (reusable tool). */
+	/** If true, consume one of AZP_RequiredItemDA from inventory on use. Default false (reusable tool). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vent")
-	bool bConsumeItemOnUse = false;
+	bool bAZP_ConsumeItemOnUse = false;
 
 	// --- IZP_Interactable ---
 

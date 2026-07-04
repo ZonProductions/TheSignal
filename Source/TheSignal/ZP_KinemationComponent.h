@@ -15,7 +15,7 @@
  * Blueprint Extension Points:
  *   - CameraComponent ref (auto-discovered by name "FirstPersonCamera" if not set).
  *   - PlayerMeshComponent ref (auto-discovered by name "PlayerMesh" if not set).
- *   - WeaponClass to spawn at BeginPlay.
+ *   - AZP_WeaponClass to spawn at BeginPlay.
  *   - Kinemation component refs (auto-detected from owner's component list).
  *
  * Dependencies:
@@ -33,6 +33,8 @@ class USkeletalMeshComponent;
 class UMaterialInterface;
 class UAnimSequenceBase;
 class USoundBase;
+class USkeletalMesh;
+class UStaticMesh;
 
 UCLASS(ClassGroup=(TheSignal), meta=(BlueprintSpawnableComponent))
 class THESIGNAL_API UZP_KinemationComponent : public UActorComponent
@@ -54,71 +56,83 @@ public:
 
 	/** Blueprint class of weapon to spawn at BeginPlay. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	TSubclassOf<AActor> WeaponClass;
+	TSubclassOf<AActor> AZP_WeaponClass;
 
 	/** If true, weapon spawns automatically during InitializeKinemation.
 	 *  Set false when inventory system manages weapon lifecycle. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Kinemation|Weapon")
-	bool bAutoSpawnWeapon = true;
+	bool bAZP_AutoSpawnWeapon = true;
+
+	/** PlayerMesh socket the spawned ranged weapon attaches to (Kinemation virtual-bone gun socket). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Weapon")
+	FName AZP_WeaponAttachSocketName = FName(TEXT("VB ik_hand_gun"));
 
 	// --- Hitscan Config ---
 
 	/** Decal materials for bullet impacts. Randomly chosen per shot. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	TArray<TObjectPtr<UMaterialInterface>> BulletDecalMaterials;
+	TArray<TObjectPtr<UMaterialInterface>> AZP_BulletDecalMaterials;
 
 	/** Maximum range for hitscan traces (cm). Default 10000 = 100m. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	float HitscanRange = 10000.0f;
+	float AZP_HitscanRange = 10000.0f;
 
 	/** Size of bullet hole decals (cm). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	FVector DecalSize = FVector(2.0f, 3.0f, 3.0f);
+	FVector AZP_DecalSize = FVector(2.0f, 3.0f, 3.0f);
 
 	/** How long decals remain before fading (seconds). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	float DecalLifetime = 30.0f;
+	float AZP_DecalLifetime = 30.0f;
+
+	/** Seconds a bullet decal takes to fade out at the end of AZP_DecalLifetime. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Hitscan")
+	float AZP_DecalFadeDuration = 2.0f;
 
 	/** Damage dealt on body hits. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	float HitscanBodyDamage = 10.f;
+	float AZP_HitscanBodyDamage = 10.f;
 
 	/** Damage dealt on weak point (center mass) hits. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	float HitscanWeakPointDamage = 50.f;
+	float AZP_HitscanWeakPointDamage = 50.f;
 
 	/** Distance (UU) from actor center that counts as a weak point hit. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	float WeakPointRadius = 50.f;
+	float AZP_WeakPointRadius = 50.f;
+
+	/** Radius in cm within which a gunshot alerts all nearby creatures via BroadcastGunshot (creatures can override per-instance with their own GunshotAlertRadius). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Hitscan")
+	float AZP_GunshotAlertRadius = 8000.f;
 
 	// --- Bullet impact sounds (played once per shot at the impact point, chosen by weapon icon) ---
 
 	/** Pistol bullet-impact sound (icon == Pistol). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	TObjectPtr<USoundBase> PistolImpactSound;
+	TObjectPtr<USoundBase> AZP_PistolImpactSound;
 
 	/** Rifle bullet-impact sound (icon == Rifle). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	TObjectPtr<USoundBase> RifleImpactSound;
+	TObjectPtr<USoundBase> AZP_RifleImpactSound;
 
 	/** Shotgun bullet-impact sound (icon == Shotgun). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	TObjectPtr<USoundBase> ShotgunImpactSound;
+	TObjectPtr<USoundBase> AZP_ShotgunImpactSound;
 
 	// --- Shotgun spray (icon == Shotgun) ---
-	// Fires a randomized burst of pellets instead of one trace. HitscanBodyDamage /
-	// HitscanWeakPointDamage are the TOTAL per-shot damage (3x pistol), divided across
+	// Fires a randomized burst of pellets instead of one trace. AZP_HitscanBodyDamage /
+	// AZP_HitscanWeakPointDamage are the TOTAL per-shot damage (3x pistol), divided across
 	// the pellets — a full spray that all connects deals the total, partial hits less.
 
 	/** Pellets per shot, randomized in [Min,Max] each trigger pull. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	int32 ShotgunPelletMin = 15;
+	int32 AZP_ShotgunPelletMin = 15;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	int32 ShotgunPelletMax = 20;
+	int32 AZP_ShotgunPelletMax = 20;
 
 	/** Spread cone half-angle (degrees) the pellets scatter within. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Hitscan")
-	float ShotgunSpreadDegrees = 4.0f;
+	float AZP_ShotgunSpreadDegrees = 4.0f;
 
 	// --- Weapon Type ---
 
@@ -134,19 +148,23 @@ public:
 
 	/** Damage per melee swing. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeDamage = 25.f;
+	float AZP_MeleeDamage = 25.f;
 
 	/** Maximum reach of melee sweep (cm). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeRange = 200.f;
+	float AZP_MeleeRange = 200.f;
 
 	/** Radius of the sphere sweep for melee hit detection (cm). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeSweepRadius = 40.f;
+	float AZP_MeleeSweepRadius = 40.f;
 
 	/** Minimum time between melee swings (seconds). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeCooldown = 0.6f;
+	float AZP_MeleeCooldown = 0.6f;
+
+	/** Radius in cm within which a melee impact alerts nearby creatures (quieter than gunshots). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	float AZP_MeleeNoiseAlertRadius = 2000.f;
 
 	// --- Melee impact sounds ---
 	// The pipe is metal: a hit ALWAYS makes the metal sound. Striking an enemy
@@ -155,15 +173,15 @@ public:
 
 	/** Metal sound of the pipe itself — plays on any enemy connect (SFX_PIPE_HIT). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	TObjectPtr<USoundBase> PipeMetalSound;
+	TObjectPtr<USoundBase> AZP_PipeMetalSound;
 
 	/** Flesh impacts, randomized — layered over the metal sound on enemy hits (SFX_MELEE_IMPACT1/2). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	TArray<TObjectPtr<USoundBase>> MeleeFleshImpactSounds;
+	TArray<TObjectPtr<USoundBase>> AZP_MeleeFleshImpactSounds;
 
 	/** Pipe striking a wall / hard non-enemy surface (SFX_PIPE_SURFACE_WALL_IMPACT). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	TObjectPtr<USoundBase> PipeWallImpactSound;
+	TObjectPtr<USoundBase> AZP_PipeWallImpactSound;
 
 	// --- Melee View Model (TICKET-054) ---
 	// Kubold FPP Melee Animset plays on a dedicated camera-child mesh
@@ -180,34 +198,38 @@ public:
 
 	/** Play-rate for the swing animation (1.42s source → ~1.0s at 1.4). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeSwingRate = 1.4f;
+	float AZP_MeleeSwingRate = 1.4f;
 
 	/** Fraction of the swing after which a HELD block may cancel the remaining follow-through.
 	 *  The strike and most of the follow-through always play (never reads as clipping); only the
 	 *  return-to-idle dead frames get replaced by the guard coming up (never reads as a pause).
 	 *  1.0 = block always waits for the full clip. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeBlockCancelFraction = 0.75f;
+	float AZP_MeleeBlockCancelFraction = 0.75f;
 
 	/** Whoosh played at every swing start (own-body foley, 2D). Defaults to SFX_MELEE_SWING. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	TObjectPtr<USoundBase> MeleeSwingSound;
+	TObjectPtr<USoundBase> AZP_MeleeSwingSound;
 
 	/** Volume of the swing whoosh. Knob lives on BP_GraceCharacter -> KinemationComp Details. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
-	float MeleeSwingVolume = 1.f;
+	float AZP_MeleeSwingVolume = 1.f;
 
 	/** Play-rate for the equip (raise) animation (1.93s source → ~1.0s at 2.0). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeEquipRate = 2.0f;
+	float AZP_MeleeEquipRate = 2.0f;
 
 	/** Play-rate for the unequip (lower) animation. Truncated by the swap window. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeUnequipRate = 2.5f;
+	float AZP_MeleeUnequipRate = 2.5f;
+
+	/** Seconds after the melee unequip/lower anim starts before the view model is hidden (the swap drop window; matches EquipWeaponClass phase 2). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	float AZP_MeleeUnequipHideDelay = 0.5f;
 
 	/** Seconds after swing start (post-rate) when the damage sweep fires — the impact frame. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
-	float MeleeDamageDelay = 0.35f;
+	float AZP_MeleeDamageDelay = 0.35f;
 
 	// Grip: STATIC attach to hand_r — Kubold authors the anims with the weapon
 	// rigid in the right hand ("parent weapons directly to hands" per their
@@ -227,50 +249,58 @@ public:
 	 *  Includes the dev-tuned POV trim (POV_TRIM_DEG in the script): shaft
 	 *  swung 7.5° to the camera's right, pivoting on the left fist. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
-	FVector MeleeGripOffset = FVector(-23.78f, -1.43f, 22.85f);
+	FVector AZP_MeleeGripOffset = FVector(-23.78f, -1.43f, 22.85f);
 
-	/** Straight-line channel-fit rotation (see MeleeGripOffset). Re-tune for the
+	/** Straight-line channel-fit rotation (see AZP_MeleeGripOffset). Re-tune for the
 	 *  new CCMH hand. Applied EVERY frame so Details-panel edits show live in PIE. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
-	FRotator MeleeGripRotation = FRotator(3.15f, 95.41f, 40.23f);
+	FRotator AZP_MeleeGripRotation = FRotator(3.15f, 95.41f, 40.23f);
 
-	/** Block grip as an ADDITIVE delta on top of the idle grip (MeleeGripOffset/Rotation),
+	/** Block grip as an ADDITIVE delta on top of the idle grip (AZP_MeleeGripOffset/Rotation),
 	 *  in hand_r-LOCAL space. Default zero => block grip == idle grip (pipe stays exactly
 	 *  where idle holds it, just carried into the guard pose by hand_r). Dial these if the
 	 *  block guard wants the pipe held differently — they ONLY affect block, never idle, so
 	 *  the two grips stop fighting. Because the blend is hand-local, no value can ever
 	 *  swing the pipe out of the hand (worst case shifts the grip slightly within it). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
-	FVector BlockGripDeltaLocation = FVector::ZeroVector;
+	FVector AZP_BlockGripDeltaLocation = FVector::ZeroVector;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
-	FRotator BlockGripDeltaRotation = FRotator::ZeroRotator;
+	FRotator AZP_BlockGripDeltaRotation = FRotator::ZeroRotator;
 
 	/** Initial melee weapon attach to hand_r at the idle grip. UpdateMeleeGrip then eases
 	 *  the hand_r-RELATIVE grip toward the block delta while blocking. */
 	void SetMeleeWeaponBlockGrip(bool bBlocking);
 
-	/** Ease the pipe's hand_r-relative grip between idle (MeleeGripOffset) and block
-	 *  (MeleeGripOffset + BlockGripDelta*) by MeleeGripBlend, setting its RELATIVE
+	/** Ease the pipe's hand_r-relative grip between idle (AZP_MeleeGripOffset) and block
+	 *  (AZP_MeleeGripOffset + BlockGripDelta*) by MeleeGripBlend, setting its RELATIVE
 	 *  transform. Hand-local blend on a hand_r-parented pipe => it tracks the hand every
 	 *  frame and can never swing out on un/block. Reads offsets live so Details edits tune
 	 *  in PIE. */
 	void UpdateMeleeGrip(float DeltaSeconds, bool bBlocking);
 
 	/** Current idle<->block grip blend (0 = idle grip, 1 = block grip), both relative to
-	 *  hand_r. Eased toward the block state at BlockGripBlendSpeed. */
+	 *  hand_r. Eased toward the block state at AZP_BlockGripBlendSpeed. */
 	float MeleeGripBlend = 0.f;
 
 	/** How fast the grip eases between idle and block (FInterpTo speed). Higher = snappier.
 	 *  Tune in KinemationComp Details if the transition feels too slow/fast. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
-	float BlockGripBlendSpeed = 8.0f;
+	float AZP_BlockGripBlendSpeed = 8.0f;
 
 	/** Material painted on the melee view-model's bare-skin slots (forearm + hand) so the
 	 *  FP melee arms read as Marcus skin. Defaults to MI_HandSkin (flat, tunable tone).
 	 *  Swap or re-point this in BP_GraceCharacter → KinemationComp Details → Kinemation|Melee;
 	 *  applied on melee init (set value + restart PIE to re-apply). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
-	TObjectPtr<UMaterialInterface> MeleeHandMaterial;
+	TObjectPtr<UMaterialInterface> AZP_MeleeHandMaterial;
+
+	/** Skeletal mesh assigned to the melee/throwable view model (Operator body, proven pose; CCMH swap reverted 2026-06-20 — keep the default). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	TSoftObjectPtr<USkeletalMesh> AZP_MeleeViewModelMeshAsset = TSoftObjectPtr<USkeletalMesh>(FSoftObjectPath(TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SKM_Operator_Mono.SKM_Operator_Mono")));
+
+	/** Static mesh of the pipe held by the melee view model (Moonville example-content pipe). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	TSoftObjectPtr<UStaticMesh> AZP_MeleeWeaponMeshAsset = TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/InventorySystemPro/ExampleContent/Common/Art/Pipe/SM_Pipe.SM_Pipe")));
 
 	// --- Throwable Config ---
 
@@ -279,33 +309,41 @@ public:
 	 *  fist holds the grenade exactly where the pipe shaft passes through it.
 	 *  Computed offline by Scripts/Python/fit_grenade_kubold_offline.py
 	 *  (right-fist ring centroid on the pipe's channel line, incl. POV trim).
-	 *  Re-run if the idle anim, grenade mesh, or ThrowableGripScale changes. */
+	 *  Re-run if the idle anim, grenade mesh, or AZP_ThrowableGripScale changes. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Throwable")
-	FVector ThrowableGripOffset = FVector(-7.57f, 1.36f, -0.04f); // +3.5cm up the channel into the full grip (dev-tuned)
+	FVector AZP_ThrowableGripOffset = FVector(-7.57f, 1.36f, -0.04f); // +3.5cm up the channel into the full grip (dev-tuned)
 
-	/** Held grenade grip rotation (see ThrowableGripOffset). */
+	/** Held grenade grip rotation (see AZP_ThrowableGripOffset). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Throwable")
-	FRotator ThrowableGripRotation = FRotator(3.15f, 95.41f, 40.23f);
+	FRotator AZP_ThrowableGripRotation = FRotator(3.15f, 95.41f, 40.23f);
 
 	/** Held grenade scale (dev-tuned live in PIE: slimmer than the mesh ships,
 	 *  stretched taller — Z is the grenade's long axis). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|Throwable")
-	FVector ThrowableGripScale = FVector(0.6f, 0.6f, 1.01f);
+	FVector AZP_ThrowableGripScale = FVector(0.6f, 0.6f, 1.01f);
 
 	/** Grenade equip starts this far into the Kubold Equip anim — the first
 	 *  half mimes drawing a pipe (a remnant with no pipe in hand); only the
 	 *  second half, the simple rise from below, plays (dev call). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Throwable")
-	float ThrowableEquipStartFraction = 0.5f;
+	float AZP_ThrowableEquipStartFraction = 0.5f;
 
 
 	/** Blueprint class to spawn when throwing a grenade. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Throwable")
-	TSubclassOf<AActor> GrenadeProjectileClass;
+	TSubclassOf<AActor> AZP_GrenadeProjectileClass;
 
 	/** Initial speed of thrown projectile (cm/s). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Throwable")
-	float ThrowSpeed = 800.f;
+	float AZP_ThrowSpeed = 800.f;
+
+	/** Cooldown in seconds after throwing a grenade before the next throw is allowed. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Throwable")
+	float AZP_ThrowCooldownTime = 0.8f;
+
+	/** Distance in cm in front of the camera where the thrown grenade spawns. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Throwable")
+	float AZP_ThrowSpawnForwardOffset = 100.f;
 
 	// --- Animation Sequences (played as dynamic montages) ---
 
@@ -313,24 +351,24 @@ public:
 	 *  Kubold Longsword retargeted onto the Operator skeleton
 	 *  (Scripts/Python/retarget_melee_anims.py). Heavy/hold mechanic removed
 	 *  by design (session 62) — swing fires immediately on press. */
-	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
-	TArray<TObjectPtr<UAnimSequenceBase>> MeleeLightAnims;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
+	TArray<TObjectPtr<UAnimSequenceBase>> AZP_MeleeLightAnims;
 
 	/** Melee view-model idle loop (Kubold FPP). */
-	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
-	TObjectPtr<UAnimSequenceBase> MeleeIdleAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
+	TObjectPtr<UAnimSequenceBase> AZP_MeleeIdleAnim;
 
 	/** Melee view-model equip/raise animation (Kubold FPP). */
-	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
-	TObjectPtr<UAnimSequenceBase> MeleeEquipAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
+	TObjectPtr<UAnimSequenceBase> AZP_MeleeEquipAnim;
 
 	/** Melee view-model unequip/lower animation (Kubold FPP). */
-	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
-	TObjectPtr<UAnimSequenceBase> MeleeUnequipAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
+	TObjectPtr<UAnimSequenceBase> AZP_MeleeUnequipAnim;
 
 	/** Grenade throw animation — loaded by path in InitializeKinemation. */
-	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Animation")
-	TObjectPtr<UAnimSequenceBase> GrenadeThrowAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
+	TObjectPtr<UAnimSequenceBase> AZP_GrenadeThrowAnim;
 
 	// --- Weapon State ---
 
@@ -371,7 +409,7 @@ public:
 
 	/** Rounds per magazine. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Ammo")
-	int32 MagSize = 12;
+	int32 AZP_MagSize = 12;
 
 	/** Current rounds in the magazine. */
 	UPROPERTY(BlueprintReadOnly, Category = "Kinemation|Ammo")
@@ -421,27 +459,27 @@ public:
 
 	// --- ADS Config ---
 
-	/** Default field of view (hip-fire). Set from MovementConfig in PostInitializeComponents. */
+	/** Default field of view (hip-fire). Set from AZP_MovementConfig in PostInitializeComponents. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|ADS")
-	float DefaultFOV = 90.0f;
+	float AZP_DefaultFOV = 90.0f;
 
 	/** Field of view when aiming down sights. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|ADS")
-	float AdsFOV = 65.0f;
+	float AZP_AdsFOV = 65.0f;
 
 	/** Per-weapon ADS field of view — the aim POSE pulls the sights to your eye (the
 	 *  "zoom"); a WIDER FOV here counteracts it (higher = less zoom). Tune shotgun/rifle
 	 *  up if they feel too zoomed. 90 = no FOV change (the pose's zoom only). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|ADS")
-	float AdsFOVPistol = 90.0f;
+	float AZP_AdsFOVPistol = 90.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|ADS")
-	float AdsFOVShotgun = 98.0f;
+	float AZP_AdsFOVShotgun = 98.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|ADS")
-	float AdsFOVRifle = 98.0f;
+	float AZP_AdsFOVRifle = 98.0f;
 
 	/** Interpolation speed for FOV transitions. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kinemation|ADS")
-	float AdsFOVInterpSpeed = 10.0f;
+	float AZP_AdsFOVInterpSpeed = 10.0f;
 
 	// --- Camera API ---
 
@@ -467,7 +505,7 @@ public:
 
 	// --- Weapon API ---
 
-	/** Spawn and equip the weapon (if WeaponClass is set and no weapon is active).
+	/** Spawn and equip the weapon (if AZP_WeaponClass is set and no weapon is active).
 	 *  Called by inventory system when player uses a weapon item. Returns true on success. */
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Weapon")
 	bool EquipWeapon();
@@ -564,7 +602,7 @@ private:
 	/** Timer: hide view mesh after unequip lower animation. */
 	FTimerHandle MeleeUnequipHideHandle;
 
-	/** Cycle index into MeleeLightAnims (F → R → L). */
+	/** Cycle index into AZP_MeleeLightAnims (F → R → L). */
 	int32 MeleeLightAnimIndex = 0;
 
 	/** True while reload animation is playing — blocks firing. */
@@ -581,7 +619,7 @@ private:
 
 	/** Timer for melee swing ADS return (strike → ready). */
 	FTimerHandle MeleeSwingReturnHandle;
-	/** Flips bMeleeSwingTailCancelable at MeleeBlockCancelFraction of the swing. */
+	/** Flips bMeleeSwingTailCancelable at AZP_MeleeBlockCancelFraction of the swing. */
 	FTimerHandle MeleeTailCancelHandle;
 	/** Timer for melee wind-up → strike transition. */
 	FTimerHandle MeleeWindupHandle;
@@ -589,7 +627,7 @@ public:
 	/** True while melee swing ADS animation is in progress — blocks manual ADS. */
 	bool bMeleeSwingActive = false;
 
-	/** True once the swing has played past MeleeBlockCancelFraction: the strike + follow-through
+	/** True once the swing has played past AZP_MeleeBlockCancelFraction: the strike + follow-through
 	 *  are visibly done and only return-to-idle frames remain — a held block may cancel into them. */
 	bool bMeleeSwingTailCancelable = false;
 
@@ -651,35 +689,35 @@ private:
 public:
 	/** Minimum time between shots in seconds. Set per-weapon by ApplyWeaponConfig. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float FireCooldownTime = 0.25f;
+	float AZP_FireCooldownTime = 0.25f;
 
 	/** Fire-input lock while the weapon Draw montage plays after a swap. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float WeaponDrawLockTime = 0.6f;
+	float AZP_WeaponDrawLockTime = 0.6f;
 
 	/** How long the head region stays hidden after a swap — must outlast the
 	 *  longest draw animation (the body doesn't track the view during it).
 	 *  1.8 flashed the head at the end of the pistol draw (dev-caught). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float SwapHeadHideTime = 2.5f;
+	float AZP_SwapHeadHideTime = 2.5f;
 
 	/** Mag-swap reload duration (pistol/rifles). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float ReloadTime = 3.0f;
+	float AZP_ReloadTime = 3.0f;
 
 	/** Shell loaders (shotguns) reload per shell: Start + shells*Loop + End.
 	 *  Times measured from the Kinemation Herrington reload anims. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float ShellReloadEmptyStartTime = 2.7f;
+	float AZP_ShellReloadEmptyStartTime = 2.7f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float ShellReloadTacStartTime = 0.7f;
+	float AZP_ShellReloadTacStartTime = 0.7f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float ShellReloadLoopTime = 0.92f;
+	float AZP_ShellReloadLoopTime = 0.92f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Weapon")
-	float ShellReloadEndTime = 0.85f;
+	float AZP_ShellReloadEndTime = 0.85f;
 
 	/** True for shell-by-shell reloaders (set per weapon in ApplyWeaponConfig). */
 	bool bShellReload = false;

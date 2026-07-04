@@ -17,8 +17,8 @@
  * Blueprint Extension Points: assigned as MarcusBody's override post-process
  *          AnimBP via USkeletalMeshComponent::SetOverridePostProcessAnimBP in
  *          AZP_GraceCharacter::SetupMarcusAppearance. Tunables
- *          (SpineBendThresholdDeg / SpineBendMaxDeg / SpineBendInterpSpeed /
- *          SpineBendBoneLocalAxis) read from the owning AZP_GraceCharacter
+ *          (AZP_SpineBendThresholdDeg / AZP_SpineBendMaxDeg / AZP_SpineBendInterpSpeed /
+ *          AZP_SpineBendBoneLocalAxis) read from the owning AZP_GraceCharacter
  *          each frame so dev can dial in Details -> Appearance|SpineBend.
  *
  * Dependencies: AZP_GraceCharacter, UCameraComponent, FReferenceSkeleton.
@@ -35,6 +35,10 @@ class THESIGNAL_API UZP_MarcusBodySpineBendAnimInstance : public UAnimInstance
 
 public:
 	virtual void NativePostEvaluateAnimation() override;
+
+	/** Per-vertebra distribution of the total look-down spine bend across CCMH spine_01..spine_05, weighted toward the head so the chest closes to the camera faster than the waist. */
+	UPROPERTY(EditAnywhere, Category = "Appearance|SpineBend")
+	float AZP_SpineBendWeights[5] = { 0.10f, 0.15f, 0.20f, 0.25f, 0.30f };
 
 private:
 	/** Smoothed bend (degrees) carried across frames so easing works. */

@@ -51,17 +51,17 @@ namespace
 	// Dev-picked off the pack's Systems Overview map (verified in PIE 2026-07-02):
 	//   melee  = "Splash with Burst + Hit"  -> P_SplashWithBurst_Hit_01/02/03 (correct residual blood)
 	//   ranged = "Splash + Hit + Metal"     -> P_Splash_HitWithMetal_01/02/03 (bullet impact/ricochet)
-	const TCHAR* MeleeBloodPaths[3] = {
+	const TCHAR* AZP_MeleeBloodPaths[3] = {
 		TEXT("/Game/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_Hit_01.P_SplashWithBurst_Hit_01"),
 		TEXT("/Game/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_Hit_02.P_SplashWithBurst_Hit_02"),
 		TEXT("/Game/Blood_VFX_Pack/Particles/Systems/P_SplashWithBurst_Hit_03.P_SplashWithBurst_Hit_03"),
 	};
-	const TCHAR* RangedBloodPaths[3] = {
+	const TCHAR* AZP_RangedBloodPaths[3] = {
 		TEXT("/Game/Blood_VFX_Pack/Particles/Systems/P_Splash_HitWithMetal_01.P_Splash_HitWithMetal_01"),
 		TEXT("/Game/Blood_VFX_Pack/Particles/Systems/P_Splash_HitWithMetal_02.P_Splash_HitWithMetal_02"),
 		TEXT("/Game/Blood_VFX_Pack/Particles/Systems/P_Splash_HitWithMetal_03.P_Splash_HitWithMetal_03"),
 	};
-	const TCHAR* BloodDecalPath = TEXT("/Game/Blood_VFX_Pack/Materials/MI_BloodDecal.MI_BloodDecal");
+	const TCHAR* AZP_BloodDecalPath = TEXT("/Game/Blood_VFX_Pack/Materials/MI_BloodDecal.MI_BloodDecal");
 }
 
 UZP_BloodFXComponent::UZP_BloodFXComponent()
@@ -77,25 +77,25 @@ UNiagaraSystem* UZP_BloodFXComponent::LoadSystem(const TCHAR* Path)
 void UZP_BloodFXComponent::EnsureAssets()
 {
 	// Lazy loads — never ConstructorHelpers /Game pack assets on a component (editor-load crash lesson).
-	// NOTE: BleedSystem is deliberately NOT defaulted — the pack's bleeding systems read as a gag
+	// NOTE: AZP_BleedSystem is deliberately NOT defaulted — the pack's bleeding systems read as a gag
 	// (dev-rejected). The quiet aftermath is the delayed floor pool instead.
-	if (MeleeBloodSystems.Num() == 0)
+	if (AZP_MeleeBloodSystems.Num() == 0)
 	{
-		for (const TCHAR* Path : MeleeBloodPaths)
+		for (const TCHAR* Path : AZP_MeleeBloodPaths)
 		{
-			MeleeBloodSystems.Add(LoadSystem(Path));
+			AZP_MeleeBloodSystems.Add(LoadSystem(Path));
 		}
 	}
-	if (RangedBloodSystems.Num() == 0)
+	if (AZP_RangedBloodSystems.Num() == 0)
 	{
-		for (const TCHAR* Path : RangedBloodPaths)
+		for (const TCHAR* Path : AZP_RangedBloodPaths)
 		{
-			RangedBloodSystems.Add(LoadSystem(Path));
+			AZP_RangedBloodSystems.Add(LoadSystem(Path));
 		}
 	}
-	if (!DecalMaterial)
+	if (!AZP_DecalMaterial)
 	{
-		DecalMaterial = LoadObject<UMaterialInterface>(nullptr, BloodDecalPath);
+		AZP_DecalMaterial = LoadObject<UMaterialInterface>(nullptr, AZP_BloodDecalPath);
 	}
 }
 
@@ -110,7 +110,7 @@ void UZP_BloodFXComponent::BeginPlay()
 
 	// World-space decals can't deform with animation — anything projected onto the body smears as
 	// it moves ("glitchy purple spots"). The body opts out; walls and floors take the splatter.
-	if (bDisableBodyDecals && GetOwner())
+	if (bAZP_DisableBodyDecals && GetOwner())
 	{
 		TInlineComponentArray<USkeletalMeshComponent*> Meshes(GetOwner());
 		for (USkeletalMeshComponent* M : Meshes)
@@ -129,7 +129,7 @@ void UZP_BloodFXComponent::PrewarmWorldOnce(UWorld* World)
 
 	// Fire each system + one decal far below the map at tiny scale: Niagara render resources,
 	// materials, and PSOs all compile during load. Everything auto-destroys. All six variants are
-	// prewarmed so any per-enemy BloodIntensity choice is hitch-free.
+	// prewarmed so any per-enemy AZP_BloodIntensity choice is hitch-free.
 	const FVector Below(0.f, 0.f, -100000.f);
 	auto Prewarm = [&](const TCHAR* Path)
 	{
@@ -139,9 +139,9 @@ void UZP_BloodFXComponent::PrewarmWorldOnce(UWorld* World)
 				FVector(0.05f), /*bAutoDestroy=*/true, /*bAutoActivate=*/true, ENCPoolMethod::None);
 		}
 	};
-	for (const TCHAR* Path : MeleeBloodPaths) { Prewarm(Path); }
-	for (const TCHAR* Path : RangedBloodPaths) { Prewarm(Path); }
-	if (UMaterialInterface* Mat = LoadObject<UMaterialInterface>(nullptr, BloodDecalPath))
+	for (const TCHAR* Path : AZP_MeleeBloodPaths) { Prewarm(Path); }
+	for (const TCHAR* Path : AZP_RangedBloodPaths) { Prewarm(Path); }
+	if (UMaterialInterface* Mat = LoadObject<UMaterialInterface>(nullptr, AZP_BloodDecalPath))
 	{
 		if (UDecalComponent* D = UGameplayStatics::SpawnDecalAtLocation(
 			World, Mat, FVector(8.f, 8.f, 8.f), Below, FRotator::ZeroRotator, /*LifeSpan=*/3.f))
@@ -160,22 +160,22 @@ void UZP_BloodFXComponent::PlayHitBlood(const FVector& Location, const FVector& 
 {
 	EnsureAssets();
 	FBloodSpawnParams P;
-	const TArray<TObjectPtr<UNiagaraSystem>>& Set = bMeleeHit ? MeleeBloodSystems : RangedBloodSystems;
-	const int32 Idx = FMath::Clamp(BloodIntensity - 1, 0, Set.Num() - 1);
+	const TArray<TObjectPtr<UNiagaraSystem>>& Set = bMeleeHit ? AZP_MeleeBloodSystems : AZP_RangedBloodSystems;
+	const int32 Idx = FMath::Clamp(AZP_BloodIntensity - 1, 0, Set.Num() - 1);
 	P.HitSystem = Set.IsValidIndex(Idx) ? Set[Idx].Get() : nullptr;
-	P.Bleed = BleedSystem; P.DecalMat = DecalMaterial;
-	P.Blood = BloodColor; P.Smoke = SmokeColor; P.Decal = DecalColor;
-	P.Scale = BloodScale; P.LifeMult = LifeTimeMult; P.BleedTime = BleedDuration;
-	P.WallSplats = NumWallSplats; P.FloorSplats = NumFloorSplats;
-	P.SizeMin = DecalSizeMin; P.SizeMax = DecalSizeMax; P.DecalLife = DecalLifetime; P.WallDist = WallTraceDistance;
-	P.bFloorPool = bDelayedFloorPool; P.PoolDelaySec = PoolDelay; P.PoolMin = PoolSizeMin; P.PoolMax = PoolSizeMax;
-	P.bResidual = bBodyResidual; P.ResidualN = NumBodyResiduals; P.ResidualMin = BodyResidualSizeMin; P.ResidualMax = BodyResidualSizeMax;
-	P.ColorP = ColorParam; P.SmokeP = SmokeColorParam; P.ScaleP = ScaleParam; P.LifeP = LifeTimeParam; P.DecalColorP = DecalColorParam;
+	P.Bleed = AZP_BleedSystem; P.DecalMat = AZP_DecalMaterial;
+	P.Blood = AZP_BloodColor; P.Smoke = AZP_SmokeColor; P.Decal = AZP_DecalColor;
+	P.Scale = AZP_BloodScale; P.LifeMult = AZP_LifeTimeMult; P.BleedTime = AZP_BleedDuration;
+	P.WallSplats = AZP_NumWallSplats; P.FloorSplats = AZP_NumFloorSplats;
+	P.SizeMin = AZP_DecalSizeMin; P.SizeMax = AZP_DecalSizeMax; P.DecalLife = AZP_DecalLifetime; P.WallDist = AZP_WallTraceDistance;
+	P.bFloorPool = bAZP_DelayedFloorPool; P.PoolDelaySec = AZP_PoolDelay; P.PoolMin = AZP_PoolSizeMin; P.PoolMax = AZP_PoolSizeMax;
+	P.bResidual = bAZP_BodyResidual; P.ResidualN = AZP_NumBodyResiduals; P.ResidualMin = AZP_BodyResidualSizeMin; P.ResidualMax = AZP_BodyResidualSizeMax;
+	P.ColorP = AZP_ColorParam; P.SmokeP = AZP_SmokeColorParam; P.ScaleP = AZP_ScaleParam; P.LifeP = AZP_LifeTimeParam; P.DecalColorP = AZP_DecalColorParam;
 	SpawnComposite(GetWorld(), GetOwner(), Location, Direction, bMeleeHit, SurfaceNormal, P, ExtraIgnoreActor);
 
 	// Clinging body wound — the pack's human-painted decal art projected in pre-skinned space,
 	// the tech that survives animation where world decals never could. Instance path only.
-	if (bBodyWounds)
+	if (bAZP_BodyWounds)
 	{
 		ApplyBodyWound(GetOwner(), Location, SurfaceNormal);
 	}
@@ -183,7 +183,7 @@ void UZP_BloodFXComponent::PlayHitBlood(const FVector& Location, const FVector& 
 
 void UZP_BloodFXComponent::ApplyBodyWound(AActor* HitActor, const FVector& WorldLocation, const FVector& SurfaceNormal)
 {
-	if (!HitActor || MaxBodyWounds <= 0) { return; }
+	if (!HitActor || AZP_MaxBodyWounds <= 0) { return; }
 	USkeletalMeshComponent* Mesh = HitActor->FindComponentByClass<USkeletalMeshComponent>();
 	if (!Mesh || !Mesh->GetSkeletalMeshAsset()) { return; }
 
@@ -217,7 +217,7 @@ void UZP_BloodFXComponent::ApplyBodyWound(AActor* HitActor, const FVector& World
 	// Radius: world units -> mesh-local units (the shader space); mesh components here run scale
 	// compensation (e.g. the Scytheer's 0.5), so divide it out.
 	const float MeshScale = FMath::Max(Mesh->GetComponentTransform().GetScale3D().GetAbsMax(), KINDA_SMALL_NUMBER);
-	const float LocalRadius = FMath::FRandRange(WoundRadiusMin, WoundRadiusMax) / MeshScale;
+	const float LocalRadius = FMath::FRandRange(AZP_WoundRadiusMin, AZP_WoundRadiusMax) / MeshScale;
 
 	// Projection frame for the pack's decal texture: tangent/bitangent perpendicular to the hit's
 	// surface normal, random-rolled so repeated splats never align, carried into pre-skinned space
@@ -239,7 +239,7 @@ void UZP_BloodFXComponent::ApplyBodyWound(AActor* HitActor, const FVector& World
 	const FVector TPre = ToPreSkinnedDir(T);
 	const FVector BPre = ToPreSkinnedDir(B);
 
-	const int32 Slot = (NextWoundSlot % FMath::Max(MaxBodyWounds, 1)) + 1;
+	const int32 Slot = (NextWoundSlot % FMath::Max(AZP_MaxBodyWounds, 1)) + 1;
 	++NextWoundSlot;
 	const FName LocParam(*FString::Printf(TEXT("WoundLoc_%d"), Slot));
 	const FName TParam(*FString::Printf(TEXT("WoundT_%d"), Slot));
@@ -249,7 +249,7 @@ void UZP_BloodFXComponent::ApplyBodyWound(AActor* HitActor, const FVector& World
 	{
 		if (UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(i)))
 		{
-			MID->SetVectorParameterValue(FName(TEXT("WoundColor")), WoundColor);
+			MID->SetVectorParameterValue(FName(TEXT("AZP_WoundColor")), AZP_WoundColor);
 			MID->SetVectorParameterValue(LocParam, FLinearColor(PreSkinned.X, PreSkinned.Y, PreSkinned.Z, 0.f));
 			MID->SetVectorParameterValue(TParam, FLinearColor(TPre.X, TPre.Y, TPre.Z, 0.f));
 			MID->SetVectorParameterValue(BParam, FLinearColor(BPre.X, BPre.Y, BPre.Z, 0.f));
@@ -274,17 +274,17 @@ void UZP_BloodFXComponent::PlayHitBloodFor(AActor* HitActor, const FVector& Loca
 	// No component — class defaults so it still bleeds (infected purple).
 	const UZP_BloodFXComponent* CDO = GetDefault<UZP_BloodFXComponent>();
 	FBloodSpawnParams P;
-	const int32 Idx = FMath::Clamp(CDO->BloodIntensity - 1, 0, 2);
-	P.HitSystem = LoadSystem(bMeleeHit ? MeleeBloodPaths[Idx] : RangedBloodPaths[Idx]);
+	const int32 Idx = FMath::Clamp(CDO->AZP_BloodIntensity - 1, 0, 2);
+	P.HitSystem = LoadSystem(bMeleeHit ? AZP_MeleeBloodPaths[Idx] : AZP_RangedBloodPaths[Idx]);
 	P.Bleed = nullptr; // no default bleed (gag look, dev-rejected)
-	P.DecalMat = LoadObject<UMaterialInterface>(nullptr, BloodDecalPath);
-	P.Blood = CDO->BloodColor; P.Smoke = CDO->SmokeColor; P.Decal = CDO->DecalColor;
-	P.Scale = CDO->BloodScale; P.LifeMult = CDO->LifeTimeMult; P.BleedTime = CDO->BleedDuration;
-	P.WallSplats = CDO->NumWallSplats; P.FloorSplats = CDO->NumFloorSplats;
-	P.SizeMin = CDO->DecalSizeMin; P.SizeMax = CDO->DecalSizeMax; P.DecalLife = CDO->DecalLifetime; P.WallDist = CDO->WallTraceDistance;
-	P.bFloorPool = CDO->bDelayedFloorPool; P.PoolDelaySec = CDO->PoolDelay; P.PoolMin = CDO->PoolSizeMin; P.PoolMax = CDO->PoolSizeMax;
-	P.bResidual = CDO->bBodyResidual; P.ResidualN = CDO->NumBodyResiduals; P.ResidualMin = CDO->BodyResidualSizeMin; P.ResidualMax = CDO->BodyResidualSizeMax;
-	P.ColorP = CDO->ColorParam; P.SmokeP = CDO->SmokeColorParam; P.ScaleP = CDO->ScaleParam; P.LifeP = CDO->LifeTimeParam; P.DecalColorP = CDO->DecalColorParam;
+	P.DecalMat = LoadObject<UMaterialInterface>(nullptr, AZP_BloodDecalPath);
+	P.Blood = CDO->AZP_BloodColor; P.Smoke = CDO->AZP_SmokeColor; P.Decal = CDO->AZP_DecalColor;
+	P.Scale = CDO->AZP_BloodScale; P.LifeMult = CDO->AZP_LifeTimeMult; P.BleedTime = CDO->AZP_BleedDuration;
+	P.WallSplats = CDO->AZP_NumWallSplats; P.FloorSplats = CDO->AZP_NumFloorSplats;
+	P.SizeMin = CDO->AZP_DecalSizeMin; P.SizeMax = CDO->AZP_DecalSizeMax; P.DecalLife = CDO->AZP_DecalLifetime; P.WallDist = CDO->AZP_WallTraceDistance;
+	P.bFloorPool = CDO->bAZP_DelayedFloorPool; P.PoolDelaySec = CDO->AZP_PoolDelay; P.PoolMin = CDO->AZP_PoolSizeMin; P.PoolMax = CDO->AZP_PoolSizeMax;
+	P.bResidual = CDO->bAZP_BodyResidual; P.ResidualN = CDO->AZP_NumBodyResiduals; P.ResidualMin = CDO->AZP_BodyResidualSizeMin; P.ResidualMax = CDO->AZP_BodyResidualSizeMax;
+	P.ColorP = CDO->AZP_ColorParam; P.SmokeP = CDO->AZP_SmokeColorParam; P.ScaleP = CDO->AZP_ScaleParam; P.LifeP = CDO->AZP_LifeTimeParam; P.DecalColorP = CDO->AZP_DecalColorParam;
 	SpawnComposite(HitActor->GetWorld(), HitActor, Location, Direction, bMeleeHit, SurfaceNormal, P, ExtraIgnoreActor);
 }
 
@@ -339,7 +339,7 @@ void UZP_BloodFXComponent::SpawnComposite(UWorld* World, AActor* HitActor, const
 	const FVector ResidualDir = SurfaceNormal.IsNearlyZero() ? Dir : (-SurfaceNormal).GetSafeNormal();
 
 	// 1. The dev-picked hit system (melee "Splash with Burst + Hit" / ranged "Splash + Hit + Metal"),
-	//    at the enemy's BloodIntensity, aimed along the hit direction.
+	//    at the enemy's AZP_BloodIntensity, aimed along the hit direction.
 	SpawnTintedSystem(World, P.HitSystem, Location, SprayRot, P);
 
 	// 2. GUARANTEED splatter — traced decals that always land and stay.

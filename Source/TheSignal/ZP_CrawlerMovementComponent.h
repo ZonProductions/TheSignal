@@ -61,6 +61,46 @@ public:
 
 	FVector GetWallNormal() const { return WallNormal; }
 
+	/** Downward gravity acceleration applied to the crawler during launch arcs and ground pursuit (used both for arc solving in BeginLaunch and per-frame fall in PhysFlying). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Movement")
+	float AZP_CrawlerGravity = 980.f;
+
+	/** Maximum downward fall speed the crawler can reach while launching or falling. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Movement")
+	float AZP_TerminalVelocity = 2000.f;
+
+	/** Horizontal speed used to solve the ballistic pounce arc — governs the L4D-Hunter fast/low pounce feel. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Launch")
+	float AZP_LaunchHorizSpeed = 1400.f;
+
+	/** Lower clamp on the solved pounce flight time — shorter minimum makes close-range pounces snappier and flatter. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Launch")
+	float AZP_LaunchTimeMin = 0.30f;
+
+	/** Upper clamp on the solved pounce flight time — caps how long/floaty a long-range pounce arc can be. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Launch")
+	float AZP_LaunchTimeMax = 0.85f;
+
+	/** Safety timeout in seconds after which an in-flight launch force-ends and flags an impact so the crawler never flies forever. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Launch")
+	float AZP_LaunchMaxDuration = 1.5f;
+
+	/** VInterpTo ease rate for horizontal velocity while ground-pursuing the target — higher snaps to full chase speed faster. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Ground")
+	float AZP_GroundPursuitInterpSpeed = 8.f;
+
+	/** World Z below which a runaway crawler destroys itself — may need per-level tuning on maps with deep geometry. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Safety")
+	float AZP_VoidKillZ = -5000.f;
+
+	/** RInterpTo rate for turning the body to face travel direction while on the ground or in the air. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Rotation")
+	float AZP_BodyRotationRate = 10.f;
+
+	/** RInterpTo rate for aligning the body to the wall normal while clinging (wall-as-floor alignment speed). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Rotation")
+	float AZP_ClingRotationRate = 12.f;
+
 private:
 	void ApplyBodyRotation(float DeltaTime);
 

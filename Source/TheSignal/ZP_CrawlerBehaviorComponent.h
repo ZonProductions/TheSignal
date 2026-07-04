@@ -10,9 +10,9 @@
  *          NEVER re-perches.
  *
  *            PERCHED — dormant until the player shares its space (clear sightline) and is within
- *                      PerchDormantRange (40m). Then:
- *                        • player within DropProximity (5m)                  -> SILENT drop, ground hunt
- *                        • direct stare >= GazeProvokeTime (2s) within GazeLaunchRange (20m) -> LAUNCH
+ *                      AZP_PerchDormantRange (40m). Then:
+ *                        • player within AZP_DropProximity (5m)                  -> SILENT drop, ground hunt
+ *                        • direct stare >= AZP_GazeProvokeTime (2s) within AZP_GazeLaunchRange (20m) -> LAUNCH
  *            GROUNDED — pursue the player on the floor; slam when in range.
  *
  *          CurrentState stays { Patrol, Attack } for Blueprint anim/SFX hooks: Patrol = perched OR
@@ -51,89 +51,89 @@ public:
 	// --- Perch ---
 	/** Adhere to a wall the designer placed this crawler against, on spawn (the wall is its floor). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	bool bSpawnOnWall = true;
+	bool bAZP_SpawnOnWall = true;
 
 	/** Max distance (UU) from the spawn point to find a wall to adhere to. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float SpawnWallSnapRange = 300.f;
+	float AZP_SpawnWallSnapRange = 300.f;
 
 	/** While perched, the player is ignored entirely beyond this range (UU). 4000 = 40m. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float PerchDormantRange = 4000.f;
+	float AZP_PerchDormantRange = 4000.f;
 
 	/** Player closer than this (UU) while perched -> SILENT drop into a ground hunt. 500 = 5m. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float DropProximity = 500.f;
+	float AZP_DropProximity = 500.f;
 
 	/** Max range (UU) at which a sustained stare provokes a launch pounce. 2000 = 20m. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float GazeLaunchRange = 2000.f;
+	float AZP_GazeLaunchRange = 2000.f;
 
 	/** Seconds the player must stare directly at the perched crawler before it launches. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float GazeProvokeTime = 2.0f;
+	float AZP_GazeProvokeTime = 2.0f;
 
 	/** Min seconds between gaze-provoke alert hisses so a held stare doesn't spam it. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float GazeAlertCooldown = 3.0f;
+	float AZP_GazeAlertCooldown = 3.0f;
 
 	/** Low-pass frequency (Hz) on the gaze-provoke alert instance for a muffled hiss. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float GazeAlertLowPassHz = 5000.f;
+	float AZP_GazeAlertLowPassHz = 5000.f;
 
 	/** dot(view, dirToCrawler) threshold for "looking right at it". 0.85 ~ 30deg cone. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Perch")
-	float GazeThreshold = 0.85f;
+	float AZP_GazeThreshold = 0.85f;
 
 	// --- Hunt / attack ---
 	/** Ground pursuit speed (UU/s). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Hunt")
-	float HuntSpeed = 220.f;
+	float AZP_HuntSpeed = 220.f;
 
 	/** Range (UU) within which a grounded crawler (re)acquires the player on a clear sightline. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Hunt")
-	float DetectionRange = 3000.f;
+	float AZP_DetectionRange = 3000.f;
 
 	/** Horizontal distance (UU) at which a grounded crawler slams. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Attack")
-	float AttackRange = 200.f;
+	float AZP_AttackRange = 200.f;
 
 	/** Seconds between attacks. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Attack")
-	float AttackCooldown = 1.5f;
+	float AZP_AttackCooldown = 1.5f;
 
 	/** Damage per landed attack. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Attack")
-	float AttackDamage = 25.f;
+	float AZP_AttackDamage = 25.f;
 
 	/** Proximity (UU) to the player at impact for an attack to connect. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Attack")
-	float AttackHitRadius = 250.f;
+	float AZP_AttackHitRadius = 250.f;
 
 	/** Slam wind-up/strike duration (seconds) before the impact check. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Attack")
-	float SlamHoldTime = 0.3f;
+	float AZP_SlamHoldTime = 0.3f;
 
 	// --- Audio ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Audio")
-	float LurkRange = 1500.f;
+	float AZP_LurkRange = 1500.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Audio")
-	float LurkIntervalMin = 7.f;
+	float AZP_LurkIntervalMin = 7.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler|Audio")
-	float LurkIntervalMax = 15.f;
+	float AZP_LurkIntervalMax = 15.f;
 
 	// --- Misc ---
 	/** Behavior evaluation period (seconds). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler")
-	float EvalInterval = 0.3f;
+	float AZP_EvalInterval = 0.3f;
 
 	/** Max range (UU) a gunshot/impact can wake this crawler. 5000 = 50m. The alert is ALSO gated on a
 	 *  clear sightline (same room) — it never travels through a wall. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler")
-	float GunshotAlertRadius = 5000.f;
+	float AZP_GunshotAlertRadius = 5000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crawler")
-	bool bAutoInitialize = true;
+	bool bAZP_AutoInitialize = true;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Crawler|State")
 	ECrawlerState CurrentState = ECrawlerState::Patrol;

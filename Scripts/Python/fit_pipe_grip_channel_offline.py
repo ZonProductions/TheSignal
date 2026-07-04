@@ -149,8 +149,8 @@ unreal.log(f'MeleeGripRotation = FRotator({mean_rot.pitch:.2f}f, {mean_rot.yaw:.
 bp = unreal.load_asset('/Game/Core/Player/BP_GraceCharacter')
 cdo = unreal.get_default_object(bp.generated_class())
 kin = next(c for c in cdo.get_components_by_class(unreal.ActorComponent) if 'Kinemation' in c.get_name())
-kin.set_editor_property('MeleeGripOffset', mean_loc)
-kin.set_editor_property('MeleeGripRotation', mean_rot)
+kin.set_editor_property('AZP_MeleeGripOffset', mean_loc)
+kin.set_editor_property('AZP_MeleeGripRotation', mean_rot)
 saved = unreal.EditorAssetLibrary.save_asset('/Game/Core/Player/BP_GraceCharacter')
 if saved:
     unreal.log('APPLIED to BP_GraceCharacter CDO and SAVED to disk.')

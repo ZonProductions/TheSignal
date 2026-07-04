@@ -33,7 +33,7 @@ for i in range(1, 7):
         try:
             gen_class = bp.generated_class()
             cdo = gen_class.get_default_object()
-            cdo.set_editor_property("floor_number", i)
+            cdo.set_editor_property("AZP_FloorNumber", i)
         except Exception as e:
             print(f"  CDO set_editor_property failed: {e}, will try alternative")
             # Alternative: use subsystem

@@ -18,18 +18,18 @@ AZP_VentDoor::AZP_VentDoor()
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(Root);
-	InteractionVolume->SetBoxExtent(InteractionVolumeExtent);
-	InteractionVolume->SetRelativeLocation(InteractionVolumeOffset);
+	InteractionVolume->SetBoxExtent(AZP_InteractionVolumeExtent);
+	InteractionVolume->SetRelativeLocation(AZP_InteractionVolumeOffset);
 	InteractionVolume->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	InteractionVolume->SetGenerateOverlapEvents(true);
 
 	HingePivot = CreateDefaultSubobject<USceneComponent>(TEXT("HingePivot"));
 	HingePivot->SetupAttachment(Root);
-	HingePivot->SetRelativeLocation(HingeOffset);
+	HingePivot->SetRelativeLocation(AZP_HingeOffset);
 
 	VentMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VentMesh"));
 	VentMesh->SetupAttachment(HingePivot);
-	VentMesh->SetRelativeLocation(-HingeOffset);
+	VentMesh->SetRelativeLocation(-AZP_HingeOffset);
 	VentMesh->SetCollisionProfileName(TEXT("BlockAll"));
 	VentMesh->SetGenerateOverlapEvents(false);
 }
@@ -44,17 +44,17 @@ void AZP_VentDoor::ApplyHingeLayout()
 {
 	if (HingePivot)
 	{
-		HingePivot->SetRelativeLocation(HingeOffset);
+		HingePivot->SetRelativeLocation(AZP_HingeOffset);
 		HingePivot->SetRelativeRotation(FRotator::ZeroRotator);
 	}
 	if (VentMesh)
 	{
-		VentMesh->SetRelativeLocation(-HingeOffset);
+		VentMesh->SetRelativeLocation(-AZP_HingeOffset);
 	}
 	if (InteractionVolume)
 	{
-		InteractionVolume->SetBoxExtent(InteractionVolumeExtent);
-		InteractionVolume->SetRelativeLocation(InteractionVolumeOffset);
+		InteractionVolume->SetBoxExtent(AZP_InteractionVolumeExtent);
+		InteractionVolume->SetRelativeLocation(AZP_InteractionVolumeOffset);
 	}
 }
 
@@ -68,11 +68,11 @@ void AZP_VentDoor::BeginPlay()
 		InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_VentDoor::OnOverlapEnd);
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] VentDoor %s: Ready — RequiredItem=%s, HingeOffset=%s, OpenRotation=%s"),
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] VentDoor %s: Ready — RequiredItem=%s, AZP_HingeOffset=%s, AZP_OpenRotation=%s"),
 		*GetName(),
-		*RequiredItemName.ToString(),
-		*HingeOffset.ToString(),
-		*OpenRotation.ToString());
+		*AZP_RequiredItemName.ToString(),
+		*AZP_HingeOffset.ToString(),
+		*AZP_OpenRotation.ToString());
 }
 
 // --- IZP_Interactable ---
@@ -81,7 +81,7 @@ FText AZP_VentDoor::GetInteractionPrompt_Implementation()
 {
 	// Without a cached character reference, return the format with the item name.
 	// Per-overlap prompts in OnOverlapBegin pick the right one based on inventory state.
-	return FText::Format(UnlockedPromptFormat, RequiredItemName);
+	return FText::Format(AZP_UnlockedPromptFormat, AZP_RequiredItemName);
 }
 
 void AZP_VentDoor::OnInteract_Implementation(ACharacter* Interactor)
@@ -93,7 +93,7 @@ void AZP_VentDoor::OnInteract_Implementation(ACharacter* Interactor)
 
 	if (CheckPlayerHasItem(Interactor))
 	{
-		if (bConsumeItemOnUse)
+		if (bAZP_ConsumeItemOnUse)
 		{
 			ConsumeItem(Interactor);
 		}
@@ -110,10 +110,10 @@ void AZP_VentDoor::OnInteract_Implementation(ACharacter* Interactor)
 		AZP_PlayerController* PC = Cast<AZP_PlayerController>(Interactor->GetController());
 		if (PC && PC->HUDWidget)
 		{
-			PC->HUDWidget->ShowInteractionPrompt(LockedPrompt);
+			PC->HUDWidget->ShowInteractionPrompt(AZP_LockedPrompt);
 		}
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] VentDoor %s: Player missing %s"),
-			*GetName(), *RequiredItemName.ToString());
+			*GetName(), *AZP_RequiredItemName.ToString());
 	}
 }
 
@@ -132,8 +132,8 @@ void AZP_VentDoor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	if (PC && PC->HUDWidget)
 	{
 		const FText Prompt = CheckPlayerHasItem(Grace)
-			? FText::Format(UnlockedPromptFormat, RequiredItemName)
-			: LockedPrompt;
+			? FText::Format(AZP_UnlockedPromptFormat, AZP_RequiredItemName)
+			: AZP_LockedPrompt;
 		PC->HUDWidget->ShowInteractionPrompt(Prompt);
 	}
 }
@@ -169,10 +169,10 @@ void AZP_VentDoor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (!bIsAnimating || !HingePivot) return;
 
-	AnimT += (OpenDuration > KINDA_SMALL_NUMBER) ? (DeltaTime / OpenDuration) : 1.f;
+	AnimT += (AZP_OpenDuration > KINDA_SMALL_NUMBER) ? (DeltaTime / AZP_OpenDuration) : 1.f;
 	const float T = FMath::Clamp(AnimT, 0.f, 1.f);
 	const float Eased = FMath::SmoothStep(0.f, 1.f, T);
-	HingePivot->SetRelativeRotation(FMath::Lerp(FRotator::ZeroRotator, OpenRotation, Eased));
+	HingePivot->SetRelativeRotation(FMath::Lerp(FRotator::ZeroRotator, AZP_OpenRotation, Eased));
 
 	if (T >= 1.f)
 	{
@@ -246,7 +246,7 @@ bool AZP_VentDoor::HasItemInSlotArray(UActorComponent* InvComp, const FName& Arr
 
 bool AZP_VentDoor::CheckPlayerHasItem(ACharacter* Character)
 {
-	UObject* TargetDA = RequiredItemDA.LoadSynchronous();
+	UObject* TargetDA = AZP_RequiredItemDA.LoadSynchronous();
 	if (!TargetDA) return false;
 
 	UActorComponent* InvComp = GetMoonvilleInventoryComp(Character);
@@ -259,15 +259,15 @@ bool AZP_VentDoor::CheckPlayerHasItem(ACharacter* Character)
 
 void AZP_VentDoor::ConsumeItem(ACharacter* Character)
 {
-	UObject* TargetDA = RequiredItemDA.LoadSynchronous();
+	UObject* TargetDA = AZP_RequiredItemDA.LoadSynchronous();
 	UActorComponent* InvComp = GetMoonvilleInventoryComp(Character);
 	if (!TargetDA || !InvComp) return;
 
 	UFunction* RemoveFunc = InvComp->FindFunction(FName("RemoveItemByDataAsset"));
 	if (RemoveFunc)
 	{
-		struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-		Params.ItemDataAsset = TargetDA;
+		struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+		Params.AZP_ItemDataAsset = TargetDA;
 		Params.AmountToRemove = 1;
 		InvComp->ProcessEvent(RemoveFunc, &Params);
 	}

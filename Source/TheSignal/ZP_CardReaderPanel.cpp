@@ -37,7 +37,7 @@ AZP_CardReaderPanel::AZP_CardReaderPanel()
 	StatusLight->SetRelativeLocation(FVector(10.f, 0.f, 60.f));
 	StatusLight->SetIntensity(500.f);
 	StatusLight->SetAttenuationRadius(100.f);
-	StatusLight->SetLightColor(FLinearColor(0.8f, 0.1f, 0.1f)); // red = locked
+	StatusLight->SetLightColor(AZP_LockedLightColor); // red = locked
 }
 
 void AZP_CardReaderPanel::BeginPlay()
@@ -47,24 +47,24 @@ void AZP_CardReaderPanel::BeginPlay()
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_CardReaderPanel::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_CardReaderPanel::OnOverlapEnd);
 
-	// Auto-lock any InteractDoors within DoorLockRadius
+	// Auto-lock any InteractDoors within AZP_DoorLockRadius
 	FVector MyLocation = GetActorLocation();
 	for (TActorIterator<AZP_InteractDoor> It(GetWorld()); It; ++It)
 	{
 		AZP_InteractDoor* Door = *It;
-		if (FVector::Dist(MyLocation, Door->GetActorLocation()) <= DoorLockRadius)
+		if (FVector::Dist(MyLocation, Door->GetActorLocation()) <= AZP_DoorLockRadius)
 		{
-			Door->bLocked = true;
+			Door->bAZP_Locked = true;
 			AutoLockedDoors.Add(Door);
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Auto-locked door %s (dist=%.0f)"),
 				*GetName(), *Door->GetName(), FVector::Dist(MyLocation, Door->GetActorLocation()));
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Ready — RequiredItem=%s, LinkedDoor=%s, AutoLockedDoors=%d"),
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Ready — RequiredItem=%s, AZP_LinkedDoor=%s, AutoLockedDoors=%d"),
 		*GetName(),
-		*RequiredItemName.ToString(),
-		LinkedDoor ? *LinkedDoor->GetName() : TEXT("NONE"),
+		*AZP_RequiredItemName.ToString(),
+		AZP_LinkedDoor ? *AZP_LinkedDoor->GetName() : TEXT("NONE"),
 		AutoLockedDoors.Num());
 }
 
@@ -72,7 +72,7 @@ void AZP_CardReaderPanel::BeginPlay()
 
 FText AZP_CardReaderPanel::GetInteractionPrompt_Implementation()
 {
-	return PromptText;
+	return AZP_PromptText;
 }
 
 void AZP_CardReaderPanel::OnInteract_Implementation(ACharacter* Interactor)
@@ -86,7 +86,7 @@ void AZP_CardReaderPanel::OnInteract_Implementation(ACharacter* Interactor)
 
 	// Reveal the related sub-objective on first contact with the (locked) reader — set BEFORE the
 	// item check so the "Find security card" step appears even when the player already has the card.
-	SetObjectiveFlag(ObjectiveFlagOnTry);
+	SetObjectiveFlag(AZP_ObjectiveFlagOnTry);
 
 	// Auto-check inventory and use key if present
 	if (CheckPlayerHasItem(Interactor))
@@ -97,13 +97,13 @@ void AZP_CardReaderPanel::OnInteract_Implementation(ACharacter* Interactor)
 		AZP_PlayerController* PC = Cast<AZP_PlayerController>(Interactor->GetController());
 		if (PC && PC->HUDWidget)
 		{
-			PC->HUDWidget->ShowInteractionPrompt(AccessGrantedMessage);
+			PC->HUDWidget->ShowInteractionPrompt(AZP_AccessGrantedMessage);
 		}
 	}
 	else
 	{
 		// Show missing item message via HUD prompt
-		FText Message = FText::Format(MissingItemMessage, RequiredItemName);
+		FText Message = FText::Format(AZP_MissingItemMessage, AZP_RequiredItemName);
 
 		AZP_PlayerController* PC = Cast<AZP_PlayerController>(Interactor->GetController());
 		if (PC && PC->HUDWidget)
@@ -112,7 +112,7 @@ void AZP_CardReaderPanel::OnInteract_Implementation(ACharacter* Interactor)
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Player missing required item: %s"),
-			*GetName(), *RequiredItemName.ToString());
+			*GetName(), *AZP_RequiredItemName.ToString());
 	}
 }
 
@@ -133,7 +133,7 @@ void AZP_CardReaderPanel::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 	AZP_PlayerController* PC = Cast<AZP_PlayerController>(Grace->GetController());
 	if (PC && PC->HUDWidget)
 	{
-		PC->HUDWidget->ShowInteractionPrompt(PromptText);
+		PC->HUDWidget->ShowInteractionPrompt(AZP_PromptText);
 	}
 }
 
@@ -250,10 +250,10 @@ bool AZP_CardReaderPanel::HasItemInSlotArray(UActorComponent* InvComp, const FNa
 
 bool AZP_CardReaderPanel::CheckPlayerHasItem(ACharacter* Character)
 {
-	UObject* TargetDA = RequiredItemDA.LoadSynchronous();
+	UObject* TargetDA = AZP_RequiredItemDA.LoadSynchronous();
 	if (!TargetDA)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] CardReaderPanel %s: RequiredItemDA failed to load!"),
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] CardReaderPanel %s: AZP_RequiredItemDA failed to load!"),
 			*GetName());
 		return false;
 	}
@@ -278,17 +278,17 @@ void AZP_CardReaderPanel::UseKey(ACharacter* Character)
 {
 	if (bUnlocked) return;
 
-	UObject* TargetDA = RequiredItemDA.LoadSynchronous();
+	UObject* TargetDA = AZP_RequiredItemDA.LoadSynchronous();
 	UActorComponent* InvComp = GetMoonvilleInventoryComp(Character);
 
 	// Remove item from inventory (if configured)
-	if (bConsumeKeyOnUse && InvComp && TargetDA)
+	if (bAZP_ConsumeKeyOnUse && InvComp && TargetDA)
 	{
 		UFunction* RemoveFunc = InvComp->FindFunction(FName("RemoveItemByDataAsset"));
 		if (RemoveFunc)
 		{
-			struct { UObject* ItemDataAsset; int32 AmountToRemove; } Params;
-			Params.ItemDataAsset = TargetDA;
+			struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+			Params.AZP_ItemDataAsset = TargetDA;
 			Params.AmountToRemove = 1;
 			InvComp->ProcessEvent(RemoveFunc, &Params);
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel: Consumed key item %s"),
@@ -298,20 +298,20 @@ void AZP_CardReaderPanel::UseKey(ACharacter* Character)
 
 	// Unlock and open the linked door
 	bUnlocked = true;
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: UseKey — LinkedDoor=%s, bUnlocked=%d"),
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: UseKey — AZP_LinkedDoor=%s, bUnlocked=%d"),
 		*GetName(),
-		LinkedDoor ? *LinkedDoor->GetName() : TEXT("NULL"),
+		AZP_LinkedDoor ? *AZP_LinkedDoor->GetName() : TEXT("NULL"),
 		bUnlocked);
-	if (LinkedDoor)
+	if (AZP_LinkedDoor)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Calling Unlock+OpenDoor on %s (state=%s)"),
-			*GetName(), *LinkedDoor->GetName(),
-			*UEnum::GetValueAsString(LinkedDoor->GetDoorState()));
-		LinkedDoor->Unlock();
-		LinkedDoor->OpenDoor();
+			*GetName(), *AZP_LinkedDoor->GetName(),
+			*UEnum::GetValueAsString(AZP_LinkedDoor->GetDoorState()));
+		AZP_LinkedDoor->Unlock();
+		AZP_LinkedDoor->OpenDoor();
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] CardReaderPanel %s: Door %s unlocked + opened (state=%s)"),
-			*GetName(), *LinkedDoor->GetName(),
-			*UEnum::GetValueAsString(LinkedDoor->GetDoorState()));
+			*GetName(), *AZP_LinkedDoor->GetName(),
+			*UEnum::GetValueAsString(AZP_LinkedDoor->GetDoorState()));
 	}
 
 	// Unlock all auto-locked InteractDoors
@@ -325,17 +325,17 @@ void AZP_CardReaderPanel::UseKey(ACharacter* Character)
 		}
 	}
 
-	if (!LinkedDoor && AutoLockedDoors.Num() == 0)
+	if (!AZP_LinkedDoor && AutoLockedDoors.Num() == 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] CardReaderPanel %s: No linked door at UseKey time!"),
 			*GetName());
 	}
 
 	// Switch status light to green
-	SetStatusLightColor(FLinearColor(0.1f, 0.8f, 0.1f));
+	SetStatusLightColor(AZP_UnlockedLightColor);
 
 	// Advance objective state — completes the "Access east wing" step gated on this flag.
-	SetObjectiveFlag(ObjectiveFlagOnUnlock);
+	SetObjectiveFlag(AZP_ObjectiveFlagOnUnlock);
 }
 
 void AZP_CardReaderPanel::SetStatusLightColor(FLinearColor Color)

@@ -56,34 +56,34 @@ void UZP_MapWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 		if (UCanvasPanelSlot* MarkerSlot = Cast<UCanvasPanelSlot>(PlayerMarker->Slot))
 		{
-			const FVector2D MarkerPos = UV * CanvasSize - (MarkerSize * 0.5f);
+			const FVector2D MarkerPos = UV * CanvasSize - (AZP_MarkerSize * 0.5f);
 			MarkerSlot->SetPosition(MarkerPos);
-			MarkerSlot->SetSize(MarkerSize);
+			MarkerSlot->SetSize(AZP_MarkerSize);
 		}
 
-		PlayerMarker->SetRenderTransformAngle(-PC->GetControlRotation().Yaw + 90.0f);
+		PlayerMarker->SetRenderTransformAngle(-PC->GetControlRotation().Yaw + AZP_PlayerMarkerAngleOffset);
 	}
 
 	// --- Door markers ---
 	for (FZP_DoorMarkerInfo& Info : DoorMarkers)
 	{
-		if (!Info.MarkerWidget || !Info.DoorActor.IsValid()) continue;
+		if (!Info.MarkerWidget || !Info.AZP_DoorActor.IsValid()) continue;
 
-		const FVector2D UV = WorldToMapUV(Info.DoorActor->GetActorLocation());
+		const FVector2D UV = WorldToMapUV(Info.AZP_DoorActor->GetActorLocation());
 		if (UCanvasPanelSlot* DoorSlot = Cast<UCanvasPanelSlot>(Info.MarkerWidget->Slot))
 		{
-			const FVector2D DoorPos = UV * CanvasSize - (DoorMarkerSize * 0.5f);
+			const FVector2D DoorPos = UV * CanvasSize - (AZP_DoorMarkerSize * 0.5f);
 			DoorSlot->SetPosition(DoorPos);
-			DoorSlot->SetSize(DoorMarkerSize);
+			DoorSlot->SetSize(AZP_DoorMarkerSize);
 		}
 
 		// Update color for lockable doors (state can change at runtime)
 		if (Info.bIsLockable)
 		{
-			if (AZP_LockableDoor* LD = Cast<AZP_LockableDoor>(Info.DoorActor.Get()))
+			if (AZP_LockableDoor* LD = Cast<AZP_LockableDoor>(Info.AZP_DoorActor.Get()))
 			{
 				const FLinearColor Color = (LD->GetDoorState() == EZP_DoorState::Locked)
-					? LockedDoorColor : UnlockedDoorColor;
+					? AZP_LockedDoorColor : AZP_UnlockedDoorColor;
 				Info.MarkerWidget->SetColorAndOpacity(Color);
 			}
 		}
@@ -109,10 +109,10 @@ void UZP_MapWidget::ShowMap(UZP_MapComponent* MapComp)
 			AreaID.IsNone() ? 1 : 0, Volume ? 0 : 1);
 		if (MapImage) MapImage->SetVisibility(ESlateVisibility::Collapsed);
 		if (PlayerMarker) PlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
-		if (AreaNameText) AreaNameText->SetText(FText::FromString(TEXT("Unknown Area")));
+		if (AreaNameText) AreaNameText->SetText(AZP_UnknownAreaText);
 		if (NoMapText)
 		{
-			NoMapText->SetText(FText::FromString(TEXT("No map available")));
+			NoMapText->SetText(AZP_NoMapAvailableText);
 			NoMapText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -129,10 +129,10 @@ void UZP_MapWidget::ShowMap(UZP_MapComponent* MapComp)
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP SHOW: → BRANCH: Map not found yet"));
 		if (MapImage) MapImage->SetVisibility(ESlateVisibility::Collapsed);
 		if (PlayerMarker) PlayerMarker->SetVisibility(ESlateVisibility::Collapsed);
-		if (AreaNameText) AreaNameText->SetText(Volume->AreaDisplayName);
+		if (AreaNameText) AreaNameText->SetText(Volume->AZP_AreaDisplayName);
 		if (NoMapText)
 		{
-			NoMapText->SetText(FText::FromString(TEXT("Map not found yet")));
+			NoMapText->SetText(AZP_MapNotFoundText);
 			NoMapText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -143,14 +143,14 @@ void UZP_MapWidget::ShowMap(UZP_MapComponent* MapComp)
 	// Show the map
 	UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP SHOW: → BRANCH: Showing map! MapImage=%s, Texture=%s"),
 		MapImage ? TEXT("valid") : TEXT("NULL"),
-		Volume->MapTexture ? *Volume->MapTexture->GetName() : TEXT("NULL"));
+		Volume->AZP_MapTexture ? *Volume->AZP_MapTexture->GetName() : TEXT("NULL"));
 
 	if (NoMapText) NoMapText->SetVisibility(ESlateVisibility::Collapsed);
-	if (AreaNameText) AreaNameText->SetText(Volume->AreaDisplayName);
+	if (AreaNameText) AreaNameText->SetText(Volume->AZP_AreaDisplayName);
 
-	if (MapImage && Volume->MapTexture)
+	if (MapImage && Volume->AZP_MapTexture)
 	{
-		MapImage->SetBrushFromTexture(Volume->MapTexture);
+		MapImage->SetBrushFromTexture(Volume->AZP_MapTexture);
 		MapImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] MAP SHOW: Texture SET on MapImage"));
 	}
@@ -217,7 +217,7 @@ void UZP_MapWidget::CreateDoorMarkers()
 		// Modify existing brush in-place (avoids FSlateBrush ctor linker dep on SlateCore)
 		PRAGMA_DISABLE_DEPRECATION_WARNINGS
 		Marker->Brush.DrawAs = ESlateBrushDrawType::RoundedBox;
-		Marker->Brush.ImageSize = DoorMarkerSize;
+		Marker->Brush.ImageSize = AZP_DoorMarkerSize;
 		PRAGMA_ENABLE_DEPRECATION_WARNINGS
 		Marker->SetColorAndOpacity(Color);
 		MapCanvas->AddChild(Marker);
@@ -230,9 +230,9 @@ void UZP_MapWidget::CreateDoorMarkers()
 		if (!IsInBounds(It->GetActorLocation())) continue;
 
 		FZP_DoorMarkerInfo Info;
-		Info.DoorActor = *It;
+		Info.AZP_DoorActor = *It;
 		Info.bIsLockable = false;
-		Info.MarkerWidget = CreateMarker(UnlockedDoorColor);
+		Info.MarkerWidget = CreateMarker(AZP_UnlockedDoorColor);
 		DoorMarkers.Add(Info);
 	}
 
@@ -242,10 +242,10 @@ void UZP_MapWidget::CreateDoorMarkers()
 		if (!IsInBounds(It->GetActorLocation())) continue;
 
 		const FLinearColor Color = (It->GetDoorState() == EZP_DoorState::Locked)
-			? LockedDoorColor : UnlockedDoorColor;
+			? AZP_LockedDoorColor : AZP_UnlockedDoorColor;
 
 		FZP_DoorMarkerInfo Info;
-		Info.DoorActor = *It;
+		Info.AZP_DoorActor = *It;
 		Info.bIsLockable = true;
 		Info.MarkerWidget = CreateMarker(Color);
 		DoorMarkers.Add(Info);

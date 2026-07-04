@@ -13,8 +13,8 @@
  * Owner Subsystem: PlayerCharacter
  *
  * Blueprint Extension Points:
- *   - HealthArcMaterial: set to M_HealthArc in WBP_HUD class defaults.
- *   - FullHealthColor / LowHealthColor: tunable in editor.
+ *   - AZP_HealthArcMaterial: set to M_HealthArc in WBP_HUD class defaults.
+ *   - AZP_FullHealthColor / AZP_LowHealthColor: tunable in editor.
  *   - All public Set/Show/Hide functions are BlueprintCallable.
  *
  * Dependencies:
@@ -103,80 +103,116 @@ public:
 	//     WBP_HUD class defaults (or via set_all_cdo.py). ---
 
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
-	TObjectPtr<UTexture2D> PistolIconTexture;
+	TObjectPtr<UTexture2D> AZP_PistolIconTexture;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
-	TObjectPtr<UTexture2D> RifleIconTexture;
+	TObjectPtr<UTexture2D> AZP_RifleIconTexture;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
-	TObjectPtr<UTexture2D> ShotgunIconTexture;
+	TObjectPtr<UTexture2D> AZP_ShotgunIconTexture;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
-	TObjectPtr<UTexture2D> PipeIconTexture;
+	TObjectPtr<UTexture2D> AZP_PipeIconTexture;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Weapon Icons")
-	TObjectPtr<UTexture2D> GrenadeIconTexture;
+	TObjectPtr<UTexture2D> AZP_GrenadeIconTexture;
 
 	// --- Config ---
 
 	/** Base material for the health arc. Set to M_HealthArc in WBP_HUD class defaults. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Health")
-	TObjectPtr<UMaterialInterface> HealthArcMaterial;
+	TObjectPtr<UMaterialInterface> AZP_HealthArcMaterial;
 
 	/** Base material for the SignalSense waveform. Set to M_SignalWaveform in WBP_HUD defaults. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Signal")
-	TObjectPtr<UMaterialInterface> SignalWaveMaterial;
+	TObjectPtr<UMaterialInterface> AZP_SignalWaveMaterial;
 
 	/** Color at full health. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Health")
-	FLinearColor FullHealthColor = FLinearColor(0.9f, 0.95f, 1.0f, 1.0f);
+	FLinearColor AZP_FullHealthColor = FLinearColor(0.9f, 0.95f, 1.0f, 1.0f);
 
 	/** Color at low health. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Health")
-	FLinearColor LowHealthColor = FLinearColor(0.8f, 0.1f, 0.1f, 1.0f);
+	FLinearColor AZP_LowHealthColor = FLinearColor(0.8f, 0.1f, 0.1f, 1.0f);
 
-	/** Health fraction below which color shifts toward LowHealthColor. */
+	/** Health fraction below which color shifts toward AZP_LowHealthColor. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Health")
-	float LowHealthThreshold = 0.35f;
+	float AZP_LowHealthThreshold = 0.35f;
+
+	/** Color of the stamina arc (green), set on the stamina arc material's ArcColor parameter at construct. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Stamina")
+	FLinearColor AZP_StaminaArcColor = FLinearColor(0.2f, 0.9f, 0.3f, 1.0f);
+
+	/** Render scale of the stamina arc so it nests inside the health arc ring (0.65 = 65%). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Stamina")
+	float AZP_StaminaArcScale = 0.65f;
 
 	/** How fast the damage vignette fades out (higher = faster). */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Damage")
-	float DamageVignetteFadeSpeed = 3.0f;
+	float AZP_DamageVignetteFadeSpeed = 3.0f;
 
 	/** Max opacity the damage vignette reaches on hit. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Damage")
-	float DamageVignetteMaxOpacity = 0.8f;
+	float AZP_DamageVignetteMaxOpacity = 0.8f;
+
+	/** Hardcoded LoadObject path for the damage vignette brush material; should become an asset-reference UPROPERTY. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Damage")
+	TSoftObjectPtr<UMaterialInterface> AZP_DamageVignetteMaterialAsset = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(
+		TEXT("/Game/Materials/UI/M_DamageVignette.M_DamageVignette")));
 
 	/** How fast the heal vignette fades out (higher = faster). */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Effects")
-	float HealVignetteFadeSpeed = 5.0f;
+	float AZP_HealVignetteFadeSpeed = 5.0f;
 
 	/** Max opacity the heal vignette reaches on heal. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Effects")
-	float HealVignetteMaxOpacity = 0.6f;
+	float AZP_HealVignetteMaxOpacity = 0.6f;
+
+	/** Hardcoded LoadObject path for the heal vignette brush material; should become an asset-reference UPROPERTY. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Effects")
+	TSoftObjectPtr<UMaterialInterface> AZP_HealVignetteMaterialAsset = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(
+		TEXT("/Game/Materials/UI/M_HealVignette.M_HealVignette")));
 
 	/** How fast effect vignettes (damage reduction, invincibility) fade in/out. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Effects")
-	float EffectVignetteFadeSpeed = 3.0f;
+	float AZP_EffectVignetteFadeSpeed = 3.0f;
 
 	/** Max opacity for damage reduction vignette. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Effects")
-	float DamageReductionVignetteMaxOpacity = 0.4f;
+	float AZP_DamageReductionVignetteMaxOpacity = 0.4f;
+
+	/** Hardcoded LoadObject path for the damage-reduction vignette brush material; should become an asset-reference UPROPERTY. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Effects")
+	TSoftObjectPtr<UMaterialInterface> AZP_DamageReductionVignetteMaterialAsset = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(
+		TEXT("/Game/Materials/UI/M_DamageReductionVignette.M_DamageReductionVignette")));
 
 	/** Max opacity for invincibility vignette. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Effects")
-	float InvincibilityVignetteMaxOpacity = 0.4f;
+	float AZP_InvincibilityVignetteMaxOpacity = 0.4f;
+
+	/** Hardcoded LoadObject path for the invincibility vignette brush material; should become an asset-reference UPROPERTY. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Effects")
+	TSoftObjectPtr<UMaterialInterface> AZP_InvincibilityVignetteMaterialAsset = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(
+		TEXT("/Game/Materials/UI/M_InvincibilityVignette.M_InvincibilityVignette")));
 
 	/** Attack-button glyph for keyboard/mouse (attack = LMB; Moonville KBM icon set). */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Grab")
-	TSoftObjectPtr<UTexture2D> GrabPromptGlyphTexture = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(
+	TSoftObjectPtr<UTexture2D> AZP_GrabPromptGlyphTexture = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(
 		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Art/Textures/UI/Input/KeyboardMouse/T_IconMouse1.T_IconMouse1")));
 
 	/** Attack-button glyph for gamepad (fire = Right Trigger; Moonville Xbox One icon set).
 	 *  Selected automatically when the last input came from a controller. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD|Grab")
-	TSoftObjectPtr<UTexture2D> GrabPromptGlyphGamepadTexture = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(
+	TSoftObjectPtr<UTexture2D> AZP_GrabPromptGlyphGamepadTexture = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(
 		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Art/Textures/UI/Input/GamepadXboxOne/T_XB1_RT.T_XB1_RT")));
+
+	/** On-screen size of the grab-prompt glyph, laid out at runtime because WBP_HUD has no authored slot for it. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Grab")
+	FVector2D AZP_GrabPromptIconSize = FVector2D(52.f, 52.f);
+
+	/** Vertical gap between the grab-prompt glyph and the interaction prompt text it sits above. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Grab")
+	float AZP_GrabPromptIconOffsetY = -8.f;
 
 	// --- API ---
 

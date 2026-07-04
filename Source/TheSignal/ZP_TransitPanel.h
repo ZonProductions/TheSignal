@@ -14,8 +14,8 @@
  *
  * Blueprint Extension Points:
  *   - PanelMesh: set the console mesh in the BP child.
- *   - Destinations: per-placement list of floors/areas.
- *   - TransitMenuWidgetClass: WBP_TransitMenu (must extend UZP_TransitMenuWidget).
+ *   - AZP_Destinations: per-placement list of floors/areas.
+ *   - AZP_TransitMenuWidgetClass: WBP_TransitMenu (must extend UZP_TransitMenuWidget).
  *
  * Dependencies: IZP_Interactable, AZP_GraceCharacter (interaction + UI input), UZP_TransitSubsystem.
  */
@@ -45,26 +45,26 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transit")
 	TObjectPtr<UBoxComponent> InteractionVolume;
 
-	/** Destinations offered by this panel (per-placement; promote to DataAsset in M5). */
+	/** AZP_Destinations offered by this panel (per-placement; promote to DataAsset in M5). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
-	TArray<FZP_TransitDestination> Destinations;
+	TArray<FZP_TransitDestination> AZP_Destinations;
 
 	/** The elevator car this console rides/controls. Required only if any destination is of type
 	 *  InMapElevator. The panel auto-attaches to this car at BeginPlay so the console rides with it. */
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Transit")
-	TObjectPtr<AZP_Elevator> LinkedElevator;
+	TObjectPtr<AZP_Elevator> AZP_LinkedElevator;
 
 	/** Floor-selection widget. Must extend UZP_TransitMenuWidget. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")
-	TSubclassOf<UUserWidget> TransitMenuWidgetClass;
+	TSubclassOf<UUserWidget> AZP_TransitMenuWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transit")
-	FText PromptText = FText::FromString(TEXT("Use Elevator"));
+	FText AZP_PromptText = FText::FromString(TEXT("Use Elevator"));
 
 	/** How close (UU) the elevator pivot must be to a destination's ElevatorLocation to count as
 	 *  "already here" — that destination is then hidden from the menu. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transit")
-	float CurrentFloorTolerance = 20.f;
+	float AZP_CurrentFloorTolerance = 20.f;
 
 	// --- IZP_Interactable ---
 	virtual FText GetInteractionPrompt_Implementation() override;

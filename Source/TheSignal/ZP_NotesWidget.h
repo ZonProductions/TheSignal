@@ -14,7 +14,7 @@
  * Blueprint Extension Points:
  *   - BindWidget: NoteListScrollBox (UScrollBox), NoteTitle (UTextBlock), NoteContent (UTextBlock)
  *   - BindWidgetOptional: NotesEmptyText (UTextBlock)
- *   - NoteEntryWidgetClass: set to WBP_NoteEntry in defaults.
+ *   - AZP_NoteEntryWidgetClass: set to WBP_NoteEntry in defaults.
  *
  * Dependencies: UMG, ZP_NoteComponent, ZP_NoteEntryWidget
  */
@@ -57,9 +57,13 @@ public:
 	UPROPERTY(meta=(BindWidgetOptional))
 	TObjectPtr<UTextBlock> NotesEmptyText;
 
+	/** Player-facing empty-state message shown when no notes are collected. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Notes|Text")
+	FText AZP_NotesEmptyFallbackText = FText::FromString(TEXT("No notes collected"));
+
 	/** Widget class for individual note entries. Set to WBP_NoteEntry. */
 	UPROPERTY(EditDefaultsOnly, Category = "Notes")
-	TSubclassOf<UZP_NoteEntryWidget> NoteEntryWidgetClass;
+	TSubclassOf<UZP_NoteEntryWidget> AZP_NoteEntryWidgetClass;
 
 	/** Bind to the player's NoteComponent. Call once after creation. */
 	UFUNCTION(BlueprintCallable, Category = "Notes")

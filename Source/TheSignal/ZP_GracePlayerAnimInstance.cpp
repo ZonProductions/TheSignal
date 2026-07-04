@@ -47,7 +47,7 @@ void UZP_GracePlayerAnimInstance::BuildBoneMap()
 
 	// Find spine_01 in target skeleton — everything at or above spine_01 is upper body.
 	// Upper body is driven by Kinemation; we only copy lower body (pelvis, legs).
-	const int32 SpineBoneIdx = TargetRefSkel.FindBoneIndex(FName(TEXT("spine_01")));
+	const int32 SpineBoneIdx = TargetRefSkel.FindBoneIndex(AZP_UpperBodyBoundaryBoneName);
 
 	int32 MappedCount = 0;
 	int32 SkippedUpper = 0;
@@ -96,7 +96,7 @@ void UZP_GracePlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (MeleeSwingTime >= 0.f)
 	{
 		MeleeSwingTime += DeltaSeconds;
-		if (MeleeSwingTime > MeleeSwingDuration)
+		if (MeleeSwingTime > AZP_MeleeSwingDuration)
 		{
 			MeleeSwingTime = -1.f;
 		}
@@ -104,7 +104,7 @@ void UZP_GracePlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (GrenadeThrowTime >= 0.f)
 	{
 		GrenadeThrowTime += DeltaSeconds;
-		if (GrenadeThrowTime > GrenadeThrowDuration)
+		if (GrenadeThrowTime > AZP_GrenadeThrowDuration)
 		{
 			GrenadeThrowTime = -1.f;
 		}
@@ -112,7 +112,7 @@ void UZP_GracePlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (WeaponSwitchTime >= 0.f)
 	{
 		WeaponSwitchTime += DeltaSeconds;
-		if (WeaponSwitchTime > WeaponSwitchDuration)
+		if (WeaponSwitchTime > AZP_WeaponSwitchDuration)
 		{
 			WeaponSwitchTime = -1.f;
 		}
@@ -164,7 +164,7 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 	// Wind-up (pull right) → strike (sweep left across body) → follow-through → return
 	if (MeleeSwingTime >= 0.f)
 	{
-		const float T = FMath::Clamp(MeleeSwingTime / MeleeSwingDuration, 0.f, 1.f);
+		const float T = FMath::Clamp(MeleeSwingTime / AZP_MeleeSwingDuration, 0.f, 1.f);
 
 		// Primary swing angle — drives the horizontal sweep
 		float SwingAngle; // degrees
@@ -176,7 +176,7 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 			// Wind-up: pull back/right
 			const float Phase = T / 0.2f;
 			const float Ease = FMath::Sin(Phase * PI * 0.5f);
-			SwingAngle = -35.f * Ease;
+			SwingAngle = AZP_MeleeSwingWindupAngle * Ease;
 			DropAmount = -3.f * Ease; // slight raise during wind-up
 		}
 		else if (T < 0.55f)
@@ -184,22 +184,22 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 			// Strike: sweep left across body (fast, aggressive)
 			const float Phase = (T - 0.2f) / 0.35f;
 			const float Ease = FMath::Sin(Phase * PI * 0.5f);
-			SwingAngle = FMath::Lerp(-35.f, 60.f, Ease);
-			DropAmount = FMath::Lerp(-3.f, 8.f, Ease); // arms dip during strike
+			SwingAngle = FMath::Lerp(AZP_MeleeSwingWindupAngle, AZP_MeleeSwingStrikeAngle, Ease);
+			DropAmount = FMath::Lerp(-3.f, AZP_MeleeSwingDropAmount, Ease); // arms dip during strike
 		}
 		else if (T < 0.75f)
 		{
 			// Follow-through overshoot
 			const float Phase = (T - 0.55f) / 0.2f;
-			SwingAngle = FMath::Lerp(60.f, 65.f, Phase); // slight overshoot
-			DropAmount = FMath::Lerp(8.f, 5.f, Phase);
+			SwingAngle = FMath::Lerp(AZP_MeleeSwingStrikeAngle, AZP_MeleeSwingStrikeAngle + 5.f, Phase); // slight overshoot
+			DropAmount = FMath::Lerp(AZP_MeleeSwingDropAmount, 5.f, Phase);
 		}
 		else
 		{
 			// Return to rest
 			const float Phase = (T - 0.75f) / 0.25f;
 			const float Ease = Phase * Phase; // ease-in for snappy return
-			SwingAngle = FMath::Lerp(65.f, 0.f, Ease);
+			SwingAngle = FMath::Lerp(AZP_MeleeSwingStrikeAngle + 5.f, 0.f, Ease);
 			DropAmount = FMath::Lerp(5.f, 0.f, Ease);
 		}
 
@@ -242,26 +242,26 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 	// --- Grenade throw: raise arm → throw forward → follow-through ---
 	if (GrenadeThrowTime >= 0.f)
 	{
-		const float T = GrenadeThrowTime / GrenadeThrowDuration;
+		const float T = GrenadeThrowTime / AZP_GrenadeThrowDuration;
 
 		float ThrowAngle;
 		if (T < 0.35f)
 		{
 			// Wind-up: raise arm back
 			const float Phase = T / 0.35f;
-			ThrowAngle = -30.f * FMath::Sin(Phase * PI * 0.5f);
+			ThrowAngle = AZP_GrenadeThrowWindupAngle * FMath::Sin(Phase * PI * 0.5f);
 		}
 		else if (T < 0.65f)
 		{
 			// Throw: arm sweeps forward
 			const float Phase = (T - 0.35f) / 0.3f;
-			ThrowAngle = FMath::Lerp(-30.f, 25.f, FMath::Sin(Phase * PI * 0.5f));
+			ThrowAngle = FMath::Lerp(AZP_GrenadeThrowWindupAngle, AZP_GrenadeThrowReleaseAngle, FMath::Sin(Phase * PI * 0.5f));
 		}
 		else
 		{
 			// Follow-through
 			const float Phase = (T - 0.65f) / 0.35f;
-			ThrowAngle = FMath::Lerp(25.f, 0.f, Phase);
+			ThrowAngle = FMath::Lerp(AZP_GrenadeThrowReleaseAngle, 0.f, Phase);
 		}
 
 		ApplyBoneRotationCS(CSTransforms, RefSkel, FName("upperarm_r"),
@@ -275,7 +275,7 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 	// --- Weapon switch: arms drop down then raise back up ---
 	if (WeaponSwitchTime >= 0.f)
 	{
-		const float T = FMath::Clamp(WeaponSwitchTime / WeaponSwitchDuration, 0.f, 1.f);
+		const float T = FMath::Clamp(WeaponSwitchTime / AZP_WeaponSwitchDuration, 0.f, 1.f);
 
 		// Drop curve: fast down (0-0.4), hold briefly (0.4-0.6), raise back (0.6-1.0)
 		float DropFactor; // 0 = normal, 1 = fully lowered
@@ -297,8 +297,8 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 			DropFactor = 1.0f - FMath::Sin(Phase * PI * 0.5f);
 		}
 
-		const float DropDist = 20.f * DropFactor; // 20 cm drop
-		const float DropRot = 25.f * DropFactor;  // rotation to tilt arms down
+		const float DropDist = AZP_WeaponSwitchDropDistance * DropFactor; // 20 cm drop
+		const float DropRot = AZP_WeaponSwitchDropRotation * DropFactor;  // rotation to tilt arms down
 
 		// Both arms drop down
 		ApplyBoneTranslationCS(CSTransforms, RefSkel, FName("clavicle_r"),
@@ -332,9 +332,9 @@ void UZP_GracePlayerAnimInstance::NativePostEvaluateAnimation()
 			const auto& Chain = FingerChains[ChainIdx];
 			// Index (0) and thumb (4) splay too wide at full spread
 			float Scale = 1.f;
-			if (ChainIdx == 0) { Scale = GripSpreadIndexScale; }
-			else if (ChainIdx == 4) { Scale = GripSpreadThumbScale; }
-			const FQuat SpreadQuat = (GripSpreadPerJoint * Scale).Quaternion();
+			if (ChainIdx == 0) { Scale = AZP_GripSpreadIndexScale; }
+			else if (ChainIdx == 4) { Scale = AZP_GripSpreadThumbScale; }
+			const FQuat SpreadQuat = (AZP_GripSpreadPerJoint * Scale).Quaternion();
 			// Capture all locals from the unmodified pose first, then rebuild
 			// the chain top-down so each child rides its parent's new frame.
 			int32 Idx[3];
@@ -507,20 +507,20 @@ void UZP_GracePlayerAnimInstance::CopyBonesFromSource()
 void UZP_GracePlayerAnimInstance::StartMeleeSwing(float Duration)
 {
 	MeleeSwingTime = 0.f;
-	MeleeSwingDuration = Duration;
+	AZP_MeleeSwingDuration = Duration;
 	UE_LOG(LogTemp, Warning, TEXT("[TheSignal] StartMeleeSwing: Duration=%.2f"), Duration);
 }
 
 void UZP_GracePlayerAnimInstance::StartGrenadeThrow(float Duration)
 {
 	GrenadeThrowTime = 0.f;
-	GrenadeThrowDuration = Duration;
+	AZP_GrenadeThrowDuration = Duration;
 }
 
 void UZP_GracePlayerAnimInstance::StartWeaponSwitch(float Duration)
 {
 	WeaponSwitchTime = 0.f;
-	WeaponSwitchDuration = Duration;
+	AZP_WeaponSwitchDuration = Duration;
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] StartWeaponSwitch: Duration=%.2f"), Duration);
 }
 
