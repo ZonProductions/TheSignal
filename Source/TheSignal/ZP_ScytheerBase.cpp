@@ -68,6 +68,13 @@ AZP_ScytheerBase::AZP_ScytheerBase()
 		CM->bUseRVOAvoidance = true;
 		CM->AvoidanceConsiderationRadius = 200.f;
 		CM->AvoidanceWeight = 0.5f;
+		// Ledge safety for the LUNGE. The lunge drives the body with raw AddMovementInput (not the
+		// navmesh-contained MoveToActor the chase uses), so without ledge checks it would happily walk
+		// the capsule off a stairwell edge / balcony / pit into MOVE_Falling. bCanWalkOffLedges=false
+		// makes the CMC perch-check every step so a manual drive stops at the edge like a grounded body
+		// should. Safe for the other states: Wander/WallDescent run in MOVE_None (SetActorLocation),
+		// and Chase/ReturnToPatrol move along the navmesh which already avoids ledges.
+		CM->bCanWalkOffLedges = false;
 	}
 	bUseControllerRotationYaw = false;
 
@@ -90,13 +97,28 @@ void AZP_ScytheerBase::LoadSFXDefaults()
 	// audio swap impossible without breaking the Crawler.
 	FillSnd(AZP_AlertSound,  TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Alert.SFX_Scytheer_Alert"));
 	FillSnd(AZP_AttackSound, TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Attack.SFX_Scytheer_Attack"));
+	// Swipe/lunge each get their own slot; placeholder-fill both from the shared attack sound so neither
+	// is silent until the dev drops in dedicated audio (swap AZP_SwipeSound / AZP_LungeSound in the BP).
+	FillSnd(AZP_SwipeSound, TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Attack.SFX_Scytheer_Attack"));
+	FillSnd(AZP_LungeSound, TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Attack.SFX_Scytheer_Attack"));
 	FillSnd(AZP_HitSound,    TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Hit.SFX_Scytheer_Hit"));
 	FillSnd(AZP_DeathSound,  TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Death.SFX_Scytheer_Death"));
 	FillSnd(AZP_LurkSound,   TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Lurk.SFX_Scytheer_Lurk"));
+	FillSnd(AZP_FootstepSound, TEXT("/Game/Audio/Scytheer/SFX_Scytheer_Footsteps.SFX_Scytheer_Footsteps"));
 
 	// Carry/attenuation is C++-owned (UZP_SFXStatics Far profile, ~120 m natural falloff) — the old
 	// SA_EnemyVoice asset silently fell silent at ~15 m, which killed alert/hit/death audibility.
 	// AudioAttenuation is legacy and no longer loaded or passed anywhere.
+}
+
+void AZP_ScytheerBase::PlayFootstep()
+{
+	if (!AZP_FootstepSound || AZP_FootstepVolume <= 0.f) { return; }
+	// Room carry (~60 m — the "footfalls of others" profile) + slight random pitch so a single
+	// footstep asset never reads as a mechanical loop. AZP_FootstepVolume is THE dev volume knob.
+	const float Pitch = 1.f + FMath::FRandRange(-AZP_FootstepPitchVar, AZP_FootstepPitchVar);
+	UZP_SFXStatics::PlaySFXAtLocation(this, AZP_FootstepSound, GetActorLocation(),
+		EZP_SFXCarry::Room, AZP_FootstepVolume, Pitch);
 }
 
 void AZP_ScytheerBase::BeginPlay()
@@ -104,6 +126,10 @@ void AZP_ScytheerBase::BeginPlay()
 	Super::BeginPlay();
 
 	LoadSFXDefaults(); // fill any SFX slots the BP didn't override (was a crashing ctor load)
+
+	// Anchor the footstep distance accumulator at the spawn position so the first tick's delta is ~0
+	// (otherwise it'd be the huge origin->spawn distance, which the teleport guard rejects anyway).
+	LastFootstepLoc = GetActorLocation();
 
 	// Force-spawn the AIController if AutoPossessAI somehow didn't fire (BP override, timing
 	// race, simulate mode, ...). Without a controller, MoveToLocation is a no-op and the body
@@ -122,6 +148,8 @@ void AZP_ScytheerBase::BeginPlay()
 		{
 			CM->SetMovementMode(MOVE_Walking);
 		}
+		// Remember the authored acceleration so the lunge can spike it for a snappy dash then restore.
+		DefaultMaxAccel = CM->MaxAcceleration;
 	}
 	AICon = Cast<AAIController>(GetController());
 	UE_LOG(LogTemp, Warning, TEXT("[Scytheer] BeginPlay controller=%s AICon=%s AZP_PatrolPath=%s splineLen=%.0f"),
@@ -387,15 +415,36 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	{
 		if (!Player) { EnterState(EScytheerState::Wander); break; }
 
-		// In range + off cooldown -> swipe.
-		if (Dist <= AZP_AttackRange && bSee && (Now - LastAttackTime) >= AZP_AttackCooldown)
+		// TWO-TIER ATTACK. SWIPE is the base strike used once the player is inside melee reach; LUNGE
+		// is the gap-closer used when the player is beyond melee but still within AZP_LungeRange —
+		// the lunge drives the body forward (see the Attack state) so the player can't back up / stand
+		// just out of reach forever, which was the original "runs in place, never hits me" complaint.
+		// Each type has its own cooldown (AZP_SwipeCooldown / AZP_LungeCooldown).
+		if (bSee)
 		{
-			PendingAttackVariant = FMath::RandRange(1, 3);
-			LastAttackTime = Now;
-			AttackStartTime = Now;
-			bAttackHitFired = false;
-			EnterState(EScytheerState::Attack);
-			break;
+			const bool bSwipeReady = (Now - LastSwipeTime) >= AZP_SwipeCooldown;
+			const bool bLungeReady = (Now - LastLungeTime) >= AZP_LungeCooldown;
+
+			if (Dist <= AZP_AttackRange && bSwipeReady)
+			{
+				PendingAttackType = EScytheerAttackType::Swipe;
+				PendingAttackVariant = FMath::Clamp(AZP_SwipeAttackVariant, 1, 3);
+				LastSwipeTime = Now;
+				AttackStartTime = Now;
+				bAttackHitFired = false;
+				EnterState(EScytheerState::Attack);
+				break;
+			}
+			if (Dist > AZP_AttackRange && Dist <= AZP_LungeRange && bLungeReady)
+			{
+				PendingAttackType = EScytheerAttackType::Lunge;
+				PendingAttackVariant = FMath::Clamp(AZP_LungeAttackVariant, 1, 3);
+				LastLungeTime = Now;
+				AttackStartTime = Now;
+				bAttackHitFired = false;
+				EnterState(EScytheerState::Attack);
+				break;
+			}
 		}
 
 		// Stuck detection: if the body hasn't moved more than 30 UU since the last check, count the
@@ -441,17 +490,87 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	case EScytheerState::Attack:
 	{
 		FaceTargetSmooth(DeltaTime);
-		// Apply damage at the slice midpoint (one strike per swing).
+		const float Elapsed = (float)(Now - AttackStartTime);
+
+		// LUNGE timeline: WIND-UP (coil in place, anim frozen) -> DRIVE (dash forward, homing) -> PLANT.
+		// Swipes never enter this branch (they plant on entry and just swing).
+		if (PendingAttackType == EScytheerAttackType::Lunge)
+		{
+			UAnimSingleNodeInstance* SNI = GetMesh() ? GetMesh()->GetSingleNodeInstance() : nullptr;
+			if (Elapsed < AZP_LungeWindupTime)
+			{
+				// WIND-UP hold: keep the pounce anim pinned to its first frame (FaceTargetSmooth above
+				// still tracks the player, so it visibly locks on and coils before the leap).
+				if (SNI && SNI->IsPlaying()) { SNI->SetPosition(SegStartT, false); SNI->SetPlaying(false); }
+			}
+			else
+			{
+				// Past the wind-up: make sure the pounce anim is running.
+				if (SNI && !SNI->IsPlaying()) { SNI->SetPlaying(true); }
+
+				const bool bDriveWindow = (Elapsed < AZP_LungeWindupTime + AZP_LungeDriveTime);
+				if (bDriveWindow && Player && Dist > AZP_AttackRange)
+				{
+					// DRIVE forward at lunge speed, homing on the player (ledge-safe via ctor
+					// bCanWalkOffLedges=false). Spike acceleration so it hits lunge speed in ~1 frame.
+					if (UCharacterMovementComponent* CMDrive = GetCharacterMovement())
+					{
+						if (CMDrive->MaxWalkSpeed <= 0.f)
+						{
+							CMDrive->MaxWalkSpeed = AZP_LungeSpeed;
+							CMDrive->MaxAcceleration = FMath::Max(DefaultMaxAccel, AZP_LungeSpeed * 20.f);
+						}
+					}
+					FVector Dir = Player->GetActorLocation() - GetActorLocation();
+					Dir.Z = 0.f;
+					if (Dir.SizeSquared() > 1.f) { AddMovementInput(Dir.GetSafeNormal(), 1.f); }
+				}
+				else if (GetCharacterMovement() && GetCharacterMovement()->MaxWalkSpeed > 0.f)
+				{
+					// Arrived within melee, or the dash window elapsed -> plant for the strike/recovery.
+					SetMaxWalkSpeed(0.f);
+					if (AICon) { AICon->StopMovement(); }
+				}
+			}
+		}
+
+		// Damage, once per swing. Swipe resolves at the clip midpoint. The lunge resolves on ARRIVAL —
+		// the first tick after the wind-up that the dash has brought the player within hit reach — and
+		// is marked resolved (whiff) once the dash window closes so it can't land a late hit in recovery.
 		if (!bAttackHitFired && Player)
 		{
-			const float Elapsed = (float)(Now - AttackStartTime);
-			const float Midpoint = (SegEndT - SegStartT) * 0.5f;
-			if (Elapsed >= Midpoint)
+			if (PendingAttackType == EScytheerAttackType::Lunge)
 			{
-				bAttackHitFired = true;
-				if (Dist <= AZP_AttackRange * AZP_AttackHitRangeMultiplier && bSee)
+				// The lunge connects only once it has actually CLOSED to true melee (AZP_AttackRange) —
+				// NOT the swipe's 1.4x grace band, or it would deal damage the instant the wind-up ends
+				// from up to ~2.8 m, before the pounce has traveled. The forward drive stops at this
+				// same range, so the hit lands right as the body arrives. If it never closes (player
+				// dodged), the dash window elapses and it resolves as a clean whiff.
+				if (Elapsed >= AZP_LungeWindupTime)
 				{
-					UGameplayStatics::ApplyDamage(Player, AZP_AttackDamage, GetInstigatorController(), this, nullptr);
+					if (bSee && Dist <= AZP_AttackRange)
+					{
+						bAttackHitFired = true;
+						UGameplayStatics::ApplyDamage(Player, AZP_AttackDamage, GetInstigatorController(), this, nullptr);
+					}
+					else if (Elapsed >= AZP_LungeWindupTime + AZP_LungeDriveTime)
+					{
+						bAttackHitFired = true; // dash finished out of reach -> clean whiff
+					}
+				}
+			}
+			else
+			{
+				// Swipe: stationary swing, so it keeps the forgiving 1.4x reach and strikes at the
+				// clip midpoint.
+				const float Midpoint = (SegEndT - SegStartT) * 0.5f;
+				if (Elapsed >= Midpoint)
+				{
+					bAttackHitFired = true;
+					if (bSee && Dist <= AZP_AttackRange * AZP_AttackHitRangeMultiplier)
+					{
+						UGameplayStatics::ApplyDamage(Player, AZP_AttackDamage, GetInstigatorController(), this, nullptr);
+					}
 				}
 			}
 		}
@@ -492,6 +611,28 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		break;
 	}
 
+	// DISTANCE-BASED FOOTSTEPS: one step SFX per AZP_FootstepStride of 2D travel, measured from the
+	// body's OWN position delta (not GetVelocity()) so it works for BOTH navmesh-driven gaits AND the
+	// teleport-driven spline patrol — the latter reports zero velocity, which would silence a velocity
+	// scheme. Only reachable while alive (bDead returns above); stationary states (Alert/Attack/Hit,
+	// wander pauses) don't translate, so they're naturally silent. The upper guard skips implausibly
+	// large single-frame jumps (respawn / spline snap) so they don't dump a burst of steps.
+	{
+		const FVector CurLoc = GetActorLocation();
+		const float StepDelta = FVector::Dist2D(CurLoc, LastFootstepLoc);
+		LastFootstepLoc = CurLoc;
+		const float Stride = FMath::Max(20.f, AZP_FootstepStride);
+		if (StepDelta > 0.1f && StepDelta < Stride * 4.f)
+		{
+			StepDistanceAccum += StepDelta;
+			if (StepDistanceAccum >= Stride)
+			{
+				StepDistanceAccum -= Stride;
+				PlayFootstep();
+			}
+		}
+	}
+
 	TickAnim();
 }
 
@@ -501,6 +642,13 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 {
 	State = NewState;
 	StateEnteredAt = GetWorld()->GetTimeSeconds();
+
+	// Restore authored acceleration on every transition — only an active lunge spikes it, and this
+	// guarantees it's back to normal the instant the lunge ends (whatever state we go to next).
+	if (UCharacterMovementComponent* CMAccel = GetCharacterMovement())
+	{
+		CMAccel->MaxAcceleration = DefaultMaxAccel;
+	}
 
 	// Any non-Wander, non-WallDescent state needs real CharacterMovement (walking + gravity +
 	// navmesh chase). Wander + WallDescent both drive position directly from the spline and need
@@ -571,9 +719,37 @@ void AZP_ScytheerBase::EnterState(EScytheerState NewState)
 		if (PendingAttackVariant == 2) { SF = AZP_Attack2StartFrame; EF = AZP_Attack2EndFrame; }
 		else if (PendingAttackVariant == 3) { SF = AZP_Attack3StartFrame; EF = AZP_Attack3EndFrame; }
 		StartSegment(SF, EF, false);
-		SetMaxWalkSpeed(0.f);
+
+		// Both attacks PLANT on entry (abort any stale chase path-follow so a lingering MoveToActor
+		// RequestDirectMove can't fight the lunge's manual drive). The swipe stays planted and swings;
+		// the lunge holds a wind-up here and the Tick drives it forward once the hold elapses.
 		if (AICon) { AICon->StopMovement(); }
-		UZP_SFXStatics::PlaySFXAttached(AZP_AttackSound, GetRootComponent(), EZP_SFXCarry::Far);
+		SetMaxWalkSpeed(0.f);
+
+		if (PendingAttackType == EScytheerAttackType::Lunge)
+		{
+			// WIND-UP telegraph: freeze the pounce anim on its first frame so the body visibly coils in
+			// place before it leaps (otherwise the whole pounce plays out while standing still). The Tick
+			// resumes the anim and starts the forward drive after AZP_LungeWindupTime.
+			if (AZP_LungeWindupTime > 0.f)
+			{
+				if (USkeletalMeshComponent* SM = GetMesh())
+				{
+					if (UAnimSingleNodeInstance* SNI = SM->GetSingleNodeInstance())
+					{
+						SNI->SetPosition(SegStartT, false);
+						SNI->SetPlaying(false);
+					}
+				}
+			}
+			UZP_SFXStatics::PlaySFXAttached(AZP_LungeSound ? AZP_LungeSound : AZP_AttackSound,
+				GetRootComponent(), EZP_SFXCarry::Far);
+		}
+		else
+		{
+			UZP_SFXStatics::PlaySFXAttached(AZP_SwipeSound ? AZP_SwipeSound : AZP_AttackSound,
+				GetRootComponent(), EZP_SFXCarry::Far);
+		}
 		break;
 	}
 

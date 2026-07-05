@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-04T09:39:47",
+  "created": "2026-07-05T15:32:40",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -2800,20 +2800,24 @@
       "size": 115336
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Alert.uasset": {
-      "hash": "sha256:089659493988f223a1462070abd8d5d9dc332788d36d59c40bea75756cec01e9",
-      "size": 126186
+      "hash": "sha256:280aaeda840cf3a1af148013096feeb7ba252c1fcf076d290712405a933714db",
+      "size": 199162
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Attack.uasset": {
-      "hash": "sha256:20aeadb6e903d3fa0ec4e3356b41b29ff52f1e49fc18ea20cddffbb1bbe24424",
-      "size": 127901
+      "hash": "sha256:4326bd07f7b519d4e915b44363d957c7751cf30a2df090c0cec7c6f14b236ca3",
+      "size": 54887
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Death.uasset": {
-      "hash": "sha256:caca11cc814cb79d2b67268842c34491ffc55364443e676ebcc181e84a4a3830",
-      "size": 396621
+      "hash": "sha256:11a6968bd8477cd2c83587ac565d89b2422088aae367b9c6dae346a5e79ea45d",
+      "size": 217085
+    },
+    "Content/Audio/Scytheer/SFX_Scytheer_Footsteps.uasset": {
+      "hash": "sha256:ddb0ce03464e06908b4bad5c8a4730c0621fbecbf12f46ee25dc3855d635f73d",
+      "size": 89957
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Hit.uasset": {
-      "hash": "sha256:8da721fc33a6c94cf04de772145e76ae4ac09ae151e836d388fe95c55679ea48",
-      "size": 32716
+      "hash": "sha256:dac15bc44eac0253ae991cf4f63e0f8eb641024a930ebdfe3a599ded28c066a4",
+      "size": 137820
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Lurk.uasset": {
       "hash": "sha256:e22db6254ec2dd01dcff7e270170d2f0346d976af75d37d72aedfc6adb197cd3",
@@ -13512,8 +13516,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:1f5dd4b576cd10d6560978721bcab1ad3f019114021493a482c6db303bdefe26",
-      "size": 10798395
+      "hash": "sha256:ecaa33a8956c3b4fa7ea01c0585a9d28b9a7ff9ea1320439c47b2fa5117ea013",
+      "size": 10866385
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -26812,8 +26816,8 @@
       "size": 67020
     },
     "Content/Enemies/Scytheer/BP_Scytheer.uasset": {
-      "hash": "sha256:9d4abdc72500a412aaac3af92db9da67ef43e2660ab73930d4ebc03db96d115f",
-      "size": 38551
+      "hash": "sha256:bcbb987e5babd4889088641fe414e31aaeff0106b2a1e9a4e6a98b881a604bd7",
+      "size": 39985
     },
     "Content/Enemies/Scytheer/MI_ZP_ScytheerSkin.uasset": {
       "hash": "sha256:db32d84e276d48af40db5dd42785b791151ac9bc057e54c346555754ddc4b77e",

@@ -58,6 +58,15 @@ enum class EScytheerState : uint8
 	ReturnToPatrol  // de-aggroed; walking back to the nearest patrol spline point before resuming Wander
 };
 
+/** Which of the two melee attacks the Scytheer is committing to. */
+UENUM(BlueprintType)
+enum class EScytheerAttackType : uint8
+{
+	Swipe,   // base strike, used when the player is already within melee (AZP_AttackRange)
+	Lunge    // gap-closer, used when the player is beyond melee but within AZP_LungeRange — drives
+	         // the body forward to close the distance so the player can't kite / stand out of reach
+};
+
 UCLASS()
 class THESIGNAL_API AZP_ScytheerBase : public ACharacter, public IZP_Staggerable, public IZP_Revivable
 {
@@ -116,11 +125,61 @@ public:
 	float AZP_HeadshotMinZ = 40.f;
 
 	// ── Attack ─────────────────────────────────────────────────────
+	/** Melee reach for the base SWIPE. At or within this distance (and off AZP_SwipeCooldown) the
+	 *  Scytheer swings a swipe. Beyond this — up to AZP_LungeRange — it LUNGES instead. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
 	float AZP_AttackRange = 200.f;
 
+	/** LEGACY — superseded by AZP_SwipeCooldown / AZP_LungeCooldown (per-attack-type cooldowns). Kept
+	 *  so existing Blueprint CDO overrides don't silently drop; no longer read by the attack logic. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
 	float AZP_AttackCooldown = 0.7f;
+
+	/** Seconds between SWIPES (the base close-range strike). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float AZP_SwipeCooldown = 1.0f;
+
+	/** Seconds between LUNGES (the committed gap-closer). Keep this a touch longer than the swipe so
+	 *  the lunge reads as a deliberate pounce, not a spam. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float AZP_LungeCooldown = 1.8f;
+
+	/** Max distance at which the Scytheer will LUNGE. Between AZP_AttackRange and this, a lunge fires
+	 *  (off cooldown + line of sight). This band is what stops the player backing up / standing just
+	 *  out of melee forever — get within it and the Scytheer pounces. Must be > AZP_AttackRange. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float AZP_LungeRange = 500.f;
+
+	/** WIND-UP: seconds the Scytheer coils in place (planted, facing the player, pounce anim frozen on
+	 *  its first frame) BEFORE it launches forward. This is the telegraph "hold before lunging" — raise
+	 *  it for a longer rear-back, 0 for an instant pounce. NOT the same as AZP_LungeDriveTime (that's how
+	 *  long the forward dash lasts once it commits). The lunge sound (AZP_LungeSound) fires at the start
+	 *  of this hold, so the wind-up also audibly warns the player. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float AZP_LungeWindupTime = 0.4f;
+
+	/** Forward dash speed (UU/s) during the lunge's drive window — well above AZP_ChaseSpeed so the
+	 *  lunge visibly closes distance. Fed via AddMovementInput toward the (tracked) player: unlike a
+	 *  ballistic LaunchCharacter it won't tunnel through walls, and the constructor sets
+	 *  bCanWalkOffLedges=false so this manual drive also can't step the body off a ledge. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float AZP_LungeSpeed = 900.f;
+
+	/** DASH DURATION: max seconds the body drives forward at AZP_LungeSpeed (homing on the player) AFTER
+	 *  the wind-up. It's an upper bound — the dash also stops early the moment it reaches melee, so once
+	 *  it has closed on you, making this bigger changes nothing (that was the "2 vs 6 looked identical"
+	 *  confusion — use AZP_LungeWindupTime for the pre-lunge hold). After the dash it plants and swings. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	float AZP_LungeDriveTime = 0.5f;
+
+	/** Which of the three attack anim slices plays for a SWIPE / a LUNGE (1/2/3 -> AttackN frame range).
+	 *  Best-guess default: swipe = slice 1, lunge = slice 2 (the longest, most committed clip). If they
+	 *  read backwards in-game just swap these two — no rebuild needed. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	int32 AZP_SwipeAttackVariant = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
+	int32 AZP_LungeAttackVariant = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Attack")
 	float AZP_AttackDamage = 20.f;
@@ -205,15 +264,30 @@ public:
 	float AZP_PauseMax = 3.5f;
 
 	// ── Alert (plays after first detection, before Chase) ──────────
+	/** Seconds the Scytheer holds the idle pose on first detection before breaking into the chase.
+	 *  DEFAULT 0 = no pause: it fires the alert SFX and runs the same frame (the Shambler wants a
+	 *  hold here; the Scytheer does not). Raise it to reinstate a stand-and-notice beat. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Alert")
-	float AZP_AlertHoldTime = 2.0f;
+	float AZP_AlertHoldTime = 0.0f;
 
 	// ── Audio placeholders ─────────────────────────────────────────
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> AZP_AlertSound;
 
+	/** LEGACY/fallback attack sound. Now only used if the per-attack AZP_SwipeSound / AZP_LungeSound
+	 *  slot is empty — swipe and lunge each have their own sound below. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> AZP_AttackSound;
+
+	/** Sound played when the Scytheer starts a SWIPE (the base close-range strike). Falls back to
+	 *  AZP_AttackSound if left empty. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	TObjectPtr<USoundBase> AZP_SwipeSound;
+
+	/** Sound played when the Scytheer starts a LUNGE — fires at the START of the wind-up, so it doubles
+	 *  as the pounce telegraph. Falls back to AZP_AttackSound if left empty. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	TObjectPtr<USoundBase> AZP_LungeSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> AZP_HitSound;
@@ -223,6 +297,29 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> AZP_LurkSound;
+
+	// ── Footsteps (distance-based; see PlayFootstep) ───────────────
+	/** Footstep one-shot, played once per AZP_FootstepStride of 2D travel. Defaults to
+	 *  /Game/Audio/Scytheer/SFX_Scytheer_Footsteps in LoadSFXDefaults. Distance is measured from the
+	 *  body's OWN position delta (not GetVelocity()) so it cadence-matches every gait: the navmesh
+	 *  wander/chase AND the teleport-driven spline patrol, where GetVelocity() reads 0 and the
+	 *  Shambler's velocity scheme would be silent. 0 volume = silent feet. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	TObjectPtr<USoundBase> AZP_FootstepSound;
+
+	/** Footstep VOLUME. 0 = silent feet. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	float AZP_FootstepVolume = 1.f;
+
+	/** Distance (UU) of 2D travel per footstep. Distance-based so cadence scales with actual speed —
+	 *  slow wander steps slowly, chase steps fast — with zero per-clip work. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	float AZP_FootstepStride = 80.f;
+
+	/** Random pitch spread per step (1 +/- this) so a single footstep asset never reads as a
+	 *  mechanical loop. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	float AZP_FootstepPitchVar = 0.08f;
 
 	/** LEGACY — no longer used. Voice SFX route through UZP_SFXStatics (Far carry, ~120 m natural
 	 *  falloff, C++-owned) so carry can't silently drift in a .uasset; the old SA_EnemyVoice asset
@@ -286,9 +383,17 @@ private:
 	int32 PatrolDir = 1;
 	/** Cached so we can restore CharacterMovement.MovementMode when leaving spline-direct patrol. */
 	uint8 PreSplineMovementMode = 1; // MOVE_Walking
-	double LastAttackTime = -1000.0;
+	// Per-attack-type cooldown clocks (seconds; init far in the past so both are ready at spawn).
+	double LastSwipeTime = -1000.0;
+	double LastLungeTime = -1000.0;
 	double AttackStartTime = 0.0;
 	bool bAttackHitFired = false;
+	/** Which attack the current/next Attack state plays. Drives the anim slice AND whether the body
+	 *  drives forward (lunge) or plants (swipe). */
+	EScytheerAttackType PendingAttackType = EScytheerAttackType::Swipe;
+	/** CharacterMovement's authored MaxAcceleration, cached at BeginPlay so the lunge can spike it for
+	 *  a snappy dash and restore it afterwards (default accel ramps too slowly to read as a lunge). */
+	float DefaultMaxAccel = 2048.f;
 	double LastHitReactTime = -1000.0;
 	/** While true, the Hit state holds (stays staggered) until StaggerHandle fires instead of
 	 *  auto-returning to Chase/Wander when the flinch clip ends. Set by ReceiveStagger. */
@@ -296,6 +401,10 @@ private:
 	FTimerHandle StaggerHandle;
 	float ChaseStuckTimer = 0.f;
 	FVector LastChaseStuckLoc = FVector::ZeroVector;
+
+	// distance-based footsteps: accumulate 2D position delta, one step per AZP_FootstepStride.
+	float StepDistanceAccum = 0.f;
+	FVector LastFootstepLoc = FVector::ZeroVector;
 	int32 PendingAttackVariant = 1;
 	double StateEnteredAt = 0.0;
 
@@ -318,6 +427,8 @@ private:
 	 *  construction crashes when the target asset is renamed/moved (Shambler hit that in this same
 	 *  session). LoadObject in BeginPlay is the safe pattern. */
 	void LoadSFXDefaults();
+	/** Play one footstep one-shot at the body (Room carry, AZP_FootstepVolume / AZP_FootstepPitchVar). */
+	void PlayFootstep();
 	float Frame2Time(int32 Frame) const;
 	APawn* GetPlayer() const;
 	bool HasLOS(const AActor* Target) const;
