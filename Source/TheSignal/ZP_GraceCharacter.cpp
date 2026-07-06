@@ -728,6 +728,10 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Committed-swing camera: drive the whip + impact kick on the control rotation (Kinemation's camera
+	// follows it). Runs early so the offset is in before the camera component reads control rotation.
+	UpdateMeleeCommit(DeltaTime);
+
 	// Fall-damage apex tracking — while airborne, remember the highest point
 	// reached so the drop distance is measured peak-to-landing (a jump up then
 	// a fall counts from the top, not from takeoff).
@@ -1609,6 +1613,7 @@ void AZP_GraceCharacter::Input_Move(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
 	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
+	if (bMeleeCommitActive && bAZP_MeleeLockMove) return; // committed to the swing — no movement
 
 	const FVector2D MoveInput = Value.Get<FVector2D>();
 	CurrentMoveInput = MoveInput;
@@ -1657,6 +1662,7 @@ void AZP_GraceCharacter::Input_Look(const FInputActionValue& Value)
 {
 	if (bInventoryMenuOpen || bMapOpen) return;
 	if (GrabPhase != EZP_GrabPhase::None) return; // grabbed — input is owned by the struggle
+	if (bMeleeCommitActive && bAZP_MeleeLockAim) return; // committed to the swing — the swing owns the view
 
 	const FVector2D LookInput = Value.Get<FVector2D>();
 
@@ -2282,10 +2288,14 @@ void AZP_GraceCharacter::TryEngageBufferedBlock()
 	if (!bBlockWanted || bIsBlocking) { return; }
 	if (bInventoryMenuOpen || bMapOpen || bOnLadder || GrabPhase != EZP_GrabPhase::None) { return; }
 	if (!KinemationComp || KinemationComp->CurrentWeaponType != EZP_WeaponType::Melee) { return; }
-	// The strike + follow-through always play in full; once the swing passes
-	// AZP_MeleeBlockCancelFraction only return-to-idle dead frames remain, and the held guard cancels
-	// into them — no perceived clipping AND no perceived pause between swing and block.
-	if (KinemationComp->bMeleeSwingActive && !KinemationComp->bMeleeSwingTailCancelable) { return; }
+	// The strike + follow-through always play in full; once the swing enters its tail only return-to-idle
+	// dead frames remain, and the held/pressed guard cancels into them — no perceived clipping AND no
+	// perceived pause between swing and block. The tail opens the moment the swing has <=
+	// AZP_MeleeToBlockGracePeriod seconds left (dev-set grace window on BP_GraceCharacter), OR once it
+	// passes KinemationComp's AZP_MeleeBlockCancelFraction — whichever comes first.
+	const bool bInBlockGrace = KinemationComp->bMeleeSwingTailCancelable
+		|| (KinemationComp->GetMeleeSwingTimeRemaining() <= AZP_MeleeToBlockGracePeriod);
+	if (KinemationComp->bMeleeSwingActive && !bInBlockGrace) { return; }
 	// You can't raise a guard you can't pay for — needs one blocked hit's worth of stamina.
 	if (GameplayComp && GameplayComp->GetStaminaFraction() < AZP_BlockMinStaminaFractionToStart) { return; }
 
@@ -3923,6 +3933,96 @@ void AZP_GraceCharacter::MeleeStaggerEnemy(AActor* Enemy)
 	}
 	LastHitStaggerTime = Now;
 	StaggerEnemy(Enemy, AZP_HitStaggerDuration);
+}
+
+void AZP_GraceCharacter::BeginMeleeCommitSwing(int32 SwingDir)
+{
+	if (!bAZP_MeleeCommitEnabled) { return; }
+	if (!GetController()) { return; }
+
+	bMeleeCommitActive = true;
+	MeleeCommitElapsed = 0.f;
+	MeleeCommitDir = SwingDir;
+	MeleeKickElapsed = 1000.f;   // no impact yet this swing
+	MeleeLastYaw = 0.f;
+	MeleeLastPitch = 0.f;
+
+	// Small forward step-in — commit the body into the strike, toward where you're AIMING (control yaw,
+	// flattened) so it lunges at the target regardless of body-vs-control rotation coupling. Additive
+	// velocity; the CMC keeps it collision-safe (won't shove through walls/enemies), and with movement
+	// input locked for the window ground friction settles it into a short lunge.
+	if (AZP_MeleeLungeSpeed > 0.f)
+	{
+		const FRotator AimYaw(0.f, GetController()->GetControlRotation().Yaw, 0.f);
+		LaunchCharacter(AimYaw.Vector() * AZP_MeleeLungeSpeed, false, false);
+	}
+}
+
+void AZP_GraceCharacter::MeleeCommitImpact(int32 SwingDir)
+{
+	if (!bAZP_MeleeCommitEnabled) { return; }
+	MeleeKickDir = SwingDir;
+	MeleeKickElapsed = 0.f; // start the directional kick decay
+}
+
+void AZP_GraceCharacter::UpdateMeleeCommit(float DeltaTime)
+{
+	if (!bMeleeCommitActive) { return; }
+
+	AController* C = GetController();
+	// Abort if another system has taken over the view (grab/menu/ladder) or control was lost. Leave the
+	// current offset in place — unwinding here would fight the new owner; the next swing resets cleanly.
+	if (!C || GrabPhase != EZP_GrabPhase::None || bInventoryMenuOpen || bMapOpen || bOnLadder)
+	{
+		bMeleeCommitActive = false;
+		return;
+	}
+
+	MeleeCommitElapsed += DeltaTime;
+	const float Dur = FMath::Max(AZP_MeleeCommitDuration, 0.05f);
+	const float Phase = FMath::Clamp(MeleeCommitElapsed / Dur, 0.f, 1.f);
+	const bool bDone = (Phase >= 1.f);
+
+	// Target camera OFFSET this frame (whip + impact kick), in degrees. Applied below as a DELTA off the
+	// last frame's offset so it layers on any player look and always unwinds to net-zero — the view ends
+	// exactly where it started. When the window is done, target is 0 so the delta unwinds any residual.
+	float TargetYaw = 0.f;
+	float TargetPitch = 0.f;
+	if (!bDone)
+	{
+		const float WhipShape = FMath::Sin(PI * Phase); // 0 -> 1 -> 0 across the window
+		switch (MeleeCommitDir)
+		{
+			case 1:  TargetYaw   = +AZP_MeleeWhipYaw   * WhipShape; break; // Right swing: view sweeps right
+			case 2:  TargetYaw   = -AZP_MeleeWhipYaw   * WhipShape; break; // Left swing:  view sweeps left
+			default: TargetPitch = -AZP_MeleeWhipPitch * WhipShape; break; // Forward/overhead: view dips
+		}
+
+		if (MeleeKickElapsed < AZP_MeleeKickDuration)
+		{
+			MeleeKickElapsed += DeltaTime;
+			const float k = 1.f - FMath::Clamp(MeleeKickElapsed / FMath::Max(AZP_MeleeKickDuration, 0.01f), 0.f, 1.f);
+			const float KickShape = k * k; // ease-out snap
+			switch (MeleeKickDir)
+			{
+				case 1:  TargetYaw += +AZP_MeleeKickYaw * KickShape; break;
+				case 2:  TargetYaw += -AZP_MeleeKickYaw * KickShape; break;
+				default: break;
+			}
+			TargetPitch += AZP_MeleeKickPitch * KickShape; // the view jolts UP on contact (all directions)
+		}
+	}
+
+	const float DYaw = TargetYaw - MeleeLastYaw;
+	const float DPitch = TargetPitch - MeleeLastPitch;
+	FRotator Cur = C->GetControlRotation();
+	Cur.Yaw += DYaw;
+	Cur.Pitch = FMath::ClampAngle(Cur.Pitch + DPitch, -89.f, 89.f);
+	C->SetControlRotation(Cur);
+	MeleeLastYaw = TargetYaw;
+	MeleeLastPitch = TargetPitch;
+
+	if (bDone) { bMeleeCommitActive = false; }
 }
 
 void AZP_GraceCharacter::OpenSaveMenu(UUserWidget* Menu)

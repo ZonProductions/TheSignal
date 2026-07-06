@@ -1125,8 +1125,25 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 	UAnimSequenceBase* SwingAnim = nullptr;
 	if (AZP_MeleeLightAnims.Num() > 0)
 	{
-		SwingAnim = AZP_MeleeLightAnims[MeleeLightAnimIndex % AZP_MeleeLightAnims.Num()];
+		const int32 UsedIdx = MeleeLightAnimIndex % AZP_MeleeLightAnims.Num();
+		SwingAnim = AZP_MeleeLightAnims[UsedIdx];
+		MeleeCurrentSwingDir = UsedIdx % 3; // 0=Forward, 1=Right, 2=Left (F→R→L order)
 		++MeleeLightAnimIndex;
+	}
+
+	// Capture the COMMITTED aim now, before the camera whip moves the view — the damage sweep uses this,
+	// so the whip never makes the swing miss. Then hand the swing direction to the character to drive the
+	// committed-swing camera (whip + lunge + movement/aim lock).
+	if (APawn* SwingPawn = Cast<APawn>(GetOwner()))
+	{
+		if (AController* SwingPC = SwingPawn->GetController())
+		{
+			MeleeSwingAimRot = SwingPC->GetControlRotation();
+		}
+	}
+	if (AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(GetOwner()))
+	{
+		Grace->BeginMeleeCommitSwing(MeleeCurrentSwingDir);
 	}
 
 	// Swing whoosh — own-body foley, fires with the swing regardless of view-model state.
@@ -1193,7 +1210,10 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 	if (PC && CameraComponent)
 	{
 		const FVector Start = CameraComponent->GetComponentLocation();
-		const FRotator AimRot = PC->GetControlRotation();
+		// Use the aim CAPTURED at swing start (committed aim), not the live control rotation — the
+		// committed-swing camera whip is moving the view this instant, and the hit must follow where the
+		// player actually committed, not where the whip has turned the camera.
+		const FRotator AimRot = MeleeSwingAimRot;
 		const FVector End = Start + AimRot.Vector() * AZP_MeleeRange;
 
 		FHitResult Hit;
@@ -1233,6 +1253,12 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 			// An enemy is a Pawn; anything else is a wall / hard surface.
 			const bool bHitEnemy = Cast<APawn>(Hit.GetActor()) != nullptr;
 			const FVector ImpactLoc = Hit.ImpactPoint;
+
+			// Directional impact kick — the visible "shock" of contact, on enemy OR wall.
+			if (AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(GetOwner()))
+			{
+				Grace->MeleeCommitImpact(MeleeCurrentSwingDir);
+			}
 
 			if (bHitEnemy)
 			{

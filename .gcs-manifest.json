@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-05T15:32:40",
+  "created": "2026-07-06T07:34:37",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -13516,8 +13516,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:ecaa33a8956c3b4fa7ea01c0585a9d28b9a7ff9ea1320439c47b2fa5117ea013",
-      "size": 10866385
+      "hash": "sha256:9c5ee9bc724c0fc26b72f63ef08e859979054aa13cc59c735615e07949c4e77a",
+      "size": 6848574
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -97306,6 +97306,10 @@
     "Content/TheSignal/Blueprints/LevelDesign/BP_SignCover.uasset": {
       "hash": "sha256:3010d584a505324a0de7b67366a103abda997a852674f6278686fb9691734a5d",
       "size": 27417
+    },
+    "Content/TheSignal/Materials/MI_Concrete_5_TwoSided.uasset": {
+      "hash": "sha256:aa691a92a56e5e14608e84ecd615a74206f709678dd45304c2635f95fc54c41e",
+      "size": 7395
     },
     "Content/TheSignal/Materials/MI_FloorSign_1.uasset": {
       "hash": "sha256:761481a2327feba0a2880ae0189d362ece252dda70baf4acb046afc44e93407a",

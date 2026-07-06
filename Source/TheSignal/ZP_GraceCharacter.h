@@ -681,6 +681,63 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stagger")
 	float AZP_HitStaggerCooldown = 0.0f;
 
+	// --- Committed melee swing (camera / feel, 2026-07-05) ---
+	// A pipe swing COMMITS: movement + aim lock for a short window, a small forward step-in, the view
+	// WHIPS through the arc (direction matched to the F/R/L swing variant), and a directional camera
+	// KICK punctuates contact. All camera motion is applied to the CONTROL ROTATION (Kinemation's camera
+	// follows it) — PlayerMesh is NEVER moved (FPCamera-socket dead-end). The damage sweep uses the aim
+	// captured at swing start, so the whip can move the view without making the swing miss. Degrees.
+
+	/** Master toggle for the committed-swing camera/lock behaviour. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	bool bAZP_MeleeCommitEnabled = true;
+
+	/** Freeze movement input during the commit window. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	bool bAZP_MeleeLockMove = true;
+
+	/** Freeze look/aim input during the commit window (the swing owns the view). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	bool bAZP_MeleeLockAim = true;
+
+	/** Seconds the commit window (lock + camera whip) lasts — kept near the strike, not the whole
+	 *  return-to-idle, so control returns quickly. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeCommitDuration = 0.5f;
+
+	/** Peak yaw (deg) the view whips for a LEFT/RIGHT swing — the perspective sweeps with the pipe. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeWhipYaw = 13.f;
+
+	/** Peak pitch (deg) the view dips for a FORWARD/overhead swing. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeWhipPitch = 10.f;
+
+	/** Forward step-in speed (cm/s) launched at swing start — a small committed lunge (collision-safe). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeLungeSpeed = 250.f;
+
+	/** Impact KICK peak yaw (deg), signed by swing direction — the directional snap on contact. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeKickYaw = 6.f;
+
+	/** Impact KICK peak pitch (deg) — the view jolts up on contact (all swing directions). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeKickPitch = 7.f;
+
+	/** Impact KICK decay time (seconds) back to zero — sharp = small. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeKickDuration = 0.14f;
+
+	/** Grace window (seconds) at the END of a pipe swing during which a pending block press may cancel
+	 *  the remaining return-to-idle TAIL and raise the guard instead of waiting the whole clip out. The
+	 *  strike + follow-through still play; only the dead frames left when the swing has <= this many
+	 *  seconds remaining get replaced by the guard coming up. Larger = block sooner after a swing
+	 *  (0 = must wait out the full clip). Opens the block window earlier than KinemationComp's
+	 *  AZP_MeleeBlockCancelFraction — whichever opens first wins. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Melee Feel")
+	float AZP_MeleeToBlockGracePeriod = 0.5f;
+
 	/** Kubold FPP_Longs_BlockLoop — held block pose, standing still. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
 	TSoftObjectPtr<UAnimSequenceBase> AZP_BlockLoopAnim;
@@ -988,6 +1045,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat|Stagger")
 	void MeleeStaggerEnemy(AActor* Enemy);
 
+	/** Begin the committed-swing camera/lock for one pipe swing. Called by the melee component at swing
+	 *  start. SwingDir: 0 = Forward/overhead, 1 = Right, 2 = Left (matches the F->R->L anim cycle). */
+	void BeginMeleeCommitSwing(int32 SwingDir);
+
+	/** Fire the directional impact kick — called by the melee component when a swing connects. */
+	void MeleeCommitImpact(int32 SwingDir);
+
 	/** Called by AZP_SavePoint after it spawns + inits the save widget: takes UI-only input, focuses
 	 *  the menu for controller navigation, and starts watching (in Tick) for it to close so game
 	 *  input is restored. */
@@ -1145,6 +1209,19 @@ private:
 
 	/** Last time a melee hit staggered an enemy — gates re-stagger by AZP_HitStaggerCooldown. */
 	double LastHitStaggerTime = -1000.0;
+
+	// --- Committed-swing camera state (see bAZP_MeleeCommitEnabled) ---
+	bool bMeleeCommitActive = false;
+	float MeleeCommitElapsed = 0.f;
+	int32 MeleeCommitDir = 0;          // 0=Forward,1=Right,2=Left
+	float MeleeKickElapsed = 1000.f;   // >= AZP_MeleeKickDuration => kick inactive
+	int32 MeleeKickDir = 0;
+	/** Camera offset (deg) applied to control rotation LAST frame — the whip/kick is applied as a delta
+	 *  off this so it layers on player look and always unwinds to net-zero. */
+	float MeleeLastYaw = 0.f;
+	float MeleeLastPitch = 0.f;
+	/** Drives the committed-swing camera whip + impact kick each frame (called from Tick). */
+	void UpdateMeleeCommit(float DeltaTime);
 
 	/** Switch MeleeViewMesh between BlockLoop / BlockWalk based on motion. */
 	void UpdateBlockAnimation();

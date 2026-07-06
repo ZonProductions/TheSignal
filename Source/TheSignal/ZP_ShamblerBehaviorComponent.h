@@ -599,12 +599,6 @@ private:
 	 *  over the held pose; movement or a state release resumes+ends it. No new animation content. */
 	void ReleaseCombatPoseHold();
 
-	/** [ShamAnim] trace — every montage that stops on this mesh logs its name + whether a new clip
-	 *  interrupted it. Play-side logging lives in PlayOneShot/PlaySlotLoop. */
-	UFUNCTION()
-	void OnAnyMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-	UFUNCTION()
-	void OnAnyMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	/** Re-activate the locomotion AnimBP if a one-shot left the mesh in single-clip mode. */
 	void EnsureLocomotion();
 

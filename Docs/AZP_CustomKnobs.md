@@ -196,6 +196,17 @@ _First-person player character (Marcus; 'Grace' is legacy naming): thin shell ow
 | `AZP_BlockStaggerCooldown` | `float` | `1.5f` | Combat|Stagger | EditAnywhere + BP | Minimum seconds between block-staggers (safety floor against stagger spam). |
 | `AZP_HitStaggerDuration` | `float` | `0.f` | Combat|Stagger | EditAnywhere + BP | Seconds an enemy is staggered by a landed melee hit; 0 = hits never stagger (intended design). |
 | `AZP_HitStaggerCooldown` | `float` | `0.0f` | Combat|Stagger | EditAnywhere + BP | Minimum seconds between melee-hit staggers on the same enemy chain. |
+| `bAZP_MeleeCommitEnabled` | `bool` | `true` | Combat|Melee Feel | EditAnywhere + BP | Master toggle for the committed-swing camera/lock behaviour (whip + lunge + movement/aim lock + impact kick). |
+| `bAZP_MeleeLockMove` | `bool` | `true` | Combat|Melee Feel | EditAnywhere + BP | Freeze movement input during the commit window. |
+| `bAZP_MeleeLockAim` | `bool` | `true` | Combat|Melee Feel | EditAnywhere + BP | Freeze look/aim input during the commit window (the swing owns the view). |
+| `AZP_MeleeCommitDuration` | `float` | `0.5f` | Combat|Melee Feel | EditAnywhere + BP | Seconds the commit window (lock + camera whip) lasts. |
+| `AZP_MeleeWhipYaw` | `float` | `13.f` | Combat|Melee Feel | EditAnywhere + BP | Peak yaw (deg) the view whips for a LEFT/RIGHT swing. |
+| `AZP_MeleeWhipPitch` | `float` | `10.f` | Combat|Melee Feel | EditAnywhere + BP | Peak pitch (deg) the view dips for a FORWARD/overhead swing. |
+| `AZP_MeleeLungeSpeed` | `float` | `250.f` | Combat|Melee Feel | EditAnywhere + BP | Forward step-in speed (cm/s) launched at swing start (collision-safe lunge toward aim). |
+| `AZP_MeleeKickYaw` | `float` | `6.f` | Combat|Melee Feel | EditAnywhere + BP | Impact-kick peak yaw (deg), signed by swing direction — the directional snap on contact. |
+| `AZP_MeleeKickPitch` | `float` | `7.f` | Combat|Melee Feel | EditAnywhere + BP | Impact-kick peak pitch (deg) — the view jolts up on contact (all directions). |
+| `AZP_MeleeKickDuration` | `float` | `0.14f` | Combat|Melee Feel | EditAnywhere + BP | Impact-kick decay time (seconds) back to zero — sharp = small. |
+| `AZP_MeleeToBlockGracePeriod` | `float` | `0.5f` | Combat|Melee Feel | EditAnywhere + BP | Grace window (seconds) at the END of a swing during which a pending block press cancels the return-to-idle tail and raises the guard. Larger = block sooner after a swing (0 = wait out the full clip). Opens the block window earlier than KinemationComp's `AZP_MeleeBlockCancelFraction`. |
 | `AZP_BlockLoopAnim` | `TSoftObjectPtr<UAnimSequenceBase>` | `/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockLoop (ctor)` | Combat|Block | EditDefaultsOnly + BP | Held block pose loop (standing still). |
 | `AZP_BlockWalkAnim` | `TSoftObjectPtr<UAnimSequenceBase>` | `/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockWalk (ctor)` | Combat|Block | EditDefaultsOnly + BP | Block pose while walking. |
 | `AZP_BlockStartAnim` | `TSoftObjectPtr<UAnimSequenceBase>` | `/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockStart (ctor)` | Combat|Block | EditDefaultsOnly + BP | Pose-in motion before the block loop. |

@@ -605,6 +605,14 @@ private:
 	/** Cycle index into AZP_MeleeLightAnims (F → R → L). */
 	int32 MeleeLightAnimIndex = 0;
 
+	/** Control rotation captured at swing start. The damage sweep uses THIS committed aim (not the live,
+	 *  whipped control rotation), so the committed-swing camera whip can move the view without making the
+	 *  swing miss what the player aimed at. */
+	FRotator MeleeSwingAimRot = FRotator::ZeroRotator;
+
+	/** Swing variant for THIS swing: 0=Forward, 1=Right, 2=Left (F→R→L). Drives the camera whip/kick. */
+	int32 MeleeCurrentSwingDir = 0;
+
 	/** True while reload animation is playing — blocks firing. */
 	bool bIsReloading = false;
 	FTimerHandle ReloadTimerHandle;
@@ -643,6 +651,20 @@ public:
 		}
 		bMeleeSwingActive = false;
 		bMeleeSwingTailCancelable = false;
+	}
+
+	/** Seconds of the current swing's return-to-idle still queued (0 when no swing is active). The
+	 *  character reads this so a block press can cancel the tail once the swing is within its grace
+	 *  window (AZP_MeleeToBlockGracePeriod on AZP_GraceCharacter). */
+	float GetMeleeSwingTimeRemaining() const
+	{
+		if (!bMeleeSwingActive) { return 0.f; }
+		if (const UWorld* W = GetWorld())
+		{
+			const float R = W->GetTimerManager().GetTimerRemaining(MeleeSwingReturnHandle);
+			return R > 0.f ? R : 0.f;
+		}
+		return 0.f;
 	}
 
 	/** True while the melee view-model (Marcus arms) is up. The character reads this
