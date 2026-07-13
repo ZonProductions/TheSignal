@@ -17,21 +17,27 @@
  * Blueprint Extension Points:
  *   - PlatformMesh: set the SM_Elevator car mesh in the BP child (Movable, BlockAll).
  *   - AZP_MoveSpeed: travel speed (UU/s).
- *   - OnElevatorArrived: delegate for door/audio/VFX hooks.
+ *   - AZP_MoveSound / AZP_ArriveSound (+ carry/volume knobs): travel loop + parking beep, routed
+ *     through the SFXStatics carry model so distance/occlusion do the filtering.
+ *   - OnElevatorArrived / OnElevatorDeparted: delegates for door/audio/VFX hooks.
  *
- * Dependencies: None — standalone kinematic platform. Rider carrying relies on the engine's
+ * Dependencies: UZP_SFXStatics (audio). Rider carrying relies on the engine's
  *               based-movement (CharacterMovementComponent UpdateBasedMovement), so the platform
  *               must remain Movable with blocking collision.
  */
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ZP_SFXStatics.h"
 #include "ZP_Elevator.generated.h"
 
 class UStaticMeshComponent;
 class USceneComponent;
+class UAudioComponent;
+class USoundBase;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnElevatorArrived, float, RelativeZ);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnElevatorDeparted, float, FromRelativeZ);
 
 UCLASS(Blueprintable)
 class THESIGNAL_API AZP_Elevator : public AActor
@@ -61,11 +67,45 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator")
 	float AZP_ArriveTolerance = 1.f;
 
-	// --- Delegate ---
+	// --- Audio (routed through UZP_SFXStatics so space/attenuation/occlusion do the filtering) ---
+
+	/** Looping travel sound — starts when the car starts moving, fades out on arrival.
+	 *  Defaults to SFX_Elevator_Move. None = silent travel. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator|Audio")
+	TObjectPtr<USoundBase> AZP_MoveSound;
+
+	/** How far the travel sound carries. Close (~30 m max) = clearly audible riding the car or
+	 *  standing near the shaft, gone across the map. Bump to Room if it should carry further. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator|Audio")
+	EZP_SFXCarry AZP_MoveSoundCarry = EZP_SFXCarry::Close;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator|Audio")
+	float AZP_MoveSoundVolume = 1.f;
+
+	/** Seconds the travel loop fades out after the car parks. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator|Audio")
+	float AZP_MoveSoundFadeOut = 0.4f;
+
+	/** One-shot played at the car every time it parks at a stop. Defaults to SFX_Elevator_Beep. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator|Audio")
+	TObjectPtr<USoundBase> AZP_ArriveSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator|Audio")
+	EZP_SFXCarry AZP_ArriveSoundCarry = EZP_SFXCarry::Close;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elevator|Audio")
+	float AZP_ArriveSoundVolume = 1.f;
+
+	// --- Delegates ---
 
 	/** Fired when the car reaches a stop (param = the relative Z it arrived at). */
 	UPROPERTY(BlueprintAssignable, Category = "Elevator")
 	FOnElevatorArrived OnElevatorArrived;
+
+	/** Fired the moment the car STARTS moving (param = the relative Z it left from). Hooks:
+	 *  call-button lights back to idle, landing doors close behind the departing car. */
+	UPROPERTY(BlueprintAssignable, Category = "Elevator")
+	FOnElevatorDeparted OnElevatorDeparted;
 
 	// --- API ---
 
@@ -97,4 +137,11 @@ private:
 	FVector TargetLocation = FVector::ZeroVector;
 
 	bool bMoving = false;
+
+	/** Live travel-loop audio while the car moves (faded out on arrival). */
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> MoveAudioComp;
+
+	/** Shared arrival path: stop the travel loop, play the parking beep, broadcast. */
+	void HandleArrived(float RelativeZ);
 };

@@ -25,7 +25,7 @@ All custom values carry the **`AZP_` prefix** (bools: `bAZP_`), so:
 - **Old save files caveat:** SaveGame-flagged renamed props (`AZP_ObjectiveStateSlot`, `bAZP_AutoPersist`, `AZP_DialogueID`) may not restore from saves made before 2026-07-03.
 - Reusable Python scripts were updated to the new names; one-off `_`-prefixed diagnostics scripts still use OLD names (deliberately stale).
 
-## Registry — 956 knobs across 72 classes
+## Registry — 968 knobs across 74 classes (SM_Surface + UZP_WarmupGateSubsystem added by hand 2026-07-12)
 
 ### AZP_AmbientMusicPlayer
 _Level-placed 2D ambient music actor that plays an assigned SoundBase at random sparse intervals with fade in/out._
@@ -105,6 +105,13 @@ _In-map kinematic elevator car that FInterps its platform between relative-Z sto
 |---|---|---|---|---|---|
 | `AZP_MoveSpeed` | `float` | `200.f` | Elevator | EditAnywhere + BP | Constant elevator travel speed in UU/s (real-elevator feel ~150-250 per header comment). |
 | `AZP_ArriveTolerance` | `float` | `1.f` | Elevator | EditAnywhere + BP | Snap tolerance in UU within which the car counts as arrived at its target stop. |
+| `AZP_MoveSound` | `TObjectPtr<USoundBase>` | `SFX_Elevator_Move (ctor FObjectFinder)` | Elevator\|Audio | EditAnywhere + BP | Looping travel sound started when the car starts moving, faded out on arrival; None = silent travel. |
+| `AZP_MoveSoundCarry` | `EZP_SFXCarry` | `Close` | Elevator\|Audio | EditAnywhere + BP | How far the travel loop carries (Close ~30 m: audible riding the car or near the shaft only). |
+| `AZP_MoveSoundVolume` | `float` | `1.f` | Elevator\|Audio | EditAnywhere + BP | Volume multiplier for the travel loop. |
+| `AZP_MoveSoundFadeOut` | `float` | `0.4f` | Elevator\|Audio | EditAnywhere + BP | Seconds the travel loop fades out after the car parks. |
+| `AZP_ArriveSound` | `TObjectPtr<USoundBase>` | `SFX_Elevator_Beep (ctor FObjectFinder)` | Elevator\|Audio | EditAnywhere + BP | One-shot played at the car every time it parks at a stop. |
+| `AZP_ArriveSoundCarry` | `EZP_SFXCarry` | `Close` | Elevator\|Audio | EditAnywhere + BP | Carry profile for the arrival beep. |
+| `AZP_ArriveSoundVolume` | `float` | `1.f` | Elevator\|Audio | EditAnywhere + BP | Volume multiplier for the arrival beep. |
 
 ### AZP_FloorSign
 _Drag-and-drop floor number sign actor; FloorNumber picks MI_FloorSign_1..6 material automatically in editor and at runtime._
@@ -326,6 +333,22 @@ _Lightweight interactable door trigger (Rotate/Slide) for simple unlocked doors;
 | `AZP_OpenDuration` | `float` | `0.f` | Door | EditAnywhere + BP | EXACT seconds a full open/close takes, eased. 0 = OFF (default; door keeps the normal AZP_InterpSpeed feel). Set per instance only where a specific time matters (hangar door 6-8s). |
 | `AZP_OpenSound` | `TObjectPtr<USoundBase>` | `null` | Door|Audio | EditAnywhere + BP | Per-instance sound played at the door each time it STARTS opening (SFXStatics carry model; not replayed on save-load end-state). Speed of opening = existing `AZP_InterpSpeed`. |
 | `AZP_ObjectiveOverride` | `FName` | `NAME_None` | Door|Objective | EditAnywhere + BP | Objective/flag id that auto-opens this door on completion (flag OR main objective; e.g. FUSE_BOX). Already-set on level load = door starts open instantly (no replay). Added 2026-07-03 fuse-box beat. |
+| `AZP_RequiredItem` | `TSoftObjectPtr<UObject>` | `null` | Door\|Key | EditAnywhere + BP | Moonville PDA_Item the player must hold to open this door (e.g. DA_Security_Key). Set ⇒ door starts LOCKED; interact while holding it ⇒ unlock + open. None = no item gate. |
+| `bAZP_ConsumeKeyOnUnlock` | `bool` | `false` | Door\|Key | EditAnywhere + BP | Remove one required item from inventory on unlock (default: key is kept, reusable). |
+| `AZP_UnlockedMessage` | `FText` | `"Door unlocked"` | Door\|Key | EditAnywhere + BP | HUD message shown the moment the key item unlocks the door. |
+| `AZP_UnlockedMessageDuration` | `float` | `2.5f` | Door\|Key | EditAnywhere + BP | Seconds door HUD messages stay on screen before auto-hiding (both AZP_UnlockedMessage and the AZP_LockedPromptText shown on a blocked attempt). |
+| `bAZP_UnlockFromOtherSide` | `bool` | `false` | Door\|Key | EditAnywhere + BP | Locked door unlocks WITHOUT the required item when interacted from AZP_UnlockSide (security door that opens freely from inside). Same unlock sound + message as the key unlock. |
+| `AZP_UnlockSide` | `EZP_DoorUnlockSide` | `Front` | Door\|Key | EditAnywhere + BP (EditCondition bAZP_UnlockFromOtherSide) | Which side unlocks free — Front = trigger actor's +X (red arrow), Back = −X. Flip here instead of rotating the door. |
+| `AZP_InteractCooldown` | `float` | `1.f` | Door | EditAnywhere + BP | Seconds between ACCEPTED interact presses; inside the window a press does nothing (no toggle, no sounds, no messages). |
+| `AZP_HandleSound` | `TObjectPtr<USoundBase>` | `SFX_Door_Handle (ctor FObjectFinder)` | Door\|Audio | EditAnywhere + BP | Handle/knob sound on EVERY accepted interact attempt (locked rattle and normal grab alike). |
+| `AZP_HandleSoundCarry` | `EZP_SFXCarry` | `Close` | Door\|Audio | EditAnywhere + BP | Carry profile for the handle sound. |
+| `AZP_HandleSoundVolume` | `float` | `1.f` | Door\|Audio | EditAnywhere + BP | Volume multiplier for the handle sound. |
+| `AZP_UnlockSound` | `TObjectPtr<USoundBase>` | `SFX_Door_Unlock (ctor FObjectFinder)` | Door\|Audio | EditAnywhere + BP | Sound at the door when the key item unlocks it (plays alongside AZP_OpenSound as the door swings). |
+| `AZP_UnlockSoundCarry` | `EZP_SFXCarry` | `Close` | Door\|Audio | EditAnywhere + BP | Carry profile for the unlock clunk. |
+| `AZP_UnlockSoundVolume` | `float` | `1.f` | Door\|Audio | EditAnywhere + BP | Volume multiplier for the unlock sound. |
+| `AZP_LinkedElevator` | `TObjectPtr<AZP_Elevator>` | `null` | Door\|Elevator | EditInstanceOnly + BP | Elevator whose arrival drives this door: car parks within AZP_ElevatorZMargin of the door's Z → door unlocks + opens. For landing/shaft doors, one per floor. |
+| `AZP_ElevatorZMargin` | `float` | `200.f` | Door\|Elevator | EditAnywhere + BP | "Same floor" Z tolerance (UU) between the parked car's pivot and this door actor. |
+| `bAZP_CloseWhenElevatorLeaves` | `bool` | `true` | Door\|Elevator | EditAnywhere + BP | Close AND re-lock the door when the linked car departs this floor (no opening onto an empty shaft); also starts the door locked when the car begins elsewhere. |
 | `AZP_LockedPromptText` | `FText` | `TEXT("Locked")` | Door|UI | EditAnywhere + BP | Player-facing interaction prompt shown when the door is locked - currently hardcoded FText::FromString("Locked"), violates the project's expose-player-facing-text rule and should become an editable FText knob. |
 
 ### AZP_KeyPickup
@@ -581,6 +604,14 @@ _Wall-mounted elevator call button: on E-press it recalls the linked AZP_Elevato
 | `AZP_ReturnLocation` | `TObjectPtr<AZP_TransitLocation>` | `null` | Transit | EditInstanceOnly + BP | Explicit stop marker for this floor (target Z the car is recalled to); unset means auto-find nearest at BeginPlay. |
 | `bAZP_AutoFindNearestLocation` | `bool` | `true` | Transit | EditAnywhere + BP | When ReturnLocation is unset, find and cache the nearest AZP_TransitLocation at BeginPlay. |
 | `AZP_PromptText` | `FText` | `FText::FromString(TEXT("Call Elevator"))` | Transit | EditAnywhere + BP | Interaction prompt text for the call button (note: OnOverlapBegin intentionally shows no HUD prompt, so this only surfaces via GetInteractionPrompt). |
+| `AZP_UnpoweredPromptText` | `FText` | `"No Power" (PLACEHOLDER — author per level)` | Transit | EditAnywhere + BP | Prompt returned while the AZP_RequiredObjective gate is unmet. |
+| `AZP_RequiredObjective` | `FName` | `NAME_None` | Transit\|Objective | EditAnywhere + BP | Objective/flag id that powers the button (matches flag OR completed main objective — e.g. a fuse-box BP_ObjectiveContainer's unlock flag). Unmet = button dead + IndicatorLight off. NAME_None = always powered. |
+| `AZP_ReadyLightColor` | `FLinearColor` | `White` | Transit\|Light | EditAnywhere + BP | IndicatorLight idle color while the elevator works (dim white). |
+| `AZP_ArrivedLightColor` | `FLinearColor` | `(0.1, 0.8, 0.1)` | Transit\|Light | EditAnywhere + BP | IndicatorLight color while the car is parked at this floor (back to ready color on departure). |
+| `AZP_ArriveZMargin` | `float` | `100.f` | Transit\|Light | EditAnywhere + BP | Z tolerance (UU) between car pivot and this floor's stop marker that counts as "car is at this floor". |
+| `AZP_PressSound` | `TObjectPtr<USoundBase>` | `SFX_Elevator_Beep (ctor FObjectFinder)` | Transit\|Audio | EditAnywhere + BP | Acknowledge beep played at the button on a successful (powered) press. |
+| `AZP_PressSoundCarry` | `EZP_SFXCarry` | `Close` | Transit\|Audio | EditAnywhere + BP | Carry profile for the press beep. |
+| `AZP_PressSoundVolume` | `float` | `1.f` | Transit\|Audio | EditAnywhere + BP | Volume multiplier for the press beep. |
 
 ### AZP_VentDoor
 _One-shot, key-gated vent/barricade panel: player needs RequiredItemDA in Moonville inventory to open; mesh tilts around a top-edge hinge, then collision and interaction are disabled permanently._
@@ -597,6 +628,30 @@ _One-shot, key-gated vent/barricade panel: player needs RequiredItemDA in Moonvi
 | `AZP_InteractionVolumeExtent` | `FVector` | `FVector(100.f, 100.f, 100.f)` | Vent | EditAnywhere + BP | Half-extents of the interaction box the player must enter to get the interact prompt. |
 | `AZP_InteractionVolumeOffset` | `FVector` | `FVector(0.f, 0.f, 0.f)` | Vent | EditAnywhere + BP | Relative offset of the interaction box from the actor origin. |
 | `bAZP_ConsumeItemOnUse` | `bool` | `false` | Vent | EditAnywhere + BP | If true, one unit of the required item is removed from inventory on use (default false: reusable tool like a screwdriver). |
+
+### SM_Surface
+_Procedural flat slab (floor/roof/ceiling) actor (`ASM_Surface`, BP child `/Game/Core/Actors/BP_Surface`, added 2026-07-12): flat material slab OR natural-size mesh-tile grid (set TileISM's Static Mesh), cutting real holes (visibility + collision) around assigned actors and auto-rebuilding in-editor. The actor NEVER writes materials — set them on the components' ordinary Materials slots. Full guide: `Docs/BP_Surface_Guide.md`. REMOVED same day (do not look for them): `AZP_Material`, `bAZP_AutoTileFromMesh`, `bAZP_ScaleEdgeTiles`._
+
+| Knob | Type | Default | Category | Exposure | Tunes |
+|---|---|---|---|---|---|
+| `AZP_SurfaceSize` | `FVector2D` | `(1000, 1000)` | Surface | EditAnywhere + BP | Total surface footprint in uu (local X/Y), centered on the actor. Mesh-tile mode always covers this whole rectangle — partial tiles overhang, never scale. |
+| `AZP_Thickness` | `float` | `10.f` | Surface | EditAnywhere + BP | Flat-slab mode thickness in uu; the TOP face sits at the actor's Z. |
+| `AZP_CutActors` | `TArray<TObjectPtr<AActor>>` | empty | Surface\|Cuts | EditAnywhere + BP | Actors whose bounds footprints are cut out of the surface as real holes (visibility + collision). Slab mode: border-accurate hole; mesh mode: whole-tile knockout. |
+| `AZP_CutMargin` | `float` | `0.f` | Surface\|Cuts | EditAnywhere + BP | Extra margin (uu) around each cut actor's bounds; negative shrinks the hole (clamped so thin actors never invert). |
+| `AZP_TileSize` | `FVector2D` | `(450, 450)` | Surface\|Material | EditAnywhere + BP | Flat-slab mode only: world size (uu) of ONE material pattern repeat (UV tiling). Mesh-tile mode ignores it — the pitch is always the mesh's own footprint. |
+| `bAZP_GenerateCollision` | `bool` | `true` | Surface | EditAnywhere + BP | Generate blocking collision for the slab (holes have none). |
+| `AZP_FollowInterval` | `float` | `0.5f` | Surface\|Cuts | EditAnywhere + BP | Seconds between editor checks for moved/resized cut actors (live-follow rebuild cadence). |
+
+### UZP_WarmupGateSubsystem
+_Loading-screen warm-up gate (added 2026-07-12): world subsystem that holds the EasyGameUI loading screen (`WBP_ESGU_LoadingScreen` via `BP_EasySaveGameOperationsManager`, reflection-only) at every gameplay-map start — game paused — until the ~85-asset lazy-load manifest, the async loader, pending shader compiles and the PSO precache queue (cooked builds only; engine disables PSO precache in PIE) are all drained. **Deliberate exception to the AZP_ UPROPERTY convention:** a subsystem has no editor Details panel, so its knobs are CONSOLE VARIABLES (tunable live in PIE, no rebuild). Log tag: `[WarmupGate]`._
+
+| Knob | Type | Default | Category | Exposure | Tunes |
+|---|---|---|---|---|---|
+| `zp.WarmupGate.Enabled` | `int32` | `1` | WarmupGate | console variable | Master switch: 1 = hold the loading screen at world start until warm; 0 = gate off entirely. |
+| `zp.WarmupGate.MinShowSec` | `float` | `1.5` | WarmupGate | console variable | Minimum seconds the screen stays up even if already warm (anti-strobe). |
+| `zp.WarmupGate.TimeoutSec` | `float` | `45.0` | WarmupGate | console variable | Hard release cap; on timeout logs which drain condition never finished. |
+| `zp.WarmupGate.Pause` | `int32` | `1` | WarmupGate | console variable | 1 = pause the world while holding (enemies frozen, no damage; loads/PSOs still progress on engine threads). |
+| `zp.WarmupGate.WaitForShaders` | `int32` | `1` | WarmupGate | console variable | 1 = also wait for GShaderCompilingManager to go idle (editor on-demand compiles); bounded by TimeoutSec. |
 
 ### FZP_DialogueChoice
 _A single player choice presented during dialogue; can fire a narrative beat and/or jump to another dialogue._

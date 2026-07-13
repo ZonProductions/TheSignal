@@ -30,6 +30,13 @@ public class TheSignal : ModuleRules
 			// needed for UPhysicalMaterial/SurfaceType in the footstep surface system
 			// (ZP_FootstepData). The NightShadow "no plugin modules" rule does not apply.
 			"PhysicsCore",   // ZP_FootstepData — floor UPhysicalMaterial->SurfaceType resolution
+			// FLAGGED FOR REVIEW (2026-07-12): ProceduralMeshComponent = ENGINE plugin module
+			// (Engine/Plugins/Runtime/ProceduralMeshComponent, EnabledByDefault). Added to the
+			// GAME module for ASM_Surface (procedural slab with real cut-out holes). The
+			// NightShadow "no plugin modules in game deps" incident concerned plugins loaded
+			// via .uproject that were ALSO compile deps of a plugin Build.cs; engine-default
+			// runtime plugins linked from the game module are the documented usage.
+			"ProceduralMeshComponent", // ASM_Surface — UProceduralMeshComponent slab
 			// FLAGGED FOR REVIEW (UE 5.7 upgrade): FReply is in our PUBLIC header
 			// (ZP_InventoryTabWidget::NativeOnKeyDown). 5.7 made FReply(bool) an
 			// out-of-line SLATECORE_API ctor and Engine pulls SlateCore privately,

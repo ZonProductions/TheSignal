@@ -4174,6 +4174,18 @@ void AZP_GraceCharacter::OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjec
 			ShortcutProp->ExportText_Direct(ShortcutText, ShortcutProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp), nullptr, MoonvilleInventoryComp, PPF_None);
 			JsonObject.JsonObject->SetStringField(TEXT("SignalShortcuts"), ShortcutText);
 		}
+		// Loaded-magazine memory (per weapon class, incl. the in-hand gun's live count).
+		// The grid only holds RESERVE ammo — rounds in a magazine were already consumed
+		// from it at reload time, so without this a load hands back full mags for free.
+		if (KinemationComp)
+		{
+			const TSharedPtr<FJsonObject> MagJson = MakeShared<FJsonObject>();
+			for (const TPair<FString, int32>& Mag : KinemationComp->ExportMagazineState())
+			{
+				MagJson->SetNumberField(Mag.Key, Mag.Value);
+			}
+			JsonObject.JsonObject->SetObjectField(TEXT("SignalMagAmmo"), MagJson);
+		}
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory SAVE -> EGUI json (%d chars)"), InvText.Len());
 
 		// Objectives are save-file-tied too (bAZP_AutoPersist=false → fresh PIE starts clean). Persist on save.
@@ -4205,6 +4217,25 @@ void AZP_GraceCharacter::OnEguiSaveLoadVariables(uint8 OperationType, FJsonObjec
 				ShortcutProp->ImportText_Direct(*ShortcutText, ShortcutProp->ContainerPtrToValuePtr<void>(MoonvilleInventoryComp), MoonvilleInventoryComp, PPF_None);
 				UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory LOAD: restored quick-slot bar (%d chars)"), ShortcutText.Len());
 			}
+		}
+
+		// Loaded-magazine memory — REPLACES the runtime map (a mid-session load must not
+		// keep post-save counts) and corrects the in-hand gun BEFORE the deferred
+		// re-equip below (which early-outs when the saved class is already equipped).
+		// Old saves without the key simply clear the map -> full mag on equip, as before.
+		if (KinemationComp)
+		{
+			TMap<FString, int32> MagState;
+			const TSharedPtr<FJsonObject>* MagJson = nullptr;
+			if (JsonObject.JsonObject->TryGetObjectField(TEXT("SignalMagAmmo"), MagJson) && MagJson)
+			{
+				for (const TPair<FString, TSharedPtr<FJsonValue>>& It : (*MagJson)->Values)
+				{
+					MagState.Add(It.Key, (int32)It.Value->AsNumber());
+				}
+			}
+			KinemationComp->ImportMagazineState(MagState);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Inventory LOAD: restored %d magazine counts"), MagState.Num());
 		}
 
 		// Re-equip the saved in-hand weapon, deferred a tick so the just-restored grid/pawn are settled.

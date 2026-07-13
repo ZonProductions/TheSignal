@@ -267,3 +267,43 @@ UObject* FKinemationBridge::WeaponGetSettings(AActor* Weapon)
 	Weapon->ProcessEvent(Func, &Params);
 	return Params.ReturnValue;
 }
+
+// ── Weapon ammo mirror ──────────────────────────────────────
+
+int32 FKinemationBridge::WeaponGetInt(AActor* Weapon, FName VarName, int32 Fallback)
+{
+	if (!Weapon) return Fallback;
+	if (const FIntProperty* Prop = FindFProperty<FIntProperty>(Weapon->GetClass(), VarName))
+	{
+		return Prop->GetPropertyValue_InContainer(Weapon);
+	}
+	return Fallback;
+}
+
+bool FKinemationBridge::WeaponGetBool(AActor* Weapon, FName VarName, bool bFallback)
+{
+	if (!Weapon) return bFallback;
+	if (const FBoolProperty* Prop = FindFProperty<FBoolProperty>(Weapon->GetClass(), VarName))
+	{
+		return Prop->GetPropertyValue_InContainer(Weapon);
+	}
+	return bFallback;
+}
+
+bool FKinemationBridge::WeaponSetInt(AActor* Weapon, FName VarName, int32 Value)
+{
+	if (!Weapon) return false;
+	if (FIntProperty* Prop = FindFProperty<FIntProperty>(Weapon->GetClass(), VarName))
+	{
+		Prop->SetPropertyValue_InContainer(Weapon, Value);
+		return true;
+	}
+	UE_LOG(LogKinemation, Warning, TEXT("Int var '%s' not found on %s"),
+		*VarName.ToString(), *Weapon->GetName());
+	return false;
+}
+
+void FKinemationBridge::WeaponEndAction(AActor* Weapon)
+{
+	CallNoParams(Weapon, FName("EndAction"));
+}

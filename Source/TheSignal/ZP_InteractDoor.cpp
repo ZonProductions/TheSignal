@@ -2,12 +2,17 @@
 
 #include "ZP_InteractDoor.h"
 #include "ZP_GraceCharacter.h"
+#include "ZP_PlayerController.h"
+#include "ZP_HUDWidget.h"
 #include "ZP_ObjectiveSubsystem.h"
 #include "ZP_SFXStatics.h"
+#include "ZP_Elevator.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "EngineUtils.h"
+#include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 // --- Static door lookup map ---
 TMap<TWeakObjectPtr<AActor>, TWeakObjectPtr<AZP_InteractDoor>> AZP_InteractDoor::DoorActorMap;
@@ -69,11 +74,27 @@ AZP_InteractDoor::AZP_InteractDoor()
 
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AZP_InteractDoor::OnOverlapBegin);
 	InteractionVolume->OnComponentEndOverlap.AddDynamic(this, &AZP_InteractDoor::OnOverlapEnd);
+
+	// Default key-unlock sound (overridable per BP/instance).
+	static ConstructorHelpers::FObjectFinder<USoundBase> UnlockSoundFinder(
+		TEXT("/Game/Audio/SFX_Door_Unlock.SFX_Door_Unlock"));
+	if (UnlockSoundFinder.Succeeded()) { AZP_UnlockSound = UnlockSoundFinder.Object; }
+
+	// Default handle/knob sound (overridable per BP/instance).
+	static ConstructorHelpers::FObjectFinder<USoundBase> HandleSoundFinder(
+		TEXT("/Game/Audio/SFX_Door_Handle.SFX_Door_Handle"));
+	if (HandleSoundFinder.Succeeded()) { AZP_HandleSound = HandleSoundFinder.Object; }
 }
 
 void AZP_InteractDoor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// A required key item implies the door starts locked — no need to also tick bAZP_Locked.
+	if (!AZP_RequiredItem.IsNull())
+	{
+		bAZP_Locked = true;
+	}
 
 	// Self-contained mode: no external actor, but a built-in mesh is assigned.
 	bSelfContained = (AZP_DoorActor == nullptr) && DoorMesh && (DoorMesh->GetStaticMesh() != nullptr);
@@ -99,6 +120,7 @@ void AZP_InteractDoor::BeginPlay()
 			AZP_OpenMode == EZP_InteractDoorMode::Rotate ? TEXT("Rotate") : TEXT("Slide"),
 			*DoorMesh->GetStaticMesh()->GetName());
 		InitObjectiveOverride();
+		InitElevatorLink();
 		return;
 	}
 
@@ -158,6 +180,67 @@ void AZP_InteractDoor::BeginPlay()
 		AZP_OpenMode == EZP_InteractDoorMode::Rotate ? TEXT("Rotate") : TEXT("Slide"));
 
 	InitObjectiveOverride();
+	InitElevatorLink();
+}
+
+// --- Elevator link (landing/shaft doors) ---
+
+void AZP_InteractDoor::InitElevatorLink()
+{
+	if (!AZP_LinkedElevator || !HasDoorTarget()) { return; }
+
+	AZP_LinkedElevator->OnElevatorArrived.AddDynamic(this, &AZP_InteractDoor::OnLinkedElevatorArrived);
+	AZP_LinkedElevator->OnElevatorDeparted.AddDynamic(this, &AZP_InteractDoor::OnLinkedElevatorDeparted);
+
+	// Car already parked at this floor when the level starts -> begin in the OPEN pose.
+	// Otherwise a linked landing door starts closed; locked too if it guards the shaft.
+	if (!AZP_LinkedElevator->IsMoving() && IsElevatorAtMyFloor())
+	{
+		OpenDoor(/*bInstant*/ true);
+	}
+	else if (bAZP_CloseWhenElevatorLeaves)
+	{
+		bAZP_Locked = true;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: elevator-linked to %s (Z margin %.0f, car %s)"),
+		*GetName(), *AZP_LinkedElevator->GetName(), AZP_ElevatorZMargin,
+		bIsOpen ? TEXT("AT this floor — starting open") : TEXT("away — starting closed"));
+}
+
+bool AZP_InteractDoor::IsElevatorAtMyFloor() const
+{
+	if (!AZP_LinkedElevator) { return false; }
+	return FMath::Abs(AZP_LinkedElevator->GetActorLocation().Z - GetActorLocation().Z) <= AZP_ElevatorZMargin;
+}
+
+void AZP_InteractDoor::OnLinkedElevatorArrived(float RelativeZ)
+{
+	if (IsElevatorAtMyFloor())
+	{
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: elevator parked at this floor — opening"), *GetName());
+		OpenDoor(/*bInstant*/ false);
+	}
+}
+
+void AZP_InteractDoor::OnLinkedElevatorDeparted(float FromRelativeZ)
+{
+	if (!bAZP_CloseWhenElevatorLeaves || !bIsOpen || !AZP_LinkedElevator) { return; }
+
+	// Only react when the car left THIS floor.
+	const float FromWorldZ = AZP_LinkedElevator->GetOriginZ() + FromRelativeZ;
+	if (FMath::Abs(FromWorldZ - GetActorLocation().Z) > AZP_ElevatorZMargin) { return; }
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: elevator left this floor — closing + locking"), *GetName());
+	CloseDoor();
+	bAZP_Locked = true;
+}
+
+void AZP_InteractDoor::CloseDoor()
+{
+	if (!HasDoorTarget() || !bIsOpen) { return; }
+	bIsOpen = false;
+	StartDoorAnimation();
 }
 
 void AZP_InteractDoor::InitObjectiveOverride()
@@ -226,6 +309,11 @@ void AZP_InteractDoor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 			Obj->OnFlagSet.RemoveDynamic(this, &AZP_InteractDoor::OnObjectiveOverrideFired);
 			Obj->OnObjectiveCompleted.RemoveDynamic(this, &AZP_InteractDoor::OnObjectiveOverrideFired);
 		}
+	}
+	if (AZP_LinkedElevator)
+	{
+		AZP_LinkedElevator->OnElevatorArrived.RemoveDynamic(this, &AZP_InteractDoor::OnLinkedElevatorArrived);
+		AZP_LinkedElevator->OnElevatorDeparted.RemoveDynamic(this, &AZP_InteractDoor::OnLinkedElevatorDeparted);
 	}
 	Super::EndPlay(EndPlayReason);
 }
@@ -311,32 +399,82 @@ void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 {
 	if (!HasDoorTarget()) return;
 
+	// Rate-limit interact presses — inside the window a press does nothing at all
+	// (no toggle, no handle rattle, no messages). Kills E-mash spam.
+	const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	if (Now - LastInteractTime < AZP_InteractCooldown) { return; }
+	LastInteractTime = Now;
+
+	// The handle always turns/rattles — every accepted attempt is audible, open or not.
+	PlayHandleSound();
+
 	if (bAZP_Locked)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: LOCKED — ignoring interact"), *GetName());
-		return;
+		// Free-side unlock first (never consumes the key), then the key-item gate. Either way
+		// fall through to the normal open flow below.
+		const bool bSideUnlock = bAZP_UnlockFromOtherSide && Interactor && IsOnUnlockSide(Interactor);
+		const bool bKeyUnlock = !bSideUnlock && !AZP_RequiredItem.IsNull() && PlayerHasRequiredItem(Interactor);
+		if (bSideUnlock || bKeyUnlock)
+		{
+			UnlockWithKey(Interactor, /*bViaKeyItem*/ bKeyUnlock);
+		}
+		else
+		{
+			// Cannot open — surface the locked prompt for ANY blocked reason (manual lock,
+			// missing key item, elevator away).
+			ShowTimedHudMessage(Interactor, AZP_LockedPromptText);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: LOCKED — ignoring interact%s"),
+				*GetName(), AZP_RequiredItem.IsNull() ? TEXT("") : TEXT(" (missing required item)"));
+			return;
+		}
 	}
 
 	bIsOpen = !bIsOpen;
 
 	// Hinged doors always swing AWAY from whoever opens them (dev call:
-	// never hit the player). Pick the yaw sign from which side of the door
-	// plane the interactor stands on. Decided fresh on every open.
+	// never hit the player). No axis convention — those broke on mirrored
+	// placements twice: instead, simulate the panel center's end position for
+	// BOTH yaw signs and keep the one that lands farther from the opener. The
+	// two candidates are mirror images across the closed-door plane, so the
+	// farther one is the away-swing for any mesh axes, hinge side, or actor
+	// rotation the level uses. Decided fresh on every open.
 	if (bIsOpen && AZP_OpenMode == EZP_InteractDoorMode::Rotate && Interactor)
 	{
-		const FVector DoorLoc = bSelfContained
-			? DoorMesh->GetComponentLocation()
-			: (AZP_DoorActor ? AZP_DoorActor->GetActorLocation() : GetActorLocation());
-		const FVector DoorFwd = bSelfContained
-			? DoorMesh->GetForwardVector()
-			: (AZP_DoorActor ? AZP_DoorActor->GetActorForwardVector() : GetActorForwardVector());
-		const float Side = FVector::DotProduct(DoorFwd, Interactor->GetActorLocation() - DoorLoc);
-		// Sign flipped AGAIN (dev-caught): the door assets were being placed
-		// upside-down, which inverts the mesh forward vector. The previous sign was
-		// tuned to that wrong orientation and swung INTO the player. Flipped back to
-		// the textbook convention now that the doors are used right-side up.
+		// A yaw delta rotates external actors about world Z; the built-in
+		// mesh's RELATIVE yaw spins about its attach parent's Z axis.
+		FVector Axis = FVector::UpVector;
+		FVector Pivot;
+		FVector PanelCenter;
+		if (bSelfContained)
+		{
+			if (const USceneComponent* Parent = DoorMesh->GetAttachParent())
+			{
+				Axis = Parent->GetComponentQuat().GetUpVector();
+			}
+			Pivot = DoorMesh->GetComponentLocation();
+			PanelCenter = DoorMesh->Bounds.Origin;
+		}
+		else
+		{
+			Pivot = AZP_DoorActor->GetActorLocation();
+			PanelCenter = AZP_DoorActor->GetComponentsBoundingBox(true).GetCenter();
+		}
+
+		// Hinge→panel arm at the CLOSED pose (re-derived if the player
+		// re-opens mid-close, when the panel sits at a partial angle).
+		FVector Arm = PanelCenter - Pivot;
+		Arm = Arm.RotateAngleAxis(ClosedRotation.Yaw - GetDoorRotation().Yaw, Axis);
+
+		float Swing = AZP_OpenAngle; // center-pivot doors keep the authored sign
+		if (!FVector::VectorPlaneProject(Arm, Axis).IsNearlyZero(1.f))
+		{
+			const FVector PlayerLoc = Interactor->GetActorLocation();
+			const float DistPlus = FVector::DistSquared(Pivot + Arm.RotateAngleAxis(AZP_OpenAngle, Axis), PlayerLoc);
+			const float DistMinus = FVector::DistSquared(Pivot + Arm.RotateAngleAxis(-AZP_OpenAngle, Axis), PlayerLoc);
+			Swing = (DistPlus >= DistMinus) ? AZP_OpenAngle : -AZP_OpenAngle;
+		}
 		OpenRotation = ClosedRotation;
-		OpenRotation.Yaw += (Side >= 0.f) ? AZP_OpenAngle : -AZP_OpenAngle;
+		OpenRotation.Yaw += Swing;
 	}
 
 	if (bIsOpen) { PlayOpenSound(); }
@@ -359,10 +497,144 @@ void AZP_InteractDoor::PlayOpenSound()
 {
 	if (USoundBase* S = AZP_OpenSound)
 	{
-		USceneComponent* At = bSelfContained
-			? Cast<USceneComponent>(DoorMesh)
-			: (AZP_DoorActor ? AZP_DoorActor->GetRootComponent() : GetRootComponent());
-		UZP_SFXStatics::PlaySFXAttached(S, At ? At : GetRootComponent(), AZP_OpenSoundCarry);
+		UZP_SFXStatics::PlaySFXAttached(S, GetSFXAttachComp(), AZP_OpenSoundCarry);
+	}
+}
+
+// --- Key-item lock (Moonville reflection, mirrors ZP_VentDoor/CardReaderPanel) ---
+
+/** True if TargetDA sits in the named Moonville slot array (ItemSlots / ShortcutSlots). */
+static bool HasItemInSlotArray(UActorComponent* InvComp, const FName& ArrayName, UObject* TargetDA)
+{
+	if (!InvComp || !TargetDA) return false;
+
+	FProperty* SlotsProp = InvComp->GetClass()->FindPropertyByName(ArrayName);
+	if (!SlotsProp) return false;
+
+	FArrayProperty* ArrayProp = CastField<FArrayProperty>(SlotsProp);
+	if (!ArrayProp) return false;
+
+	FScriptArrayHelper ArrayHelper(ArrayProp, SlotsProp->ContainerPtrToValuePtr<void>(InvComp));
+	FStructProperty* StructInner = CastField<FStructProperty>(ArrayProp->Inner);
+	if (!StructInner) return false;
+
+	FProperty* ItemProp = nullptr;
+	for (TFieldIterator<FProperty> It(StructInner->Struct); It; ++It)
+	{
+		if (It->GetName().Contains(TEXT("Item_")))
+		{
+			ItemProp = *It;
+			break;
+		}
+	}
+	if (!ItemProp) return false;
+
+	FObjectProperty* ObjProp = CastField<FObjectProperty>(ItemProp);
+	if (!ObjProp) return false;
+
+	for (int32 i = 0; i < ArrayHelper.Num(); i++)
+	{
+		void* ElementData = ArrayHelper.GetRawPtr(i);
+		UObject* SlotItem = ObjProp->GetObjectPropertyValue(ObjProp->ContainerPtrToValuePtr<void>(ElementData));
+		if (SlotItem == TargetDA) return true;
+	}
+	return false;
+}
+
+bool AZP_InteractDoor::PlayerHasRequiredItem(ACharacter* Character) const
+{
+	UObject* TargetDA = AZP_RequiredItem.LoadSynchronous();
+	if (!TargetDA || !Character) return false;
+
+	AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(Character);
+	UActorComponent* InvComp = Grace ? Grace->MoonvilleInventoryComp.Get() : nullptr;
+	if (!InvComp) return false;
+
+	return HasItemInSlotArray(InvComp, FName("ItemSlots"), TargetDA)
+		|| HasItemInSlotArray(InvComp, FName("ShortcutSlots"), TargetDA);
+}
+
+bool AZP_InteractDoor::IsOnUnlockSide(const ACharacter* Character) const
+{
+	if (!Character) { return false; }
+
+	// Side = which half-space of THIS trigger actor's forward (+X) plane the player stands in.
+	// The dev flips AZP_UnlockSide instead of rotating the door.
+	const float Dot = FVector::DotProduct(GetActorForwardVector(),
+		Character->GetActorLocation() - GetActorLocation());
+	return (AZP_UnlockSide == EZP_DoorUnlockSide::Front) ? (Dot >= 0.f) : (Dot < 0.f);
+}
+
+USceneComponent* AZP_InteractDoor::GetSFXAttachComp() const
+{
+	USceneComponent* At = bSelfContained
+		? Cast<USceneComponent>(DoorMesh)
+		: (AZP_DoorActor ? AZP_DoorActor->GetRootComponent() : GetRootComponent());
+	return At ? At : GetRootComponent();
+}
+
+void AZP_InteractDoor::PlayHandleSound()
+{
+	if (AZP_HandleSound)
+	{
+		UZP_SFXStatics::PlaySFXAttached(AZP_HandleSound, GetSFXAttachComp(),
+			AZP_HandleSoundCarry, AZP_HandleSoundVolume);
+	}
+}
+
+void AZP_InteractDoor::ShowTimedHudMessage(ACharacter* Interactor, const FText& Message)
+{
+	AZP_PlayerController* PC = Interactor ? Cast<AZP_PlayerController>(Interactor->GetController()) : nullptr;
+	if (!PC || !PC->HUDWidget) { return; }
+
+	PC->HUDWidget->ShowInteractionPrompt(Message);
+
+	TWeakObjectPtr<UZP_HUDWidget> HUD = PC->HUDWidget;
+	GetWorldTimerManager().SetTimer(HudMessageTimer, FTimerDelegate::CreateWeakLambda(this,
+		[HUD]()
+		{
+			if (HUD.IsValid()) { HUD->HideInteractionPrompt(); }
+		}),
+		FMath::Max(AZP_UnlockedMessageDuration, 0.1f), false);
+}
+
+void AZP_InteractDoor::UnlockWithKey(ACharacter* Interactor, bool bViaKeyItem)
+{
+	bAZP_Locked = false;
+
+	if (AZP_UnlockSound)
+	{
+		UZP_SFXStatics::PlaySFXAttached(AZP_UnlockSound, GetSFXAttachComp(),
+			AZP_UnlockSoundCarry, AZP_UnlockSoundVolume);
+	}
+
+	if (bViaKeyItem && bAZP_ConsumeKeyOnUnlock)
+	{
+		ConsumeKeyItem(Interactor);
+	}
+
+	ShowTimedHudMessage(Interactor, AZP_UnlockedMessage);
+
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: UNLOCKED %s%s"),
+		*GetName(),
+		bViaKeyItem ? TEXT("with key item") : TEXT("from the free side"),
+		(bViaKeyItem && bAZP_ConsumeKeyOnUnlock) ? TEXT(" (consumed)") : TEXT(""));
+}
+
+void AZP_InteractDoor::ConsumeKeyItem(ACharacter* Interactor)
+{
+	UObject* TargetDA = AZP_RequiredItem.LoadSynchronous();
+	AZP_GraceCharacter* Grace = Cast<AZP_GraceCharacter>(Interactor);
+	UActorComponent* InvComp = Grace ? Grace->MoonvilleInventoryComp.Get() : nullptr;
+	if (!TargetDA || !InvComp) return;
+
+	UFunction* RemoveFunc = InvComp->FindFunction(FName("RemoveItemByDataAsset"));
+	if (RemoveFunc)
+	{
+		struct { UObject* AZP_ItemDataAsset; int32 AmountToRemove; } Params;
+		Params.AZP_ItemDataAsset = TargetDA;
+		Params.AmountToRemove = 1;
+		InvComp->ProcessEvent(RemoveFunc, &Params);
 	}
 }
 

@@ -20,7 +20,56 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session (2026-07-03 PM): AZP_ CUSTOM-KNOB SWEEP — every custom C++ tunable exposed as an
+- Last session (2026-07-12 late): AMMO/RELOAD OVERHAUL, all C++ (ZP_KinemationComponent +
+  KinemationBridge), built clean, NEEDS PIE VERIFY. (1) Loaded mag persists per weapon class
+  across swaps/stows (SavedMagAmmo; full mag only on first equip). (2) Shotgun shell reload
+  loads EXACTLY min(mag space, reserve) — C++ writes the pack BP's ActiveAmmo/MaxAmmo via
+  reflection so its ReloadStart→ReloadLoop→ReloadEnd chain stops at the right shell; chain
+  terminates on EXACT equality (never overshoot its MaxAmmo or it loops forever; from empty
+  it always inserts ≥2 before checking → 1-shell-from-empty presented as tactical). (3) HUD
+  ticks per shell (0.05s reload-scoped mirror absorbs the BP counter → CurrentAmmo + per-
+  shell inventory consume). (4) Cancelable: fire press mid-shell-reload = soft cancel (shell
+  in motion seats, end anim, exact count); weapon swap/stow = hard cancel keeping inserted
+  shells (EquipWeaponClass no longer blocks during reload; mag reloads abort, no transfer).
+  POST-REVIEW HARDENING (40-agent adversarial review, 4 roots fixed, rebuilt clean): reload
+  now clears the swap's 2.5s head-unpin timer (see-own-head fix); reserve-dry mid-reload
+  closes the live BP chain (no phantom-shell stuffing); mags PERSIST THROUGH SAVE/LOAD
+  ("SignalMagAmmo" in the EGUI json — no more free full mags on load); auto-spawn init path
+  mirrors ammo correctly. Known pre-existing, filed not fixed: throwable auto-switch-back
+  lacks ownership/grab gates (free-grenade via EndGrab). Editor reopened.
+  FOLLOW-UP FIX same session: mid-swap SILENT FIRE (ammo dropped, no sfx — the flat 0.6s
+  WeaponDrawLockTime released before long draw montages ended while the pack BP's
+  OnFirePressed dead-ends on HasActiveAction). FirePressed + Reload now gate on the weapon
+  BP's own HasActiveAction (new KinemationBridge::WeaponGetBool) — tracks each weapon's real
+  draw length. Built clean, editor reopened, needs PIE.
+  ALSO: editor CRASH on asset open root-caused to viscut_watch.py (slate-tick Python called
+  get_all_level_actors() while the editor world was null mid-load → TActorIterator
+  check(CurrentWorld) assert). World-validity guard added to the watcher + apply_viscut_rule;
+  DEAD ENDS row added; editor relaunched (startup script re-execs the fixed file).
+  Checkpoints: 2026-07-12_ammo_persistence_shell_reload_cancel.md,
+  2026-07-12_midswap_silent_fire_hasactiveaction_gate.md,
+  2026-07-12_viscut_watch_null_world_crash.md
+- Earlier session (2026-07-12 PM): FPS-SPIKE DIAGNOSIS + WARM-UP GATE. Profiled live PIE (44fps steady;
+  hitches: first-encounter FlushAsyncLoading sync loads + render InitViews first-sight stalls + 410ms
+  EGUI SetVirtualShadowMaps every Play). NEW UZP_WarmupGateSubsystem holds the dev's EGUI loading
+  screen (WBP_ESGU_LoadingScreen via BP_EasySaveGameOperationsManager, reflection-only) at gameplay-map
+  start — game paused — until ~85-asset lazy-load manifest + async loader + shader compiles + PSO queue
+  drain (PSO part cooked-builds-only; engine disables precache in PIE). Knobs zp.WarmupGate.* (console).
+  Built clean, NOT yet PIE-verified. OPEN BUG FOUND: UE5_ABP_IK_Pose "Accessed None ActiveSettings"
+  EVERY FRAME (Kinemation) — fix next. Checkpoint: 2026-07-12_warmup_gate_loading_screen_hitch_frontload.md
+- Earlier session (2026-07-12): BP_SURFACE / ASM_Surface — dev: "good enough for now." New procedural
+  floor/roof/ceiling actor (Source/TheSignal/SM_Surface.h/.cpp, BP /Game/Core/Actors/BP_Surface):
+  flat material slab OR mesh-tile grid, real cut holes (visibility+collision) around AZP_CutActors,
+  editor live-follow rebuild. Final contract after 3 dev-driven iterations: tiles ALWAYS at the
+  mesh's natural size (zero scale math), grid count rounds UP + centered so AZP_SurfaceSize is
+  always fully covered (swapping meshes never changes the shape; partial tiles overhang <= half a
+  tile/side), cuts knock out WHOLE tiles, and the actor NEVER writes materials — AZP_Material,
+  bAZP_AutoTileFromMesh, bAZP_ScaleEdgeTiles all REMOVED; materials go on TileISM/SurfaceMesh
+  Details>Materials slots. Docs: Docs/BP_Surface_Guide.md + SM_Surface entry in AZP_CustomKnobs.md;
+  checkpoint 2026-07-12_sm_surface_no_stretch_tile_grid.md. Placed in ResearchFacility: Ceiling2
+  (tile-mode ceiling, SM_Floor_3) + BP_Surface2 (slab, keeps concrete via component override).
+  3 editor rebuilds, all clean. NOT yet dev-verified visually after the final build.
+- Earlier session (2026-07-03 PM): AZP_ CUSTOM-KNOB SWEEP — every custom C++ tunable exposed as an
   editor knob and renamed with the AZP_ prefix (bools bAZP_) for quick identification. 956 knobs /
   72 classes documented in Docs/AZP_CustomKnobs.md (READ IT — it lists conventions + exceptions).
   ~570 distinctive renames scripted + 592 generic-name renames context-checked by agents + 194 new

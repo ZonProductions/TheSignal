@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-06T07:34:37",
+  "created": "2026-07-12T22:57:19",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -1595,6 +1595,18 @@
       "hash": "sha256:fd7bf95d3dbb2b00860488ef9a5b5ddc497d2e8faee094a4e0f0b67db72da150",
       "size": 1741
     },
+    "Content/Audio/SFX_Door_Handle.uasset": {
+      "hash": "sha256:9c2543699b4294d011cf8668ed97132268bec4c67cb8739bb618f6a4f15c2158",
+      "size": 72769
+    },
+    "Content/Audio/SFX_Door_Unlock.uasset": {
+      "hash": "sha256:74ebd0b7659b7e68864f3052e898918efe9f4b933662f32e99b26799f2d352a8",
+      "size": 102718
+    },
+    "Content/Audio/SFX_Elevator_Open.uasset": {
+      "hash": "sha256:0fdf0d319d5879834c3d1cbe87f82be12e7a55a37088466bff998e61c72bfe43",
+      "size": 470119
+    },
     "Content/Audio/SFX_LARGE_SLIDE_DOOR.uasset": {
       "hash": "sha256:d3ce47991de0ce8967f97ee0fdccc6c6542196aee5b5d00b8197f8019e043197",
       "size": 315980
@@ -1626,6 +1638,14 @@
     "Content/Audio/Crawler/SFX_Crawler_Lurking.uasset": {
       "hash": "sha256:5e3ee3bb80dcd72d7d4f58229ac0070ab5e894c1780d5bcade1d747316ecbcf8",
       "size": 155533
+    },
+    "Content/Audio/Elevator/SFX_Elevator_Beep.uasset": {
+      "hash": "sha256:49bbfee469f11a9040f2a2a0b8eced0431517f8d26b0c895e4d48d9dc263aad5",
+      "size": 35356
+    },
+    "Content/Audio/Elevator/SFX_Elevator_Move.uasset": {
+      "hash": "sha256:14a674525e1676cc2b0dd1a129a70a122c49dfff5439b391118ac152d72d9802",
+      "size": 1117191
     },
     "Content/Audio/Foley/DABP_FoleyAudioBank.uasset": {
       "hash": "sha256:8b7134576e1e1aece760f0fe583e4ffd99a5d419cb3d59a9db4230843a0fe33f",
@@ -13516,8 +13536,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:9c5ee9bc724c0fc26b72f63ef08e859979054aa13cc59c735615e07949c4e77a",
-      "size": 6848574
+      "hash": "sha256:20a5ec390a6f387201cca34310614924e645954e2467dd3fa4b9a8cc8ebcad69",
+      "size": 6912900
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -24275,6 +24295,10 @@
       "hash": "sha256:920077320d194fd0167cae41e8a09c48f40849b73729a8a50607c69ad62d01ff",
       "size": 74708
     },
+    "Content/Core/Actors/BP_Surface.uasset": {
+      "hash": "sha256:143534f1961386ab099b4472da0ff2a78e023149b685068ec69076b5e1ad4426",
+      "size": 24603
+    },
     "Content/Core/Blueprints/Interactables/BP_AirDuctDoor.uasset": {
       "hash": "sha256:6dc2f1825b125e2cfcc89629def1f24fb5c16a0538c6d07ce7993d243cd1fb34",
       "size": 34360
@@ -24438,6 +24462,10 @@
     "Content/Core/Items/DA_SecurityLog.uasset": {
       "hash": "sha256:d936044b1e0bbebd270ef1a2eb10f889274898241509db4e2dc3aac46b1f3ff3",
       "size": 3541
+    },
+    "Content/Core/Items/DA_SecurityOfficeKey.uasset": {
+      "hash": "sha256:67b78db55ac88def8b5de78c5fb69c67f4f412bd708b9937e53ae7f7786a18d6",
+      "size": 2416
     },
     "Content/Core/Items/DA_StimVial.uasset": {
       "hash": "sha256:e84e1f8c9b22f3c57036d3590b30b15ef638d062f243a18935dcec936b4a9169",
@@ -97311,6 +97339,10 @@
       "hash": "sha256:aa691a92a56e5e14608e84ecd615a74206f709678dd45304c2635f95fc54c41e",
       "size": 7395
     },
+    "Content/TheSignal/Materials/MI_Concrete_5_TwoSided_ShaftMask.uasset": {
+      "hash": "sha256:ebd1be50d8d6151d51cc075e519ee323ee4f44c59352cdb6d754949bde27f27b",
+      "size": 4091
+    },
     "Content/TheSignal/Materials/MI_FloorSign_1.uasset": {
       "hash": "sha256:761481a2327feba0a2880ae0189d362ece252dda70baf4acb046afc44e93407a",
       "size": 10499
@@ -97343,6 +97375,10 @@
       "hash": "sha256:f6efad451bd62a7106f9c3f53b9cc8c335a81d24af3f6c6faa57ccd9d8f4610a",
       "size": 11016
     },
+    "Content/TheSignal/Materials/M_Concrete_5_ShaftMask.uasset": {
+      "hash": "sha256:933d819916e6dcd93494c60d1445c576730ca817362a6612a9938a1b3972258d",
+      "size": 19759
+    },
     "Content/TheSignal/Materials/M_DoorSignDark.uasset": {
       "hash": "sha256:1cc2bea9be82970dde33576a4d1c9e74561787d58831bd28064ab7aee6173d5e",
       "size": 7972
@@ -97374,6 +97410,14 @@
     "Content/TheSignal/Materials/Creatures/MI_VoidTentacle.uasset": {
       "hash": "sha256:571919d6c7952a6520f618ad8a977153049f759373ac693b55860afd1366797d",
       "size": 10815
+    },
+    "Content/TheSignal/Materials/VisCut/MI_VisCut_ResearchFacility_M_Concrete_5.uasset": {
+      "hash": "sha256:f0fd1e3c04e857d69121e786578ec4cd3ce33f1714a031619123199aa796bf62",
+      "size": 14071
+    },
+    "Content/TheSignal/Materials/VisCut/M_Concrete_5_VisCutMask.uasset": {
+      "hash": "sha256:e00ed929434c4024f99224aae663c1ab4b2bea4308f2edc742e2c97e0e2c74f7",
+      "size": 26618
     },
     "Content/TheSignal/Textures/FloorSigns/T_FloorSign_1.uasset": {
       "hash": "sha256:e0821361520e0967e6d45b449f16f72089d5800473d17a531bdcf4c51e29a5ab",

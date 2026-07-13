@@ -67,4 +67,26 @@ struct FKinemationBridge
 	static void WeaponOnMagCheck(AActor* Weapon);
 	static void WeaponOnToggleAttachment(AActor* Weapon);
 	static UObject* WeaponGetSettings(AActor* Weapon);
+
+	// ── Weapon ammo mirror (reflection into BP int variables) ──
+	// The pack weapon BP keeps its own ActiveAmmo/MaxAmmo: its Fire path gates on
+	// ActiveAmmo > 0 (and decrements per shot), and the shotgun's shell-reload chain
+	// (ReloadStart → ReloadLoop → ReloadEnd) inserts shells until ActiveAmmo == MaxAmmo
+	// EXACTLY. C++ owns the real ammo; these push/pull the BP mirror so the visuals
+	// load/fire exactly the rounds the player actually has.
+
+	/** Read an int variable off the weapon BP (ActiveAmmo/MaxAmmo). Fallback if absent. */
+	static int32 WeaponGetInt(AActor* Weapon, FName VarName, int32 Fallback);
+
+	/** Read a bool variable off the weapon BP (HasActiveAction). Fallback if absent.
+	 *  The pack holds HasActiveAction for the FULL length of every action montage
+	 *  (Draw/Reload/Inspect via StartAction) and its OnFirePressed dead-ends on it —
+	 *  C++ fire must agree or it burns ammo with no montage/recoil/sound. */
+	static bool WeaponGetBool(AActor* Weapon, FName VarName, bool bFallback);
+
+	/** Write an int variable on the weapon BP. Returns false if the class lacks it. */
+	static bool WeaponSetInt(AActor* Weapon, FName VarName, int32 Value);
+
+	/** Clear the weapon's action lock (EndAction) after a reload finishes/cancels early. */
+	static void WeaponEndAction(AActor* Weapon);
 };

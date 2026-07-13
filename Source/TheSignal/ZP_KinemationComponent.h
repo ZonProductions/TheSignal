@@ -554,6 +554,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Kinemation|Weapon")
 	void Reload();
 
+	/** Cancel an in-progress reload.
+	 *  bImmediate (weapon swap / stow): hard stop — the draw montage or actor
+	 *  destruction covers the visual; every shell already inserted stays counted.
+	 *  Soft (fire press, shell loaders only): the shell in motion still seats, the
+	 *  end animation plays, and the gun unlocks with exactly the inserted rounds.
+	 *  Mag-swap reloads only support the immediate form (the mag is out of the gun —
+	 *  nothing transfers). */
+	void CancelReload(bool bImmediate);
+
+	/** True while a shell-by-shell reload is still inserting rounds (not the end anim). */
+	bool IsShellReloadInProgress() const { return bIsReloading && bShellReloadActive; }
+
+	/** Snapshot of the per-class loaded-round memory INCLUDING the in-hand weapon's live
+	 *  count, keyed by class path — for the character's EGUI save hook. Without this a
+	 *  load hands back full mags the inventory already paid for at reload time. */
+	TMap<FString, int32> ExportMagazineState() const;
+
+	/** REPLACE the per-class loaded-round memory from a save file (class path → rounds)
+	 *  and correct the in-hand weapon immediately (the deferred save-file re-equip
+	 *  early-outs when the saved class is already equipped, so a same-class load would
+	 *  otherwise keep the pre-load magazine). */
+	void ImportMagazineState(const TMap<FString, int32>& State);
+
 	/** Returns true if Kinemation animation components are active. */
 	UFUNCTION(BlueprintPure, Category = "Kinemation")
 	bool IsKinemationActive() const { return TacticalAnimComp != nullptr; }
@@ -616,6 +639,57 @@ private:
 	/** True while reload animation is playing — blocks firing. */
 	bool bIsReloading = false;
 	FTimerHandle ReloadTimerHandle;
+
+	/** Loaded rounds remembered per ranged weapon class — swapping away and back must
+	 *  NOT refill the magazine (dev spec 2026-07-12). Session-runtime state; the
+	 *  Moonville inventory grid remains the persistent ammo store. */
+	UPROPERTY(Transient)
+	TMap<TSubclassOf<AActor>, int32> SavedMagAmmo;
+
+	/** Stash the active ranged weapon's loaded rounds into SavedMagAmmo (swap/stow). */
+	void SaveMagazineForCurrentWeapon();
+
+	/** Set CurrentAmmo for a freshly equipped ranged class (saved count, else full mag)
+	 *  and mirror it into the pack weapon BP's ActiveAmmo/MaxAmmo. */
+	void RestoreMagazineForClass(TSubclassOf<AActor> ActorClass);
+
+	// --- Shell-by-shell reload runtime (shotguns) ---
+	// The pack BP's ReloadStart→ReloadLoop→ReloadEnd chain owns the visuals and the
+	// per-shell timing; its loop inserts one shell per iteration into its OWN ActiveAmmo
+	// and terminates only on ActiveAmmo == MaxAmmo (exact equality). C++ presents it a
+	// target via the ammo mirror, then reads each seated shell back into CurrentAmmo /
+	// the inventory. Mirror is a 0.05s timer scoped to the reload window ONLY — the
+	// chain is a latent Delay loop inside sealed pack content with no event to bind to
+	// (documented exception to the no-polling rule).
+
+	/** True while the BP shell chain is inserting rounds (poll mirror running). */
+	bool bShellReloadActive = false;
+	/** BP-side reload began on the empty-start path (chambers a shell before its first loop). */
+	bool bShellBPStartedEmpty = false;
+	/** CurrentAmmo value this reload stops at (reserve- and mag-clamped). */
+	int32 ShellReloadTarget = 0;
+	/** BP ActiveAmmo minus real CurrentAmmo. 1 only for the one-shell-from-empty load,
+	 *  which must be presented to the BP as a tactical reload (from empty its chain
+	 *  always inserts >= 2 shells before the first equality check). */
+	int32 ShellBPOffset = 0;
+	/** BP ActiveAmmo as presented at reload start (pending-increment detection on cancel). */
+	int32 ShellInitialBPActive = 0;
+	/** World seconds after which the mirror force-finishes (BP chain died/desynced). */
+	float ShellReloadFailsafeAt = 0.f;
+	FTimerHandle ShellPollHandle;
+
+	/** Kick off a shell reload: present target to the BP, start the mirror. */
+	void StartShellReload();
+	/** Mirror tick: absorb seated shells; close out at target or failsafe. */
+	void ShellPollTick();
+	/** Pull the BP's shell count into CurrentAmmo, consuming inventory per shell. */
+	void AbsorbBPShellCount();
+	/** Soft cancel: lower the BP's MaxAmmo to the next shell boundary (equality-safe). */
+	void LowerShellTargetToPending();
+	/** Target reached/canceled — hold the lock through the end animation. */
+	void BeginShellReloadEnd();
+	/** Shared release: unlock, unpin head, re-true the BP ammo mirror. */
+	void FinishReloadLock();
 
 	/** True while fire animation is cycling — blocks next shot (semi-auto lockout). */
 	bool bFireCooldown = false;

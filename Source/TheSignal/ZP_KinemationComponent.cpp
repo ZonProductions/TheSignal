@@ -254,6 +254,9 @@ void UZP_KinemationComponent::InitializeKinemation()
 		if (ActiveWeapon)
 		{
 			ApplyWeaponConfig(AZP_WeaponClass);
+			// Post-config mag count + BP ammo mirror — CurrentAmmo above was seeded
+			// from the PRE-config mag size (12 on a 6-shell gun).
+			RestoreMagazineForClass(AZP_WeaponClass);
 		}
 	}
 	else
@@ -468,6 +471,7 @@ bool UZP_KinemationComponent::EquipWeapon()
 	if (ActiveWeapon)
 	{
 		ApplyWeaponConfig(AZP_WeaponClass);
+		RestoreMagazineForClass(AZP_WeaponClass);
 		OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
 		OnWeaponTypeChanged.Broadcast(CurrentWeaponType);
 		OnWeaponChanged.Broadcast(ActiveWeapon);
@@ -493,17 +497,19 @@ bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponCla
 
 	TSubclassOf<AActor> ActorClass = *NewWeaponClass;
 
-	// Block weapon switch during reload — animation must finish first
-	if (bIsReloading)
-	{
-		return false;
-	}
-
 	// If same weapon type is already equipped, skip
 	if (ActiveWeapon && AZP_WeaponClass == ActorClass)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::EquipWeaponClass — same weapon already equipped."));
 		return true;
+	}
+
+	// A reload no longer blocks swapping — the swap CANCELS it (dev spec 2026-07-12).
+	// Shell loaders keep every round already inserted; mag swaps abort with nothing
+	// transferred. The incoming draw montage covers the visual.
+	if (bIsReloading)
+	{
+		CancelReload(/*bImmediate=*/true);
 	}
 
 	// Save current weapon class before switching (for auto-switch-back after throwable)
@@ -577,6 +583,7 @@ bool UZP_KinemationComponent::PerformWeaponSwap(TSubclassOf<AActor> ActorClass)
 {
 	if (ActiveWeapon)
 	{
+		SaveMagazineForCurrentWeapon(); // the outgoing gun keeps its loaded rounds for re-equip
 		ActiveWeapon->Destroy();
 		ActiveWeapon = nullptr;
 	}
@@ -590,7 +597,7 @@ bool UZP_KinemationComponent::PerformWeaponSwap(TSubclassOf<AActor> ActorClass)
 	}
 
 	ApplyWeaponConfig(ActorClass); // melee raises its Kubold view model in here
-	CurrentAmmo = AZP_MagSize;
+	RestoreMagazineForClass(ActorClass); // saved loaded-round count, or a full mag on first equip
 	OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
 	OnWeaponTypeChanged.Broadcast(CurrentWeaponType);
 	OnWeaponChanged.Broadcast(ActiveWeapon);
@@ -785,6 +792,12 @@ void UZP_KinemationComponent::UnequipWeapon()
 		SetAiming(false);
 	}
 
+	// Stow during a reload = hard cancel (weapon still alive here — the cancel absorbs
+	// any shell the BP chain seated since the last mirror tick). Then remember the
+	// loaded magazine so re-equipping this class does not refill it.
+	CancelReload(/*bImmediate=*/true);
+	SaveMagazineForCurrentWeapon();
+
 	// Retire the melee view model immediately (no lower animation on hard unequip)
 	DeactivateMeleeViewModel(false);
 
@@ -801,6 +814,7 @@ void UZP_KinemationComponent::UnequipWeapon()
 		}
 		GetWorld()->GetTimerManager().ClearTimer(FireCooldownHandle);
 		GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(ShellPollHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeCooldownHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeSwingReturnHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeTailCancelHandle);
@@ -902,7 +916,25 @@ void UZP_KinemationComponent::FirePressed()
 	}
 
 	// --- Ranged (existing hitscan logic) ---
-	if (bIsReloading || bFireCooldown)
+	if (bIsReloading)
+	{
+		// Fire press during a shell-by-shell reload CANCELS it (dev spec 2026-07-12):
+		// the shell in motion still seats, the end anim plays, and the gun unlocks with
+		// exactly the rounds inserted so far. Mag swaps stay locked (mag's out of the gun).
+		CancelReload(/*bImmediate=*/false);
+		return;
+	}
+	if (bFireCooldown)
+	{
+		return;
+	}
+
+	// Draw montage (or any other weapon action) still playing: the pack weapon holds
+	// HasActiveAction for the montage's FULL length and its OnFirePressed dead-ends on
+	// it — no fire montage, no recoil, no sound. The flat AZP_WeaponDrawLockTime (0.6s)
+	// undershoots long draws, so without this gate a mid-draw click burns ammo silently
+	// (dev-caught 2026-07-12). Reading the BP's own lock tracks every draw exactly.
+	if (FKinemationBridge::WeaponGetBool(ActiveWeapon, FName("HasActiveAction"), false))
 	{
 		return;
 	}
@@ -1075,32 +1107,44 @@ void UZP_KinemationComponent::Reload()
 		return;
 	}
 
+	// Draw montage still playing (same gate as FirePressed): the pack BP's OnReload
+	// refuses while HasActiveAction is held, so C++ would run an INVISIBLE reload —
+	// worst on the shotgun, whose chain never starts and the mirror sits until the
+	// failsafe closes with zero shells loaded.
+	if (FKinemationBridge::WeaponGetBool(ActiveWeapon, FName("HasActiveAction"), false))
+	{
+		return;
+	}
+
 	// Skip reload if mag is full or no reserve ammo
 	if (CurrentAmmo >= AZP_MagSize || ReserveAmmo <= 0)
 	{
 		return;
 	}
 
-	FKinemationBridge::WeaponOnReload(ActiveWeapon);
-
-	// Shell loaders animate per shell — lock/refill/head-hide must run for
-	// the REAL duration or the head pops back mid-animation (dev-caught on
-	// the shotgun: ~9s full reload vs the old flat 3s).
-	float ThisReloadTime = AZP_ReloadTime;
+	// Shell loaders (shotguns) reload per shell and support cancel — own flow.
 	if (bShellReload)
 	{
-		const int32 Shells = FMath::Min(AZP_MagSize - CurrentAmmo, ReserveAmmo);
-		const float StartTime = (CurrentAmmo == 0) ? AZP_ShellReloadEmptyStartTime : AZP_ShellReloadTacStartTime;
-		ThisReloadTime = StartTime + Shells * AZP_ShellReloadLoopTime + AZP_ShellReloadEndTime;
+		StartShellReload();
+		return;
 	}
 
+	// --- Mag swap (pistol/rifles): one atomic transfer at the end of the animation ---
+
+	// Mirror the real count into the pack BP first: its OnReload gates on
+	// ActiveAmmo != MaxAmmo and picks empty-vs-tactical off ActiveAmmo == 0.
+	FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("ActiveAmmo"), CurrentAmmo);
+	FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("MaxAmmo"), AZP_MagSize);
+	FKinemationBridge::WeaponOnReload(ActiveWeapon);
+
 	bIsReloading = true;
+	// The reload now owns the head-hide release (FinishReloadLock). Kill the swap's
+	// pending 2.5s unpin — reloading inside the post-swap window otherwise un-hides
+	// the head mid-montage (the dev-caught see-inside-own-head artifact).
+	GetWorld()->GetTimerManager().ClearTimer(HeadHideHandle);
 	SetCameraBonePinned(true); // reload montage animates the camera's neck bone
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
 	{
-		bIsReloading = false;
-		SetCameraBonePinned(false);
-
 		// Transfer ammo from reserve (= inventory ammo) into the magazine. ReserveAmmo
 		// mirrors the inventory; the character consumes the actual items on the
 		// OnReserveConsumed broadcast, then re-syncs ReserveAmmo from what's left.
@@ -1108,8 +1152,274 @@ void UZP_KinemationComponent::Reload()
 		const int32 AmmoAvailable = FMath::Min(AmmoNeeded, ReserveAmmo);
 		CurrentAmmo += AmmoAvailable;
 		OnReserveConsumed.Broadcast(AmmoAvailable, CurrentWeaponIcon);
+		FinishReloadLock();
+	}, AZP_ReloadTime, false);
+}
+
+// --- Shell-by-shell reload (shotguns) ---
+
+// Mirror cadence while a shell reload runs. Scoped to the reload window only —
+// the pack BP's chain is a latent Delay loop with nothing to bind to.
+static constexpr float ShellPollInterval = 0.05f;
+
+void UZP_KinemationComponent::StartShellReload()
+{
+	// Target: every empty tube slot the inventory can actually fill.
+	ShellReloadTarget = FMath::Min(AZP_MagSize, CurrentAmmo + ReserveAmmo);
+
+	// Present the load to the pack BP. Its chain inserts one shell per ReloadLoop and
+	// terminates ONLY on its ActiveAmmo == MaxAmmo (exact equality). From empty, the
+	// start montage chambers one shell and the chain always runs one loop before the
+	// first equality check — so a one-shell load from empty must be presented as a
+	// one-shell TACTICAL load (offset +1) or the chain never terminates.
+	const bool bEmptyStart = (CurrentAmmo == 0);
+	ShellBPOffset = (bEmptyStart && ShellReloadTarget == 1) ? 1 : 0;
+	bShellBPStartedEmpty = bEmptyStart && ShellBPOffset == 0;
+	ShellInitialBPActive = CurrentAmmo + ShellBPOffset;
+
+	const bool bBPDriven =
+		FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("ActiveAmmo"), ShellInitialBPActive) &&
+		FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("MaxAmmo"), ShellReloadTarget + ShellBPOffset);
+
+	FKinemationBridge::WeaponOnReload(ActiveWeapon);
+
+	bIsReloading = true;
+	// See Reload(): the reload owns the head-hide release now — the swap's pending
+	// unpin must not fire under a ~9s shell chain.
+	GetWorld()->GetTimerManager().ClearTimer(HeadHideHandle);
+	SetCameraBonePinned(true); // reload montages animate the camera's neck bone
+
+	const int32 Shells = ShellReloadTarget - CurrentAmmo;
+	const float StartTime = bEmptyStart ? AZP_ShellReloadEmptyStartTime : AZP_ShellReloadTacStartTime;
+	const float EstimatedDuration = StartTime + Shells * AZP_ShellReloadLoopTime + AZP_ShellReloadEndTime;
+
+	if (!bBPDriven)
+	{
+		// Weapon BP has no ammo vars (unknown pack weapon) — old flat behavior:
+		// lock for the estimated duration, lump-transfer at the end. No cancel.
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, [this]()
+		{
+			const int32 Rounds = FMath::Min(AZP_MagSize - CurrentAmmo, ReserveAmmo);
+			CurrentAmmo += Rounds;
+			OnReserveConsumed.Broadcast(Rounds, CurrentWeaponIcon);
+			FinishReloadLock();
+		}, EstimatedDuration, false);
+		return;
+	}
+
+	bShellReloadActive = true;
+	ShellReloadFailsafeAt = GetWorld()->GetTimeSeconds() + EstimatedDuration + 3.f;
+	GetWorld()->GetTimerManager().SetTimer(ShellPollHandle, this,
+		&UZP_KinemationComponent::ShellPollTick, ShellPollInterval, true);
+}
+
+void UZP_KinemationComponent::ShellPollTick()
+{
+	if (!ActiveWeapon)
+	{
+		// Weapon vanished mid-reload — CancelReload(true) covers the normal stow/swap
+		// paths; this is the belt-and-braces release so the fire lock can never wedge.
+		GetWorld()->GetTimerManager().ClearTimer(ShellPollHandle);
+		bShellReloadActive = false;
+		FinishReloadLock();
+		return;
+	}
+
+	AbsorbBPShellCount();
+
+	if (CurrentAmmo >= ShellReloadTarget)
+	{
+		BeginShellReloadEnd();
+	}
+	else if (GetWorld()->GetTimeSeconds() > ShellReloadFailsafeAt)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] Shell reload failsafe hit at %d/%d — closing out."),
+			CurrentAmmo, ShellReloadTarget);
+		BeginShellReloadEnd();
+	}
+}
+
+void UZP_KinemationComponent::AbsorbBPShellCount()
+{
+	const int32 BPActive = FKinemationBridge::WeaponGetInt(
+		ActiveWeapon, FName("ActiveAmmo"), CurrentAmmo + ShellBPOffset);
+	const int32 RealCount = FMath::Clamp(BPActive - ShellBPOffset, CurrentAmmo, ShellReloadTarget);
+
+	while (CurrentAmmo < RealCount)
+	{
+		if (ReserveAmmo <= 0)
+		{
+			// Inventory ran dry UNDER the reload (grid manipulated mid-insert — the
+			// target was reserve-clamped at start). Close the LIVE BP chain at its next
+			// reachable boundary too: truncating only the C++ target would leave the
+			// chain looping, and FinishReloadLock's rewrite would then send it stuffing
+			// phantom shells toward a full mag. The shell in motion stays cosmetic
+			// (no item behind it).
+			LowerShellTargetToPending();
+			ShellReloadTarget = CurrentAmmo;
+			break;
+		}
+		CurrentAmmo++;
+		// One shell out of the Moonville grid per seated shell — the character removes
+		// the item and re-syncs ReserveAmmo, so the HUD reserve ticks down live too.
+		OnReserveConsumed.Broadcast(1, CurrentWeaponIcon);
 		OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
-	}, ThisReloadTime, false);
+	}
+}
+
+void UZP_KinemationComponent::LowerShellTargetToPending()
+{
+	const int32 BPActive = FKinemationBridge::WeaponGetInt(
+		ActiveWeapon, FName("ActiveAmmo"), CurrentAmmo + ShellBPOffset);
+
+	// One insert is always in flight between the chain's equality checks; from an
+	// empty start, the chamber increment AND the first loop are both pending until
+	// the chamber lands. Landing the new MaxAmmo anywhere below the next reachable
+	// boundary would make the equality check never hit (infinite loop).
+	const int32 Pending = (bShellBPStartedEmpty && BPActive <= ShellInitialBPActive) ? 2 : 1;
+	const int32 NewBPMax = FMath::Min(BPActive + Pending, ShellReloadTarget + ShellBPOffset);
+
+	FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("MaxAmmo"), NewBPMax);
+	ShellReloadTarget = NewBPMax - ShellBPOffset;
+}
+
+void UZP_KinemationComponent::BeginShellReloadEnd()
+{
+	GetWorld()->GetTimerManager().ClearTimer(ShellPollHandle);
+	bShellReloadActive = false;
+
+	// The BP chain plays its ReloadEnd montage the moment its count hits its target;
+	// hold the fire lock + head hide through it.
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this,
+		&UZP_KinemationComponent::FinishReloadLock, AZP_ShellReloadEndTime, false);
+}
+
+void UZP_KinemationComponent::FinishReloadLock()
+{
+	bIsReloading = false;
+	SetCameraBonePinned(false);
+
+	// Re-true the pack BP's ammo mirror for the next fire/reload cycle: its chain may
+	// have left MaxAmmo at the reload target, and its OnReload gate/fire gate read these.
+	// Shell loaders: ONLY when the chain is at rest (its ActiveAmmo == MaxAmmo, i.e. it
+	// terminated through ReloadEnd) — rewriting under a still-live chain drops its count
+	// below the boundary and it would stuff phantom shells toward the new MaxAmmo. When
+	// skipped (dry-close/failsafe timing skew), the next Reload()/equip re-presents both.
+	const bool bChainAtRest = !bShellReload
+		|| FKinemationBridge::WeaponGetInt(ActiveWeapon, FName("ActiveAmmo"), 0)
+			== FKinemationBridge::WeaponGetInt(ActiveWeapon, FName("MaxAmmo"), 0);
+	if (bChainAtRest)
+	{
+		FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("ActiveAmmo"), CurrentAmmo);
+		FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("MaxAmmo"), AZP_MagSize);
+	}
+	FKinemationBridge::WeaponEndAction(ActiveWeapon);
+
+	OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
+}
+
+void UZP_KinemationComponent::CancelReload(bool bImmediate)
+{
+	if (!bIsReloading)
+	{
+		return;
+	}
+
+	if (bImmediate)
+	{
+		// Weapon swap / stow: the draw montage or actor destruction covers the visual.
+		if (bShellReloadActive)
+		{
+			AbsorbBPShellCount(); // count any shell the chain seated since the last mirror tick
+		}
+		GetWorld()->GetTimerManager().ClearTimer(ShellPollHandle);
+		GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
+		bShellReloadActive = false;
+		bIsReloading = false;
+		SetCameraBonePinned(false);
+		OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
+		return;
+	}
+
+	// Soft cancel (fire press): shell loaders only — a mag swap has the magazine out
+	// of the gun, nothing to keep. The end animation window is already past canceling.
+	if (!bShellReloadActive)
+	{
+		return;
+	}
+	LowerShellTargetToPending();
+	// The mirror keeps running: it sees the lowered target reached and closes out
+	// through the normal end-animation window.
+}
+
+void UZP_KinemationComponent::SaveMagazineForCurrentWeapon()
+{
+	if (CurrentWeaponType == EZP_WeaponType::Ranged && AZP_WeaponClass)
+	{
+		SavedMagAmmo.Add(AZP_WeaponClass, CurrentAmmo);
+	}
+}
+
+void UZP_KinemationComponent::RestoreMagazineForClass(TSubclassOf<AActor> ActorClass)
+{
+	if (CurrentWeaponType != EZP_WeaponType::Ranged)
+	{
+		return; // melee/throwable set their own counts in ApplyWeaponConfig
+	}
+
+	const int32* Saved = SavedMagAmmo.Find(ActorClass);
+	CurrentAmmo = Saved ? FMath::Clamp(*Saved, 0, AZP_MagSize) : AZP_MagSize;
+
+	// Mirror into the pack BP: its fire path gates on its own ActiveAmmo > 0 and its
+	// OnReload picks empty-vs-tactical off it — both must agree with the real count.
+	FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("ActiveAmmo"), CurrentAmmo);
+	FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("MaxAmmo"), AZP_MagSize);
+}
+
+TMap<FString, int32> UZP_KinemationComponent::ExportMagazineState() const
+{
+	TMap<FString, int32> Out;
+	for (const TPair<TSubclassOf<AActor>, int32>& It : SavedMagAmmo)
+	{
+		if (It.Key.Get())
+		{
+			Out.Add(It.Key.Get()->GetPathName(), It.Value);
+		}
+	}
+	// The in-hand gun's rounds live in CurrentAmmo, not the map — overlay its live count.
+	if (CurrentWeaponType == EZP_WeaponType::Ranged && AZP_WeaponClass.Get())
+	{
+		Out.Add(AZP_WeaponClass.Get()->GetPathName(), CurrentAmmo);
+	}
+	return Out;
+}
+
+void UZP_KinemationComponent::ImportMagazineState(const TMap<FString, int32>& State)
+{
+	// A load arriving mid-reload: close the reload out first, keeping state sane.
+	CancelReload(/*bImmediate=*/true);
+
+	SavedMagAmmo.Empty(); // REPLACE — a mid-session load must not keep post-save counts
+	for (const TPair<FString, int32>& It : State)
+	{
+		if (UClass* Cls = LoadClass<AActor>(nullptr, *It.Key))
+		{
+			SavedMagAmmo.Add(Cls, FMath::Max(0, It.Value));
+		}
+	}
+
+	// Correct the in-hand gun immediately (same-class loads never reach
+	// RestoreMagazineForClass — the re-equip early-outs on "already equipped").
+	if (CurrentWeaponType == EZP_WeaponType::Ranged && AZP_WeaponClass)
+	{
+		if (const int32* Saved = SavedMagAmmo.Find(AZP_WeaponClass))
+		{
+			CurrentAmmo = FMath::Clamp(*Saved, 0, AZP_MagSize);
+			FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("ActiveAmmo"), CurrentAmmo);
+			FKinemationBridge::WeaponSetInt(ActiveWeapon, FName("MaxAmmo"), AZP_MagSize);
+			OnAmmoChanged.Broadcast(CurrentAmmo, ReserveAmmo);
+		}
+	}
 }
 
 // --- Melee ---

@@ -28,12 +28,20 @@
 class UBoxComponent;
 class UStaticMeshComponent;
 class USoundBase;
+class AZP_Elevator;
 
 UENUM(BlueprintType)
 enum class EZP_InteractDoorMode : uint8
 {
 	Rotate,   // Hinged door — rotates AZP_DoorActor yaw by AZP_OpenAngle
 	Slide     // Sliding door — translates AZP_DoorActor by AZP_SlideOffset
+};
+
+UENUM(BlueprintType)
+enum class EZP_DoorUnlockSide : uint8
+{
+	Front UMETA(ToolTip = "The side the door trigger actor's forward (+X, red arrow) points toward"),
+	Back  UMETA(ToolTip = "The opposite side (-X)")
 };
 
 UCLASS(Blueprintable)
@@ -101,6 +109,44 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|UI")
 	FText AZP_LockedPromptText = FText::FromString(TEXT("Locked"));
 
+	// --- Key-item lock ---
+
+	/** Moonville PDA_Item the player must hold for this door to open (e.g. DA_Security_Key).
+	 *  Set ⇒ the door starts LOCKED and stays locked until the player interacts while holding
+	 *  the item — then it unlocks + opens, plays AZP_UnlockSound and shows AZP_UnlockedMessage.
+	 *  None = no item gate. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Key")
+	TSoftObjectPtr<UObject> AZP_RequiredItem;
+
+	/** Remove one of the required item from inventory on unlock (default: the key is kept). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Key")
+	bool bAZP_ConsumeKeyOnUnlock = false;
+
+	/** HUD message shown the moment the required item unlocks the door. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Key")
+	FText AZP_UnlockedMessage = FText::FromString(TEXT("Door unlocked"));
+
+	/** Seconds door HUD messages stay on screen (both AZP_UnlockedMessage and the
+	 *  AZP_LockedPromptText shown on a blocked attempt). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Key")
+	float AZP_UnlockedMessageDuration = 2.5f;
+
+	/** When true, this locked door can be unlocked WITHOUT the required item by interacting from
+	 *  AZP_UnlockSide (e.g. a security door that opens freely from the inside). Triggers the same
+	 *  unlock sound + AZP_UnlockedMessage as the key unlock. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Key")
+	bool bAZP_UnlockFromOtherSide = false;
+
+	/** Which side unlocks for free — measured against THIS trigger actor's forward (+X, red
+	 *  arrow), so you can flip sides here without rotating the door. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Key", meta = (EditCondition = "bAZP_UnlockFromOtherSide"))
+	EZP_DoorUnlockSide AZP_UnlockSide = EZP_DoorUnlockSide::Front;
+
+	/** Seconds between ACCEPTED interact presses on this door — inside the window a press does
+	 *  nothing (no toggle, no sounds, no messages). Kills E-mash handle-rattle spam. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
+	float AZP_InteractCooldown = 1.f;
+
 	/** Sound played at the door each time it STARTS opening — set per instance in the level
 	 *  (hangar rumble, hydraulic hiss, ...; any SoundWave/Cue/MetaSound). Routed through the
 	 *  SFXStatics carry model. NOT played when a save-load applies the already-open end state.
@@ -114,6 +160,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	EZP_SFXCarry AZP_OpenSoundCarry = EZP_SFXCarry::Room;
 
+	/** Sound at the door the moment the required key item unlocks it. Defaults to SFX_Door_Unlock. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	TObjectPtr<USoundBase> AZP_UnlockSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	EZP_SFXCarry AZP_UnlockSoundCarry = EZP_SFXCarry::Close;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	float AZP_UnlockSoundVolume = 1.f;
+
+	/** Handle/knob sound on EVERY accepted interact attempt — the locked rattle and the normal
+	 *  grab alike. Defaults to SFX_Door_Handle. Rate-limited by AZP_InteractCooldown. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	TObjectPtr<USoundBase> AZP_HandleSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	EZP_SFXCarry AZP_HandleSoundCarry = EZP_SFXCarry::Close;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	float AZP_HandleSoundVolume = 1.f;
+
 	/** Unlock this door. Called by AZP_CardReaderPanel or other systems. */
 	UFUNCTION(BlueprintCallable, Category = "Door")
 	void Unlock();
@@ -124,6 +191,23 @@ public:
 	 *  starts in its OPEN pose instantly (end-state, no replay swing). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Objective")
 	FName AZP_ObjectiveOverride = NAME_None;
+
+	// --- Elevator link (landing/shaft doors) ---
+
+	/** Elevator whose arrival drives this door: when the car parks within AZP_ElevatorZMargin of
+	 *  this door's height, the door unlocks + opens. Use on the landing door at each floor of the
+	 *  shaft. None = normal door. */
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Door|Elevator")
+	TObjectPtr<AZP_Elevator> AZP_LinkedElevator;
+
+	/** "Same floor" tolerance (UU) between the parked car's Z and this door actor's Z. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Elevator")
+	float AZP_ElevatorZMargin = 200.f;
+
+	/** Close AND re-lock the door when the linked car departs this floor (so the player can't open
+	 *  it onto an empty shaft). Off = the door stays as the car left it. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Elevator")
+	bool bAZP_CloseWhenElevatorLeaves = true;
 
 	/** Unlock + open. bInstant snaps straight to the open pose (save-load end-state). */
 	UFUNCTION(BlueprintCallable, Category = "Door")
@@ -175,6 +259,51 @@ private:
 	/** Bind to the objective subsystem when AZP_ObjectiveOverride is set (or apply the end
 	 *  state instantly when the id already completed before this level loaded). */
 	void InitObjectiveOverride();
+
+	/** Bind to the linked elevator's arrive/depart delegates; if the car already sits at this
+	 *  floor when the level starts, begin in the OPEN pose (end-state, no swing). */
+	void InitElevatorLink();
+
+	/** True while the linked car sits within AZP_ElevatorZMargin of this door's Z. */
+	bool IsElevatorAtMyFloor() const;
+
+	/** Animate back to the closed pose (no-op if already closed). */
+	void CloseDoor();
+
+	/** True if the player's Moonville inventory holds AZP_RequiredItem (ItemSlots + ShortcutSlots). */
+	bool PlayerHasRequiredItem(ACharacter* Character) const;
+
+	/** Player unlock (key item OR free side): clear the lock, play AZP_UnlockSound, show
+	 *  AZP_UnlockedMessage (timed). Consumes the key only when bViaKeyItem (and configured).
+	 *  Caller continues into the normal open flow. */
+	void UnlockWithKey(ACharacter* Interactor, bool bViaKeyItem);
+
+	/** Remove one AZP_RequiredItem from the interactor's Moonville inventory. */
+	void ConsumeKeyItem(ACharacter* Interactor);
+
+	/** True if the character stands on the bAZP_UnlockFromOtherSide free-unlock side (measured
+	 *  against this trigger actor's forward axis). */
+	bool IsOnUnlockSide(const ACharacter* Character) const;
+
+	/** The component door SFX attach to: whichever mesh actually moves. */
+	USceneComponent* GetSFXAttachComp() const;
+
+	/** Handle/knob rattle on an accepted interact attempt. */
+	void PlayHandleSound();
+
+	/** Show a HUD message that auto-hides after AZP_UnlockedMessageDuration. */
+	void ShowTimedHudMessage(ACharacter* Interactor, const FText& Message);
+
+	/** World seconds of the last ACCEPTED interact press (cooldown anchor). */
+	float LastInteractTime = -1000.f;
+
+	FTimerHandle HudMessageTimer;
+
+	UFUNCTION()
+	void OnLinkedElevatorArrived(float RelativeZ);
+
+	UFUNCTION()
+	void OnLinkedElevatorDeparted(float FromRelativeZ);
 
 	/** Play AZP_OpenSound attached to whichever mesh actually moves. */
 	void PlayOpenSound();
