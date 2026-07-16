@@ -257,6 +257,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float AZP_HurtScreamHoldTime = 0.5f;
 
+	/** ALERT TURN (dev 2026-07-14): on SIGHT aggro with the player more than this many degrees
+	 *  off the body's forward, it first TURNS with a real stepping clip (the retargeted SLS
+	 *  turns) while the root yaws in sync — replaces the old feet-planted snap/skate. Below
+	 *  this angle the residual snap is invisible and it screams directly. Hurt/stagger aggro
+	 *  always skips the turn (point-blank = react now). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
+	float AZP_AlertTurnMinAngle = 45.f;
+
+	/** Play-rate on the alert turn clips (2.0s raw — 1.5 gives a ~1.3s reaction turn). The root
+	 *  yaw rate is derived so the rotation completes at ~70% of the clip, landing with the step. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
+	float AZP_AlertTurnPlayRate = 1.5f;
+
 	// --- Speeds (set on the owner's CharacterMovement) ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
 	float AZP_WanderSpeed = 120.f;
@@ -367,9 +380,27 @@ public:
 
 	/** Z offset (UU) applied to the mesh while the idle pose is showing. Compensates for the idle
 	 *  anim's pelvis sitting higher than the walk's — without it, the feet visibly lift off the
-	 *  ground at WALK→IDLE. Negative pulls the body down; tune until the foot plant matches. */
+	 *  ground at WALK→IDLE. Negative pulls the body down; tune until the foot plant matches.
+	 *  NOTE: BP_Shambler serializes an OVERRIDE of -16 which BEATS this default — the live idle runs
+	 *  -16. AZP_LocoMeshZOffset below is defaulted to match that -16, not this -8. Read the BP, not
+	 *  this line (measured 2026-07-14). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	float AZP_IdleMeshZOffset = -8.f;
+
+	/** Z offset (UU) applied to the mesh in the states that previously applied NOTHING — the
+	 *  wander WALK, Chase and Attack (dev 2026-07-14: "there is a visible gap between the floor and
+	 *  their feet ... very small, but real").
+	 *  MEASURED, not guessed ([FloatProbe], 5494 samples): with no offset the lowest toe bone sat
+	 *  +5.97 (wander walk) / +7.31 (Chase) / +8.22 (Attack) ABOVE the capsule bottom, i.e. ~10.4uu
+	 *  above the floor once UE's own 2.15 floor band is included. The capsule itself is grounded —
+	 *  capGap == cmcFloorDist == 2.15 is the engine's MIN/MAX_FLOOR_DIST band and is NOT a bug.
+	 *  Every OTHER state already compensated (idle -16 live, scream -8); these three were simply
+	 *  missing it. Calibrated against the LIVE IDLE (-16), which the dev accepts as grounded: at -16
+	 *  the idle toe sits -8.53 rel. capsule bottom, so -16 here lands Chase/Attack at -7.8/-7.8 —
+	 *  visually the same plant. Dial in PIE if the eye disagrees; the toe BONE is not the sole, so
+	 *  the "correct" number is the one that LOOKS right, not 0. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	float AZP_LocoMeshZOffset = -16.f;
 
 	/** Blend-in time (s) for the idle slot anim when entering the IDLE phase. Long enough to cover
 	 *  the CMC's natural deceleration from walking speed → 0. Shorter = jagged snap; longer =
@@ -450,6 +481,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	TObjectPtr<UAnimSequence> AZP_ScreamAnim;
 
+	/** Alert-turn stepping clips (SLS Turn_* retargeted onto the necromorph skeleton 2026-07-14,
+	 *  curve-stripped — see Scripts/Python/retarget_shambler_turns2.py). Picked by the yaw delta
+	 *  to the player at sight aggro: |delta| >= 135° = the 180 clips, else the 90s; sign = side.
+	 *  An empty slot for the needed bucket = no turn (snap+scream, the pre-2026-07-14 behavior). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	TObjectPtr<UAnimSequence> AZP_TurnL90Anim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	TObjectPtr<UAnimSequence> AZP_TurnR90Anim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	TObjectPtr<UAnimSequence> AZP_TurnL180Anim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	TObjectPtr<UAnimSequence> AZP_TurnR180Anim;
+
 	/** Directional death clips (retargeted FPP_Dag_Death1 = front fall, Death2 = back fall). Played
 	 *  on death and held on the final frame as the corpse. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
@@ -511,10 +555,63 @@ public:
 	float AZP_HitReactCooldown = 5.0f;
 
 	/** Min seconds between flinch-CLIP plays (out of combat states) / swing hitches. The mesh
-	 *  punch below is NOT gated — every single hit visibly jolts the body regardless. Purely
-	 *  cosmetic: never pauses the AI, never cancels a swing; gameplay stagger stays block-only. */
+	 *  punch below is NOT gated — every single hit visibly jolts the body regardless.
+	 *  ALSO the stunlock rate-limit now that the flinch gates movement — see
+	 *  bAZP_HitReactGatesMovement. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	float AZP_FlinchCooldown = 0.5f;
+
+	/** Hit reactions FREEZE the AI for the length of the flinch clip, then resume (dev 2026-07-14:
+	 *  "shamblers should move during hit animation").
+	 *  WHY: the flinch is a FULL-BODY slot montage over BS_Shambler (ABP_Shambler's AnimGraph has no
+	 *  layered/additive node), so while it plays the walk cycle is MASKED — but nothing ever stopped
+	 *  the capsule, so a chasing Shambler kept pathing and SLID across the floor in a frozen hit pose.
+	 *  Gating movement for the clip makes it plant -> flinch -> resume, so the legs and the body agree.
+	 *  Also kills the [BlockFreeze]-lineage latch where the combat pose-hold paused the 0.8s flinch
+	 *  indefinitely (the hold excludes bStaggered, which this path sets).
+	 *  STUNLOCK GUARD: AZP_FlinchCooldown (0.5s) rate-limits the gate — a hit-spammer cannot chain it.
+	 *  Raise that knob if hits ever hold the Shambler in place (cf. the 2026-06-30 melee stunlock,
+	 *  closed by AZP_HitStaggerDuration=0).
+	 *  false = pre-2026-07-14 behaviour: purely cosmetic flinch, AI never pauses (and it slides). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
+	bool bAZP_HitReactGatesMovement = true;
+
+	// ───────────────────── [FloatProbe] — instrumentation only, changes nothing ─────────────────────
+	/** Log the ground-clearance breakdown every AZP_FloatProbeInterval (dev 2026-07-14: the Shambler
+	 *  "always seems roughly a small amount floating" while moving/attacking). Grep tag: [FloatProbe].
+	 *  It separates the three candidate causes, which need DIFFERENT fixes:
+	 *    capGap  = capsule bottom − traced floor      -> CMC/collision (capsule size, MaxStepHeight)
+	 *    footGap = lowest foot/toe bone − traced floor -> mesh Z offset / clip authoring
+	 *    meshOff = mesh relative Z − MeshBaseRelZ      -> which state nudge is currently applied
+	 *  Turn OFF once measured — this logs on a timer and will spam. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
+	bool bAZP_FloatProbe = true;
+
+	/** Seconds between [FloatProbe] lines. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
+	float AZP_FloatProbeInterval = 0.25f;
+
+	/** Log WHY a latch did NOT fire while the player was within AZP_GrabRange+120 (grep [GrabGate]).
+	 *  Added 2026-07-14: the crouch-immunity report is NOT fully explained by geometry. The 3D-distance
+	 *  bug (now fixed) only shrank the horizontal grab window 36uu -> 28uu — a 22% reduction, not the
+	 *  reported 100%. A second cause is suspected: the chase HOLDS at AZP_AttackRange (230) and never
+	 *  closes, while the live AZP_GrabRange is 125 — so the grab only ever fires if the PLAYER walks
+	 *  in. This line names the real blocker (range / LOS / cooldown) instead of guessing. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
+	bool bAZP_GrabGateProbe = true;
+
+	/** Foot/toe bones sampled for ground clearance. Defaults are the LIVE necromorph rig names
+	 *  (Mixamo-derived, verified 2026-07-14). The suffixes are NOT sequential — RightUpLeg is _00
+	 *  while RightLeg is _029 — so these are exact strings, never generated. Exposed as knobs so a
+	 *  skeleton swap doesn't need a rebuild; the probe names any bone it can't resolve. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
+	FName AZP_FloatProbeFootBoneL = TEXT("mixamorig_LeftFoot_026");
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
+	FName AZP_FloatProbeFootBoneR = TEXT("mixamorig_RightFoot_030");
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
+	FName AZP_FloatProbeToeBoneL = TEXT("mixamorig_LeftToeBase_027");
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
+	FName AZP_FloatProbeToeBoneR = TEXT("mixamorig_RightToeBase_031");
 
 	/** Play-rate the in-flight swing drops to for AZP_SwingHitchTime when a hit lands mid-swing — a
 	 *  near-freeze hit-stop ("absorbed the blow"). The swing still completes (hyper-armor holds);
@@ -549,9 +646,14 @@ public:
 	 *  this is the BLOCK reward path (player melee hits pass Duration 0 = no stagger — see
 	 *  AZP_GraceCharacter AZP_HitStaggerDuration): it always reads, with no internal cooldown, because
 	 *  it can only fire when one of the Shambler's own swings lands on a blocking player (~its swing
-	 *  cadence) and the player-side AZP_BlockStaggerCooldown is the rate limit. */
+	 *  cadence) and the player-side AZP_BlockStaggerCooldown is the rate limit.
+	 *  As of 2026-07-14 the DAMAGE path also routes here (bAZP_HitReactGatesMovement) so a hit
+	 *  reaction freezes movement for the clip instead of sliding — AZP_FlinchCooldown rate-limits it.
+	 *  OverrideAnim: play THIS clip instead of the default front flinch — used by the damage path so a
+	 *  shot from behind plays the BACK flinch (nullptr = the block path's original front-first pick,
+	 *  unchanged). */
 	UFUNCTION(BlueprintCallable, Category = "Shambler|Combat")
-	void ReceiveStaggerHit(float Duration);
+	void ReceiveStaggerHit(float Duration, UAnimSequence* OverrideAnim = nullptr);
 
 	// IZP_Staggerable — forwards to ReceiveStaggerHit so the player can stagger this enemy
 	// generically (block, and melee hits if AZP_HitStaggerDuration is ever raised above 0).
@@ -612,6 +714,12 @@ private:
 	void StartWanderLeg();
 	/** Smoothly rotate the owner's yaw toward the current target at AZP_CombatTurnRate (per-frame). */
 	void FaceTargetSmooth(float DeltaTime);
+	/** Alert phase 2: snap the residual yaw (invisible after a turn), apply the scream mesh-Z
+	 *  nudge, fire the alert audio, play the (pinned) scream clip, restart the hold clock. */
+	void StartScreamPhase();
+	/** Blend the active alert montage (turn or scream) out — pose-hold-safe (resume-before-stop).
+	 *  Closes KB bug 2026-07-14b (the hurt-shortened scream tail wailing into the chase). */
+	void StopAlertMontage(float BlendOut);
 	void BeginAttack();
 	void ApplyAttackDamage();
 
@@ -651,6 +759,10 @@ private:
 
 	/** Continuous 6s post-release motion trace, 0.1s samples ([GrabSlideProbe] log lines). */
 	void StartGrabSlideProbe();
+
+	/** [FloatProbe] one measurement line: capsule/floor/mesh/foot Zs and the derived gaps.
+	 *  Read-only — traces and logs, mutates nothing but its own throttle stamp. */
+	void RunFloatProbe(double Now);
 
 	/** Fires AZP_EscapePushbackDelay seconds into a kick/push escape: captures the from/to points and
 	 *  arms the TickComponent slide-to-stop (bEscapePushback). */
@@ -755,6 +867,11 @@ private:
 	bool bStumbling = false;
 	double StumbleEndTime = 0.0;
 	double LastHitReactTime = -1000.0;
+
+	/** [FloatProbe] throttle stamp + the dt anchor every probe line is measured against (set on every
+	 *  SetState, so dtState tells you how long the CURRENT state has been live when a float appears). */
+	double LastFloatProbeTime = -1000.0;
+	double LastStateChangeTime = 0.0;
 	float IdleDuration = 1.f;  // randomized 6-9s at idle-entry
 	float WalkDuration = 4.f;  // randomized 3-6s at walk-entry
 	FVector WanderDest = FVector::ZeroVector;
@@ -775,6 +892,14 @@ private:
 	bool bHitchedThisSwing = false;                    // absorb-hitch fired for the current swing
 	bool bLastHitFront = true; // which side the last damage came from -> death-fall direction
 	float CurrentScreamHold = 2.f; // per-aggro scream hold: AZP_ScreamHoldTime on sight, AZP_HurtScreamHoldTime on damage
+
+	// Alert-turn phase (dev 2026-07-14): sight aggro turns with a stepping clip before screaming.
+	bool bPendingAlertTurn = false;   // set by the SIGHT-aggro call site only, consumed in SetState(Scream)
+	bool bAlertTurning = false;       // true while the turn clip runs; the scream phase hasn't started
+	float AlertTurnDuration = 0.f;    // turn clip length / AZP_AlertTurnPlayRate
+	float AlertTurnYawRate = 0.f;     // deg/s so the root finishes at ~70% of the clip
+	double AlertTurnStartedAt = 0.0;
+	UPROPERTY() TObjectPtr<UAnimMontage> AlertMontage; // the active turn OR scream slot montage (for interrupt blend-out)
 	double DeathStartTime = 0.0;
 	float DeathAnimLen = 0.f;
 	bool bDropping = false;

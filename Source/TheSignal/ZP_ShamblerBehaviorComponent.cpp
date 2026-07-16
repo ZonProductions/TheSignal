@@ -69,6 +69,13 @@ void UZP_ShamblerBehaviorComponent::LoadAnimDefaults()
 	Fill(AZP_GrabKickedAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabKicked.A_Shambler_GrabKicked"));
 	Fill(AZP_GrabPushedAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabPushed.A_Shambler_GrabPushed"));
 	Fill(AZP_GrabTakedownAnim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_GrabTakedown.A_Shambler_GrabTakedown"));
+	// Alert-turn stepping clips (SLS Turn_* retargeted via RTG_CC_to_Shambler 2026-07-14,
+	// curve-stripped at retarget — see retarget_shambler_turns2.py). Pelvis rotation deliberately
+	// does NOT transfer: the C++ rotates the ACTOR while the clip provides the stepping feet.
+	Fill(AZP_TurnL90Anim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Turn_L90.A_Shambler_Turn_L90"));
+	Fill(AZP_TurnR90Anim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Turn_R90.A_Shambler_Turn_R90"));
+	Fill(AZP_TurnL180Anim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Turn_L180.A_Shambler_Turn_L180"));
+	Fill(AZP_TurnR180Anim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Turn_R180.A_Shambler_Turn_R180"));
 }
 
 void UZP_ShamblerBehaviorComponent::BeginPlay()
@@ -256,6 +263,18 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		}
 	}
 
+	// [FloatProbe] (dev 2026-07-14: "always seems roughly a small amount floating" while moving/
+	// attacking). INSTRUMENTATION ONLY — measures, fixes nothing. Throttled; see bAZP_FloatProbe.
+	if (bAZP_FloatProbe && !bDead && Owner)
+	{
+		const double NowFP = GetWorld()->GetTimeSeconds();
+		if ((NowFP - LastFloatProbeTime) >= AZP_FloatProbeInterval)
+		{
+			LastFloatProbeTime = NowFP;
+			RunFloatProbe(NowFP);
+		}
+	}
+
 	// Hit-jolt spring-back: the punch set in OnPointDamage decays to rest here every frame. XY only —
 	// the state logic owns the mesh Z (idle/scream offsets). Every landed hit visibly shoves the body.
 	if (!MeshPunch.IsNearlyZero(0.05f))
@@ -411,6 +430,35 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		FaceTargetSmooth(DeltaTime);
 	}
 
+	// ALERT TURN drive (dev 2026-07-14): while the stepping turn clip plays, rotate the root
+	// toward the target's LIVE position at the precomputed rate — the clip's feet cover the
+	// rotation. Hands off to the scream when aligned or when the clip runs out. (This is a
+	// pre-scream phase, not mid-scream tracking — the scream itself still holds its facing.)
+	if (State == EShamblerState::Scream && bAlertTurning && !bStaggered && !bDead && Owner)
+	{
+		float RemainingYaw = 0.f;
+		AActor* T = Target ? Target.Get() : Cast<AActor>(GetPlayer());
+		if (T)
+		{
+			FVector To = T->GetActorLocation() - Owner->GetActorLocation();
+			To.Z = 0.f;
+			if (!To.IsNearlyZero())
+			{
+				const float DesiredYaw = To.Rotation().Yaw;
+				const FRotator Cur = Owner->GetActorRotation();
+				RemainingYaw = FMath::FindDeltaAngleDegrees(Cur.Yaw, DesiredYaw);
+				const FRotator NewRot = FMath::RInterpConstantTo(Cur, FRotator(0.f, DesiredYaw, 0.f),
+					DeltaTime, FMath::Max(AlertTurnYawRate, 30.f));
+				Owner->SetActorRotation(FRotator(0.f, NewRot.Yaw, 0.f));
+			}
+		}
+		if (FMath::Abs(RemainingYaw) <= 8.f
+			|| (GetWorld()->GetTimeSeconds() - AlertTurnStartedAt) >= AlertTurnDuration)
+		{
+			StartScreamPhase();
+		}
+	}
+
 	// Mid-leg stumble end: as soon as the stumble timer runs out, re-issue the move toward the same
 	// wander target. Done here (per-frame) rather than in Evaluate (0.25s eval) so the resume isn't
 	// gated on the next eval tick — keeps the stumble feeling like a hesitation, not a freeze.
@@ -484,6 +532,9 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 					UE_LOG(LogTemp, Warning, TEXT("[Shambler] SIGHT AGGRO: dist=%.0f facing=%.2f close=%d propVol=%.2f"),
 						DistToPlayer, Facing, bClose ? 1 : 0, PropVol);
 					Target = Player;
+					// SIGHT aggro is the ONLY path that earns the stepping alert turn — hurt/
+					// stagger/takedown reuse SetState(Scream) verbatim and keep the instant snap.
+					bPendingAlertTurn = true;
 					SetState(EShamblerState::Scream);
 					break;
 				}
@@ -551,7 +602,7 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 				if (USkeletalMeshComponent* SM = Owner->GetMesh())
 				{
 					FVector RL = SM->GetRelativeLocation();
-					RL.Z = MeshBaseRelZ;
+					RL.Z = MeshBaseRelZ + AZP_LocoMeshZOffset; // walk pose floated +5.97 without it ([FloatProbe])
 					SM->SetRelativeLocation(RL);
 				}
 				// Cancel a pending idle lock (shouldn't be pending this late but defensive),
@@ -580,10 +631,22 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 
 	case EShamblerState::Scream:
 	{
+		// MELEE-RANGE INTERRUPT (dev 2026-07-14): the player closing to attack range cuts the
+		// alert (turn or scream) short — SetState's exit hook blends the clip out, and Chase's
+		// very next eval runs the grab-first/attack logic with full gating.
+		if (Target
+			&& FVector::Dist(Owner->GetActorLocation(), Target->GetActorLocation()) <= AZP_AttackRange
+			&& HasLOS(Target))
+		{
+			UE_LOG(LogTemp, Log, TEXT("[Shambler] alert interrupted — player in melee range"));
+			SetState(EShamblerState::Chase);
+			break;
+		}
 		// Hold the scream, then break into the fast walk. CurrentScreamHold is per-aggro: the full
-		// cinematic AZP_ScreamHoldTime on sight, the short AZP_HurtScreamHoldTime when damage caused (or
-		// interrupts) the scream — a point-blank attacker doesn't get a free stationary target.
-		if (StateTimer >= CurrentScreamHold)
+		// cinematic AZP_ScreamHoldTime on sight, the short AZP_HurtScreamHoldTime when damage caused
+		// the scream. The hold clock starts at the SCREAM phase (StartScreamPhase resets StateTimer),
+		// so the turn never eats the wail.
+		if (!bAlertTurning && StateTimer >= CurrentScreamHold)
 		{
 			SetState(EShamblerState::Chase);
 		}
@@ -610,7 +673,18 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 		// (jump-scare by design, dev direction 2026-07-02). Melee is the fallback while the
 		// grab is on cooldown or was deflected/evaded.
 		const double Now = GetWorld()->GetTimeSeconds();
-		if (DistToPlayer <= AZP_GrabRange && bSee
+		// HORIZONTAL reach (dev 2026-07-14: "you can avoid shambler grapple 100% by just staying in
+		// crouch"). DistToPlayer is a 3D distance and crouching drops Grace's capsule centre 44uu
+		// (halfH 88 -> AZP_CrouchedHalfHeight 44), so the Z leg ATE the grab radius: at the live
+		// AZP_GrabRange=125 the effective horizontal reach fell 125 -> 117 while the capsule radii
+		// (34 + 55) already floor the separation at 89 — the window shrank 36uu -> 28uu. Melee barely
+		// noticed the same Z (230 -> 225.7), which is why ONLY the grab read as crouch-proof. A grab is
+		// a horizontal lunge; the victim's height must not gate it. Measured, not guessed — see
+		// checkpoint 2026-07-14_shambler_grab_crouch_and_float.
+		const float GrabDist2D = Player
+			? FVector::Dist2D(Owner->GetActorLocation(), Player->GetActorLocation())
+			: TNumericLimits<float>::Max();
+		if (GrabDist2D <= AZP_GrabRange && bSee
 			&& (Now - LastGrabTime) >= AZP_GrabCooldown)
 		{
 			TryStartGrab();
@@ -622,9 +696,44 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			if (bStaggered) { break; }
 			// Deflected/unavailable — fall through to the normal swing logic below.
 		}
+		else if (bAZP_GrabGateProbe && Player && GrabDist2D <= AZP_GrabRange + 120.f)
+		{
+			// [GrabGate] The player was NEAR but no latch fired — name the blocker. dz>0 = the player's
+			// centre is BELOW ours (crouching). If this reads "d2D IN | see ok | COOLING" the cooldown
+			// owns it; if it reads "TOO FAR" while dz~44, the reach is the problem; if "BLOCKED", LOS is.
+			UE_LOG(LogTemp, Warning, TEXT("[GrabGate] t=%.2f dtState=%.2f NO LATCH: d2D=%.1f vs range=%.1f (%s) | ")
+				TEXT("d3D=%.1f dz=%.1f%s | see=%d (%s) | cdLeft=%.1f (%s)"),
+				Now, (float)(Now - LastStateChangeTime),
+				GrabDist2D, AZP_GrabRange, (GrabDist2D <= AZP_GrabRange) ? TEXT("IN") : TEXT("TOO FAR"),
+				DistToPlayer, Owner->GetActorLocation().Z - Player->GetActorLocation().Z,
+				(Owner->GetActorLocation().Z - Player->GetActorLocation().Z) > 25.f ? TEXT(" CROUCHED?") : TEXT(""),
+				bSee ? 1 : 0, bSee ? TEXT("ok") : TEXT("BLOCKED"),
+				FMath::Max(0.f, AZP_GrabCooldown - (float)(Now - LastGrabTime)),
+				((Now - LastGrabTime) >= AZP_GrabCooldown) ? TEXT("ready") : TEXT("COOLING"));
+		}
+
+		// ENGAGE RANGE (dev 2026-07-14: "The shambler should just get closer in this scenario").
+		// THE GRAB IS THE OPENER by design — but the swing gate fired at AZP_AttackRange (230) while
+		// the live AZP_GrabRange is 125, so the Shambler PARKED at swing range (the hold below calls
+		// StopMovement) and flurried forever. The latch could then only fire if the PLAYER walked
+		// inside 125 — i.e. a player who keeps their distance was grab-immune BY CONSTRUCTION, at any
+		// stance. Crouching just made it worse (the old 3D gate cost another 8uu of reach), which is
+		// why it read as "avoid the grapple 100% by staying in crouch".
+		// While the latch is READY, hold fire and keep walking until we're actually inside grab range.
+		// Once it's spent (landed -> AZP_GrabCooldown, failed -> AZP_GrabFailCooldown) the swing gate
+		// returns to AZP_AttackRange and it melees at range exactly as before — which is the documented
+		// intent: "This is the window in which it melees instead".
+		const bool bGrabReady = (Now - LastGrabTime) >= AZP_GrabCooldown;
+		const float EngageRange = bGrabReady ? AZP_GrabRange : AZP_AttackRange;
+
+		// HORIZONTAL for the engage decision too (dev: "crouching requires me to walk closer to melee
+		// for the shambler to react"). DistToPlayer is 3D, so a crouched player's 44uu centre drop
+		// inflated it and pushed the Shambler's hold/swing threshold further out. Height must not
+		// decide whether it engages.
+		const float EngageDist = (GrabDist2D < TNumericLimits<float>::Max()) ? GrabDist2D : DistToPlayer;
 
 		// In range + off cooldown -> swipe.
-		if (DistToPlayer <= AZP_AttackRange && bSee && (Now - LastAttackTime) >= AZP_AttackCooldown)
+		if (EngageDist <= EngageRange && bSee && (Now - LastAttackTime) >= AZP_AttackCooldown)
 		{
 			BeginAttack();
 			break;
@@ -637,14 +746,17 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 		// blip)? STAND READY instead of re-pathing — the per-eval MoveToActor at point-blank
 		// walks orbits around the target ("full walking circle", dev report 2026-07-02).
 		// Face-tracking runs per-frame in TickComponent while holding.
-		if (DistToPlayer <= AZP_AttackRange && bSee)
+		// Hold at ENGAGE range, not attack range — while the latch is ready that is AZP_GrabRange, so
+		// it keeps closing instead of parking out of latch reach (see the EngageRange note above).
+		if (EngageDist <= EngageRange && bSee)
 		{
 			StopRunChase(); // arrived on top of the player — sprint over, attack flow owns it
 			if (!bChaseHoldingInRange)
 			{
 				bChaseHoldingInRange = true;
 				if (AICon) { AICon->StopMovement(); }
-				UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] chase HOLD in range (dist=%.0f) — standing ready"), DistToPlayer);
+				UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] chase HOLD in range (d2D=%.0f engage=%.0f grabReady=%d) — standing ready"),
+					EngageDist, EngageRange, bGrabReady ? 1 : 0);
 			}
 		}
 		else
@@ -652,7 +764,8 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			if (bChaseHoldingInRange)
 			{
 				bChaseHoldingInRange = false;
-				UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] chase hold RELEASED (dist=%.0f see=%d) — pathing"), DistToPlayer, bSee ? 1 : 0);
+				UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] chase hold RELEASED (d2D=%.0f engage=%.0f see=%d) — pathing"),
+					EngageDist, EngageRange, bSee ? 1 : 0);
 			}
 
 			// SPRINT-CHASE: outside AZP_RunTriggerDistance (and visible) the shamble breaks into the
@@ -712,7 +825,11 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 						FMath::Max(0.1f, AZP_RunSpeed / FMath::Max(AZP_RunAnimRefSpeed, 1.f)));
 				}
 			}
-			if (AICon) { AICon->MoveToActor(Target, FMath::Max(AZP_AttackRange - AZP_ChaseAcceptanceInset, 40.f)); }
+			// Acceptance must sit INSIDE the engage range or the path stops short of it and the hold
+			// never triggers. With the latch ready that means closing on AZP_GrabRange (125), not
+			// AZP_AttackRange (230) — the old max(230-70,40)=160 parked it 35uu outside grab reach,
+			// so the opener could never fire (dev 2026-07-14 crouch-immunity report).
+			if (AICon) { AICon->MoveToActor(Target, FMath::Max(EngageRange - AZP_ChaseAcceptanceInset, 40.f)); }
 		}
 		break;
 	}
@@ -740,7 +857,12 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			// returning to Chase, so without this re-check a point-blank flurry would melee the
 			// player to death with the grab never firing again (exactly the reported bug).
 			const double NowAtk = GetWorld()->GetTimeSeconds();
-			if (Target && DistToPlayer <= AZP_GrabRange && HasLOS(Target)
+			// Same horizontal-reach rule as the Chase gate — a crouching player must be exactly as
+			// grabbable as a standing one (dev 2026-07-14 crouch-immunity report).
+			const float GrabDist2DAtk = Target
+				? FVector::Dist2D(Owner->GetActorLocation(), Target->GetActorLocation())
+				: TNumericLimits<float>::Max();
+			if (Target && GrabDist2DAtk <= AZP_GrabRange && HasLOS(Target)
 				&& (NowAtk - LastGrabTime) >= AZP_GrabCooldown)
 			{
 				TryStartGrab();
@@ -788,8 +910,18 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 
 void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 {
+	// Leaving the alert: blend any still-playing turn/scream clip out instead of letting its
+	// tail wail over the moving body (KB bug 2026-07-14b — the hurt-shortened scream kept
+	// playing frozen-legged into the chase). Covers every exit: timer, damage interrupt,
+	// melee-range interrupt, stagger resume.
+	if (State == EShamblerState::Scream && NewState != EShamblerState::Scream)
+	{
+		StopAlertMontage(0.3f);
+	}
+
 	State = NewState;
 	StateTimer = 0.f;
+	if (GetWorld()) { LastStateChangeTime = GetWorld()->GetTimeSeconds(); } // [FloatProbe] dt anchor
 	bChaseHoldingInRange = false; // every state entry re-decides hold-vs-path
 	bRunningChase = false;        // sprint is Chase-internal; re-triggers on the next Chase eval
 	RunLoopMontage = nullptr;     // the new state's clips crossfade over the loop (Wander stops it)
@@ -811,8 +943,14 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 		// Ground the floaty scream pose / height-align the grab pair by nudging the mesh Z.
 		if (USkeletalMeshComponent* SM = Owner->GetMesh())
 		{
-			float StateZ = 0.f;
-			if (NewState == EShamblerState::Scream) { StateZ = AZP_ScreamMeshZOffset; }
+			// Chase/Attack/Wander fall through to AZP_LocoMeshZOffset — they used to apply NOTHING,
+			// which is the visible floor gap the dev reported (measured +7.31 Chase / +8.22 Attack
+			// above the capsule bottom). Scream/Grab keep their own authored nudges.
+			float StateZ = AZP_LocoMeshZOffset;
+			// The scream nudge grounds ScreamPinned's frozen idle legs — but the alert-TURN phase
+			// really steps, so it starts at 0; StartScreamPhase applies the nudge when the scream
+			// clip actually begins.
+			if (NewState == EShamblerState::Scream) { StateZ = bPendingAlertTurn ? 0.f : AZP_ScreamMeshZOffset; }
 			else if (NewState == EShamblerState::Grab) { StateZ = AZP_GrabPairZOffset; }
 			FVector RL = SM->GetRelativeLocation();
 			RL.Z = MeshBaseRelZ + StateZ;
@@ -832,11 +970,16 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 		break;
 
 	case EShamblerState::Scream:
+	{
 		SetSpeed(0.f);
 		if (AICon) { AICon->StopMovement(); }
-		// Face the player ONCE, instantly, and hold that orientation for the whole scream. The old
-		// per-frame tracking swiveled the body 30-45° when the player strafed mid-scream and then
-		// "returned" as the chase re-oriented — the twist the dev reported.
+		CurrentScreamHold = AZP_ScreamHoldTime; // sight-aggro default; damage paths shorten it AFTER (contract)
+
+		// ALERT TURN (dev 2026-07-14): on sight aggro with the player well off-axis, turn with a
+		// real stepping clip while the root yaws in sync (TickComponent drives it) — replaces the
+		// old feet-planted snap that read as skating. Only the sight-aggro call site sets
+		// bPendingAlertTurn; hurt/stagger/takedown keep the instant snap+scream below.
+		float DeltaYaw = 0.f;
 		if (Owner)
 		{
 			AActor* FaceTarget = Target ? Target.Get() : Cast<AActor>(GetPlayer());
@@ -846,14 +989,38 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 				To.Z = 0.f;
 				if (!To.IsNearlyZero())
 				{
-					Owner->SetActorRotation(FRotator(0.f, To.Rotation().Yaw, 0.f));
+					DeltaYaw = FMath::FindDeltaAngleDegrees(Owner->GetActorRotation().Yaw, To.Rotation().Yaw);
 				}
 			}
 		}
-		if (Audio) { Audio->PlayAlert(); }
-		PlayOneShot(AZP_ScreamAnim);
-		CurrentScreamHold = AZP_ScreamHoldTime; // sight-aggro default; damage paths shorten it after
+		UAnimSequence* TurnClip = nullptr;
+		if (bPendingAlertTurn && FMath::Abs(DeltaYaw) >= AZP_AlertTurnMinAngle)
+		{
+			const bool bLeft = DeltaYaw < 0.f;
+			TurnClip = (FMath::Abs(DeltaYaw) >= 135.f)
+				? (bLeft ? AZP_TurnL180Anim.Get() : AZP_TurnR180Anim.Get())
+				: (bLeft ? AZP_TurnL90Anim.Get() : AZP_TurnR90Anim.Get());
+		}
+		bPendingAlertTurn = false;
+
+		if (TurnClip)
+		{
+			bAlertTurning = true;
+			const float Rate = FMath::Max(AZP_AlertTurnPlayRate, 0.1f);
+			AlertTurnDuration = TurnClip->GetPlayLength() / Rate;
+			// Root yaw completes at ~70% of the clip so the plant lands with the final step.
+			AlertTurnYawRate = FMath::Abs(DeltaYaw) / FMath::Max(AlertTurnDuration * 0.7f, 0.05f);
+			AlertTurnStartedAt = GetWorld()->GetTimeSeconds();
+			AlertMontage = PlayOneShot(TurnClip, Rate);
+			// No snap-face — the tick turn owns the yaw. Alert audio + the scream clip + the
+			// mesh-Z nudge land in StartScreamPhase() when the turn finishes.
+		}
+		else
+		{
+			StartScreamPhase(); // snap-face + audio + pinned scream clip (pre-2026-07-14 behavior)
+		}
 		break;
+	}
 
 	case EShamblerState::Chase:
 		EnsureLocomotion();
@@ -1609,6 +1776,60 @@ void UZP_ShamblerBehaviorComponent::SetSpeed(float Speed)
 	}
 }
 
+void UZP_ShamblerBehaviorComponent::StartScreamPhase()
+{
+	bAlertTurning = false;
+	if (Owner)
+	{
+		// Face the player ONCE, instantly, and hold — per-frame tracking during the scream reads
+		// as a twist when the player strafes (dev report 2026-07-02). After an alert turn the
+		// residual is a few degrees, so this snap is invisible.
+		AActor* FaceTarget = Target ? Target.Get() : Cast<AActor>(GetPlayer());
+		if (FaceTarget)
+		{
+			FVector To = FaceTarget->GetActorLocation() - Owner->GetActorLocation();
+			To.Z = 0.f;
+			if (!To.IsNearlyZero())
+			{
+				Owner->SetActorRotation(FRotator(0.f, To.Rotation().Yaw, 0.f));
+			}
+		}
+		// ScreamPinned's legs are the frozen idle stance — apply its ground nudge now (the turn
+		// phase ran at StateZ 0 because its legs really step).
+		if (USkeletalMeshComponent* SM = Owner->GetMesh())
+		{
+			FVector RL = SM->GetRelativeLocation();
+			RL.Z = MeshBaseRelZ + AZP_ScreamMeshZOffset;
+			SM->SetRelativeLocation(RL);
+		}
+	}
+	if (Audio) { Audio->PlayAlert(); }
+	AlertMontage = PlayOneShot(AZP_ScreamAnim);
+	StateTimer = 0.f; // the scream hold counts from HERE — the turn never eats the wail
+}
+
+void UZP_ShamblerBehaviorComponent::StopAlertMontage(float BlendOut)
+{
+	bAlertTurning = false;
+	if (Owner && AlertMontage)
+	{
+		if (USkeletalMeshComponent* M = Owner->GetMesh())
+		{
+			if (UAnimInstance* AI = M->GetAnimInstance())
+			{
+				if (AI->Montage_IsActive(AlertMontage))
+				{
+					// A pose-held (paused) montage may refuse to blend out — the release resumes
+					// it so the blend-out ticks (KB pose-hold rule, 2026-07-03/05c).
+					ReleaseCombatPoseHold();
+					AI->Montage_Stop(BlendOut, AlertMontage);
+				}
+			}
+		}
+	}
+	AlertMontage = nullptr;
+}
+
 UAnimMontage* UZP_ShamblerBehaviorComponent::PlayOneShot(UAnimSequence* Anim, float PlayRate)
 {
 	if (!Owner || !Anim) { return nullptr; }
@@ -1860,7 +2081,11 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 		}
 		else if (State == EShamblerState::Scream)
 		{
-			CurrentScreamHold = FMath::Min(CurrentScreamHold, AZP_HurtScreamHoldTime);
+			// Dev 2026-07-14: damage during the alert (turn OR scream) cancels it OUTRIGHT —
+			// straight into the hunt. (Previously only shortened the remaining hold to 0.5s;
+			// SetState's exit hook blends the alert clip out.)
+			UE_LOG(LogTemp, Log, TEXT("[Shambler] alert interrupted — took damage"));
+			SetState(EShamblerState::Chase);
 		}
 	}
 
@@ -1907,12 +2132,141 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 				if (HitAnim)
 				{
 					LastHitReactTime = Now;
-					PlayOneShot(HitAnim); // (3)
 					if (Audio) { Audio->PlayHit(); } // silent until SFX_ZOMBIE_HIT is imported
+					if (bAZP_HitReactGatesMovement)
+					{
+						// (3) GATE MOVEMENT ON THE FLINCH (dev 2026-07-14: "shamblers should move during
+						// hit animation"). The flinch is a FULL-BODY slot montage over BS_Shambler, so it
+						// masks the walk cycle — but nothing ever stopped the capsule, so a chasing
+						// Shambler kept pathing and SLID across the floor in a frozen hit pose. Freeze the
+						// AI for the clip: plant -> flinch -> resume, legs and body agreeing.
+						// ReceiveStaggerHit already owns exactly this (StopMovement + bStaggered + release
+						// at clip-length − 0.15 + the ACTIVE resume into swing/chase), so route into it
+						// rather than duplicate the release. It also sets bStaggered, which the combat
+						// pose-hold excludes — so the flinch plays smoothly instead of latching paused
+						// ([BlockFreeze] lineage, 2026-07-05c). AZP_FlinchCooldown (checked above) is the
+						// anti-stunlock rate limit.
+						ReceiveStaggerHit(HitAnim->GetPlayLength(), HitAnim);
+					}
+					else
+					{
+						PlayOneShot(HitAnim); // (3) legacy: cosmetic-only flinch, AI keeps pathing
+					}
 				}
 			}
 		}
 	}
+}
+
+// ───────────────────────────── [FloatProbe] — measurement only ─────────────────────────────
+// Splits "it looks like it's floating" into the three independent gaps, because each has a
+// DIFFERENT fix and they are routinely confused:
+//   capGap  = capsule bottom − traced floor       -> the CAPSULE is off the ground (CMC/collision)
+//   footGap = lowest foot/toe bone − traced floor -> the FEET are off the ground (mesh Z / clip)
+//   meshOff = mesh relative Z − MeshBaseRelZ      -> which state nudge is applied right now
+// If capGap ~0 and footGap > 0, the capsule is grounded and the MESH sits too high — that is a mesh
+// Z / clip-authoring fix, NOT a collision one (cf. AZP_DeathDropZ=90, the death clips' known
+// hip-height float, and the AZP_ScreamMeshZOffset / AZP_IdleMeshZOffset −8 nudges already in place
+// for exactly this. Chase/Attack apply NO nudge — StateZ=0 — which is where the dev reports it).
+void UZP_ShamblerBehaviorComponent::RunFloatProbe(double Now)
+{
+	const float dtState = (float)(Now - LastStateChangeTime);
+	const int32 S = (int32)State;
+
+	ACharacter* Ch = Cast<ACharacter>(Owner);
+	if (!Ch)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[FloatProbe] t=%.2f dtState=%.2f state=%d NO_CHARACTER (owner is not ACharacter)"), Now, dtState, S);
+		return;
+	}
+	USkeletalMeshComponent* M = Ch->GetMesh();
+	UCapsuleComponent* Cap = Ch->GetCapsuleComponent();
+	UCharacterMovementComponent* CMC = Ch->GetCharacterMovement();
+
+	const FVector ActorLoc = Ch->GetActorLocation();
+	const float HalfH = Cap ? Cap->GetScaledCapsuleHalfHeight() : 0.f;
+	const float CapBottomZ = ActorLoc.Z - HalfH;
+
+	const TCHAR* Mode = TEXT("?");
+	float CMCFloorDist = -1.f;
+	int32 bWalkable = -1;
+	if (CMC)
+	{
+		switch (CMC->MovementMode)
+		{
+		case MOVE_None:    Mode = TEXT("None");    break;
+		case MOVE_Walking: Mode = TEXT("Walking"); break;
+		case MOVE_Falling: Mode = TEXT("Falling"); break;
+		case MOVE_Flying:  Mode = TEXT("Flying");  break;
+		case MOVE_Custom:  Mode = TEXT("Custom");  break;
+		default:           Mode = TEXT("other");   break;
+		}
+		// CMC's OWN idea of the floor — if this disagrees with the trace below, the capsule is being
+		// held off the ground by the movement component itself, not by the mesh.
+		CMCFloorDist = CMC->CurrentFloor.bBlockingHit ? CMC->CurrentFloor.FloorDist : -1.f;
+		bWalkable = CMC->CurrentFloor.bWalkableFloor ? 1 : 0;
+	}
+
+	// Floor under the actor. Ignore self so the capsule/mesh can't be its own floor.
+	FHitResult Floor;
+	FCollisionQueryParams QP(SCENE_QUERY_STAT(ShamblerFloatProbe), /*bTraceComplex=*/true, Owner);
+	const bool bHitFloor = GetWorld()->LineTraceSingleByChannel(Floor, ActorLoc,
+		ActorLoc - FVector(0.f, 0.f, HalfH + 500.f), ECC_Visibility, QP);
+	if (!bHitFloor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[FloatProbe] t=%.2f dtState=%.2f state=%d mode=%s NO_FLOOR_TRACE ")
+			TEXT("(nothing within %.0fuu below actorZ=%.1f) capBottomZ=%.1f cmcFloorDist=%.2f"),
+			Now, dtState, S, Mode, HalfH + 500.f, ActorLoc.Z, CapBottomZ, CMCFloorDist);
+		return;
+	}
+	const float FloorZ = Floor.ImpactPoint.Z;
+	const float CapGap = CapBottomZ - FloorZ;
+
+	if (!M)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[FloatProbe] t=%.2f dtState=%.2f state=%d mode=%s NO_MESH capGap=%.2f"),
+			Now, dtState, S, Mode, CapGap);
+		return;
+	}
+	const float MeshRelZ = M->GetRelativeLocation().Z;
+	const float MeshOff = MeshRelZ - MeshBaseRelZ;
+
+	// Lowest foot/toe bone. Any unresolved bone is NAMED rather than silently read as 0 — a wrong
+	// name would otherwise fake a huge float.
+	const FName Bones[4] = { AZP_FloatProbeFootBoneL, AZP_FloatProbeFootBoneR,
+	                         AZP_FloatProbeToeBoneL,  AZP_FloatProbeToeBoneR };
+	float Z[4] = { 0.f, 0.f, 0.f, 0.f };
+	float LowBone = TNumericLimits<float>::Max();
+	FString Missing;
+	for (int32 i = 0; i < 4; ++i)
+	{
+		if (Bones[i] != NAME_None && M->DoesSocketExist(Bones[i]))
+		{
+			Z[i] = M->GetSocketLocation(Bones[i]).Z;
+			LowBone = FMath::Min(LowBone, Z[i]);
+		}
+		else
+		{
+			Missing += Bones[i].ToString() + TEXT(" ");
+		}
+	}
+	if (!Missing.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[FloatProbe] t=%.2f dtState=%.2f state=%d BONES_MISSING: %s")
+			TEXT("(fix the AZP_FloatProbeBone knobs — remaining numbers below exclude them)"),
+			Now, dtState, S, *Missing);
+	}
+	const float FootGap = (LowBone < TNumericLimits<float>::Max()) ? (LowBone - FloorZ) : -999.f;
+
+	UE_LOG(LogTemp, Warning, TEXT("[FloatProbe] t=%.2f dtState=%.2f state=%d mode=%s vel2D=%.0f | ")
+		TEXT("FLOOR z=%.2f (%s) | CAPSULE actorZ=%.2f halfH=%.2f bottomZ=%.2f capGap=%.2f cmcFloorDist=%.2f walkable=%d | ")
+		TEXT("MESH relZ=%.2f baseRelZ=%.2f meshOff=%.2f worldZ=%.2f | ")
+		TEXT("FEET Lfoot=%.2f Rfoot=%.2f Ltoe=%.2f Rtoe=%.2f low=%.2f FOOTGAP=%.2f"),
+		Now, dtState, S, Mode, Ch->GetVelocity().Size2D(),
+		FloorZ, *GetNameSafe(Floor.GetActor()),
+		ActorLoc.Z, HalfH, CapBottomZ, CapGap, CMCFloorDist, bWalkable,
+		MeshRelZ, MeshBaseRelZ, MeshOff, M->GetComponentLocation().Z,
+		Z[0], Z[1], Z[2], Z[3], (LowBone < TNumericLimits<float>::Max() ? LowBone : 0.f), FootGap);
 }
 
 bool UZP_ShamblerBehaviorComponent::DoSwingHitch()
@@ -1944,7 +2298,7 @@ void UZP_ShamblerBehaviorComponent::RestoreSwingRate()
 	}
 }
 
-void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration)
+void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration, UAnimSequence* OverrideAnim)
 {
 	if (bDead || !Owner) { return; }
 	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f SHAMBLER STAGGER dur=%.2f state=%d dtLatch=%.2f"),
@@ -1988,7 +2342,10 @@ void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration)
 	// (swing again / chase — see the timer lambda) so the flinch can NEVER sit pose-held waiting on the
 	// deadlocked Attack-state chain. Capped at Duration so a stun already shorter than the flinch is never EXTENDED.
 	float ResumeDelay = FMath::Max(0.1f, Duration);
-	if (UAnimSequence* Anim = AZP_HitFrontAnim ? AZP_HitFrontAnim : AZP_HitBackAnim)
+	// OverrideAnim = the damage path's DIRECTIONAL flinch (back clip for a shot from behind). The block
+	// path passes nullptr and keeps its original front-first pick.
+	UAnimSequence* DefaultFlinch = AZP_HitFrontAnim ? AZP_HitFrontAnim : AZP_HitBackAnim;
+	if (UAnimSequence* Anim = OverrideAnim ? OverrideAnim : DefaultFlinch)
 	{
 		PlayOneShot(Anim);
 		ResumeDelay = FMath::Clamp(Anim->GetPlayLength() - 0.15f, 0.1f, FMath::Max(0.1f, Duration));

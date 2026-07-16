@@ -13,6 +13,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Texture2D.h"
 #include "UObject/ConstructorHelpers.h"
+#include "DrawDebugHelpers.h"
 
 const FName UZP_SignalSenseComponent::RumbleTag = TEXT("SignalSenseRumble");
 
@@ -244,6 +245,17 @@ float UZP_SignalSenseComponent::BestVoidPenetration() const
 		UE_LOG(LogTemp, Warning, TEXT("[SignalSense]   mote %s  T=%.3f  ext=(%.0f,%.0f,%.0f)"),
 			*A->GetName(), T, Extent.X, Extent.Y, Extent.Z);
 		Best = FMath::Min(Best, T);
+
+#if !UE_BUILD_SHIPPING
+		// The live detection zone, drawn from the SAME bounds the math above used —
+		// green outside, red once you're inside it. Redrawn every evaluation.
+		if (bAZP_ShowVoidZones)
+		{
+			DrawDebugBox(GetWorld(), Origin, Extent,
+				(T <= 1.f) ? FColor::Red : FColor::Green,
+				false, AZP_EvaluateInterval + 0.05f, 0, 6.f);
+		}
+#endif
 	}
 	return Best;
 }

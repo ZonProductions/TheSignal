@@ -124,6 +124,17 @@ void UZP_DeathSaveComponent::RestoreDeadState()
 	if (UObject* Rev = FindRevivable())
 	{
 		IZP_Revivable::Execute_ApplyDeadStateInstant(Rev);
+		// Mark the HealthComponent dead to match the restored corpse. The interface path only poses
+		// the corpse; after BeginPlay's ResetHealth the component read fully alive, which silently
+		// broke BOTH halves of the system on a load-restored corpse: HandleReviveTrigger early-outs
+		// on !bIsDead (objective revival never fired), and the NEXT save wrote ZP_Dead=false — so
+		// kill -> save -> load -> save -> load resurrected the enemy. (Affected Scytheer, Shambler,
+		// and Oozeling alike; found in the 2026-07-13 Oozeling review.)
+		if (UZP_HealthComponent* H = GetHealth())
+		{
+			H->CurrentHealth = 0.f;
+			H->bIsDead = true;
+		}
 		UE_LOG(LogTemp, Log, TEXT("[DeathSave] %s: restored dead/corpse state on load."),
 			GetOwner() ? *GetOwner()->GetName() : TEXT("?"));
 		return;

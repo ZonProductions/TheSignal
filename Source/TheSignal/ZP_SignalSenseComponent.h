@@ -73,6 +73,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
 	float AZP_EvaluateInterval = 0.25f;
 
+	/** Draw each tagged void actor's live detection box in PIE (the zone IS the actor's
+	 *  bounds). The old scaled mote's particle cloud used to show the area; after the
+	 *  mote swap nothing did — this draws the REAL zone the component evaluates against.
+	 *  Dev-facing authoring aid — flip ON in Details while placing/sizing zones. Default OFF
+	 *  (2026-07-13: shipped ON and leaked giant green zone boxes into every normal PIE).
+	 *  Not compiled in shipping. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Detection")
+	bool bAZP_ShowVoidZones = false;
+
 	// --- Audio (matched 10.38s loop stems, drone baked in) ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SignalSense|Audio")
 	TObjectPtr<USoundBase> AZP_InterferenceLoop;   // MS_Signal_InterferenceBed (in-void drone)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-12T22:57:19",
+  "created": "2026-07-15T22:53:11",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -12063,6 +12063,1738 @@
       "hash": "sha256:7eb595a678f5cccc1e7c41cf56d3e69793edce602c7c1a20db3c9c5420594e38",
       "size": 15284
     },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Attack1.uasset": {
+      "hash": "sha256:8c1de52525e93fb7593ad140ee0d6ec4e43d3859be421c8091bd0f0f612833ab",
+      "size": 834173
+    },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Attack2.uasset": {
+      "hash": "sha256:4b507626f72b7e1c1bd9bb8ea719083e80dfa99f24c071a77e4be06a94cb4182",
+      "size": 727301
+    },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Capture.uasset": {
+      "hash": "sha256:2afbceca68776d8ef71b24e26f493e3b93960c8c6b838960c82b7c4b42f4d758",
+      "size": 857821
+    },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Double_Pin_Hit.uasset": {
+      "hash": "sha256:81135da7b565bf92923b2949236369d254928ce4286931217666daeea2408559",
+      "size": 354603
+    },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Double_Pin_HitUpper.uasset": {
+      "hash": "sha256:5501e77adb366dd5a51d4e2a73cdd2fe1ddc6c3b88667a686fe5642df9f59454",
+      "size": 309460
+    },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Random_Pins.uasset": {
+      "hash": "sha256:8262a2b9b2a0322d7d9f6ac1889b2781e110ef1737702f21b57d25cbf3025758",
+      "size": 453355
+    },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Regular_Pins.uasset": {
+      "hash": "sha256:924c06f51fb921b44173914d250ef31f0cf9b7c0b0f4de9aece98727e2881468",
+      "size": 355283
+    },
+    "Content/BigBlob/Animations/Defence_and_Attacks/AS_BigBlob_Small_Capture.uasset": {
+      "hash": "sha256:b3e5a76336510cf4ad5720517b66963e807ba6548a55cfb70532cadef0a009c8",
+      "size": 860058
+    },
+    "Content/BigBlob/Animations/Get_hit/AS_BigBlob_GetHit.uasset": {
+      "hash": "sha256:e222f7fb10a74c21adcb07fe2c80203a26c61c25c320e1c18b99647d9ca9b7d0",
+      "size": 729924
+    },
+    "Content/BigBlob/Animations/Get_hit/AS_BigBlob_GetHit_Hard.uasset": {
+      "hash": "sha256:c49ec6de9fa2b7cf159069cd6367ea2b053c3f4620b4d643774e0e739986e3bb",
+      "size": 730150
+    },
+    "Content/BigBlob/Animations/Get_hit/AS_BigBlob_GetHit_Left.uasset": {
+      "hash": "sha256:b6c98e40cb0ca8284bb52584051fce0e9f7619befbc57b9d117403c7234c2002",
+      "size": 730413
+    },
+    "Content/BigBlob/Animations/Get_hit/AS_BigBlob_GetHit_Right.uasset": {
+      "hash": "sha256:62d599746534030fc4aac752de16100cd749fbfad78a0ffe93df4ac097bc126b",
+      "size": 730125
+    },
+    "Content/BigBlob/Animations/Get_hit/AS_BigBlob_GetHit_Top.uasset": {
+      "hash": "sha256:31ef15ae06d0d8e6d851e2d7749f629ee2064e5d1d6a482a7552533acd67934c",
+      "size": 729465
+    },
+    "Content/BigBlob/Animations/idle/AS_BigBlob_Idle_BigRandom.uasset": {
+      "hash": "sha256:0c139c70959218737f4e6b15d7401f8e780853ae1e47f39a67d552f04be0da38",
+      "size": 1164021
+    },
+    "Content/BigBlob/Animations/idle/AS_BigBlob_Idle_Breath.uasset": {
+      "hash": "sha256:e8afbfa6f03d47b8f6e13500e91e350ffbbb8b8a05a8c588a21b723fdfc65b75",
+      "size": 785881
+    },
+    "Content/BigBlob/Animations/idle/AS_BigBlob_Idle_VibrationLow.uasset": {
+      "hash": "sha256:f5815d4ae606fad90aa883fe6674206d29265b3c8c2fba70f130d9f436cc2188",
+      "size": 388652
+    },
+    "Content/BigBlob/Animations/Jump/AS_BigBlob_Jump_End.uasset": {
+      "hash": "sha256:2724f2ca19a72b2e914e93fad5e44fbdd723819294b44391ff5d56be923d18ed",
+      "size": 689630
+    },
+    "Content/BigBlob/Animations/Jump/AS_BigBlob_Jump_Loop.uasset": {
+      "hash": "sha256:0e44c536eaf694598b97e8f9405c02271d736fcb5a224afab687b35a267b64d3",
+      "size": 684391
+    },
+    "Content/BigBlob/Animations/Jump/AS_BigBlob_Jump_Start.uasset": {
+      "hash": "sha256:9eb9b3d85cc4f2432900e4aa9245e42fd27a2a7605e770f803dfd62dd6766e0a",
+      "size": 687114
+    },
+    "Content/BigBlob/Animations/Others/AS_BigBlob_From_Heart.uasset": {
+      "hash": "sha256:aa38a0824f1fa1dde7eec7e7a150d3b260fcdc38aa0f4bbf1ebd83d40a768cb5",
+      "size": 714213
+    },
+    "Content/BigBlob/Animations/Others/AS_BigBlob_Heart_Rotate.uasset": {
+      "hash": "sha256:ad0a268c63ce4f762e05716961a7ccafcac10d960e767d90972c078eb3ba1e73",
+      "size": 260677
+    },
+    "Content/BigBlob/Animations/Others/AS_BigBlob_Static.uasset": {
+      "hash": "sha256:c2275041cc6f339adbd1ac350b29921f6e462d867711d9045421b6f54879ef26",
+      "size": 263559
+    },
+    "Content/BigBlob/Animations/Others/AS_BigBlob_To_Heart.uasset": {
+      "hash": "sha256:15cffc3b0dcd4be013834db94ecd6b7fea962b4a8636206900ee1def433bb93d",
+      "size": 711318
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_B.uasset": {
+      "hash": "sha256:5a3ea1a8a9ef1c6220683802b7095f0105ba88b4a1a1a2a730558aa3d1be86de",
+      "size": 707846
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_BL.uasset": {
+      "hash": "sha256:869a468434dcc8a6380439acc4f7a3410fc6c097bbe38e32f9a70f70aad7e020",
+      "size": 709922
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_BR.uasset": {
+      "hash": "sha256:247533df97f0ef0af77fee854a78d66de3eb1b0ba4f0bf8e3663fb59d1f62a0e",
+      "size": 708182
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_FL.uasset": {
+      "hash": "sha256:a40ff42b14d271bdc53bf79dc9aad63426c250a43d9fcc4a65da4509ab3bc174",
+      "size": 702209
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_FR.uasset": {
+      "hash": "sha256:1aa49184235722e1d8d8147361ae7a090dca970af9048d937ec59d92fccdd683",
+      "size": 704734
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_FW.uasset": {
+      "hash": "sha256:478ab5621e658505fbd97c94ba5694290ceac51d02c8ac035c1cac7d5487434d",
+      "size": 702343
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_L.uasset": {
+      "hash": "sha256:7def0c60310ca361a582752cd5562c4f06e264cae216bf8ab431686215fd1f73",
+      "size": 707643
+    },
+    "Content/BigBlob/Animations/Run_Roll/AS_BigBlob_Run_R.uasset": {
+      "hash": "sha256:0147f5a4fe30be41eabb145a4d847f90cef84796bb892ec14218836c37ebf136",
+      "size": 708952
+    },
+    "Content/BigBlob/Animations/Update1_Animations/AS_BigBlob_Attack3.uasset": {
+      "hash": "sha256:45c840fe485976c12b4859c609a0c62fe0cd61b91aabbdafa9c87c7446c91018",
+      "size": 726266
+    },
+    "Content/BigBlob/Animations/Update1_Animations/AS_BigBlob_Capture_Fast.uasset": {
+      "hash": "sha256:3b81044b2a1b7acef21a9f6c521dd07c805b4a645544499d3bcf08974a20b4aa",
+      "size": 1140022
+    },
+    "Content/BigBlob/Animations/Update1_Animations/AS_BigBlob_Death.uasset": {
+      "hash": "sha256:72413e0163e1ab702a8e99a1323a495d320357d69476999399b034aed0abab08",
+      "size": 1186092
+    },
+    "Content/BigBlob/Animations/Update1_Animations/AS_BigBlob_Death2.uasset": {
+      "hash": "sha256:65d852aa19a8ad68aa3c90a9ccbe535d40bfd888f407224934635c1ba83ce608",
+      "size": 1184487
+    },
+    "Content/BigBlob/Animations/Update1_Animations/AS_BigBlob_Hug_Attack.uasset": {
+      "hash": "sha256:8d0d94f46312055b44c1a8c2a5c48b063c720be5b09ee8c32790c94c54bcd2d9",
+      "size": 913534
+    },
+    "Content/BigBlob/Animations/Update1_Animations/AS_BigBlob_Side_Attack.uasset": {
+      "hash": "sha256:d7a1b7cbe66a70268c32b990c6067669b2f22013122c195686c41050f0549378",
+      "size": 421846
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Death_Ground.uasset": {
+      "hash": "sha256:2947736dee651cb46ab067ae6d96433e754b29b43d1e051a9f802e1cbe4b1a4a",
+      "size": 1142733
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Grounded_GetHit_Left.uasset": {
+      "hash": "sha256:8e3457216626cacc805bfab81265c8c0083c2b59cea39da3eabb998a3e78d418",
+      "size": 886951
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Grounded_GetHit_Right.uasset": {
+      "hash": "sha256:b72ef1efbc122d86c812f3d3d4881f5dce4d2a6144845f9dd168f921d1fd4bb1",
+      "size": 653681
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Grounded_GetHit_top.uasset": {
+      "hash": "sha256:7c8bc3e7a464fee8c3c4f27623de142cbb0b0be8960a26f4421e34700f0a2325",
+      "size": 863904
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Ground_Static.uasset": {
+      "hash": "sha256:ec9e8ae3a3b54126e6fda641d5429ba5378618c48cef684ff246832757866ead",
+      "size": 210205
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Jump_Start.uasset": {
+      "hash": "sha256:99ad51f5f1f197448947360ea74451304318d09419cbc68aa7b3acabfdbdcd5c",
+      "size": 355143
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Jump_UPD_Loop.uasset": {
+      "hash": "sha256:e79cf82fc3ec27eb521e5377d41d99834e9e35420031aded043d60c21005cc7b",
+      "size": 1082106
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_Landing_From_Jump.uasset": {
+      "hash": "sha256:6f33935295cc3e1e1bca21b9e862b0c809303862ce1c049ebf572d7ff825febd",
+      "size": 354995
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_UPD_Attack1.uasset": {
+      "hash": "sha256:a31d954dc395ea6d48b43a7ff84126de0afa71f8bf29b4d32ccfe6ff1b9ad98c",
+      "size": 319501
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_UPD_Attack2_Poke.uasset": {
+      "hash": "sha256:b859d7ce01b85abda6e03c6214f70a680af477e3ee40e34cf84ded9cb4e2f6a9",
+      "size": 909976
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_UPD_Breath.uasset": {
+      "hash": "sha256:9234e90578005a15cc55a5e7d4ba554263b85769022880fac4b19227bcb80829",
+      "size": 1082032
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_UPD_Run.uasset": {
+      "hash": "sha256:24b61ac8de18a88f51d9c6214e59ce83f1c12f1e874855907a6ee09d838c16f4",
+      "size": 660979
+    },
+    "Content/BigBlob/Animations/Update1_Animations/Ground/AS_BigBlob_UPD_walk.uasset": {
+      "hash": "sha256:bd2bf44851b57b0698fe0858b2378a90e80e7966c448ec5b55342bfca4a9b13b",
+      "size": 661191
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_B.uasset": {
+      "hash": "sha256:6d4d7cc8ea1863a411d6e917abcca1617fa3e2fd7e72c074bcaca9546e5237a9",
+      "size": 565963
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_BL.uasset": {
+      "hash": "sha256:09fce2bbd1b660de92b8b06db540127733cb37976988faf3d31fdad1b3c11f61",
+      "size": 567691
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_BR.uasset": {
+      "hash": "sha256:e5ba99004fb49118c2c61a769b5e44a31ff2da5658e84e8cd0e14302dd4f3c68",
+      "size": 570480
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_FL.uasset": {
+      "hash": "sha256:0fe5c8fac3f07988f733a1e75a825d24b8769ef576da643c4aea1711bb095bca",
+      "size": 569392
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_FR.uasset": {
+      "hash": "sha256:f90cb6eb3941ada55bf63d621d675d6c65cff6066a5e91cc7c7957726c686f4a",
+      "size": 565185
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_FW.uasset": {
+      "hash": "sha256:04d9ec5bd1ab097fdd4188adaeddf0d46efacc6571d8903fa8558b0b8b9f4b46",
+      "size": 567374
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_L.uasset": {
+      "hash": "sha256:295c5cb0647e2b9c5dbb5bf539fa2259d3aed11d5f6c090a38cd09368d7c70ca",
+      "size": 570414
+    },
+    "Content/BigBlob/Animations/Walk_Roll/AS_BigBlob_Walk_R.uasset": {
+      "hash": "sha256:72e738175d21557609ff19a50e028ccaf68eb02715781e1114b1501babd1f09f",
+      "size": 570564
+    },
+    "Content/BigBlob/Blueprints/ABP_BigBlob.uasset": {
+      "hash": "sha256:d351c12ed1ff0aa9c88d26a836aaf675863d43340210272a61a213c218f50545",
+      "size": 425713
+    },
+    "Content/BigBlob/Blueprints/ABP_Physical_Anim_Test.uasset": {
+      "hash": "sha256:f950853533463cc896b0b366cd12127322faeadb08934104c624352a7deb5e2f",
+      "size": 210566
+    },
+    "Content/BigBlob/Blueprints/BP_Physical_Anim_Test.uasset": {
+      "hash": "sha256:484ab5ce201942616f19b39a19e0a6418958433171ef529646497f51dfa8e8f6",
+      "size": 209311
+    },
+    "Content/BigBlob/Blueprints/BS_BigBlob.uasset": {
+      "hash": "sha256:b4ba7de5c806cd703099630ea5b64ecfcbf988189bc1a62976eba9173a038762",
+      "size": 127425
+    },
+    "Content/BigBlob/Blueprints/BS_BigBlob_1D.uasset": {
+      "hash": "sha256:00981b4940b04ada49c08b2b98377c45b4bc43da93e095ee332682cb494240fe",
+      "size": 8198
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Blueprints/BP_Croshair.uasset": {
+      "hash": "sha256:9613e8f37f533140e92848b7998b88daf50313ae2941b1e4d0c0e2d64a420185",
+      "size": 59520
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Blueprints/BP_TPS_BigBlob.uasset": {
+      "hash": "sha256:82a867fcb7c968f8a87b1b83771b60425df35be3e4fedd3d9d993cad5123984a",
+      "size": 1271420
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Blueprints/BP_TPS_Mount.uasset": {
+      "hash": "sha256:ea511408fc055790baf07da2fab01a3e02cf93e0b30ca7e9358e50ff6ae8999b",
+      "size": 561791
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Blueprints/BP_VariableStorage.uasset": {
+      "hash": "sha256:8a5030a976163d9f5d29d5687efd3e58f816c597ec105cefb0cb9172ad57ac53",
+      "size": 10451
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Blueprints/ThirdPersonGameMode.uasset": {
+      "hash": "sha256:bae9897fe9c2aca00b078af5a588c0d677393e44c02af818017e746a3260a536",
+      "size": 15039
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Geometry/Meshes/1M_Cube.uasset": {
+      "hash": "sha256:1d06d00fdd0bc7d6cd1029f7a78625c6089fbc65d030d6623afe624aa19de84b",
+      "size": 85376
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Geometry/Meshes/1M_Cube_Chamfer.uasset": {
+      "hash": "sha256:0f1911060247b05c75128c934c9658d77b34958cf4abf8154e3ec5815ed6e94d",
+      "size": 95702
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Geometry/Meshes/CubeMaterial.uasset": {
+      "hash": "sha256:1e9f65091ea1a83e727e6de897027e5e26243dc9efd1aeba1343c1835afd7c85",
+      "size": 84924
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Geometry/Meshes/TemplateFloor.uasset": {
+      "hash": "sha256:4faad7e6bf7a7adc3f5ba20ad7ac40edd09fc9818fc2a811088c7b0dd430b1bc",
+      "size": 104777
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Mats/M_RampMaterial.uasset": {
+      "hash": "sha256:773e954807c5782e09a4265ea9f8ad5c96668ab5c3beddb2abbe6c68c19ec26a",
+      "size": 93567
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Mats/Scene_materials/MI_Ground.uasset": {
+      "hash": "sha256:d9a048d2305ae60c2a64bef4b90db26a2a0fde25edc1349ed16ad220a67cda80",
+      "size": 123446
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Mats/Scene_materials/M_Ground.uasset": {
+      "hash": "sha256:ca04df1195708a0e3b18d825848d30ef3ecf49759d9c5b617bb7ff28c01c0080",
+      "size": 122440
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Mats/Scene_materials/M_infos.uasset": {
+      "hash": "sha256:ddfe815ae374fd6e52bedfc123db8d88ed4b7d8270a51c7865077cf184564309",
+      "size": 134648
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Mats/Scene_Textures/T_Grid_Ground.uasset": {
+      "hash": "sha256:76cf4ecee053f7e861beb64bebdf38d61a542cd7704abe1720f5882d4c4b1c4e",
+      "size": 32170
+    },
+    "Content/BigBlob/DEMO/Demo_Scene_Mats/Scene_Textures/T_Wall_Info.uasset": {
+      "hash": "sha256:670b3cff42e70846a100746acd9af1530c2dc0c78b8799764a5a96a3b2dd2cff",
+      "size": 1586441
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPersonIdle.uasset": {
+      "hash": "sha256:6c24b697b297648958eeb2fef1564db95d2c90face72fcf19ccefdfe55928d9b",
+      "size": 372642
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPersonJump_End.uasset": {
+      "hash": "sha256:35d722a9fe424618acece206e0f7b46013811847df0dcd629117b2b874544b48",
+      "size": 200647
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPersonJump_Loop.uasset": {
+      "hash": "sha256:7b56456d3c653bcc30df74c063acf54215463b0e5301fefe77231d9744a819b3",
+      "size": 233827
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPersonJump_Start.uasset": {
+      "hash": "sha256:60a860b4506ed3aa9df65885a87b3b417451aa54fb8375add25a1a31a8a5ac16",
+      "size": 219662
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPersonRun.uasset": {
+      "hash": "sha256:797b867758b6146b9abb7ab51df7c8af795a6a28d9952874ab12d59519ea4b9f",
+      "size": 229747
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPersonWalk.uasset": {
+      "hash": "sha256:80e749a45c3b10932cbfae1d4bfc2b320a37846174f4b7649dfaa5909d38091a",
+      "size": 279294
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPerson_AnimBP.uasset": {
+      "hash": "sha256:22a9a0d8769807bc7e2daf605048e6db06fc680809923c7a84c6149159c9cf55",
+      "size": 280407
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPerson_IdleRun_2D.uasset": {
+      "hash": "sha256:e6702f1ff271f235b526ce0dd193ed161161eeffb51528d2a0dd21f415eb4a77",
+      "size": 95345
+    },
+    "Content/BigBlob/DEMO/Mannequin/Animations/ThirdPerson_Jump.uasset": {
+      "hash": "sha256:6520ad952b9adca61c893314057ee5d16a15c9153b58da253017b669bf1d618b",
+      "size": 200608
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MI_Female_Body.uasset": {
+      "hash": "sha256:a75669bf5ab5378637d2ee71b23014f439b647db489605cd005d8213bda5a60d",
+      "size": 98520
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/M_Male_Body.uasset": {
+      "hash": "sha256:52507ca2827eef60b867c5484b7c911405ee5bc77adc4cb42315989732d4ef5b",
+      "size": 124987
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/M_UE4Man_ChestLogo.uasset": {
+      "hash": "sha256:8fd235b2a3384e203a418be8371452241a188549232e15212d918fc8e6879e0a",
+      "size": 85738
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset": {
+      "hash": "sha256:83a5ea42919465c95e7477562043d1d8b9fb0a5c16cb9b3e05f7a45be4dda454",
+      "size": 96930
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset": {
+      "hash": "sha256:6299c5e8afdea6a61465a1c984a6cd8e647b16e3a21d7416d9545297adaca1f1",
+      "size": 93153
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset": {
+      "hash": "sha256:94414ab468e8390c7e2c91e64e0c5279fd95b8ded01c37283279cd3f18300c92",
+      "size": 94306
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/ML_SoftMetal_UE4.uasset": {
+      "hash": "sha256:72c2bd203d8befd2aba1c91b1c6189cafa0bd093990b46578d7e1fa282f2e63f",
+      "size": 97679
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/T_ML_Aluminum01.uasset": {
+      "hash": "sha256:f0fb50e9421c3ab49600105c85b3c1c0a4d1e6a51b575da1010477503125a985",
+      "size": 373199
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/T_ML_Aluminum01_N.uasset": {
+      "hash": "sha256:aed4b71b2e527779c3f87de1001d82111980b7e6679504c9f676477a475f32fc",
+      "size": 307360
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset": {
+      "hash": "sha256:60b8c4923af56925714f695e7d0022bcfe30e693d03e6c16801ffe93daba9f32",
+      "size": 416702
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset": {
+      "hash": "sha256:8cf708fc8457f5ad6bdd03640fe9feb8d105cb0273fdc1b6b38df10bca24e9d2",
+      "size": 292312
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Mesh/SK_Mannequin.uasset": {
+      "hash": "sha256:d6aa3922ef71e66a1ca443df69cee4eb44a9666b1fd75f344b3c8a693ed92524",
+      "size": 7234477
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Mesh/SK_Mannequin_Female.uasset": {
+      "hash": "sha256:a01d142f65c2c7a70d56747577f8588f40b3936dd281bf8e72ac5ba01453916e",
+      "size": 5500764
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Mesh/SK_Mannequin_Female_PhysicsAsset.uasset": {
+      "hash": "sha256:abf435e82410c6c51825881ab90acf77655188bd863b9db1fed38003292486ad",
+      "size": 112750
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Mesh/SK_Mannequin_PhysicsAsset.uasset": {
+      "hash": "sha256:d244c202f44c48321215e975c5575f1e701ada51bd4c799fb609dc06655ad5d7",
+      "size": 132676
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Mesh/UE4_Mannequin_Skeleton.uasset": {
+      "hash": "sha256:f94f2e6346f4482dfb8deb4e75df91aa18703e4c417e344ef1adf189472998c0",
+      "size": 46873
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Textures/T_Female_Mask.uasset": {
+      "hash": "sha256:ee76e1c7966e91d9c9331423a8a65d7b736fe12e9a8b472e0052a7410f9af9d9",
+      "size": 213691
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Textures/T_Female_N.uasset": {
+      "hash": "sha256:467bd160e6b1ecb0d5c3314e507d6078b4c6d380e16d4426d30b73660a108d68",
+      "size": 14738285
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Textures/T_Male_Mask.uasset": {
+      "hash": "sha256:1f87b9d5abbfa8ea65c5cdba375d6750184a8b276d31537ca686408725ae196b",
+      "size": 223452
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Textures/T_Male_N.uasset": {
+      "hash": "sha256:1cf4d838c0ebf7f0359de35d9fc1f79c4362e9d23008c2de8ea340f2f1ffeeac",
+      "size": 4731096
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Textures/T_UE4Logo_Mask.uasset": {
+      "hash": "sha256:69206a7d4363cd7827a0740f11956fcc6638ec45ddb39b4ff0493aa36b6d1f33",
+      "size": 76189
+    },
+    "Content/BigBlob/DEMO/Mannequin/Character/Textures/T_UE4Logo_N.uasset": {
+      "hash": "sha256:d71a8d1acd400a80ce2ebc88a0fb41a0fb9d8228cfcb3696d79f43ff0348a7c4",
+      "size": 118016
+    },
+    "Content/BigBlob/DEMO/UI/MenuGameMode.uasset": {
+      "hash": "sha256:d9215fda4045d7c0d5f90f925457ac4aff41c1f83ba414b271597c8a8bebfd3c",
+      "size": 14762
+    },
+    "Content/BigBlob/DEMO/UI/Menu_PlayerController.uasset": {
+      "hash": "sha256:5a8e60a806fd4fa7fb30ed91ffffe0f8d768d3c25e77c33768e234519b30b9b9",
+      "size": 20800
+    },
+    "Content/BigBlob/DEMO/UI/WBP_HUD.uasset": {
+      "hash": "sha256:fdadcc5eb6dae9ae1fe42b839fd97b6d866d62d0cea8347eb8450bb3794e4266",
+      "size": 25198
+    },
+    "Content/BigBlob/DEMO/UI/WBP_Info.uasset": {
+      "hash": "sha256:69ee319636a02b5cfd691fd9cb255a2be9e2bf9545f3f73b57a9e770bdda6f89",
+      "size": 24897
+    },
+    "Content/BigBlob/DEMO/UI/WBP_ProgressBar.uasset": {
+      "hash": "sha256:07fad140efbb2b60395f765cc6cc9d53c99a55e6047179da97e2d469b10b6607",
+      "size": 122403
+    },
+    "Content/BigBlob/DEMO/UI/WBP_ProgressBar_Mount.uasset": {
+      "hash": "sha256:dc18c4e2ef320fdb66a46422434adfefef5212527816434b2f5ba277785526ca",
+      "size": 122250
+    },
+    "Content/BigBlob/Levels/BigBlob_ShowScene_P.umap": {
+      "hash": "sha256:3f96996d96e8f3701b864320f5e5b1f537301708ca0bb15522c7dcbb3ff7805b",
+      "size": 364141
+    },
+    "Content/BigBlob/Levels/BigBlob_ShowScene_P_BuiltData.uasset": {
+      "hash": "sha256:d78a8e57107d00890cb5f64d44c5011d222e2fe61725b2a6e5c1d0754c077243",
+      "size": 6397276
+    },
+    "Content/BigBlob/Materials/Material_Update1/MPC_Blob_UPD.uasset": {
+      "hash": "sha256:77a308636550dfa70601b377e6c11637d20b2bb3f35b934d06c18debe6f10893",
+      "size": 2418
+    },
+    "Content/BigBlob/Materials/Material_Update1/PM_Blob_UPD.uasset": {
+      "hash": "sha256:e4759e60c41e7cfe85761ec150f1d8732b2c0d1a05e397f65ad82c69912fbd2a",
+      "size": 1357
+    },
+    "Content/BigBlob/Materials/Material_Update1/Master_Materials/MF_Stocklancer_Contrast.uasset": {
+      "hash": "sha256:a5207d47f2e9ec0dcfa7bf673f538df6b749e83d5b5ae9be677b66647868daa8",
+      "size": 93994
+    },
+    "Content/BigBlob/Materials/Material_Update1/Master_Materials/M_Blob_UPD.uasset": {
+      "hash": "sha256:26e31173c4c05b9fde50c36e3997a4ded72494e91ce1436499436af7f0afe17e",
+      "size": 398155
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD.uasset": {
+      "hash": "sha256:ab27a3261254bb38e26813f7430c506233d4fce1d499201a65063397fed3bb63",
+      "size": 208317
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD1.uasset": {
+      "hash": "sha256:e1c72d719bed3d72e917e3f7cf107f6e8df63168140ccda9e25695c4845a389a",
+      "size": 195831
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD10.uasset": {
+      "hash": "sha256:ee189cc5ae99c9c7227ad60cda9bf1f2a221cb4094cb8313d9c69ee4192f8c79",
+      "size": 203050
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD11.uasset": {
+      "hash": "sha256:5ff9207d3346c02a5e38d0db79b54f0d3df94ebf9b105f9be00ac1d5ea09c078",
+      "size": 195265
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD12.uasset": {
+      "hash": "sha256:049a0f5a5f3f94eb5fd7a164c66894c383e1b07924996252879761611d085d26",
+      "size": 204094
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD13.uasset": {
+      "hash": "sha256:6eff9b39ddfb16bdc0d488b5fd06369038c5f4fdb656c898f18c591a4e908153",
+      "size": 185231
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD14.uasset": {
+      "hash": "sha256:7ee8f27171ae94fbfe466d2e91a8f0bed358537ffad50c687cb7a510ed576459",
+      "size": 203935
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD15.uasset": {
+      "hash": "sha256:05d8c1a2941e65ed0183a416f1dc9a60339d49b9e8b4717be05069f2ee3d8807",
+      "size": 200909
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD16.uasset": {
+      "hash": "sha256:007d43055db759d982f2a5cc1ee1b75f354e45cf97228b72fdea509be77448d2",
+      "size": 209158
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD17.uasset": {
+      "hash": "sha256:10bd2a8a765e09c5dd5e068d726a239564b7b36894e5dfee55c56f9afbbd959c",
+      "size": 200998
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD2.uasset": {
+      "hash": "sha256:fadf3dd80c642a0bf661b2c2486a8a8a3598fb996116fbc949d17cbb66656398",
+      "size": 192453
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD3.uasset": {
+      "hash": "sha256:da28fca66e07140f1a61d40b9e25a5f79b38d89358b4f5ae2be4591a0f456924",
+      "size": 164934
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD4.uasset": {
+      "hash": "sha256:61e7e231288a52d8c443e5cee6462726a5bcfdfab9a5ac0ccdcd0a2d9a0db192",
+      "size": 181178
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD5.uasset": {
+      "hash": "sha256:4907b235a8a19a7924246fce9f45d2355451355fd92a68ca6a21cc30441dc130",
+      "size": 201806
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD6.uasset": {
+      "hash": "sha256:5733fde5b7add5623b8ef92ab6f6c4a7f64d3bfd7c5f50af3d27b0708637028c",
+      "size": 206444
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD7.uasset": {
+      "hash": "sha256:c09c2b72425c1d09b6e99e5c09693461a955785bc564d8fc30e1ed8d052977f4",
+      "size": 213340
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD8.uasset": {
+      "hash": "sha256:948bcdf6c4236a7bc8615347d00360a87bbf8304bf178b00bfedea06439e8b40",
+      "size": 215684
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD9.uasset": {
+      "hash": "sha256:84c805103c90aaf58ab88592eb227ecf4e28e01f63dc1376f1bd1339ce364279",
+      "size": 201686
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Glassy_v1.uasset": {
+      "hash": "sha256:c28f5ddb946ffe395f478a7cfc65d220606c8a2ca99149965e447de02f1cec33",
+      "size": 10031
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Glassy_v2.uasset": {
+      "hash": "sha256:f178d714e1a0e8f24d16787199547b8004c8bd3a9fba3ae57c9c6e27a0e93567",
+      "size": 13593
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Metal_Blob.uasset": {
+      "hash": "sha256:fa9fa52054b3aee1472d83a99a08d008a1017300e7cf2eb75951f41a08baf933",
+      "size": 16353
+    },
+    "Content/BigBlob/Materials/Material_Update1/Material_Instances/MI_Metal_Blob2.uasset": {
+      "hash": "sha256:059b85499d7ef6c2e946afc938b187f70d35e3c7cb1b4e44768925f75ca0a81e",
+      "size": 16878
+    },
+    "Content/BigBlob/Materials/Original/Master_Materials/M_BigBlob.uasset": {
+      "hash": "sha256:16b3fba06efab8422e3bba71e045a23d6933c643f62a74ccc6812849894fa8a4",
+      "size": 165386
+    },
+    "Content/BigBlob/Materials/Original/Master_Materials/M_Glassy_v02.uasset": {
+      "hash": "sha256:753b1d8b016f0de0a66c1ca8262c872b1c4e9fd747349fbb61f67d1737ac4d92",
+      "size": 19814
+    },
+    "Content/BigBlob/Materials/Original/Master_Materials/M_Glassy_v10.uasset": {
+      "hash": "sha256:86753c2b13276973dcb2033f805a5eef12e2d1c82480e04b79aa74cc4c08ec69",
+      "size": 18135
+    },
+    "Content/BigBlob/Materials/Original/Master_Materials/M_Metal_Blob.uasset": {
+      "hash": "sha256:216d0cbabdaaa99573ed1c3fbf089a9eaf8cd3cf75ac4c1f2ee2050f95f97299",
+      "size": 67784
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob.uasset": {
+      "hash": "sha256:0ce894ed365dbfbe8c48cfff1c6da693adb8eaaf461918407cc84237a2cd88f0",
+      "size": 176077
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob1.uasset": {
+      "hash": "sha256:0fe934ac6eeaa7f938ed62367de00613d1f8c12cbfd30d29432c38212e0a7e6b",
+      "size": 172254
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob2.uasset": {
+      "hash": "sha256:848cabc68d69be078de42930e0d931364f1bd8f9e5c173b1d426d2b1b47c6997",
+      "size": 161353
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob3.uasset": {
+      "hash": "sha256:7a5d41defd7b00e5f32165a52e3b07b9f271503c4e69e99bec401193e30f1d5a",
+      "size": 175753
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob4.uasset": {
+      "hash": "sha256:9f3d70fc8ae9ac805eedad92fb81ba041257fc7e62c01c8c2964bf012595d7bb",
+      "size": 165971
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob5.uasset": {
+      "hash": "sha256:45188360a674648d216fbc797220257efbd2da97eb89c10391a7e856608a3e0e",
+      "size": 173425
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob6.uasset": {
+      "hash": "sha256:b000bbfc931dd78553e8473fe296f63d8525d2d80d2f21af38d42c879ef17884",
+      "size": 166179
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_BigBlob7.uasset": {
+      "hash": "sha256:3687cefea5bfc1ff5dc9a8b3dfeb29d21462fb5d7d79e14dcfe36c6f37d99341",
+      "size": 173284
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_Glassy_v1.uasset": {
+      "hash": "sha256:0a41cc598aaeeffb936dd241a849d010eb636052508c61edef3e0281f1562b36",
+      "size": 9941
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/MI_Glassy_v2.uasset": {
+      "hash": "sha256:6b76881bdd9d7c59a2fd015b6e7442527d7629b5ef6a2496ce23767699462e26",
+      "size": 10666
+    },
+    "Content/BigBlob/Materials/Original/Material_Instances/M_MetalBlob_Inst.uasset": {
+      "hash": "sha256:9e687aa81da7750cbcae2adf9ec1f83cb16fe13c0f9607aa2a0082368eeaa29e",
+      "size": 122025
+    },
+    "Content/BigBlob/Mesh/PA_BigBlob_Floppy.uasset": {
+      "hash": "sha256:daf46787d280f322f97818a28dd4071187ee13df16f7de409c882fb158b61fd1",
+      "size": 1177546
+    },
+    "Content/BigBlob/Mesh/PA_BigBlob_Floppy_Stiff.uasset": {
+      "hash": "sha256:26147f662e1d831bc35d99969a20590011b898bc67c78a6a75deb32fef0d7ae5",
+      "size": 1430030
+    },
+    "Content/BigBlob/Mesh/PA_BigBlob_SlowShaping.uasset": {
+      "hash": "sha256:aefaf630740a49ef5344e1f8f7d1950fca159011aa81c930d77167601df7d8fe",
+      "size": 1410368
+    },
+    "Content/BigBlob/Mesh/PA_BigBlob_Soft_Liquid.uasset": {
+      "hash": "sha256:c1f137f69381b2cf1fb2ac102db31b984095ea2a7e783e5e30acc2bd6ef76f11",
+      "size": 1398338
+    },
+    "Content/BigBlob/Mesh/PA_BigBlob_Very_Stiff.uasset": {
+      "hash": "sha256:aa14acd6c6713cce13f565af9d6d34f7dada2bb0ca621edb1ca160bc214dc5d5",
+      "size": 1566774
+    },
+    "Content/BigBlob/Mesh/SKM_BigBlob.uasset": {
+      "hash": "sha256:45833fc0e16ad5d85786b1fd9d3345a557773a4477fd8d875906027c6cc45fd7",
+      "size": 3445588
+    },
+    "Content/BigBlob/Mesh/SKM_BigBlob_Creases.uasset": {
+      "hash": "sha256:31f5f8127d8fa0820cdeedeeb887bc37120da5b30c2d57db5ead0cab8dfcab1f",
+      "size": 11840658
+    },
+    "Content/BigBlob/Mesh/SK_BigBlob.uasset": {
+      "hash": "sha256:7cffa6c4109dc36e3fa8401facecfcdca170cb1a1b15780548018ffa0fcb6132",
+      "size": 32552
+    },
+    "Content/BigBlob/Mesh/Update1_ThinBone/PA_BigBlob_Floppy_Stiff_ThinBone.uasset": {
+      "hash": "sha256:379d2c9aecdbd10327c402a9a8eaf91c357d4e230a007e9ba84108434ffe513e",
+      "size": 1430340
+    },
+    "Content/BigBlob/Mesh/Update1_ThinBone/PA_BigBlob_Floppy_ThinBone.uasset": {
+      "hash": "sha256:cfb1fcc312032519c052f1b7e16d1116ee6c3d4d767f7050b4fc55d71a715be0",
+      "size": 1177855
+    },
+    "Content/BigBlob/Mesh/Update1_ThinBone/PA_BigBlob_SlowShaping_ThinBone.uasset": {
+      "hash": "sha256:41a11cbcc5df018eda226f4a8fdf872d56fd2d62aeb22a20212d7a355b791bf7",
+      "size": 1410668
+    },
+    "Content/BigBlob/Mesh/Update1_ThinBone/PA_BigBlob_Soft_Liquid_ThinBone.uasset": {
+      "hash": "sha256:f9accaa7111d4f7ff36eec8c8524be7719c1220e5bf1430d95d460af12af6abd",
+      "size": 1384424
+    },
+    "Content/BigBlob/Mesh/Update1_ThinBone/PA_BigBlob_Very_Stiff_ThinBone.uasset": {
+      "hash": "sha256:0e8a3df4eebc77e27e0e33d98aaf400825ff4034aefe52a45139760bc19a319e",
+      "size": 1567096
+    },
+    "Content/BigBlob/Textures/T_Bubles_Packed.uasset": {
+      "hash": "sha256:5adaa3478d4d5ff90f52558fee4ca25152f1fa7fd238835226351af8f593bc10",
+      "size": 1136187
+    },
+    "Content/BigBlob/Textures/T_NoisePack1.uasset": {
+      "hash": "sha256:7ceec28b0b909c827273967f1c750af61c82c85da06febc96e592a101ad46ad9",
+      "size": 5319990
+    },
+    "Content/BigBlob/Textures/Texture_Update1/T_NoisePack2.uasset": {
+      "hash": "sha256:b3da348fa38369364eed7efeb7d6d357eda75dab6bfb016da4b977aac29d32fc",
+      "size": 18703037
+    },
+    "Content/Biomass_Bundle/Biomass_Bundle/Map/Demo.umap": {
+      "hash": "sha256:ee77d5f09fa9bf824b4d3ec7a433029d16730d0742e36220caa614b7c235645b",
+      "size": 208178
+    },
+    "Content/Biomass_Bundle/Biomass_Bundle/Map/Demo_BuiltData.uasset": {
+      "hash": "sha256:d5891dcdfdeec89ae05d96fb0f25f69dee67613fde21229114c298917b90d4b0",
+      "size": 1167884
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Maps/Demo.umap": {
+      "hash": "sha256:e46dd49ac78caa725246ce2d1859e2a13b82247e9841fbf93ada5bfadc2810f6",
+      "size": 239167
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Maps/Demo_BuiltData.uasset": {
+      "hash": "sha256:6c542342264aa4a69468ecc01519bc0f6de601029366afb82143b6c7e9204373",
+      "size": 223613
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Maps/Review.umap": {
+      "hash": "sha256:fc52e2aee59daa5cf52f95ce529ae783d1bdee9f65322f35d734c0d74dbf13e2",
+      "size": 122257
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Maps/Review_BuiltData.uasset": {
+      "hash": "sha256:d9f0a6c29cdb6da960865fee9c5cf63b30c4f980cb84ce0521055409ca450a59",
+      "size": 582634
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material/M_Biomass_Kit.uasset": {
+      "hash": "sha256:8423b1253b403eeb6f91368940ddda0179b9fb65abc117b70450dc17a7099b41",
+      "size": 19036
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material/M_Biomass_Kit_Emissive.uasset": {
+      "hash": "sha256:4dbddba0556eefdb1cc6ce857a13deb63b74c323e23ec98b0888a03dc10fe269",
+      "size": 20454
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Big_Corner_Biomass.uasset": {
+      "hash": "sha256:57aa109e5f1898f9b7aaeed0293b23a1f875f588bfaf024722b6f6ac3ce76f57",
+      "size": 18043
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Creep_1.uasset": {
+      "hash": "sha256:f5d1f31d4ac77e76012e70c04c73872771338fc35f02f5c7abb58654daa874da",
+      "size": 17914
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Creep_2.uasset": {
+      "hash": "sha256:775d5ae402b0e19a568e345e9f6e900db9582cad0c58d33536f6e9ded840927e",
+      "size": 16646
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Plants.uasset": {
+      "hash": "sha256:af8123d39c075adb8801938d64fd48c01f82793c08767be5ee61e8ac081be9a0",
+      "size": 18279
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Plants_Emissive.uasset": {
+      "hash": "sha256:fe4446eb182214b3d979675588bfb339b0326e569cdeba793bf59195890dcba9",
+      "size": 16251
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Tentacles.uasset": {
+      "hash": "sha256:bd269d03822e21e7c90ec933e8e34b1303265e46d318b11e3c7d894471413c18",
+      "size": 17008
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Big_Corner_Biomass.uasset": {
+      "hash": "sha256:c4dfd9c80891b96de1b56fd7fbf90ff1c88a6def188d90d720f9f39ea4dc4a8c",
+      "size": 1067255
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Big.uasset": {
+      "hash": "sha256:8f353bb60f5ba50ab57d59eb05c571d3ea5865fd1805dbd17a6d8756e22feba5",
+      "size": 275661
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Corner1.uasset": {
+      "hash": "sha256:75adc3643fe9f07e3f30ee6d00c69ec565b2ddcc7fb0e2333092496e428af99a",
+      "size": 52917
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Corner2.uasset": {
+      "hash": "sha256:46c7471a0c81586023d2f32be6e95134c7d74e9f1599e44bb1f95835ab0c02ef",
+      "size": 49850
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Corner3.uasset": {
+      "hash": "sha256:3b456d5e992dfa024c53752923badc5a3a7457d5602497be0d1a3eb0692b41b8",
+      "size": 73967
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Middle1.uasset": {
+      "hash": "sha256:58ab07c34cd9aa155ef10722a6861dde3f46cad856643272bd97e8c438b58326",
+      "size": 111316
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Middle2.uasset": {
+      "hash": "sha256:56a25766695c264a4fdf44b91b7264024ac340e67294121623f092c9d706d0ac",
+      "size": 97750
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Middle3.uasset": {
+      "hash": "sha256:321706a2083c11517a092905395371d3422360036d5a4e7bfb42f6325c451d4d",
+      "size": 76720
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Small1.uasset": {
+      "hash": "sha256:7758c6a29f3da1e782ffbdee970f6d3fc3b35a0a1e2359445ea20df10dbea7e9",
+      "size": 42622
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Small2.uasset": {
+      "hash": "sha256:a8849265a053656638ec776c5ace325526ae34eeb8435b166c1b96d3df3e5292",
+      "size": 46762
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Small3.uasset": {
+      "hash": "sha256:08654c265ded46cbd7cd16ae98a801450c11b2bd495c88f4f08e6bdea77c9eae",
+      "size": 53195
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Small4.uasset": {
+      "hash": "sha256:4fcce69402f59afd1b0dbbcacb9452fa8711fd282a12ead6a7cd1dc3e3d85f4e",
+      "size": 51370
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Small5.uasset": {
+      "hash": "sha256:678766c671b8aa3e7636954dea83a063ef94b72e346f5726d58ec4388e648823",
+      "size": 51167
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Big.uasset": {
+      "hash": "sha256:8ef6392d8d1c31e103b39f01d236d5fa751b44d63798889ef8230fa27e7ebd6f",
+      "size": 272861
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Corner1.uasset": {
+      "hash": "sha256:0a260ea94961256cc92a0fcd93693866784b6f74d1e437c8a0f0d82d4acad146",
+      "size": 93822
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Corner2.uasset": {
+      "hash": "sha256:22222b9c01d0b3ffcc252d7711475edfd3ddf614f439d90532922ec7508955a9",
+      "size": 86873
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Middle1.uasset": {
+      "hash": "sha256:3f7990b9cb092ca7cb265f172eacbb422ad8c1bb73c30e659b9d44a99a74b2ce",
+      "size": 118219
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Middle2.uasset": {
+      "hash": "sha256:35f3cbebf9d279bb927a5e8b3336aacb785e8b644d0a43d95f328d925b256c65",
+      "size": 113558
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Small1.uasset": {
+      "hash": "sha256:a8442581c09effbec8d8064ffdcb5801d074e125c9c4954d24cdcd3dd8da3577",
+      "size": 61426
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Small2.uasset": {
+      "hash": "sha256:fccc9cc9db3385d3e6b9d2c3eecbdcc218388bebe8ac00b94db982d9316422c0",
+      "size": 59399
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Small3.uasset": {
+      "hash": "sha256:3025efa621de7e36e3f6abe4b14062cddad96fb10392569d7485ca753bf623d4",
+      "size": 59393
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Small4.uasset": {
+      "hash": "sha256:bc36c8d18c64a8ccbf2b6082ff6dbfc9b3ce7f5c4228bc2ddcf48fa44b6f26ee",
+      "size": 74084
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mitochondria_1.uasset": {
+      "hash": "sha256:0dc93c5f9f0ccdb3389d718c938fc4f68479413464166f1a9dc3b6f63972ad95",
+      "size": 47149
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mitochondria_2.uasset": {
+      "hash": "sha256:846fd1e23626d313c5632a1d703496378256efaa7e0e5125e604c660e3527969",
+      "size": 40060
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mitochondria_3.uasset": {
+      "hash": "sha256:7827d8413c39397afb72992590178549c2ae0d7e78d8c7202926e31fe0adbac9",
+      "size": 43492
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mitochondria_4.uasset": {
+      "hash": "sha256:236a8842b6d82de12bcea0f351404db9ab642ef705b7b1406fd7bf6aee8ea52b",
+      "size": 27470
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mitochondria_5.uasset": {
+      "hash": "sha256:b7b1f8f573c4cbc21f5d4f483a920ac79aad26e4ace97d540919e23815ca3121",
+      "size": 27357
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mushroom_1.uasset": {
+      "hash": "sha256:88819b40e222397b2172d950a05ae33ec10c8c2621de365714d090d343227b29",
+      "size": 189913
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mushroom_2.uasset": {
+      "hash": "sha256:fa9be0fa93a65b619fe725ec6b93fe944fa35f831eabebe2b8f3ff6b0456a7f7",
+      "size": 56292
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mushroom_3.uasset": {
+      "hash": "sha256:bcc9be87f17345a11106ae841809d68ad8d6c0267f636b3589ea77d52808aa7f",
+      "size": 55978
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mushroom_4.uasset": {
+      "hash": "sha256:5da60c15bd3c69a325e9976783c6a3f807a60c6335c11477ea80cf637be2d107",
+      "size": 105138
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mushroom_5.uasset": {
+      "hash": "sha256:c5096b59b39158384e30232fdc48583c24a9ef427257a6831471ac6eb26c1ade",
+      "size": 113130
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_1.uasset": {
+      "hash": "sha256:c73a79d1d9da0f5110b1ac08c802b6e7652efb02c0ac151a89b6dab52cc1e7d3",
+      "size": 34719
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_10.uasset": {
+      "hash": "sha256:6da38f601a429a597232c7444cd9f6553570c303e068988f543882f8c0f26955",
+      "size": 171424
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_2.uasset": {
+      "hash": "sha256:9c29205e09872827bc333fb2ebf99248860442276b64c45b980a5e96bc27a733",
+      "size": 68546
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_3.uasset": {
+      "hash": "sha256:9e58d8d1e091b19c023e2ad89b695a5322acd6a1494e619e1337be35e9378b3c",
+      "size": 54507
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_4.uasset": {
+      "hash": "sha256:56cef599415efbcd78f943d07fc1ada34752e23c343622334e803e8e373528c8",
+      "size": 64242
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_5.uasset": {
+      "hash": "sha256:d0b64075a961a830fd48e35090c6a59e00caa551510de334f4796e1f2870196e",
+      "size": 172070
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_6.uasset": {
+      "hash": "sha256:5e425eacd8692e6de9c1fece5af10a294380ccb1af8fb558ea8914ebdf4ffdf6",
+      "size": 54189
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_7.uasset": {
+      "hash": "sha256:f78fccd5ed7bcca44adcf7019ce9ee02af200d0d3bb1096590b947eaf20bc63b",
+      "size": 165436
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_8.uasset": {
+      "hash": "sha256:573ac532c9a9c8a34785f1ea9a4d94f257466dfd8a03223af4f9bebd2b8bd942",
+      "size": 130434
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_9.uasset": {
+      "hash": "sha256:b41f40491ef5a9304765ed9b31436d9be30226d6f41f8234c9b6a19eeff5da03",
+      "size": 178956
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_Flashlight_1.uasset": {
+      "hash": "sha256:a436ee129ced684f688b19c8542d5cdee05aedb74b6af3f4b9a0a8e337b45e0f",
+      "size": 41426
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_Flashlight_2.uasset": {
+      "hash": "sha256:5c4690ee8f2bff669a89d2900f670e548fe5acef6ce5cedace5f01b0d568b7f5",
+      "size": 38185
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_Flashlight_3.uasset": {
+      "hash": "sha256:90c4aa6902c2ff9737863544d1d15e48c41b68a435f4005f58a01c20f77a4d4c",
+      "size": 33844
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tree_1.uasset": {
+      "hash": "sha256:72f604ba2da312cccaa699a1467424bb3bf1c974ed5a7db6db7ded333fa8c4b1",
+      "size": 60626
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tree_2.uasset": {
+      "hash": "sha256:f1d75b9e1d4efd1fdbce7fc52340a34b92be5f4b9c55af7f11477358af624e0e",
+      "size": 87076
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tree_3.uasset": {
+      "hash": "sha256:498bf346d21ab87ed52469ab7df31f410a047b6a9738feb2e08894ef2c02e1e0",
+      "size": 62568
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tree_4.uasset": {
+      "hash": "sha256:6d563eb39234fe03ed0ad8501d1d632e7974a181ede6a1ed6658b8c87c45f164",
+      "size": 62476
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tree_5.uasset": {
+      "hash": "sha256:1ac33088d0e778c8c8bea155573c4e3b4f37398622301c4d4bdb3a720226f313",
+      "size": 90202
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Big_Corner_Biomass_Albedo.uasset": {
+      "hash": "sha256:049e148ee035baf7a425ab06a8cfb3f2f58c21bbf36b5df077f1afdc8d76962f",
+      "size": 6327017
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Big_Corner_Biomass_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:2881bd1586ab3a95334cc837d68fbe3c51bf584d9a014315f54a1e368442404c",
+      "size": 4219575
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Big_Corner_Biomass_Normal.uasset": {
+      "hash": "sha256:8004c8e94c0718ccb6ef82c39479336630d4b282ecef77691b07615d8453872f",
+      "size": 7544531
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Creep1_Albedo.uasset": {
+      "hash": "sha256:1f7041feff193f01ea66bc60717b146371e9c1860e52f964fcd648a59b2c79fe",
+      "size": 6298028
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Creep1_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:c71b726d216da3fecf0596ef9569767c5287fb855acd52bf06c151191c1b685b",
+      "size": 4198201
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Creep1_Normal.uasset": {
+      "hash": "sha256:92d5c3730804a8b95cccbb95fca694b9b9e371406dd307eab305855548335ca1",
+      "size": 7536916
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Creep2_Albedo.uasset": {
+      "hash": "sha256:610e799307fca943c67d49c3a01ac8e21caf20c04fd80ab97d30aaa9bbc47275",
+      "size": 6164315
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Creep2_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:7bd77d72ff94152f619449ff40a4f152eadf024a015f0eb718f6f1a79208dee3",
+      "size": 4078376
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Creep2_Normal.uasset": {
+      "hash": "sha256:0998daba0830ed685bf7b5fdc2cf748b93b24078739c71ee6d3cceb480af9177",
+      "size": 7372153
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Plants_Albedo.uasset": {
+      "hash": "sha256:c7c5a448196b827fdbc2174e2797776dc946f8114c7bdebae96fe8ef0d47eed9",
+      "size": 7038552
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Plants_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:b0ae2947a991ea927095b2bbd89f5b829e5d2fc4bc60bccceb2a2025d150b4ce",
+      "size": 4729715
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Plants_Normal.uasset": {
+      "hash": "sha256:6432c5553619b866e760d301324a90995e44a196a4634eab4c2179c9432df1e5",
+      "size": 8506459
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Tentacles_Albedo.uasset": {
+      "hash": "sha256:0107d4e8e53897425837e75ccaf768159ad7d395eadfbd2a9f09336bcaac616a",
+      "size": 5427035
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Tentacles_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:8588fbe033e7a206a5494834e10ffeccf8c21f773b07f16689b67c6153fbbcd3",
+      "size": 3708914
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/2k/T_2k_Tentacles_Normal.uasset": {
+      "hash": "sha256:834683a3055030bbe5b5fe966aab31dae131e11171db9a64ed5df06725f3fab5",
+      "size": 7752380
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Big_Corner_Biomass_Albedo.uasset": {
+      "hash": "sha256:fdad37bf49b2186c24e41a0bf35ac8aa64901b815357e8ebb1d893d7f59fed30",
+      "size": 22497890
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Big_Corner_Biomass_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:a09594558aa2c6b4fb211c6f057fe0e900788d55ecfba0ac994344f4219de227",
+      "size": 15945140
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Big_Corner_Biomass_Normal.uasset": {
+      "hash": "sha256:c949fd1fad56964e0a5f3606edb7f399c15a126815785d65dd72f2b11de7f722",
+      "size": 30250827
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Creep1_Albedo.uasset": {
+      "hash": "sha256:57f7c9c1e3516185b9cbd9c848e65f857539ebc697d14c5d3f066ecb3ce06073",
+      "size": 22415554
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Creep1_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:eed55bc953c55215ad24a8851798de702b8782db31c2eccf748e62c03165af22",
+      "size": 15574966
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Creep1_Normal.uasset": {
+      "hash": "sha256:0e01cb6bc03b94db28db75ccb75e2a499a5ffe055818b32b0997f068a1d01434",
+      "size": 30306301
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Creep2_Albedo.uasset": {
+      "hash": "sha256:3e1e3d9c149156faca63f0c64d0191f4ad6a2ff533738f3fb107abe05f97e406",
+      "size": 22246465
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Creep2_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:7a48ce6ff4addddc339f69ee4869502ca51506f30f18355b8f75d2468186e6ba",
+      "size": 15269652
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Creep2_Normal.uasset": {
+      "hash": "sha256:823595fe42e045250a8146529d72ffe76a3c10de97427b0f9abd1fcba8c25f8e",
+      "size": 29767983
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Plants_Albedo.uasset": {
+      "hash": "sha256:88a9bbeb385c5883c7438ce687631d6b1a718eea1a753d7008879052c5374b48",
+      "size": 25264204
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Plants_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:b01c50b7199f4c4c0a834da9144616067d98b0fc833eae45557ce1d543332ae5",
+      "size": 17049318
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Plants_Normal.uasset": {
+      "hash": "sha256:fcf755ddcb9232cf102da1ffa2ce2b635d2b8d5ad75eb78be1d4d3f2d689e024",
+      "size": 33478016
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Tentacles_Albedo.uasset": {
+      "hash": "sha256:b8128ace38aa3402f891bd1f31ff15790a6e9cbfbd7ea2b4ddd4ec1b93712b09",
+      "size": 20284693
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Tentacles_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:502c041024268fb4b1f7914a39b7b7fee3adbd02c8b37195ca935fa93caa028c",
+      "size": 13570865
+    },
+    "Content/Biomass_Bundle/Biomass_Kit/Textures/4k/T_4k_Tentacles_Normal.uasset": {
+      "hash": "sha256:d6635de406bd2cb024132d68dad1996599825ccf7a3e298a28924d969ff10b43",
+      "size": 31484210
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Big1_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:78ac21a0d626d93fc91c20b4e8616246bd45f6d0d21c486e7b7c23c9fd2802a6",
+      "size": 106629
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Big2_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:b3e5ceb0342b551d3eea266ba63ea235f3a7ff89a2751372b29b1cb4d08e193b",
+      "size": 94047
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Big3_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:2527c4de5e53fead84172f58006ec2f65c60f0465da136443e1618994ea0f411",
+      "size": 85542
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Big_Corner_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:4ef08fabbe5cf138813157fb230294234cc902f4de5c07845bcdc6b0bf5ae22e",
+      "size": 52117
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Small1_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:b2d083fff16fb8b998cf17b966025453d4e999d5607a95bb42b80c07f6b0455f",
+      "size": 51943
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Small2_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:9b16de6d682b451aed66d658ca78fdf4d47a9e1cf51ee0288c97fd38b7c2a476",
+      "size": 43675
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Small3_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:f9461fba34e94558c843cc00c75f979ae8ccee5a52867adbae1688befb276a47",
+      "size": 60450
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Small4_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:44c0c024c3576e30390d1250552acec0c60124d79dafc13fa43e5eb8db330229",
+      "size": 22551
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Small5_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:c97dffadcf37dda1dc0f35599f015171623bc7222a885869ef4a2b40b49bc773",
+      "size": 22684
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Animations/AS_Small_Corner_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:2bf3f293b7950c70d61a392a32bccff7036b75883cf76281ff257de0981c5b1a",
+      "size": 52287
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Maps/Demo.umap": {
+      "hash": "sha256:02e4c522006bfb1f54b15e2af4f7b79db419806179645b056ea49bb94c15f1c5",
+      "size": 63556
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Maps/Demo_BuiltData.uasset": {
+      "hash": "sha256:62b9f5983a2bc10788572cbe95601017243c11f3dadb4459f0eadd3e09c8c77c",
+      "size": 299771
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Maps/Review.umap": {
+      "hash": "sha256:d2412c5553f9d5ad0ae5f8397bcf99ae85709bd5b37e61a65458c9ba952f9ef9",
+      "size": 51081
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Maps/Review_BuiltData.uasset": {
+      "hash": "sha256:814226883624d68d6cd62f5a8a6f79681dff115c9b67b6c12a2f96096bfc5358",
+      "size": 366940
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Material/M_Pulsating_Lifeforms.uasset": {
+      "hash": "sha256:fdaf01c551f91960e7daec5ffcc4317ef4fc2566e4cfde2a0fe0b3049251108f",
+      "size": 18427
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Material_Inst/MI_Pulsating_Lifeforms_BgCorner_SmCorner_Small3.uasset": {
+      "hash": "sha256:454a0ea2dc9774e1fef333d6779dd00f9f54a1e833866f5125c0000c124553ab",
+      "size": 17784
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Material_Inst/MI_Pulsating_Lifeforms_Big1.uasset": {
+      "hash": "sha256:8a0c92980a596bed5374db11f38cc4749f41d67b103b445f75f37a37a1dc454b",
+      "size": 17608
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Material_Inst/MI_Pulsating_Lifeforms_Big2_Small1_Small4.uasset": {
+      "hash": "sha256:4f52b44330f34119d27463760d7d68a01de8aa341272f3eb083d7783c9112e6d",
+      "size": 18242
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Material_Inst/MI_Pulsating_Lifeforms_Big3_Small2_Small5.uasset": {
+      "hash": "sha256:7c75f7398301b3a84a7751f694428d1bd04b9b4fea265ba8e59b2afd6488aadd",
+      "size": 18462
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Big1_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:8928fa6d0a18aa8d1d794b1d94396412894905e4eb7638d54bd43faa8241080c",
+      "size": 12525
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Big2_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:2235df8dc2ea3d64ec176a9559838562e9372d52270c6590bec0807f3f53fe0f",
+      "size": 12599
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Big3_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:1c1b9dae44e12e8a07f8dbb113729a530b98fa20b69a1c45f1f9e4f718fffe5a",
+      "size": 12315
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Big_Corner_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:7b693c41056be8224e2668ec2a9d36350c05ff24ac705cf8486ec0603638ddb2",
+      "size": 11983
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Small1_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:45d5a4235c681e5078f60952ea441351ae142adc2495025b90b8278e5d394580",
+      "size": 12431
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Small2_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:5c5ba8adfbbe6a4da7da1caa95235bc8deb357dd0e9b16fbc0ff11daa432edb7",
+      "size": 12542
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Small3_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:8ec35df8ef2083d8c2b40bb5d1399b7a12f75376f45331ce05dac2d0c32c1492",
+      "size": 12759
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Small4_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:8f9751fa78dc49926abba9fdbafc0af6fb0e0add128b03c19fbfe3a07fe9f965",
+      "size": 12496
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Small5_Ground_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:2bedf9c19cfd1210c8b9a706cebe60f9df39819d85ce843ae132689670cf4c77",
+      "size": 12551
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/PA_Small_Corner_Pulsating_Lifeform_PhysicsAsset.uasset": {
+      "hash": "sha256:cbdf34de71bf2a3fabc824a8e0c0392a78b90bd0c88abaadbbaf8d00a20eb416",
+      "size": 12289
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Big1_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:9e668a21c8807c88f1593662801b47e1966ba5575ebd89cfce78bcba6a1fd330",
+      "size": 2537948
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Big2_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:3da866fc4884534db3e1ea367907e8c11f24782c7ffc63bedff0336efb352b50",
+      "size": 1697136
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Big3_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:764ebbb8b21295867182d8671c524d032b481d2c0e9efa0f3e47201b95b13b6f",
+      "size": 1829475
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Big_Corner_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:986243d66d384217519b894f08ada776a34e8e979458d1e23a6a16d42182d443",
+      "size": 1388054
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Small1_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:bf9761b3bb7d4553cd2f775f5c742fd5ab46f3fbd516029999c2cc75f507ff3d",
+      "size": 514919
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Small2_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:56318252bd3d3773eaa41413bbf2faeb6426e1430d21ea23c9cff289714522ff",
+      "size": 718288
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Small3_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:c96b15ad1443dc4184153a8c6b55f230bd3c4e9e81fb7be6c1b13a1efb7c7ddf",
+      "size": 686939
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Small4_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:7a87e08262018c31561ffc4e92475bb5af6f5fcad4e2a57348a4c93acd108e0f",
+      "size": 437846
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Small5_Ground_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:e519b21fb4355a2b6da195f9ae79da931185c8d47dda648077882ebf0fcf9982",
+      "size": 423935
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SKM_Small_Corner_Pulsating_Lifeform.uasset": {
+      "hash": "sha256:5e9369e100025ff8837965631b20f2ae051b97184f426be96f37ac0654ad9333",
+      "size": 503857
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Big1_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:8538bd3c8d1846e341e4f9e02db5a9a5c7f505a7e918d85eca1bc17ea01400e2",
+      "size": 10017
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Big2_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:1255254c560196c12602371373643edd1c952ab5b67c55382fc65efb38611133",
+      "size": 9541
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Big3_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:76aeef7e063b8989c469f2a8509bb3920bcf2d0de4515b46f5364cf24d68c816",
+      "size": 9074
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Big_Corner_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:6bfdc62b42cdd89faba2384e866fdef87f3b5341eb4d2bcb2758154f448ead76",
+      "size": 8020
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Small1_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:2741971f844ddccb921411eb4a64a8c0fdba21426448c66036d9e1300e778855",
+      "size": 7598
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Small2_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:188193d8e81105b1639a5a48113570ccae805791bb74a6860f0a559a4f9df937",
+      "size": 7289
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Small3_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:850bf521624a2c1a9d2914b9d6f7a27482298593659c62b8982344a76992c942",
+      "size": 8227
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Small4_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:ffdd5ec414f3805456c83a4c4244d9e621a77098a10e1a8b730cd0df66e08858",
+      "size": 6355
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Small5_Ground_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:7b2d2c9b379508a971ec1d93ff2918e692ceb980e64fabe9f5fa8d890b1a852c",
+      "size": 6477
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Meshes/SK_Small_Corner_Pulsating_Lifeform_Skeleton.uasset": {
+      "hash": "sha256:257e1387ee98e17a0c1cc8f7f8bc557049ccc15507762111e931f7b25edb57af",
+      "size": 8093
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_BgCorner_SmCorner_Small3_Albedo.uasset": {
+      "hash": "sha256:d1fe3c4c938e2bbc192b92a39a089ac0ccb0fc96bc4047937069fc1006a8f315",
+      "size": 6515576
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_BgCorner_SmCorner_Small3_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:17aafd6506d97366726f1893c2b113a55fba39f142535afed74eacc9261e3659",
+      "size": 4040102
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_BgCorner_SmCorner_Small3_Normal.uasset": {
+      "hash": "sha256:929fea0a1421e8fcea311a1140ac6b8e1608dac4d8dedd17e5b173a60870edd7",
+      "size": 7936292
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big1_Albedo.uasset": {
+      "hash": "sha256:93d210f3987d71ba923a4cda6db2be8b10256224beefd754f91ec9bb7746c656",
+      "size": 5626346
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big1_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:eb1d607835b15a0454fd5fb9acda379f6a312bf02b8107b23cad1f3584e8dfb1",
+      "size": 3397168
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big1_Normal.uasset": {
+      "hash": "sha256:5afed524e5b4ea5dd8b2bbc484a4bfd404fe0f102364e46ffd78ae15730295e9",
+      "size": 7607272
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big2_Small1_Small4_Albedo.uasset": {
+      "hash": "sha256:6b37dcf3ebe4de86881cfaea1beb1fbeaf1678424678d17086dcefdbaaea5f33",
+      "size": 5689243
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big2_Small1_Small4_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:43fc9299d79105d815d9d93ec559c30f1e35266f714b7b317fae7821d6a9b230",
+      "size": 3709961
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big2_Small1_Small4_Normal.uasset": {
+      "hash": "sha256:8fb80c225691544495740c972f06dedba7a1da70423896a956a2cb9abd3da808",
+      "size": 7325587
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big3_Small2_Small5_Albedo.uasset": {
+      "hash": "sha256:c5f16eaa5eda946c6983c8d2a40141d51e4604a90ba6e0d5d3ce6181838fd183",
+      "size": 6455298
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big3_Small2_Small5_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:13c19ce70159f866fb04fe430e5e7a7271a8793a06c55dd91ebf072efc480f06",
+      "size": 4143933
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/2k/T_2k_Big3_Small2_Small5_Normal.uasset": {
+      "hash": "sha256:1ee9a6a16673514bf89519559436ca391d272568bb2717de709be17e53dc36d1",
+      "size": 7992991
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_BgCorner_SmCorner_Small3_Albedo.uasset": {
+      "hash": "sha256:849c5ba7a4cfa9f71bb2cbfd740f911d24e605da7413b48fada326699990d79c",
+      "size": 23696736
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_BgCorner_SmCorner_Small3_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:6a77cdaae4c279f151445dba5c40ad7b86da5c05b8bd29d8a6a908735d04b8ac",
+      "size": 15320314
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_BgCorner_SmCorner_Small3_Normal.uasset": {
+      "hash": "sha256:d01f83c0af17edb530bf760c5078826193816e8d3c48690fc2cccf9a85c95859",
+      "size": 31235914
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big1_Albedo.uasset": {
+      "hash": "sha256:b91849ea8bff9b09d66e941269429310409f7771622a3d3767e76dbaf63d7493",
+      "size": 19942589
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big1_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:1fcd88eea65541eeb90dc750bf67cbe4cc96672b71ade1d9237d49838ded9e53",
+      "size": 12224098
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big1_Normal.uasset": {
+      "hash": "sha256:8e588d4dd4b8751b5e289769c4e142c88d20299b9e90251cb2e8df3162f2e116",
+      "size": 27885838
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big2_Small1_Small4_Albedo.uasset": {
+      "hash": "sha256:a2c4859447566b27e04fb025f39c6010e312903255b209cd6f0d4645e35252ac",
+      "size": 19972799
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big2_Small1_Small4_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:6ebd2a7a0bfa7f5ef528e657ea2a74bb14118313640aa26524202064f798a988",
+      "size": 13685402
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big2_Small1_Small4_Normal.uasset": {
+      "hash": "sha256:5538d8fd26724b23320ce43f42c09f57f6c70a5f87dc2f37a59bc92d47653a6c",
+      "size": 28943334
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big3_Small2_Small5_Albedo.uasset": {
+      "hash": "sha256:1097bdec820ffb7b095cec4412600452d599aa947234763a327c7ce3b6345c9a",
+      "size": 22434215
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big3_Small2_Small5_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:3effaf49eeb89f0a25a56b61f60ccc6e41d802ae9e18a4319999e39478c5326f",
+      "size": 15610946
+    },
+    "Content/Biomass_Bundle/Biomass_Pulsating_Lifeforms/Textures/4k/T_4k_Big3_Small2_Small5_Normal.uasset": {
+      "hash": "sha256:b9a716f03650bd50fb0c549ffd792ac38a48506695b96c799c4c13fdb2dcac62",
+      "size": 31994032
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Animations/AS_Egg_Lifeform_Opening.uasset": {
+      "hash": "sha256:b736679019912140de9852144d3bb3d07040da1cd9ea37102dd2a8be033411b4",
+      "size": 129648
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Animations/AS_Egg_Lifeform_Opening_Ceiling.uasset": {
+      "hash": "sha256:95585f072fb9444d1aeddb487d625836ab029c3c079ffa71aded9bd687e363c8",
+      "size": 129964
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Animations/AS_Egg_Lifeform_Opening_Death.uasset": {
+      "hash": "sha256:e9d78380d2a1b329f8bf199e3f73770ded5e241f2600bbedfa6014167df3ca79",
+      "size": 129524
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Animations/AS_Egg_Lifeform_Pulsation.uasset": {
+      "hash": "sha256:6ce6fbb6beb6e98d90b27c7c259ead6d0bc77baa2c8c19e6f710831a8e4b8d87",
+      "size": 166471
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Maps/Demo.umap": {
+      "hash": "sha256:d2cb7a44d4e82d5fd45b851cb4e9295bad90ccff52641efadab273bfa9b4a982",
+      "size": 95544
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Maps/Demo_BuiltData.uasset": {
+      "hash": "sha256:1735b70b7cb5a3bff40e8eff77cf8e0a8ee5e2bb08cf55d391e6196bcdeb97ee",
+      "size": 2895855
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Maps/Review.umap": {
+      "hash": "sha256:5053b646a0e220b66dd11282e7bd60135c42f62fea06d7201bc1df861e0e017d",
+      "size": 49160
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Maps/Review_BuiltData.uasset": {
+      "hash": "sha256:7facbe576ca34e3d513a2124bf0669bd985a536d083e3b571e4c9c893cc72d10",
+      "size": 832641
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Material/M_Egg_Lifeform.uasset": {
+      "hash": "sha256:909b4730c0577d5ca86b973a4a3b10b82542745b3bb5de2b74640d8b582e5112",
+      "size": 18678
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Material_Inst/MI_Egg_Lifeform.uasset": {
+      "hash": "sha256:34a99208776ca7a5cea4d561b04446c660d72c01a9f159f00b7216dcdc0f26bb",
+      "size": 18372
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Meshes/PA_Egg_Lifeform.uasset": {
+      "hash": "sha256:3a4770f487b623f5bcb40c96d105ced84b4fd85c70ed12f289de45085c74e945",
+      "size": 33098
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Meshes/SKM_Egg_Lifeform.uasset": {
+      "hash": "sha256:9ba81c64e7cf10bf2d7165ef8bc5e85b647709f86f085d6092eceacaffbfbcff",
+      "size": 4898703
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Meshes/SK_Egg_Lifeform.uasset": {
+      "hash": "sha256:2fe98ec5eebe3ceaa34a36c6014196560434c654c57e8fb5cd9a797392ec425d",
+      "size": 14473
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Static_Meshes/SM_Egg_Lifeform_Base.uasset": {
+      "hash": "sha256:79480a3cb0aaf83f251e0ba8ed0976536ceb8fb431af989e7f83fbe263e6acd4",
+      "size": 1051414
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Static_Meshes/SM_Egg_Lifeform_Opening_Ceiling_End.uasset": {
+      "hash": "sha256:1c190ad2b8bf0c5e257b2a6f6872a2f96e19f64d8df9f1f81549d97683d4e488",
+      "size": 1047419
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Static_Meshes/SM_Egg_Lifeform_Opening_Death_End.uasset": {
+      "hash": "sha256:a304d449b88d542a18a34236fa907ab108f0428f9d91a0edb1e666ea67f88e72",
+      "size": 1050802
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Static_Meshes/SM_Egg_Lifeform_Opening_End.uasset": {
+      "hash": "sha256:4990cb8dbb90a9ca1b9b920fac87c2a2f9125e94f96c892ff100662a142374be",
+      "size": 1046947
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Textures/2k/T_2k_Egg_Lifeform_Albedo.uasset": {
+      "hash": "sha256:71db13bd5ef6363eac590a769afbc71534bb8b2edccd852e577970e4ef31bff9",
+      "size": 7248372
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Textures/2k/T_2k_Egg_Lifeform_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:2b003e68c18e7a515a6bfb7c9c9aa07904414750dff47ac23de96c1f2b4164f7",
+      "size": 5016701
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Textures/2k/T_2k_Egg_Lifeform_Normal.uasset": {
+      "hash": "sha256:ba7756e3c5fd4265d05082b47d24555580274dd701d54f620639df5858fb6611",
+      "size": 8668605
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Textures/4k/T_4k_Egg_Lifeform_Albedo.uasset": {
+      "hash": "sha256:4661220d4ee3c91d7be62560f4683f9eb206aa8eb13d0a38b3143dbe18d1fd72",
+      "size": 27032036
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Textures/4k/T_4k_Egg_Lifeform_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:3ac897330775440c718de07db5655bd1b56af615167322a588c40ad0a5a760fe",
+      "size": 19529573
+    },
+    "Content/Biomass_Bundle/Egg_Lifeform/Textures/4k/T_4k_Egg_Lifeform_Normal.uasset": {
+      "hash": "sha256:df73fa75b3538417eeeeda017b5a91faa927684f1a951bad72e40bd6d03d9365",
+      "size": 34865161
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Attack_1.uasset": {
+      "hash": "sha256:3871e0a46ab5f17b348fd825fb75a0f4ce6201b09c3ec3a0925f99cbe7b5ce17",
+      "size": 47645
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Attack_2.uasset": {
+      "hash": "sha256:93590da22a2c16ddc23a6196d114ab6adef15e5b95826e568a7f79c3323769e0",
+      "size": 47607
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Attack_3.uasset": {
+      "hash": "sha256:9a32f8a191619830bf2ffd755a076b9b555898a9f7118c800f4b70b3e788b7a4",
+      "size": 47881
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Attack_4.uasset": {
+      "hash": "sha256:280529e395873f3f39f436cf19ce79a2368ac4b4f1434dd3a28e69055ffb04b5",
+      "size": 47774
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Attack_5.uasset": {
+      "hash": "sha256:26ef53d0712622f85b80620bdcbb0ec672b91322aea3ee5860c1ab958405ad55",
+      "size": 64397
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Death_1.uasset": {
+      "hash": "sha256:09b0a4973932e4c83be0e85762c5382a12fc2942dc3ebcb5926a62838930d2ec",
+      "size": 43369
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Death_2.uasset": {
+      "hash": "sha256:4c9797d9637245f9c3e6cab2915a8ba81d74d38ef920f204e252ab39e2fcf494",
+      "size": 43378
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Falls_Asleep.uasset": {
+      "hash": "sha256:28d2485113d1850c3a2a5d97f54d2c35cd5aa063be0f1672ae0ebdeda380782d",
+      "size": 72750
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Get_Hit.uasset": {
+      "hash": "sha256:63a4821bd1d32702375a7ba6fe5f265ad10d22b477f452cf4f6a83b2b8db62cc",
+      "size": 26631
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Risen_1.uasset": {
+      "hash": "sha256:03c00b3292d616c03588adee268c2ffb9a58f2f3e367c0eedd5b76d391c2c6d3",
+      "size": 43414
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Risen_2.uasset": {
+      "hash": "sha256:62786a6fd6a6120761b68949747c2a1be139be8d71fbd10ce1b9c25eef0499c9",
+      "size": 43406
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Waiting_1.uasset": {
+      "hash": "sha256:c0a0a1a60eb5c057a6b2333bd6004ad391d63f356bededd0293eee38b9c53984",
+      "size": 89292
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Waiting_2.uasset": {
+      "hash": "sha256:201d4374171ee39e4f4a3446afcbd18fbafbd4ac4719689133bfd8bd97318bb9",
+      "size": 123222
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Waiting_3.uasset": {
+      "hash": "sha256:31ead700cc0cbbc8614210b0c4d1e4a3a1954350ba6644ef6a20e19c287acc7a",
+      "size": 123172
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base/AS_Whip_Monster_Wakes_Up.uasset": {
+      "hash": "sha256:c992d053850ce1273f7b4309b2f3f4f66d1b19de8c373dd15b270c213e53045d",
+      "size": 55933
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Back_Attack_1.uasset": {
+      "hash": "sha256:61f0f7f097bbe09e53b1211faf28764590df4756c369fc8d1e3e31f1a05bdd5a",
+      "size": 72851
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Back_Attack_2.uasset": {
+      "hash": "sha256:031419c1b138c509aaa8920957532c0728cebd0f574409c3c948fd1b1923a614",
+      "size": 115000
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Back_Look_And_Waiting.uasset": {
+      "hash": "sha256:2a7c4c50b3fc06b4ec8766a8ec6ef6a3b9f4c5f9d3c5262ca346e37828485d33",
+      "size": 249383
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Back_Look_Around.uasset": {
+      "hash": "sha256:1ffeffc684fec4a1f3e4c737c5d8c4c2432ddc5d9da7aa23964e603c313ad234",
+      "size": 131746
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Left_Attack_1.uasset": {
+      "hash": "sha256:7adde496a740248670319510e9fa766539debbb1ecbec95a99620f1b98f7645e",
+      "size": 47860
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Left_Attack_2.uasset": {
+      "hash": "sha256:6ff38cf1e28c61da42004b081893e6d39a57236abf3d5f671f6f18377494acf3",
+      "size": 98159
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Left_Death.uasset": {
+      "hash": "sha256:5c6788209b571ddd5fcce85632f632e0dccf8442aaa173306e962c91a5e9daf0",
+      "size": 64604
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Left_Look_And_Waiting.uasset": {
+      "hash": "sha256:4e764e72de3454064965ecb24f8ee784fb8f04d494f0877d48cd7d7e2d4fbc89",
+      "size": 249542
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Left_Look_Around.uasset": {
+      "hash": "sha256:bae9995a7a4f2e6efa0b7355a7b5ce79adc97320252a7998dc30cf25fc4adf70",
+      "size": 165490
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Right_Attack_1.uasset": {
+      "hash": "sha256:d1094652f9c5ce03650c6a3ba281f7f90128c93536e542349096dc5116473712",
+      "size": 47969
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Right_Attack_2.uasset": {
+      "hash": "sha256:3695c0c4b0187c622e9746f578bec063237f9083a667e8a51365af3c4c397953",
+      "size": 98302
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Right_Death.uasset": {
+      "hash": "sha256:5dd0797bca8ecc162e055af6093620baa2e5752453251412cdc535523dfd3dd6",
+      "size": 64612
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Right_Look_And_Waiting.uasset": {
+      "hash": "sha256:6898cf2ce7a4e56cb4da08eacdbc4dfad4a7ba7fbb7935b0251208505d0d400a",
+      "size": 249489
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Base_To_Right_Left_Back/AS_Whip_Monster_Right_Look_Around.uasset": {
+      "hash": "sha256:65200194193ad77a66554940821aa8ae9342e5f388eae8d21d6f397b80e24a51",
+      "size": 165462
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Back_Attack.uasset": {
+      "hash": "sha256:a4f982a253b046cc22253f52ccb2c88ed6c5a93fdf6b501925bdbd92809312df",
+      "size": 47528
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Back_Death.uasset": {
+      "hash": "sha256:d9a862d4b85ad9fd4abba4e621ffee785700a020659581bcd33e1a85517b29f6",
+      "size": 64446
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Back_GetHit.uasset": {
+      "hash": "sha256:0e3b125d7979c26acac63420be819b35ed2acdb662f9e2c9ce917c8567001833",
+      "size": 30685
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Back_Idle.uasset": {
+      "hash": "sha256:481dc17edf3f07443009f91e0efdcd9f34a76d1c851accfbdd69521995ab22b1",
+      "size": 181961
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Back_Risen.uasset": {
+      "hash": "sha256:41caa705772dfdf43b759e763621e93f5b5f2b26df16b9edbacb1ba2a63bafdd",
+      "size": 64445
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Left_Attack.uasset": {
+      "hash": "sha256:874ba55a4d363d896bf5ac7b84f3b24ed71c53f2a22411ee4a84723b5ceccd76",
+      "size": 47617
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Left_Death.uasset": {
+      "hash": "sha256:e1bb913f98026d7538f85daf7c35d2f54629265e96d98f1fc6e67f1e292edce6",
+      "size": 64325
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Left_GetHit.uasset": {
+      "hash": "sha256:62b56733e5d48b2e45c4109e07f85b0b4c013cb9a42861f9a1736992111cdbef",
+      "size": 30828
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Left_Idle.uasset": {
+      "hash": "sha256:75a55e10b4e2bbae2a1cfb1edaad5339f484dad62161f9d64b11e4d01eb9ce14",
+      "size": 182019
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Left_Risen.uasset": {
+      "hash": "sha256:012f5b338a72305778b51fbdff333c1722c7279febf8df8ceceef58dec003785",
+      "size": 64319
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Right_Attack.uasset": {
+      "hash": "sha256:c72fb6d3aaea404ddf548983c384c240726e8aec3a7045b1d98528bd0fd420ef",
+      "size": 47691
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Right_Death.uasset": {
+      "hash": "sha256:edfd1f69cb3aa97d797b398f8686151e712df8d2b57ed6a78b808721cab0ee60",
+      "size": 64294
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Right_GetHit.uasset": {
+      "hash": "sha256:679fa0b2a0fd79f757d03c80e638563a43b0ac097f0e50d920ad28d55c1d78c8",
+      "size": 30830
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Right_Idle.uasset": {
+      "hash": "sha256:3474544e30ddaf072040f2ecda43ca4d0586c03c73c99ad74288755274c5ff7b",
+      "size": 182031
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Animations/Right_Left_Back/AS_Whip_Monster_Right_Risen.uasset": {
+      "hash": "sha256:b6eb498eb76958fad439b760fd9403a1b66c080f1b750d0cd8f5102d82c52755",
+      "size": 64291
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Maps/Review.umap": {
+      "hash": "sha256:01a69e694c3ea936a9fa617b7d8b0d25f8320b2f60a307bda7b3ede0d2497af1",
+      "size": 124083
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Maps/Review_BuiltData.uasset": {
+      "hash": "sha256:1731c906a2852dfe0007de7a8ad63d21b6f0b3f94a1f668defc06e0a7625c79a",
+      "size": 1591164
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Material/M_Whip_Monster.uasset": {
+      "hash": "sha256:f7ebafcc39f27f5fcbc899ec6d9cf963fdd93133b48da345601c3602dcf8e1e7",
+      "size": 18492
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Material_Inst/MI_Whip_Monster.uasset": {
+      "hash": "sha256:313e8136b3afc87c56409d1fb222607b2073011d41db7210520319a01165af91",
+      "size": 17437
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Meshes/PA_Whip_Monster.uasset": {
+      "hash": "sha256:c1ab3151506c30c979bad5ca503bf17154d510d47388bb77e8ae4fee1df39b48",
+      "size": 12972
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Meshes/SKM_Whip_Monster.uasset": {
+      "hash": "sha256:0066b7ba4b75f34f8eb0003bd04b23ad223cb6cfdeb9047649b0d6caae2b2cdf",
+      "size": 2585469
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Meshes/SK_Whip_Monster.uasset": {
+      "hash": "sha256:f25a51bd13a5cf195b4f0d5c74d1a725201834975c2e69c6808d5c280c1d6f27",
+      "size": 9453
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Base.uasset": {
+      "hash": "sha256:01769e1bd286e87b46b2caf4dae5884ccae34fccd15ec972eb997b14dfd7febc",
+      "size": 825846
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Dead_1.uasset": {
+      "hash": "sha256:e8b2647a9661335cbc825ae7d0876a6b7388fb8a05a2976d912f91364701ac8b",
+      "size": 827674
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Dead_2.uasset": {
+      "hash": "sha256:1394f5dff8b8cb0476efb506aad431f04dd11eb904257bb496bb1ffecdf16198",
+      "size": 826554
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Dead_3.uasset": {
+      "hash": "sha256:720bf863113788c2f8ea7d7b841827ac0a61cdc180a3593c148b4474c8fe6fd4",
+      "size": 825165
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Dead_4.uasset": {
+      "hash": "sha256:05b931b402d9970d7cf251eb38e9e3621fd223c7f1fa9352e55ddbd0b86c6c2a",
+      "size": 826168
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Sleeping.uasset": {
+      "hash": "sha256:6a1402981ffbea3e860e8ca9510eebe6865833bb935a3025aa6b08e9de8502be",
+      "size": 826535
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Right_Left_Back/SM_Whip_Monster_Back_Base.uasset": {
+      "hash": "sha256:d23bb601a24c4d8d8cbf94f28bd488368364bf94182f7a682a17a299661850a1",
+      "size": 825764
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Right_Left_Back/SM_Whip_Monster_Back_Dead.uasset": {
+      "hash": "sha256:df78a8c3d6b1e1750f99293d72807028c826c7f0f2519e74c2cdc8309ccb48df",
+      "size": 824966
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Right_Left_Back/SM_Whip_Monster_Left_Base.uasset": {
+      "hash": "sha256:b151ab26d0fa217129ae144fa2275d4f394954a02c99a4665c6d074625b9f237",
+      "size": 825011
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Right_Left_Back/SM_Whip_Monster_Left_Dead.uasset": {
+      "hash": "sha256:7bf1751f9433f98d9f24ecf676407fec10e4ee534b52755bbccfcd014409687f",
+      "size": 825820
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Right_Left_Back/SM_Whip_Monster_Right_Base.uasset": {
+      "hash": "sha256:dc36a714831869df3432468d5b7bb0c057c8c3ef878af1e3455b96f6606f797a",
+      "size": 824863
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Right_Left_Back/SM_Whip_Monster_Right_Dead.uasset": {
+      "hash": "sha256:21c06cb4112d507ccb4f27959ff5987cf3da8913c044a9a2aef32c36e97eae39",
+      "size": 824605
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Textures/2k/T_2k_Whip_Monster_Albedo.uasset": {
+      "hash": "sha256:1500b5dac591a830c452952357a5db4ecabf252ab63d932d12a3044386fa77cf",
+      "size": 5383173
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Textures/2k/T_2k_Whip_Monster_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:f74f934b123d0d0144070e5a0dfb198d0004482d5572053604e3f87c561a8a9b",
+      "size": 3735115
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Textures/2k/T_2k_Whip_Monster_Normal.uasset": {
+      "hash": "sha256:2b981b9c8e3ac92e38ad1044f7f0a8d94cbe0b50de51e1988b41a4610c0ca700",
+      "size": 7560648
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Textures/4k/T_4k_Whip_Monster_Albedo.uasset": {
+      "hash": "sha256:11e877de6da7acb80487cfe0b4564c67d51ede17987b5799fdf9bbc962d56df4",
+      "size": 19916318
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Textures/4k/T_4k_Whip_Monster_AO_Roughness_Metal.uasset": {
+      "hash": "sha256:ced3d5739752536bda0901e5efacce3a3b1b13de64048a0370d0d105c05ef467",
+      "size": 14448428
+    },
+    "Content/Biomass_Bundle/Whip_Monster/Textures/4k/T_4k_Whip_Monster_Normal.uasset": {
+      "hash": "sha256:16eeaef93d4d3fa607c81374e8dd3e244781745f478a4c7e4c85a9686cd6df67",
+      "size": 31498696
+    },
     "Content/Blood_VFX_Pack/Blueprints/BP_BleedingRibbonEx.uasset": {
       "hash": "sha256:65eef68f3c412725c7950f50739d7ddc183ae6b8ba4c5be8c89899a5b1eeaf14",
       "size": 216047
@@ -13388,8 +15120,8 @@
       "size": 341120
     },
     "Content/BSP_ZombieAnims/Animations/Standing/AS_NAAT_Zombie_BL_Run.uasset": {
-      "hash": "sha256:519d1276297ee6d2becf5e33ec2772f859f4187658578a10d71e728bae54a8d7",
-      "size": 128625
+      "hash": "sha256:fe3dd2b499980d56bd8e2fbddc08796b883d0e17ecf11ba428ee9bb32bbe2abc",
+      "size": 249970
     },
     "Content/BSP_ZombieAnims/Animations/Standing/AS_NAAT_Zombie_BL_Walk.uasset": {
       "hash": "sha256:73e74a22f2c238d10ba535ed2d604e83b5a0dea730be5041015724def0be9fff",
@@ -13536,8 +15268,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:20a5ec390a6f387201cca34310614924e645954e2467dd3fa4b9a8cc8ebcad69",
-      "size": 6912900
+      "hash": "sha256:ac0f55e77b6accf72743a7031bfaec73f2025531de6226b4f88603491ce6a9d3",
+      "size": 7252057
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -24007,6 +25739,10 @@
       "hash": "sha256:4546ed23d49429cdfbc153c7c475965ba3d7443be805aba8b691a09010bbf2c7",
       "size": 4613
     },
+    "Content/checkpoints/2026-07-13_voidmote_particles_showflag.md": {
+      "hash": "sha256:7224613727612634a2d5caf59f9c432cf33c3c6fe8b630e23ccf0d5aa861b230",
+      "size": 4558
+    },
     "Content/Container_Yard/Materials/Decals/DE_Container_Branding_01.uasset": {
       "hash": "sha256:45d95b0faa964d5213d6a8f55533dfe2923e78a73883caba80fda2d8bdc4d7a3",
       "size": 11353
@@ -26843,6 +28579,10 @@
       "hash": "sha256:0fbb6f440fe12c298b3b75ce89c6b29ef9a97921c3cb572cb420623be74bcc89",
       "size": 67020
     },
+    "Content/Enemies/Oozeling/BP_Oozeling.uasset": {
+      "hash": "sha256:733c5a283645cec76fb33b7dbf056df89fd81b610ca810c63845fd562c24a665",
+      "size": 39157
+    },
     "Content/Enemies/Scytheer/BP_Scytheer.uasset": {
       "hash": "sha256:bcbb987e5babd4889088641fe414e31aaeff0106b2a1e9a4e6a98b881a604bd7",
       "size": 39985
@@ -26856,12 +28596,12 @@
       "size": 76877
     },
     "Content/Enemies/Shambler/BP_Shambler.uasset": {
-      "hash": "sha256:632754cc686fd0f2623dd1302b2113787b131b2c35b22c024a329154f42c6b61",
-      "size": 59902
+      "hash": "sha256:35d2d7311fdaec808bea78b7e99b387de5c8ba346480020b58aed9709589c115",
+      "size": 60508
     },
     "Content/Enemies/Shambler/BS_Shambler.uasset": {
-      "hash": "sha256:2e43ad9214ff2bacf9c4c6f4810ee9d4f510c0b61b7a017dbdd7e2e8fd41cc20",
-      "size": 9929
+      "hash": "sha256:c8a4aeff4c85ab989518da99ba90e11f94492d1cd4da1b707018cbf5469dd22a",
+      "size": 10134
     },
     "Content/Enemies/Shambler/MI_ZP_ShamblerSkin.uasset": {
       "hash": "sha256:fc1187a614953ff3f30e4a166230ec3035c0f5c3d12ed54ada1766f523e66e9e",
@@ -26947,6 +28687,22 @@
       "hash": "sha256:fb58d04f673b86d6cf3f44501b2ad34fa6a80ed3edb35213e1293f6f8dd65084",
       "size": 133727
     },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Turn_L180.uasset": {
+      "hash": "sha256:4769aae71d02838c0d695b433d554dd0c9ef85520b294178cca70992d94c0953",
+      "size": 193429
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Turn_L90.uasset": {
+      "hash": "sha256:3c039454d26aa55c25e00d894e233ec8bdf696d1afd261fb7a49f3a59dd69323",
+      "size": 188380
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Turn_R180.uasset": {
+      "hash": "sha256:34a41ba49372f4040144a6f367e1801b4889ed5388be7b0c934113059713cb10",
+      "size": 193431
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Turn_R90.uasset": {
+      "hash": "sha256:4c0fd5161838a1617ed11b583a48cfff6977db1cd2cc9beb6c116cb92b65e14c",
+      "size": 193424
+    },
     "Content/Enemies/Shambler/Anims/A_Shambler_Walk.uasset": {
       "hash": "sha256:97a7801739632830eaa974ca33a2d35393c931fb22fa2d5aaea828af9f73c2e0",
       "size": 370441
@@ -26963,6 +28719,10 @@
       "hash": "sha256:41c94d32371bdfddbad907ed8d9f188ad0fe7cd485f984a2876b2179a5e32278",
       "size": 73463
     },
+    "Content/Enemies/Shambler/Rigs/IK_CCDummy_Shambler.uasset": {
+      "hash": "sha256:501d4dbc07d421aba878ac6955bdba79dbe6f222fa8ba771bab2dd9b613c895e",
+      "size": 61013
+    },
     "Content/Enemies/Shambler/Rigs/IK_MannSrc.uasset": {
       "hash": "sha256:9b051d5cecac5cbf1be139b57ac0bec9ee1b5fd34cf2b0ff89f8e49da66afde9",
       "size": 128597
@@ -26974,6 +28734,10 @@
     "Content/Enemies/Shambler/Rigs/IK_UE4Death.uasset": {
       "hash": "sha256:124905a67cea38372414d0f2e8ebf7d07aeee6313ddb2a99f0edceaacf1f414e",
       "size": 59656
+    },
+    "Content/Enemies/Shambler/Rigs/RTG_CC_to_Shambler.uasset": {
+      "hash": "sha256:efc1404b5c42cc92a3cd6e03476a439ca41d28937f66f02dde019fab0b6ec93f",
+      "size": 14854
     },
     "Content/Enemies/Shambler/Rigs/RTG_Shambler.uasset": {
       "hash": "sha256:2f5f89aa8002be578e9ebe851a29c29e960c64ebc5c68d67dc3baa1722f744a7",

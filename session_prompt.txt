@@ -20,7 +20,114 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session (2026-07-12 late): AMMO/RELOAD OVERHAUL, all C++ (ZP_KinemationComponent +
+- Last session (2026-07-14): OOZELING v3.3 — (1) AZP_EruptAnimCutoff (freeze the Hug_Attack
+  erupt clip at N seconds, hold pose for the fuse — clips the flubber tail; wrap-proof elapsed-
+  time trigger; registry 1022/76). (2) Mid-wall 180° flip FIXED: MakeOrientation reworked with
+  residual-conditioned continuity — reference = LastPatrolUp (previous DESIRED frame's up,
+  seeded from the AUTHORED normal at every rejoin; NEVER the body's physical up — adversarial
+  review killed v1 for exactly that: upright rejoin body locked the wrong wall side on +X
+  walls). Strong authored normals always trusted (ceilings still invert). Also: WallDescent
+  exits level the body (was face-planting the whole chase), BeginPlay warning for near-anti-
+  parallel adjacent path normals. Built clean, editor relaunched, NEEDS dev PIE. Known cosmetic
+  skip: ping-pong U-turn rotator tumble (quaternion slerp if dev flags it). Checkpoint:
+  2026-07-14_oozeling_v3_3_eruptcutoff_wallflip_fix.md
+- Earlier (2026-07-13 PM, cont8): "green test lines in PIE" = bAZP_ShowVoidZones
+  (SignalSense void-zone debug boxes, added 2026-07-12) shipped DEFAULT-ON — flipped to false
+  (ZP_SignalSenseComponent.h), rebuilt, verified C++ CDO + BP_GraceCharacter component both
+  False. Re-enable in Details -> SignalSense|Detection when authoring void zones. LESSON:
+  debug-draw authoring aids ship default OFF. Checkpoint:
+  2026-07-13_voidzone_debug_boxes_default_off.md
+- Earlier (2026-07-13 PM, cont7): OOZELING v3.2 — fuse anim = AS_BigBlob_Hug_Attack (dev
+  pick); NEW AZP_BurstSound (touch-death audio, distinct from AZP_DeathSound via bBurstDeath
+  routing; registry 1021/76); ALL 7 anim slots STAMPED onto BP_Oozeling CDO (were lazy-loaded ->
+  Details showed None; Scripts/Python/stamp_oozeling_anim_defaults.py, read-back verified — BP
+  values now win, tune clips in Details -> Oozeling|Anim). 6 audio slots visible-but-empty in
+  Oozeling|Audio awaiting real SFX at /Game/Audio/Oozeling/SFX_Oozeling_*. Built clean, editor
+  relaunched, NEEDS dev PIE (hug visual). STILL OPEN: block-vs-DoT answer. Checkpoint:
+  2026-07-13_oozeling_v3_2_huganim_bp_tunables.md
+- Earlier (2026-07-13 PM, cont6): OOZELING v3.1 — ERUPTION FUSE (dev: "tunable touch to
+  damage time... melee must be able to kill it before it erupts"): contact now LATCHES (new
+  Erupt state: planted, tracks player, vibrating telegraph AS_BigBlob_Idle_VibrationLow +
+  AZP_EruptSound slot) for AZP_TouchFuseTime (1.0s) before Detonate(). Kill during fuse = clean
+  death NO burst (tick-driven fuse, bDead cancels free); stagger CANNOT interrupt (no stunlock-
+  defuse); DoT lands only if victim within AZP_BurstRadius (250) + LOS at detonation — dodge out
+  = harmless pop ("BURST whiffed" log). Registry 1020/76, GDD updated. Built clean, editor
+  relaunched, NEEDS dev PIE. STILL OPEN: block-vs-DoT design answer (v3 note). Checkpoint:
+  2026-07-13_oozeling_v3_1_eruption_fuse.md
+- Earlier (2026-07-13 PM, cont5): OOZELING v3 — TOUCH BURST attack (dev design: kamikaze
+  splat): Chase contact (AZP_TouchRange 140, LOS-gated) -> splats itself (Death2 via normal death
+  flow, corpse persists/revivable) + dissolving-ooze DoT on the player (5% max HP/s x 5s ~= 25%,
+  4 new knobs, DoT timer on the corpse). REVIEW BLOCKER fixed: MoveToActor pads reach by
+  GoalRadius+AgentRadius*1.1 (~205 UU stop — would never touch); Chase now uses FAIMoveRequest
+  with reach tests OFF (player capsule = 55!). AcceptanceRadius 150->90. Registry 1016/76;
+  Docs/GDD_Current.md CREATED (didn't exist) with Oozeling entry. Built clean, editor relaunched.
+  NEEDS: dev PIE + DESIGN ANSWER: block currently eats DoT ticks (1/3 stamina each, guard break
+  by tick 3) — unblockable ooze wants UZP_OozeDamageType + one TakeDamage gate. Checkpoint:
+  2026-07-13_oozeling_v3_touch_burst_attack.md
+- Earlier (2026-07-13 PM, cont4): OOZELING chase STILL stuck after the nav volume — the ooze
+  floor's navmesh is PATCHY (hole-map probe grid) and the pawn stood in a gap; MoveToActor FAILS
+  silently when the path START can't project (off-mesh pawn). FIX (C++, built): Chase reads
+  MoveToActor's result — Failed + LOS -> DIRECT-DRIVE at the player via AddMovementInput
+  (Scytheer-lunge pattern, ledge-safe). Also ctor capsule SetCanEverAffectNavigation(false)
+  (+ BP CDO + instance) so placed pawns never carve their own nav hole. Editor relaunched,
+  tracer armed, NEEDS dev PIE. OPEN: why is that floor's nav patchy (affects any navmesh enemy
+  there); consider same fallback for Scytheer. Checkpoint:
+  2026-07-13_oozeling_navhole_directdrive_fallback.md
+- Earlier (2026-07-13 PM, cont3): OOZELING "rotating but stuck" SOLVED — NOT the climbpath
+  link (verified intact live); the level's ONLY NavMeshBoundsVolume is a 200-UU Z-slab around the
+  SCYTHEER floor (Z 2992-3192) and the ooze area (~Z 2030) had ZERO navmesh -> MoveToActor
+  silently no-oped (the 20260617b lesson, dev's own KB pointer). FIX: duplicated the volume ->
+  NavMeshBoundsVolume_OozeArea (Z 2000-2200, original untouched), rebuilt nav, probes verified
+  (floor Z 2029.8), level saved. No C++ change. NEEDS dev PIE. LESSON: before blaming enemy code,
+  probe GetRandomReachablePointInRadius at the enemy's floor. Checkpoint:
+  2026-07-13_oozeling_navmesh_zband_coverage.md
+- Earlier (2026-07-13 PM, cont2): OOZELING v2.2 — "frozen in place" ROOT-CAUSED via a live
+  PIE tracer (slate-tick sampler, world-guarded; see checkpoint for the reusable rig): all state
+  transitions were WORKING (patrol->aggro->chase->flinch->Death2); the freeze was the CROWDING
+  contact state having no behavior — player already inside the 150 UU stop at PIE start, body
+  planted with vel=0, never turned, run clip on a stationary body. v2.2: crowding now TRACKS the
+  player (FaceTargetSmooth, AZP_CombatTurnRate=300) + Chase picks run-vs-idle from actual
+  velocity. Registry 1012/76. Built clean, editor relaunched, NEEDS dev PIE. NOTE: player start
+  is inside the placed Oozeling's DetectionRange+LOS -> aggros ~2s after Play (patrol only
+  visible from afar; tune AZP_DetectionRange if unwanted). Dev's own Snap click re-broke pt4
+  (wall-corner trap) — re-fixed + saved. Checkpoint:
+  2026-07-13_oozeling_v2_2_frozen_diagnosed_crowding.md
+- Earlier (2026-07-13 PM, cont): OOZELING v2.1 after dev "stop breaking when you fix" — the
+  placed Oozeling was broken NOT by a ref-wipe (ref was intact; my warning was wrong) but by
+  (1) the placed ooze path's wall normals never snapped (all world-up -> wall-segment flip) and
+  (2) v2 assuming paths start at the floor while the dev authored top-first. FIXED: normals
+  snapped + pt4 hand-corrected in the live level (SAVED); C++ now finds the path's GROUND END by
+  endpoint Z (direction-agnostic, descent leaves spline at floor height); NEW self-heal
+  bAZP_AutoBindPath (BeginPlay binds nearest climb path if ref empty — ref-wipes can't strand
+  placed Oozelings anymore). Registry 1011/76. Built clean, editor reopened. NEEDS dev PIE.
+  Memory: feedback_fixes_must_not_break_placed. Checkpoint:
+  2026-07-13_oozeling_v2_1_pathfix_selfheal.md
+- Earlier (2026-07-13 PM): OOZELING v2 — dev verified v1 in PIE ("it paths and dies"), then:
+  Death2 clip; death = SFX at kill + FALL TO GROUND first (capsule ignores Pawn/Visibility, still
+  lands) + Death2 plays ON LANDING; aggro/chase with NO damage: range 1000 + two-way LOS
+  (+ navmesh reachability only when grounded), ceiling -> instant Drop (rights itself, chases on
+  landing), wall -> WallDescent (sprints spline to distance 0), ground -> Chase (crowds at 150 UU,
+  crowding never counts as stuck). De-aggro walks back via ReturnToPatrol (elevated-goal fallback
+  to path ground anchor + no-progress watchdog). 19-agent review fixed: ReturnToPatrol re-aggro
+  latch (BLOCKER), elevated-goal jam, Hit-exit teleport-snap, crowding de-aggro. +19 AZP_ knobs
+  (registry 1009/76). Built clean, editor reopened (Untitled level). NEEDS: re-assign placed
+  Oozeling's AZP_PatrolPath (rebuild wiped it — scratchpad/rewire_oozeling_paths.py or by hand),
+  then PIE. AUTHORING RULE: climb paths START on the floor (point 0). Attacks = next task, design
+  first ("more than a simple attack"). Checkpoint: 2026-07-13_oozeling_v2_deathfall_aggro_chase.md
+- Earlier session (2026-07-13): OOZELING (Enemy 3, BigBlob pack) PATROL MVP — new AZP_OozelingBase +
+  AZP_OozeClimbPath (Scytheer wall-climb technique: MOVE_None + spline-direct drive + per-point
+  wall normals; whole-clip SingleNode anims lazy-loaded from /Game/BigBlob; shootable + Health +
+  flinch/die + IZP_Staggerable/IZP_Revivable). BP: /Game/Enemies/Oozeling/BP_Oozeling (SKM_BigBlob,
+  DeathSave + EasySaveGameComp(RegisterDestruction=FALSE) + BloodFX), validated + spawn-verified.
+  Built clean, editor reopened. NEEDS: dev places AZP_OozeClimbPath (shape -> "Snap Wall Normals To
+  Geometry" ONCE) + BP_Oozeling with AZP_PatrolPath set, then PIE. DEV DESIGN CALL PENDING: corpse
+  killed on a wall STAYS stuck there (thematic for ooze? or add fall-to-floor). ALSO: cross-enemy
+  SAVE/LOAD REVIVAL BUG FIXED in ZP_DeathSaveComponent::RestoreDeadState (load-restored corpses
+  never set Health->bIsDead -> objective revival no-oped + second save/load resurrected the enemy —
+  affected Scytheer/Shambler too). GOTCHA: rebuild reinstancing wipes placed instances'
+  AZP_PatrolPath refs — re-check after every build. Checkpoint:
+  2026-07-13_oozeling_patrol_mvp_bigblob.md
+- Earlier session (2026-07-12 late): AMMO/RELOAD OVERHAUL, all C++ (ZP_KinemationComponent +
   KinemationBridge), built clean, NEEDS PIE VERIFY. (1) Loaded mag persists per weapon class
   across swaps/stows (SavedMagAmmo; full mag only on first equip). (2) Shotgun shell reload
   loads EXACTLY min(mag space, reserve) — C++ writes the pack BP's ActiveAmmo/MaxAmmo via
@@ -46,9 +153,23 @@
   get_all_level_actors() while the editor world was null mid-load → TActorIterator
   check(CurrentWorld) assert). World-validity guard added to the watcher + apply_viscut_rule;
   DEAD ENDS row added; editor relaunched (startup script re-execs the fixed file).
+  ALSO: VoidMote2 interference dead — the NEW level actor NS_VoidMote2 (replaced the old
+  scaled /Game/HorrorLight mote) had NO 'Voidmote' actor tag → SignalSense never entered
+  Interference (no audio/widget). Tag restored + level saved. AoE = the actor's BOUNDS —
+  dev must SCALE NS_VoidMote2 to size the zone (original workflow). NEW bAZP_ShowVoidZones
+  knob (SignalSense) draws the live detection box green/red in PIE (built).
+  EDITOR-INVISIBLE MOTE SOLVED (2026-07-13): the main perspective viewport had the Show →
+  Particles flag saved OFF (EditorPerProjectUserSettings Viewport1 Particles=0) — ALL
+  Niagara hidden in editor, PIE unaffected. Proven by ShowFlag.Particles A/B screenshots
+  (cloud spans the whole room when on). Session override forced on; DEV one-click permanent
+  fix: viewport Show ▾ → check Particles. Both placed motes (NS_VoidMote2 + previously
+  untagged NS_VoidMote3) re-pointed at the ORIGINAL /Game/NS_VoidMote asset + tagged +
+  saved. Asset forensics: NS_VoidMote2 asset = same-day duplicate, renderer-identical
+  (2 sprite renderers, M_Void2 + M_Dust) — asset was never the problem.
   Checkpoints: 2026-07-12_ammo_persistence_shell_reload_cancel.md,
   2026-07-12_midswap_silent_fire_hasactiveaction_gate.md,
-  2026-07-12_viscut_watch_null_world_crash.md
+  2026-07-12_viscut_watch_null_world_crash.md,
+  2026-07-12_voidmote2_missing_tag_interference.md
 - Earlier session (2026-07-12 PM): FPS-SPIKE DIAGNOSIS + WARM-UP GATE. Profiled live PIE (44fps steady;
   hitches: first-encounter FlushAsyncLoading sync loads + render InitViews first-sight stalls + 410ms
   EGUI SetVirtualShadowMaps every Play). NEW UZP_WarmupGateSubsystem holds the dev's EGUI loading
