@@ -44,6 +44,13 @@ struct FKinemationBridge
 
 	static void AnimSetAiming(UObject* AnimComp, bool bIsAiming);
 	static void AnimSetActiveSettings(UObject* AnimComp, UObject* Settings);
+
+	/** If AC_TacticalShooterAnimation.ActiveSettings is null, installs a default-constructed
+	 *  instance of its settings class. The UE5_ABP_IK_Pose layer on PlayerMesh reads
+	 *  ActiveSettings EVERY FRAME independent of the component's tick — while unarmed/melee it
+	 *  spammed "Accessed None ... ActiveSettings" per frame (message log + callstack format cost).
+	 *  A neutral settings object silences it with default grip-pose values (2026-08-04). */
+	static void AnimEnsureActiveSettings(UObject* AnimComp);
 	static void AnimToggleReadyPose(UObject* AnimComp, bool bUseHighReady);
 
 	// ── AC_RecoilAnimation ──────────────────────────────────

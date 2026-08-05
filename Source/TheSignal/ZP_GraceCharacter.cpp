@@ -120,7 +120,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MeleeViewMesh->SetOnlyOwnerSee(true);
 	MeleeViewMesh->bCastDynamicShadow = false;
 	MeleeViewMesh->CastShadow = false;
-	MeleeViewMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MeleeViewMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 	MeleeViewMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 
 	// Overalls sleeves for the view-model arms — leader-posed to MeleeViewMesh in setup.
@@ -131,7 +131,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MeleeViewOveralls->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeleeViewOveralls->bCastDynamicShadow = false;
 	MeleeViewOveralls->CastShadow = false;
-	MeleeViewOveralls->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MeleeViewOveralls->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 
 	// Bare Marcus-skin hands for the melee view-model — leader-posed to MeleeViewMesh in
 	// setup (same bare-hand mesh the ranged arms use, so hands match on every weapon).
@@ -142,7 +142,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MeleeHands->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeleeHands->bCastDynamicShadow = false;
 	MeleeHands->CastShadow = false;
-	MeleeHands->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MeleeHands->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 
 	PlayerMesh->SetOnlyOwnerSee(true);
 	PlayerMesh->bCastDynamicShadow = true;
@@ -158,7 +158,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	RangedArms->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RangedArms->bCastDynamicShadow = false;
 	RangedArms->CastShadow = false;
-	RangedArms->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	RangedArms->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 
 	RangedHands = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RangedHands"));
 	RangedHands->SetupAttachment(PlayerMesh);
@@ -167,7 +167,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	RangedHands->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RangedHands->bCastDynamicShadow = false;
 	RangedHands->CastShadow = false;
-	RangedHands->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	RangedHands->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 
 	RangedSleeve = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RangedSleeve"));
 	RangedSleeve->SetupAttachment(PlayerMesh);
@@ -176,7 +176,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	RangedSleeve->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RangedSleeve->bCastDynamicShadow = false;
 	RangedSleeve->CastShadow = false;
-	RangedSleeve->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	RangedSleeve->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 
 	// --- Marcus appearance (CCMH body shell) ---
 	// Meshes/AnimBP/leader-pose/source wired in SetupMarcusAppearance() at BeginPlay.
@@ -206,7 +206,7 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MarcusHead->SetupAttachment(MarcusBody);
 	MarcusHead->SetOnlyOwnerSee(true);
 	MarcusHead->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MarcusHead->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MarcusHead->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 	MarcusHead->SetVisibility(false);
 
 	// Hair + brows — Marcus's authored look from the "Marcus" CC_SaveGame entry
@@ -215,14 +215,14 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MarcusHair->SetupAttachment(MarcusBody);
 	MarcusHair->SetOnlyOwnerSee(true);
 	MarcusHair->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MarcusHair->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MarcusHair->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 	MarcusHair->SetVisibility(false);
 
 	MarcusBrows = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusBrows"));
 	MarcusBrows->SetupAttachment(MarcusBody);
 	MarcusBrows->SetOnlyOwnerSee(true);
 	MarcusBrows->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MarcusBrows->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	MarcusBrows->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // REVERTED 2026-08-04: OnlyTickPoseWhenRendered deadlocks first show (no tick -> stale bounds -> culled -> never renders); arm failed to render on pipe equip
 	MarcusBrows->SetVisibility(false);
 
 	MarcusSneakers = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MarcusSneakers"));
@@ -688,6 +688,10 @@ void AZP_GraceCharacter::BeginPlay()
 
 		// Batch all static mesh actors into per-floor ISMCs
 		ISMBatcherComp->BatchStaticMeshes();
+
+		// Runtime light pass: placed movable shadow-casting lights -> Stationary (VSM/Lumen caching).
+		// Skips lights attached to other actors (elevator car) and Pawns. Never touches the disk level.
+		ISMBatcherComp->StabilizeLights();
 
 		// Wire batcher into floor culling so it can skip batched actors + toggle ISMs
 		FloorCullingComp->ISMBatcher = ISMBatcherComp;
@@ -1202,7 +1206,13 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	// it's open, pull IMC_Grace + go GameAndUI so the controller/keyboard reach the widget's own
 	// Continue button (A / Enter dismiss it; mouse still works so there's no hard-lock). Detected via
 	// Moonville's bFirstTimePickupMenuOpen flag; restore on close.
+	// perf 2026-08-04: widget-tree scan throttled to 4 Hz (was every frame — GetAllWidgetsOfClass
+	// walks the full Slate tree; 0.25s open/close detection latency is imperceptible here).
+	static double LastPickupScanWall = 0.0;
+	static TWeakObjectPtr<UUserWidget> CachedPickupW;
+	if (FPlatformTime::Seconds() - LastPickupScanWall >= 0.25)
 	{
+		LastPickupScanWall = FPlatformTime::Seconds();
 		// Detect by WIDGET PRESENCE (Moonville's bFirstTimePickupMenuOpen flag proved unreliable).
 		static UClass* PickupCls = LoadClass<UUserWidget>(nullptr,
 			TEXT("/Game/InventorySystemPro/Blueprints/UI/SubWidgets/WBP_FirstTimePickupNotificationBase.WBP_FirstTimePickupNotificationBase_C"));
@@ -1213,6 +1223,7 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			UWidgetBlueprintLibrary::GetAllWidgetsOfClass(this, Found, PickupCls, false);
 			for (UUserWidget* W : Found) { if (W && W->IsInViewport()) { PickupW = W; break; } }
 		}
+		CachedPickupW = PickupW;
 		const bool bPickupNow = (PickupW != nullptr);
 		if (bPickupNow != bPickupMenuActive)
 		{
@@ -1237,11 +1248,19 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 			}
 		}
 
-		// While the pickup widget is up, CommonActivatableWidget keeps re-applying its own InputConfig
-		// (UIOnly/GameAndUI) over the SetInputMode we set on open — which causes Slate to eat A and the
-		// PC's WasInputKeyJustPressed to return false. Re-assert GameOnly + IMC_Grace removal every Tick
-		// so the raw poll below actually receives A.
-		if (bPickupMenuActive && PickupW)
+	}
+
+	// While the pickup widget is up, CommonActivatableWidget keeps re-applying its own InputConfig
+	// (UIOnly/GameAndUI) over the SetInputMode we set on open — which causes Slate to eat A and the
+	// PC's WasInputKeyJustPressed to return false. Re-assert GameOnly + IMC_Grace removal every Tick
+	// so the raw poll below actually receives A.
+	// perf-fix 2026-08-04: this block MUST run EVERY tick, NOT inside the 4Hz scan throttle above —
+	// WasInputKeyJustPressed is a single-frame check; at 4Hz most presses land between polls and
+	// read false (dev: "B doesn't exit the first time pickup screen" — B was wired, the throttle
+	// was eating it). Detect stays throttled; the key poll uses the cached widget.
+	{
+		UUserWidget* PickupW = CachedPickupW.IsValid() ? CachedPickupW.Get() : nullptr;
+		if (bPickupMenuActive && PickupW && PickupW->IsInViewport())
 		{
 			if (APlayerController* PC = Cast<APlayerController>(GetController()))
 			{
@@ -3414,6 +3433,18 @@ void AZP_GraceCharacter::UseItemFromShortcutSlot(int32 SlotIndex)
 {
 	if (!MoonvilleInventoryComp) return;
 
+	// Pure-heal consumable at full HP → refuse BEFORE Moonville consumes it. The item stays
+	// in the slot untouched; optional AZP_HealRefuseSound gives the "health already full" cue.
+	if (ShouldRefuseConsumableAtFullHealth(GetShortcutSlotItemDA(SlotIndex)))
+	{
+		if (AZP_HealRefuseSound)
+		{
+			UGameplayStatics::PlaySound2D(this, AZP_HealRefuseSound);
+		}
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] Heal item in slot %d refused — health already full"), SlotIndex);
+		return;
+	}
+
 	UFunction* UseFunc = MoonvilleInventoryComp->FindFunction(FName("ExecuteItemActionByShortcut"));
 	if (!UseFunc)
 	{
@@ -3430,6 +3461,12 @@ void AZP_GraceCharacter::UseItemFromShortcutSlot(int32 SlotIndex)
 }
 
 TSubclassOf<AActor> AZP_GraceCharacter::GetWeaponFromShortcutSlot(int32 SlotIndex)
+{
+	UObject* ItemDA = GetShortcutSlotItemDA(SlotIndex);
+	return ItemDA ? GetWeaponClassFromItem(ItemDA) : nullptr;
+}
+
+UObject* AZP_GraceCharacter::GetShortcutSlotItemDA(int32 SlotIndex)
 {
 	if (!MoonvilleInventoryComp) return nullptr;
 
@@ -3463,10 +3500,31 @@ TSubclassOf<AActor> AZP_GraceCharacter::GetWeaponFromShortcutSlot(int32 SlotInde
 	FObjectProperty* ObjProp = CastField<FObjectProperty>(ItemProp);
 	if (!ObjProp) return nullptr;
 
-	UObject* ItemDA = ObjProp->GetObjectPropertyValue(ObjProp->ContainerPtrToValuePtr<void>(ElementData));
-	if (!ItemDA) return nullptr;
+	return ObjProp->GetObjectPropertyValue(ObjProp->ContainerPtrToValuePtr<void>(ElementData));
+}
 
-	return GetWeaponClassFromItem(ItemDA);
+bool AZP_GraceCharacter::ShouldRefuseConsumableAtFullHealth(UObject* ItemDA) const
+{
+	if (!ItemDA || !HealthComp) return false;
+	if (HealthComp->CurrentHealth < HealthComp->AZP_MaxHealth - KINDA_SMALL_NUMBER) return false;
+
+	// PDA_Item.ItemActionActor (class ref) — the consume action that WOULD run on use.
+	UClass* ActionClass = nullptr;
+	if (FClassProperty* CP = CastField<FClassProperty>(ItemDA->GetClass()->FindPropertyByName(FName("ItemActionActor"))))
+	{
+		ActionClass = Cast<UClass>(CP->GetObjectPropertyValue(CP->ContainerPtrToValuePtr<void>(ItemDA)));
+	}
+	if (!ActionClass) return false;
+
+	const FString ActionName = ActionClass->GetName(); // e.g. "BP_ConsumeHealthAction_C"
+	for (const FString& Refused : AZP_FullHealthRefuseActions)
+	{
+		if (!Refused.IsEmpty() && ActionName.StartsWith(Refused))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 bool AZP_GraceCharacter::IsWeaponClassInGrid(TSubclassOf<AActor> InWeaponClass)
@@ -3602,6 +3660,18 @@ AActor* AZP_GraceCharacter::GetClosestMoonvillePickupOwner()
 bool AZP_GraceCharacter::ShouldBlockPickupInteraction(AActor* PickupActor)
 {
 	if (!PickupActor || !KinemationComp) return false;
+
+	// 2a — already picked up: Moonville HIDES the actor but keeps it alive (respawn/save).
+	// Without this check, RefreshPickupBlockStates re-enabled the hidden item's interaction
+	// volumes (QueryOnly) on the very inventory update its pickup fired — a ghost interaction
+	// glyph at the empty spot until the player left the InteractionArea entirely.
+	if (FBoolProperty* PickedProp = CastField<FBoolProperty>(PickupActor->GetClass()->FindPropertyByName(FName("bIsPickedUp"))))
+	{
+		if (PickedProp->GetPropertyValue_InContainer(PickupActor))
+		{
+			return true;
+		}
+	}
 
 	UObject* ItemDA = GetPickupItemDA(PickupActor);
 	if (!ItemDA) return false;
@@ -4570,19 +4640,32 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 	{
 		UMaterialInterface* MarcusSkin = LoadObject<UMaterialInterface>(nullptr,
 			TEXT("/Game/CharacterCustomizer/Characters/CCMH/Materials/Skin/MI_Skin_Body_CCMH.MI_Skin_Body_CCMH"));
+		// Hands/forearms MATCH THE MELEE VIEW-MODEL (dev 2026-08-05: swapping melee<->ranged must
+		// not change the hand material). Same knob + fallback chain the melee paint uses:
+		// KinemationComp AZP_MeleeHandMaterial -> MI_HandSkin -> CCMH body skin as last resort.
+		UMaterialInterface* HandSkin = KinemationComp ? KinemationComp->AZP_MeleeHandMaterial.Get() : nullptr;
+		if (!HandSkin)
+		{
+			HandSkin = LoadObject<UMaterialInterface>(nullptr,
+				TEXT("/Game/Core/Materials/MI_HandSkin.MI_HandSkin"));
+		}
+		if (!HandSkin)
+		{
+			HandSkin = MarcusSkin;
+		}
 		if (USkeletalMesh* ArmMesh = LoadObject<USkeletalMesh>(nullptr,
 			TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SK_Arm_01a.SK_Arm_01a")))
 		{
 			RangedArms->SetSkeletalMesh(ArmMesh);
 			RangedArms->SetLeaderPoseComponent(PlayerMesh);
-			if (MarcusSkin) RangedArms->SetMaterial(0, MarcusSkin);
+			if (HandSkin) RangedArms->SetMaterial(0, HandSkin);
 		}
 		if (USkeletalMesh* HandMesh = LoadObject<USkeletalMesh>(nullptr,
 			TEXT("/Game/KINEMATION/TacticalShooterPack/Character/Operator/UE5/SK_Hand_01a.SK_Hand_01a")))
 		{
 			RangedHands->SetSkeletalMesh(HandMesh);
 			RangedHands->SetLeaderPoseComponent(PlayerMesh);
-			if (MarcusSkin) RangedHands->SetMaterial(0, MarcusSkin);
+			if (HandSkin) RangedHands->SetMaterial(0, HandSkin);
 		}
 		// FP shirt sleeve over the bare arms so they're clothed, reskinned toward Marcus's
 		// shirt (closest Operator-skeleton sleeve we can leader-pose; CCMH overalls can't).

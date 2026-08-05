@@ -155,6 +155,52 @@ bool UZP_SFXStatics::IsOccludedFromListener(UWorld* World, const FVector& Source
 void UZP_SFXStatics::ComputePropagation(UWorld* World, const FVector& SourceLoc, const AActor* IgnoreActor,
 	float& OutVolumeMul, float& OutLowPassHz, bool* bOutTransmitConfident)
 {
+	// perf 2026-08-04: memoize per (source-cell, listener-cell) for 0.5s — every occluded enemy
+	// footstep re-ran the occlusion trace + a SYNC navmesh pathfind from the same 200uu cells.
+	struct FPropCacheEntry { double Time; float Vol; float LPF; bool Confident; };
+	static TMap<uint64, FPropCacheEntry> Cache;
+	uint64 Key = 0;
+	bool bHaveKey = false;
+	if (World)
+	{
+		if (const APlayerController* PC = World->GetFirstPlayerController())
+		{
+			if (const APawn* Pawn = PC->GetPawn())
+			{
+				auto Cell = [](const FVector& V) -> uint64
+				{
+					return (uint64)(uint16)FMath::FloorToInt(V.X / 200.f)
+						| ((uint64)(uint16)FMath::FloorToInt(V.Y / 200.f) << 16)
+						| ((uint64)(uint16)FMath::FloorToInt(V.Z / 200.f) << 32);
+				};
+				Key = Cell(SourceLoc) ^ (Cell(Pawn->GetActorLocation()) * 0x9E3779B97F4A7C15ull);
+				bHaveKey = true;
+				if (const FPropCacheEntry* Hit = Cache.Find(Key))
+				{
+					if (FPlatformTime::Seconds() - Hit->Time < 0.5)
+					{
+						OutVolumeMul = Hit->Vol;
+						OutLowPassHz = Hit->LPF;
+						if (bOutTransmitConfident) { *bOutTransmitConfident = Hit->Confident; }
+						return;
+					}
+				}
+			}
+		}
+	}
+	bool bConfident = false;
+	ComputePropagationUncached(World, SourceLoc, IgnoreActor, OutVolumeMul, OutLowPassHz, &bConfident);
+	if (bOutTransmitConfident) { *bOutTransmitConfident = bConfident; }
+	if (bHaveKey)
+	{
+		if (Cache.Num() > 256) { Cache.Empty(); }
+		Cache.Add(Key, { FPlatformTime::Seconds(), OutVolumeMul, OutLowPassHz, bConfident });
+	}
+}
+
+void UZP_SFXStatics::ComputePropagationUncached(UWorld* World, const FVector& SourceLoc, const AActor* IgnoreActor,
+	float& OutVolumeMul, float& OutLowPassHz, bool* bOutTransmitConfident)
+{
 	OutVolumeMul = 1.f;
 	OutLowPassHz = 0.f;
 	if (bOutTransmitConfident) { *bOutTransmitConfident = false; }
@@ -235,7 +281,7 @@ UAudioComponent* UZP_SFXStatics::PlaySFXAttached(USoundBase* Sound, USceneCompon
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[SFX] '%s' attached to %s vol=%.2f carry=%d dynamic=%d"),
+	UE_LOG(LogTemp, Verbose, TEXT("[SFX] '%s' attached to %s vol=%.2f carry=%d dynamic=%d"),
 		*Sound->GetName(), AttachTo->GetOwner() ? *AttachTo->GetOwner()->GetName() : TEXT("?"),
 		Volume, (int32)Carry, bPropagate ? 1 : 0);
 	return AC;

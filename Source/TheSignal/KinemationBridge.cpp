@@ -161,6 +161,35 @@ void FKinemationBridge::AnimSetActiveSettings(UObject* AnimComp, UObject* Settin
 	UE_LOG(LogKinemation, Log, TEXT("Set ActiveSettings on %s to %s"), *AnimComp->GetName(), *Settings->GetName());
 }
 
+void FKinemationBridge::AnimEnsureActiveSettings(UObject* AnimComp)
+{
+	if (!AnimComp)
+	{
+		return;
+	}
+	FObjectPropertyBase* ObjProp = CastField<FObjectPropertyBase>(
+		AnimComp->GetClass()->FindPropertyByName(TEXT("ActiveSettings")));
+	if (!ObjProp)
+	{
+		return;
+	}
+	void* ValuePtr = ObjProp->ContainerPtrToValuePtr<void>(AnimComp);
+	if (ObjProp->GetObjectPropertyValue(ValuePtr) != nullptr)
+	{
+		return;
+	}
+	UClass* SettingsClass = ObjProp->PropertyClass;
+	if (!SettingsClass || SettingsClass->HasAnyClassFlags(CLASS_Abstract))
+	{
+		return;
+	}
+	UObject* Fallback = NewObject<UObject>(AnimComp, SettingsClass);
+	ObjProp->SetObjectPropertyValue(ValuePtr, Fallback);
+	UE_LOG(LogKinemation, Log,
+		TEXT("Installed fallback ActiveSettings (%s) on %s — silences the per-frame UE5_ABP_IK_Pose 'Accessed None' while unarmed/melee."),
+		*SettingsClass->GetName(), *AnimComp->GetName());
+}
+
 void FKinemationBridge::AnimToggleReadyPose(UObject* AnimComp, bool bUseHighReady)
 {
 	if (!AnimComp) return;

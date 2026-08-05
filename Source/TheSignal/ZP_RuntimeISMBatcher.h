@@ -37,6 +37,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ISM Batcher")
 	int32 AZP_MinInstanceCount = 10;
 
+	/** PIE/game-only light pass: flip placed MOVABLE shadow-casting lights to STATIONARY at start so
+	 *  VSM/Lumen can cache their shadows instead of re-rendering them every frame. A light qualifies
+	 *  only when its owning actor is NOT attached to another actor (elevator/door-mounted lights keep
+	 *  Movable and keep moving) and is not a Pawn (flashlight, enemies). Runtime-only — the level on
+	 *  disk is never modified. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ISM Batcher|Lights")
+	bool bAZP_StabilizeLights = true;
+
 	/** Floor params — synced from FloorCullingComponent before BatchStaticMeshes(). */
 	float AZP_FloorHeight = 500.0f;
 	float AZP_FloorBaseZ = 0.0f;
@@ -47,6 +55,10 @@ public:
 
 	/** Creates per-floor ISMCs from all StaticMeshActors. Call after floor params are set. */
 	void BatchStaticMeshes();
+
+	/** Runtime light-mobility pass (see bAZP_StabilizeLights). Call once at game start. */
+	UFUNCTION(BlueprintCallable, Category = "ISM Batcher")
+	void StabilizeLights();
 
 	/** Show/hide all ISMCs on a specific floor. Called by FloorCullingComponent. */
 	void SetFloorVisible(int32 FloorIndex, bool bVisible);

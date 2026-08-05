@@ -1,0 +1,1682 @@
+[
+ {
+  "actor": "PointLight2_14",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight27",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight28",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight29",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight31",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight32",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight33",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight34",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight39",
+  "comp": "LightComponent0",
+  "cast_shadows": false,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight40",
+  "comp": "LightComponent0",
+  "cast_shadows": false,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight38_2",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight6",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight7",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight4_6",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight35",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight43",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight44",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight45",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight46",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight5",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "SpotLight3_3",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight9",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight10",
+  "comp": "LightComponent0",
+  "cast_shadows": false,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight49",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight50",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 232.41282653808594,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight59",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "SpotLight5",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "SpotLight7",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1505.727294921875,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "SpotLight9",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight62",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "PointLight3_9",
+  "comp": "LightComponent0",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_63",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1493.6434326171875,
+  "max_draw_distance": 4500.0,
+  "max_distance_fade_range": 4000.0
+ },
+ {
+  "actor": "BP_Light_67",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1493.6434326171875,
+  "max_draw_distance": 4500.0,
+  "max_distance_fade_range": 4000.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_2",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_4",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_6",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_9",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_10",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_11",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_12",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_13",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_14",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_15",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_16",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_17",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_18",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_25",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_26",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_29",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_3",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_34",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_35",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_38",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_4",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_48",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_5",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_54",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_57",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_59",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_6",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_69",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_7",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_73",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_76",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_78",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_8",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_81",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_97",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_19",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_2",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_20",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_21",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_22",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_23",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_24",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_27",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_30",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_31",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_32",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_33",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_36",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_37",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_39",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_40",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_41",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_42",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_43",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_44",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_45",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_46",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_47",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_49",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_51",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_53",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1326.953369140625,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_55",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_60",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_66",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_71",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_95",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_74",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_0",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_68",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1000.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_SavePoint_C_1",
+  "comp": "MonitorGlow",
+  "cast_shadows": true,
+  "attenuation_radius": 200.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "ZP_MapPickup_0",
+  "comp": "PickupGlow",
+  "cast_shadows": true,
+  "attenuation_radius": 150.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_0",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_CardReaderPanel_C_1",
+  "comp": "StatusLight",
+  "cast_shadows": true,
+  "attenuation_radius": 100.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_1",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1493.6434326171875,
+  "max_draw_distance": 4500.0,
+  "max_distance_fade_range": 4000.0
+ },
+ {
+  "actor": "BP_Light_50",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 1493.6434326171875,
+  "max_draw_distance": 4500.0,
+  "max_distance_fade_range": 4000.0
+ },
+ {
+  "actor": "BP_Light_52",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "ZP_TransitReturn_7",
+  "comp": "IndicatorLight",
+  "cast_shadows": false,
+  "attenuation_radius": 150.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "ZP_TransitReturn_9",
+  "comp": "IndicatorLight",
+  "cast_shadows": false,
+  "attenuation_radius": 150.0,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_1",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_3",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_5",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_7",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_8",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_9",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_10",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_11",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_12",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_13",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_14",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_16",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_17",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_18",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_19",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_20",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_21",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_15",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_72",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_79",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_80",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_82",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_83",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_84",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_85",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_86",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_87",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_88",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_89",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_90",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_91",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_92",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_93",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_94",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_96",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_98",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_99",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_100",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_101",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_102",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_103",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_104",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_105",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_108",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_109",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_110",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_111",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_112",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_113",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_56",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_58",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_61",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_62",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_64",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_70",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_106",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_107",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_114",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_115",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_116",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_117",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_118",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_119",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_120",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_121",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_122",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_123",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_124",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_125",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_126",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_127",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_128",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_129",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_130",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_131",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_132",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_133",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_134",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_135",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_22",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_23",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_24",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_25",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_26",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_27",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_28",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_29",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_HorrorLight_C_31",
+  "comp": "SpotLight",
+  "cast_shadows": true,
+  "attenuation_radius": 676.0691528320312,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_136",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_137",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_138",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_139",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_140",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_141",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_142",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_143",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_65",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_75",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ },
+ {
+  "actor": "BP_Light_77",
+  "comp": "PointLight",
+  "cast_shadows": true,
+  "attenuation_radius": 298.88330078125,
+  "max_draw_distance": 0.0,
+  "max_distance_fade_range": 0.0
+ }
+]

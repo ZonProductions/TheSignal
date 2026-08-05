@@ -287,10 +287,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
 	float AZP_BlockGripBlendSpeed = 8.0f;
 
-	/** Material painted on the melee view-model's bare-skin slots (forearm + hand) so the
-	 *  FP melee arms read as Marcus skin. Defaults to MI_HandSkin (flat, tunable tone).
-	 *  Swap or re-point this in BP_GraceCharacter → KinemationComp Details → Kinemation|Melee;
-	 *  applied on melee init (set value + restart PIE to re-apply). */
+	/** Material painted on the view-model hand/forearm skin slots — MELEE (Skin+Gloves slots)
+	 *  AND RANGED (RangedArms/RangedHands, since 2026-08-05) so the hands never change material
+	 *  when swapping stances. Defaults to MI_HandSkin (flat, tunable tone). Swap or re-point in
+	 *  BP_GraceCharacter → KinemationComp Details → Kinemation|Melee; applied at init
+	 *  (set value + restart PIE to re-apply). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
 	TObjectPtr<UMaterialInterface> AZP_MeleeHandMaterial;
 

@@ -1123,6 +1123,17 @@ private:
 	/** Calls Moonville's ExecuteItemActionByShortcut for consumable items. */
 	void UseItemFromShortcutSlot(int32 SlotIndex);
 
+	/** Consume-action classes (PDA_Item.ItemActionActor) refused when health is already FULL —
+	 *  the quickslot press does nothing and the item is NOT consumed. Class-name prefix match
+	 *  ("BP_ConsumeHealthAction" matches the _C runtime class). Pure heals only — buff actions
+	 *  (invincibility/damage reduction) stay usable at full HP. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items|Consumables", meta = (AllowPrivateAccess = "true"))
+	TArray<FString> AZP_FullHealthRefuseActions = { TEXT("BP_ConsumeHealthAction"), TEXT("BP_ConsumeHydrationAction") };
+
+	/** Optional 2D cue played when a heal item is refused at full HP. None = silent refuse. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items|Consumables", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USoundBase> AZP_HealRefuseSound;
+
 	/** Adds AZP_StartingWeaponItem to inventory at BeginPlay. */
 	void GrantStartingItems();
 
@@ -1319,6 +1330,13 @@ private:
 
 	/** Reads weapon class from Moonville's ShortcutSlots[SlotIndex] via reflection. */
 	TSubclassOf<AActor> GetWeaponFromShortcutSlot(int32 SlotIndex);
+
+	/** Reads the Item DataAsset (PDA_Item) from Moonville's ShortcutSlots[SlotIndex] via reflection. */
+	UObject* GetShortcutSlotItemDA(int32 SlotIndex);
+
+	/** True if this item's consume action is a pure heal (AZP_FullHealthRefuseActions) AND the
+	 *  player's health is already full — using it would waste the item. */
+	bool ShouldRefuseConsumableAtFullHealth(UObject* ItemDA) const;
 
 	/** True if the weapon class is actually in the GRID (ItemSlots) — the source of truth. A quick-slot can
 	 *  keep a stale ref after the item moves to a briefcase, so we verify the grid before equipping. */

@@ -14,6 +14,8 @@
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"
 #include "TimerManager.h"
 
 // All values resolved for one composite spawn (instance overrides OR class defaults).
@@ -127,10 +129,21 @@ void UZP_BloodFXComponent::PrewarmWorldOnce(UWorld* World)
 	if (PrewarmedWorld.Get() == World) { return; }
 	PrewarmedWorld = World;
 
-	// Fire each system + one decal far below the map at tiny scale: Niagara render resources,
-	// materials, and PSOs all compile during load. Everything auto-destroys. All six variants are
-	// prewarmed so any per-enemy AZP_BloodIntensity choice is hitch-free.
-	const FVector Below(0.f, 0.f, -100000.f);
+	// Fire each system + one decal at tiny scale: Niagara render resources, materials, and PSOs
+	// all compile during load. Everything auto-destroys. All six variants are prewarmed so any
+	// per-enemy AZP_BloodIntensity choice is hitch-free.
+	// perf 2026-08-04: warm IN VIEW (just ahead of the camera) — the old -100000 Z spawn was
+	// frustum-culled, so its PSOs never actually compiled and the first real hit still stalled.
+	// At 0.05 scale, 1.5m out, this renders behind the warmup-gate loading screen.
+	FVector Below(0.f, 0.f, -100000.f);
+	if (const APlayerController* PC = World->GetFirstPlayerController())
+	{
+		if (PC->PlayerCameraManager)
+		{
+			Below = PC->PlayerCameraManager->GetCameraLocation()
+				+ PC->PlayerCameraManager->GetCameraRotation().Vector() * 150.f;
+		}
+	}
 	auto Prewarm = [&](const TCHAR* Path)
 	{
 		if (UNiagaraSystem* Sys = LoadObject<UNiagaraSystem>(nullptr, Path))

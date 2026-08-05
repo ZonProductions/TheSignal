@@ -40,6 +40,13 @@ void AZP_ObjectiveReactor::BeginPlay()
 			*GetName(), *AZP_StartObjectiveOnBeginPlay.ToString());
 	}
 
+	// A save restore fired AFTER BeginPlay (EGUI load hook) wholesale-replaces objective state and
+	// can wipe the just-started level main — re-assert it whenever a restore lands.
+	if (AZP_StartObjectiveOnBeginPlay != NAME_None)
+	{
+		Obj->OnStateRestored.AddDynamic(this, &AZP_ObjectiveReactor::OnObjectiveStateRestored);
+	}
+
 	if (AZP_ListenId == NAME_None) { return; }
 
 	// Already completed before this level loaded — END state instantly, never replay.
@@ -62,6 +69,7 @@ void AZP_ObjectiveReactor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		{
 			Obj->OnFlagSet.RemoveDynamic(this, &AZP_ObjectiveReactor::OnObjectiveEventFired);
 			Obj->OnObjectiveCompleted.RemoveDynamic(this, &AZP_ObjectiveReactor::OnObjectiveEventFired);
+			Obj->OnStateRestored.RemoveDynamic(this, &AZP_ObjectiveReactor::OnObjectiveStateRestored);
 		}
 	}
 	Super::EndPlay(EndPlayReason);
@@ -72,6 +80,21 @@ void AZP_ObjectiveReactor::OnObjectiveEventFired(FName Id)
 	if (Id == AZP_ListenId && !bFired)
 	{
 		React(/*bInstant*/ false);
+	}
+}
+
+void AZP_ObjectiveReactor::OnObjectiveStateRestored()
+{
+	UGameInstance* GI = GetGameInstance();
+	UZP_ObjectiveSubsystem* Obj = GI ? GI->GetSubsystem<UZP_ObjectiveSubsystem>() : nullptr;
+	if (!Obj || AZP_StartObjectiveOnBeginPlay == NAME_None) { return; }
+
+	if (!Obj->IsObjectiveActive(AZP_StartObjectiveOnBeginPlay)
+		&& !Obj->IsObjectiveComplete(AZP_StartObjectiveOnBeginPlay))
+	{
+		Obj->StartObjective(AZP_StartObjectiveOnBeginPlay);
+		UE_LOG(LogTemp, Log, TEXT("[TheSignal] ObjectiveReactor %s: re-asserted level objective '%s' after save restore"),
+			*GetName(), *AZP_StartObjectiveOnBeginPlay.ToString());
 	}
 }
 

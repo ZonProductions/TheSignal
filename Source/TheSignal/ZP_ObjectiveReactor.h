@@ -85,6 +85,11 @@ private:
 	UFUNCTION()
 	void OnObjectiveEventFired(FName Id);
 
+	/** Re-assert AZP_StartObjectiveOnBeginPlay after a save restore replaced objective state — a slot
+	 *  saved in another level doesn't contain this level's main, so the restore would wipe it. */
+	UFUNCTION()
+	void OnObjectiveStateRestored();
+
 	/** Run the reactions. bInstant = end state only (save-load): no stinger, no fade. */
 	void React(bool bInstant);
 

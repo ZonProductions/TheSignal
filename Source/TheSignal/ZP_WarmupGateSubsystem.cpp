@@ -9,9 +9,20 @@
 #include "Engine/World.h"
 #include "GameFramework/GameModeBase.h"
 #include "HAL/IConsoleManager.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "ContentStreaming.h"
+#include "Engine/Texture.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "PipelineStateCache.h"
 #include "ShaderCompiler.h"
+#include "UObject/UObjectIterator.h"
+#include "ZP_KinemationComponent.h"
+#if WITH_EDITOR
+#include "TextureCompiler.h"
+#endif
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 #include "UObject/UObjectGlobals.h"
@@ -36,6 +47,18 @@ static TAutoConsoleVariable<int32> CVarWarmupGatePause(
 static TAutoConsoleVariable<int32> CVarWarmupGateWaitForShaders(
 	TEXT("zp.WarmupGate.WaitForShaders"), 1,
 	TEXT("1 = also hold until GShaderCompilingManager reports no pending shader compiles (editor on-demand compiles). Bounded by TimeoutSec."));
+
+static TAutoConsoleVariable<int32> CVarWarmupGateStreamTextures(
+	TEXT("zp.WarmupGate.StreamTextures"), 1,
+	TEXT("1 = force-stream ALL level textures to full mip residency behind the loading screen so floor/stair crossings never stream textures. 0 = off."));
+
+static TAutoConsoleVariable<float> CVarWarmupGateTextureTimeoutSec(
+	TEXT("zp.WarmupGate.TextureTimeoutSec"), 30.0f,
+	TEXT("Sub-timeout for the texture pre-stream: past this the gate stops waiting on textures and logs it (streaming pool likely smaller than the level's full texture set)."));
+
+static TAutoConsoleVariable<int32> CVarWarmupGateKeepTexturesResident(
+	TEXT("zp.WarmupGate.KeepTexturesResident"), 1,
+	TEXT("1 = after the gate releases, keep all pre-streamed textures mip-resident for the session (no re-streaming when crossing floors). If GPU device-hung/VRAM pressure appears, set this to 0 first."));
 
 namespace
 {
@@ -144,6 +167,33 @@ namespace
 		TEXT("/Game/Materials/UI/M_DamageReductionVignette.M_DamageReductionVignette"),
 		TEXT("/Game/Materials/UI/M_InvincibilityVignette.M_InvincibilityVignette"),
 		TEXT("/Game/EasyGameUI/EasyOptionsMenu/Core/WBP_NoteEntry.WBP_NoteEntry_C"),
+		// 2026-08-04 first-use hitch hunt (wf_91c5bb35): weapon BP classes sync-load on FIRST
+		// equip AND on walking near their pickups (ZP_GraceCharacter.cpp GetWeaponClassFromItem
+		// LoadSynchronous) — measured 189-529ms stalls. Load them here instead.
+		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Equipment/Weapons/BP_Pipe.BP_Pipe_C"),
+		TEXT("/Game/KINEMATION/TacticalShooterPack/Blueprints/Weapons/BP_WK-11_Viper.BP_WK-11_Viper_C"),
+		TEXT("/Game/KINEMATION/TacticalShooterPack/Blueprints/Weapons/BP_Herrington_11-87_Police.BP_Herrington_11-87_Police_C"),
+		TEXT("/Game/KINEMATION/TacticalShooterPack/Blueprints/Weapons/BP_AK105.BP_AK105_C"),
+		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Equipment/Weapons/BP_ExplosiveGrenade.BP_ExplosiveGrenade_C"),
+		TEXT("/Game/InventorySystemPro/ExampleContent/Common/Equipment/Weapons/BP_ThrowableRock.BP_ThrowableRock_C"),
+		TEXT("/Game/Core/Meshes/SM_PoliceShotgun.SM_PoliceShotgun"),
+		// Item DataAssets — sync-loaded when a locked door/vent SHOWS ITS PROMPT, at card
+		// readers, key pickups, and objective HasItem checks (ZP_InteractDoor.cpp:546/626,
+		// ZP_VentDoor.cpp:249/262, ZP_CardReaderPanel.cpp:253/281, ZP_KeyPickup.cpp:55,
+		// ZP_ObjectiveSubsystem.cpp:436).
+		TEXT("/Game/Core/Items/DA_IDCard.DA_IDCard"),
+		TEXT("/Game/Core/Items/DA_SecurityOfficeKey.DA_SecurityOfficeKey"),
+		TEXT("/Game/Core/Items/DA_Fuse.DA_Fuse"),
+		TEXT("/Game/Core/Items/DA_Screwdriver.DA_Screwdriver"),
+		TEXT("/Game/Core/Items/DA_Pipe.DA_Pipe"),
+		TEXT("/Game/Core/Items/DA_Grace_Pistol.DA_Grace_Pistol"),
+		TEXT("/Game/Core/Items/DA_PoliceShotgun.DA_PoliceShotgun"),
+		TEXT("/Game/Core/Items/DA_AssaultRifle.DA_AssaultRifle"),
+		TEXT("/Game/Core/Items/DA_ExplosiveGrenade.DA_ExplosiveGrenade"),
+		TEXT("/Game/Core/Items/DA_ThrowableRock.DA_ThrowableRock"),
+		TEXT("/Game/Core/Items/DA_AdrenalineShot.DA_AdrenalineShot"),
+		TEXT("/Game/Core/Items/DA_Suppressant.DA_Suppressant"),
+		TEXT("/Game/Core/Items/DA_StimVial.DA_StimVial"),
 	};
 }
 
@@ -225,11 +275,80 @@ void UZP_WarmupGateSubsystem::Tick(float DeltaTime)
 		}
 	}
 
+	// --- PSO warm (2026-08-04): PIE cannot precache PSOs, so anything not DRAWN during the
+	// gate stalls the render thread on first sight (~uniform 400ms+, the door/stairs hitches).
+	// Spin the view 360° with alternating pitch behind the loading screen so every room in
+	// range submits draws now. Occlusion queries are disabled for the hold (StartGate).
+	UWorld* World = GetWorld();
+	APlayerController* PC = World ? World->GetFirstPlayerController() : nullptr;
+	APawn* Pawn = PC ? PC->GetPawn() : nullptr;
+	if (WarmSpinTick < 16 && Pawn)
+	{
+		if (UCameraComponent* Cam = Pawn->FindComponentByClass<UCameraComponent>())
+		{
+			if (!bWarmSpinRotCaptured)
+			{
+				WarmSpinOriginalRot = Cam->GetComponentRotation();
+				bWarmSpinRotCaptured = true;
+			}
+			FRotator R = WarmSpinOriginalRot;
+			R.Yaw += 22.5f * WarmSpinTick;
+			R.Pitch = (WarmSpinTick % 2 == 0) ? -20.0f : 20.0f;
+			Cam->SetWorldRotation(R);
+			WarmSpinTick++;
+			if (WarmSpinTick == 16)
+			{
+				Cam->SetWorldRotation(WarmSpinOriginalRot);
+			}
+		}
+		else
+		{
+			WarmSpinTick = 16; // no camera - skip
+		}
+	}
+
+	// --- Melee view-model warm (2026-08-04): render-only. The hidden Kubold view meshes are
+	// never drawn until first pipe equip (measured 189-529ms stall). Show them for ~0.3s
+	// behind the loading screen so their PSOs compile; no Kinemation state is touched.
+	if (WarmMeleePhase == 0 && LoadsDrainedAt > 0.0 && Pawn)
+	{
+		WarmMeleePhase = 2;
+		TArray<USkeletalMeshComponent*> SkelComps;
+		Pawn->GetComponents<USkeletalMeshComponent>(SkelComps);
+		for (USkeletalMeshComponent* C : SkelComps)
+		{
+			const FString N = C->GetName();
+			if ((N == TEXT("MeleeViewMesh") || N == TEXT("MeleeViewOveralls") || N == TEXT("MeleeHands"))
+				&& !C->IsVisible() && C->GetSkeletalMeshAsset())
+			{
+				C->SetVisibility(true);
+				WarmMeleePhase = 1;
+				WarmMeleeActivatedAt = Now;
+			}
+		}
+	}
+	else if (WarmMeleePhase == 1 && Now - WarmMeleeActivatedAt >= 0.3 && Pawn)
+	{
+		TArray<USkeletalMeshComponent*> SkelComps;
+		Pawn->GetComponents<USkeletalMeshComponent>(SkelComps);
+		for (USkeletalMeshComponent* C : SkelComps)
+		{
+			const FString N = C->GetName();
+			if (N == TEXT("MeleeViewMesh") || N == TEXT("MeleeViewOveralls") || N == TEXT("MeleeHands"))
+			{
+				C->SetVisibility(false);
+			}
+		}
+		WarmMeleePhase = 2;
+	}
+
 	if (LoadsDrainedAt == 0.0 && AreLoadsDrained())     { LoadsDrainedAt = Elapsed; }
 	if (ShadersDrainedAt == 0.0 && AreShadersDrained()) { ShadersDrainedAt = Elapsed; }
 	if (PSOsDrainedAt == 0.0 && ArePSOsDrained())       { PSOsDrainedAt = Elapsed; }
+	if (TexturesDrainedAt == 0.0 && AreTexturesDrained(Elapsed)) { TexturesDrainedAt = Elapsed; }
 
-	const bool bAllDrained = LoadsDrainedAt > 0.0 && ShadersDrainedAt > 0.0 && PSOsDrainedAt > 0.0;
+	const bool bAllDrained = LoadsDrainedAt > 0.0 && ShadersDrainedAt > 0.0 && PSOsDrainedAt > 0.0
+		&& TexturesDrainedAt > 0.0 && WarmSpinTick >= 16 && WarmMeleePhase == 2;
 	const float MinShow = CVarWarmupGateMinShowSec.GetValueOnGameThread();
 	const float Timeout = CVarWarmupGateTimeoutSec.GetValueOnGameThread();
 
@@ -281,6 +400,30 @@ void UZP_WarmupGateSubsystem::StartGate()
 	//    precaching is disabled in-editor so this is a no-op in PIE).
 	PipelineStateCache::PrecachePSOsBoostToHighestPriority(true);
 
+	// 4b) Disable occlusion queries for the hold so occluded rooms still submit their draws
+	//     during the warm spin (PSOs compile for geometry the spawn view can't see).
+	//     Restored in ReleaseGate.
+	if (IConsoleVariable* Occ = IConsoleManager::Get().FindConsoleVariable(TEXT("r.AllowOcclusionQueries")))
+	{
+		OcclusionQueriesPrior = Occ->GetInt();
+		Occ->Set(0, ECVF_SetByCode);
+		bOcclusionDisabled = true;
+	}
+
+	// 5) Force-stream every level texture to full mip residency while the screen is up —
+	//    the "massive loading after each floor" (2026-08-04) is first-sight texture
+	//    streaming; front-load all of it here. Level packages hard-ref their materials
+	//    and materials hard-ref textures, so every floor's textures are already LOADED
+	//    as objects — only their mips stream. Marking them force-resident makes the
+	//    streamer pull everything now instead of on first sight. (In PIE this also
+	//    catches editor-loaded /Game textures — an acceptable superset.)
+	if (CVarWarmupGateStreamTextures.GetValueOnGameThread() != 0)
+	{
+		// Cover the warm phase generously; the keep-resident re-mark happens at release.
+		NumTexturesForced = ForceAllTexturesResident(CVarWarmupGateTimeoutSec.GetValueOnGameThread() + 30.0f);
+		UE_LOG(LogTemp, Warning, TEXT("[WarmupGate] texture pre-stream: %d /Game textures forced to full residency."), NumTexturesForced);
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("[WarmupGate] HOLDING loading screen: preloading %d assets, draining loaders/shaders/PSOs (timeout %.0fs)."),
 		UE_ARRAY_COUNT(GWarmupManifest), CVarWarmupGateTimeoutSec.GetValueOnGameThread());
 }
@@ -289,6 +432,49 @@ void UZP_WarmupGateSubsystem::ReleaseGate(bool bTimedOut)
 {
 	UWorld* World = GetWorld();
 	const double Elapsed = FPlatformTime::Seconds() - GateStartTime;
+
+	// Undo the PSO-warm scaffolding (occlusion queries, camera spin, melee warm visibility) —
+	// mandatory on the timeout path where the warm cycle may still be mid-flight.
+	if (bOcclusionDisabled)
+	{
+		if (IConsoleVariable* Occ = IConsoleManager::Get().FindConsoleVariable(TEXT("r.AllowOcclusionQueries")))
+		{
+			Occ->Set(OcclusionQueriesPrior, ECVF_SetByCode);
+		}
+		bOcclusionDisabled = false;
+	}
+	APawn* Pawn = nullptr;
+	if (World)
+	{
+		if (APlayerController* PC = World->GetFirstPlayerController())
+		{
+			Pawn = PC->GetPawn();
+		}
+	}
+	if (Pawn)
+	{
+		if (bWarmSpinRotCaptured)
+		{
+			if (UCameraComponent* Cam = Pawn->FindComponentByClass<UCameraComponent>())
+			{
+				Cam->SetWorldRotation(WarmSpinOriginalRot);
+			}
+		}
+		if (WarmMeleePhase == 1)
+		{
+			TArray<USkeletalMeshComponent*> SkelComps;
+			Pawn->GetComponents<USkeletalMeshComponent>(SkelComps);
+			for (USkeletalMeshComponent* C : SkelComps)
+			{
+				const FString N = C->GetName();
+				if (N == TEXT("MeleeViewMesh") || N == TEXT("MeleeViewOveralls") || N == TEXT("MeleeHands"))
+				{
+					C->SetVisibility(false);
+				}
+			}
+			WarmMeleePhase = 2;
+		}
+	}
 
 	// Unpause BEFORE the hide call — the EGUI hide graph runs a world-latent Delay node
 	// that never fires in a paused world.
@@ -301,19 +487,88 @@ void UZP_WarmupGateSubsystem::ReleaseGate(bool bTimedOut)
 	CallStartStopLoadingScreen(/*bStop=*/true, /*bFade=*/true);
 	State = EGateState::Released;
 
+	// Pin the pre-streamed mips for the whole session so floor/stair crossings never
+	// re-stream textures (8h duration ≈ session lifetime; runtime-only flag, not saved).
+	if (CVarWarmupGateStreamTextures.GetValueOnGameThread() != 0 &&
+		CVarWarmupGateKeepTexturesResident.GetValueOnGameThread() != 0)
+	{
+		ForceAllTexturesResident(8.0f * 3600.0f);
+	}
+
 	if (bTimedOut)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[WarmupGate] TIMED OUT after %.1fs — released anyway. Drained: loads=%s(%.1fs) shaders=%s(%.1fs) psos=%s(%.1fs)"),
+		UE_LOG(LogTemp, Error, TEXT("[WarmupGate] TIMED OUT after %.1fs — released anyway. Drained: loads=%s(%.1fs) shaders=%s(%.1fs) psos=%s(%.1fs) textures=%s(%.1fs)"),
 			Elapsed,
 			LoadsDrainedAt > 0.0 ? TEXT("yes") : TEXT("NO"), LoadsDrainedAt,
 			ShadersDrainedAt > 0.0 ? TEXT("yes") : TEXT("NO"), ShadersDrainedAt,
-			PSOsDrainedAt > 0.0 ? TEXT("yes") : TEXT("NO"), PSOsDrainedAt);
+			PSOsDrainedAt > 0.0 ? TEXT("yes") : TEXT("NO"), PSOsDrainedAt,
+			TexturesDrainedAt > 0.0 ? TEXT("yes") : TEXT("NO"), TexturesDrainedAt);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[WarmupGate] RELEASED after %.1fs (loads drained at %.1fs, shaders %.1fs, PSOs %.1fs)."),
-			Elapsed, LoadsDrainedAt, ShadersDrainedAt, PSOsDrainedAt);
+		UE_LOG(LogTemp, Warning, TEXT("[WarmupGate] RELEASED after %.1fs (loads drained at %.1fs, shaders %.1fs, PSOs %.1fs, textures %.1fs [%d forced, resident=%s])."),
+			Elapsed, LoadsDrainedAt, ShadersDrainedAt, PSOsDrainedAt, TexturesDrainedAt,
+			NumTexturesForced,
+			CVarWarmupGateKeepTexturesResident.GetValueOnGameThread() != 0 ? TEXT("session") : TEXT("temp"));
 	}
+}
+
+int32 UZP_WarmupGateSubsystem::ForceAllTexturesResident(const float DurationSec) const
+{
+	int32 Count = 0;
+	for (TObjectIterator<UTexture> It; It; ++It)
+	{
+		UTexture* Tex = *It;
+		if (!IsValid(Tex) || Tex->IsTemplate())
+		{
+			continue;
+		}
+		// Scope to project content — engine/editor UI textures are not the hitch source.
+		const UPackage* Pkg = Tex->GetOutermost();
+		if (!Pkg || !Pkg->GetName().StartsWith(TEXT("/Game")))
+		{
+			continue;
+		}
+		Tex->SetForceMipLevelsToBeResident(DurationSec);
+		Count++;
+	}
+	return Count;
+}
+
+bool UZP_WarmupGateSubsystem::AreTexturesDrained(const double Elapsed)
+{
+	if (CVarWarmupGateStreamTextures.GetValueOnGameThread() == 0)
+	{
+		return true;
+	}
+	if (Elapsed >= CVarWarmupGateTextureTimeoutSec.GetValueOnGameThread())
+	{
+		if (!bTextureTimeoutLogged)
+		{
+			bTextureTimeoutLogged = true;
+			UE_LOG(LogTemp, Error, TEXT("[WarmupGate] texture pre-stream sub-timeout (%.0fs) — releasing without full residency. Streaming pool may be smaller than the level's texture set (check 'stat streaming'); crossings can still stream."),
+				CVarWarmupGateTextureTimeoutSec.GetValueOnGameThread());
+		}
+		return true;
+	}
+	// Drained = the streamer has nothing left to load AND (in editor) the texture compiler has
+	// no DDC encodes left. The compiles are the killer: first PIE after a pack import runs
+	// hundreds of 2K/4K encodes and each lands as a render stall mid-play (151 measured
+	// 2026-08-04). Require 2s of STABLE zero — both pipelines kick new work in waves.
+	int32 Pending = IStreamingManager::Get().GetTextureStreamingManager().GetNumWantingResources();
+#if WITH_EDITOR
+	Pending += FTextureCompilingManager::Get().GetNumRemainingTextures();
+#endif
+	if (Pending == 0)
+	{
+		if (TexZeroSince == 0.0)
+		{
+			TexZeroSince = Elapsed;
+		}
+		return (Elapsed - TexZeroSince) >= 2.0;
+	}
+	TexZeroSince = 0.0;
+	return false;
 }
 
 AActor* UZP_WarmupGateSubsystem::FindOrSpawnOpsManager()

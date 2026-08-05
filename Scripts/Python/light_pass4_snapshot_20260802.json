@@ -1,0 +1,132 @@
+[
+ {
+  "actor": "SpotLight7",
+  "comp": "LightComponent0",
+  "attenuation_radius": 1179.0
+ },
+ {
+  "actor": "BP_Light_63",
+  "comp": "SpotLight",
+  "attenuation_radius": 1493.6434326171875
+ },
+ {
+  "actor": "BP_Light_67",
+  "comp": "SpotLight",
+  "attenuation_radius": 831.0
+ },
+ {
+  "actor": "BP_Light_20",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_21",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_22",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_23",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_27",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_30",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_36",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_40",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_41",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_42",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_43",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_44",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_45",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_46",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_47",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_49",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_53",
+  "comp": "PointLight",
+  "attenuation_radius": 1326.953369140625
+ },
+ {
+  "actor": "BP_Light_1",
+  "comp": "SpotLight",
+  "attenuation_radius": 1493.6434326171875
+ },
+ {
+  "actor": "BP_Light_50",
+  "comp": "SpotLight",
+  "attenuation_radius": 1493.6434326171875
+ },
+ {
+  "actor": "PointLight59",
+  "comp": "LightComponent0",
+  "attenuation_radius": 1000.0
+ },
+ {
+  "actor": "SpotLight9",
+  "comp": "LightComponent0",
+  "attenuation_radius": 1000.0
+ },
+ {
+  "actor": "PointLight62",
+  "comp": "LightComponent0",
+  "attenuation_radius": 1000.0
+ },
+ {
+  "actor": "PointLight3_9",
+  "comp": "LightComponent0",
+  "attenuation_radius": 1000.0
+ }
+]

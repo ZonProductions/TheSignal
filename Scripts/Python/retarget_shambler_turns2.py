@@ -124,6 +124,14 @@ for src_name, out_name in CLIPS:
     for n in [str(c) for c in (unreal.AnimationLibrary.get_animation_curve_names(
             anim, unreal.RawCurveTrackTypes.RCT_FLOAT) or [])]:
         unreal.AnimationLibrary.remove_curve(anim, n, False)
+    # 2026-08-04 lesson: the SLS Idle/Turn_* SOURCES are ADDITIVE (AAT_LOCAL_SPACE_BASE vs
+    # frame 0) with force_root_lock=True, and duplicate_and_retarget COPIES those flags onto
+    # the output. On the necromorph (hips IS the root; ref-pose hips scale 0.0001) either flag
+    # collapses the evaluated pose -> INVISIBLE mesh + blank previews. Clear them so the
+    # retargeted full-pose tracks play as absolute animation.
+    anim.set_editor_property('additive_anim_type', unreal.AdditiveAnimationType.AAT_NONE)
+    anim.set_editor_property('ref_pose_type', unreal.AdditiveBasePoseType.ABPT_NONE)
+    anim.set_editor_property('force_root_lock', False)
     length = unreal.AnimationLibrary.get_sequence_length(anim)
     moving = False
     probe = None

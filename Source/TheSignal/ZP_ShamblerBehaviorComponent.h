@@ -251,6 +251,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float AZP_ScreamHoldTime = 2.0f;
 
+	// ── Perf (2026-08-04) ──────────────────────────────────────────
+	/** While WANDERING and off-screen, freeze the mesh's anim evaluation — a moving skeletal
+	 *  mesh invalidates the cached VSM shadow pages of every light containing it, every frame.
+	 *  Combat states always evaluate (swing-position reads must never stall). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Perf")
+	bool bAZP_AnimOnlyWhenRendered = true;
+
+	/** Behavior tick interval while wandering beyond AZP_FarWanderDistance from the player
+	 *  (0 = every frame). Detection latency worst-case equals this value. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Perf")
+	float AZP_FarWanderTickInterval = 0.25f;
+
+	/** Distance beyond which a wandering Shambler's behavior ticks at AZP_FarWanderTickInterval. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Perf")
+	float AZP_FarWanderDistance = 3500.f;
+
 	/** Scream hold when aggro came from TAKING DAMAGE (or damage lands mid-scream). Short — a
 	 *  point-blank attacker must not get a free 2 s wail to wale on; it snaps into the fight.
 	 *  This is what makes melee spam trade instead of farming a stationary target. */
@@ -265,10 +281,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
 	float AZP_AlertTurnMinAngle = 45.f;
 
-	/** Play-rate on the alert turn clips (2.0s raw — 1.5 gives a ~1.3s reaction turn). The root
-	 *  yaw rate is derived so the rotation completes at ~70% of the clip, landing with the step. */
+	/** THE turn-speed dial. Play-rate on the alert turn clips (2.0s raw — 2.5 gives a ~0.8s
+	 *  reaction turn; 1.5 was the old ~1.3s "pretty slow" feel, dev 2026-08-04). The actor yaw
+	 *  rate is derived so the rotation completes at ~70% of the clip, landing with the step —
+	 *  so this ONE knob scales clip speed and turn speed together. Higher = snappier. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Attack")
-	float AZP_AlertTurnPlayRate = 1.5f;
+	float AZP_AlertTurnPlayRate = 2.5f;
 
 	// --- Speeds (set on the owner's CharacterMovement) ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Move")
@@ -585,7 +603,7 @@ public:
 	 *    meshOff = mesh relative Z − MeshBaseRelZ      -> which state nudge is currently applied
 	 *  Turn OFF once measured — this logs on a timer and will spam. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")
-	bool bAZP_FloatProbe = true;
+	bool bAZP_FloatProbe = false; // perf 2026-08-04: measured & done — was shipping ON (72 complex traces + 72 Warning lines/sec across placed shamblers)
 
 	/** Seconds between [FloatProbe] lines. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Probe")

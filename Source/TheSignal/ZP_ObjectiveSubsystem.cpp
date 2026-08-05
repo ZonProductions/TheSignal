@@ -121,6 +121,14 @@ void UZP_ObjectiveSubsystem::StartObjective(FName ObjectiveId)
 			}
 		}
 	}
+	else
+	{
+		// Still added (legacy semantics), but it can never own the HUD tracker without a def —
+		// GetActiveMainObjective skips defless ids and falls back to an older main. Loud so a
+		// stale DT_Objectives bake (edit Objectives.json → forgot bake_objectives.py) is obvious.
+		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] StartObjective '%s': no definition in DT_Objectives — active but untrackable (re-bake Objectives.json?)"),
+			*ObjectiveId.ToString());
+	}
 
 	ActiveObjectives.Add(ObjectiveId);
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Objective STARTED: %s"), *ObjectiveId.ToString());
@@ -243,16 +251,23 @@ void UZP_ObjectiveSubsystem::TryAdvance()
 			}
 
 			// 2) Complete the main once every sub that is in play is done. "In play" = always-visible OR
-			//    already revealed; a still-hidden optional sub never blocks completion.
+			//    already revealed; a still-hidden optional sub never blocks completion. A main with ZERO
+			//    in-play subs is WAITING (every step still reveal-gated), NOT done — without the
+			//    InPlaySubs guard, a fully-gated main (RESEARCH1 at ResearchFacility start: both subs
+			//    behind ELEVATOR_BLOCKED_SEEN / FUSE_BOX_TOUCHED) completed the INSTANT its reactor
+			//    started it, and the tracker fell back to an older main ("Search for clues").
 			if (Def->SubObjectives.Num() > 0 && !CompletedObjectives.Contains(ActiveId))
 			{
 				bool bAllSubs = true;
+				int32 InPlaySubs = 0;
 				for (const FZP_SubObjectiveDef& Sub : Def->SubObjectives)
 				{
 					const bool bInPlay = (Sub.RevealRequirements.Num() == 0) || RevealedSubObjectives.Contains(Sub.Id);
-					if (bInPlay && !CompletedSubObjectives.Contains(Sub.Id)) { bAllSubs = false; break; }
+					if (!bInPlay) continue;
+					++InPlaySubs;
+					if (!CompletedSubObjectives.Contains(Sub.Id)) { bAllSubs = false; break; }
 				}
-				if (bAllSubs)
+				if (bAllSubs && InPlaySubs > 0)
 				{
 					ActiveObjectives.Remove(ActiveId);
 					CompletedObjectives.Add(ActiveId);
@@ -365,16 +380,19 @@ void UZP_ObjectiveSubsystem::GetSaveState(TArray<FName>& OutActive, TArray<FName
 
 void UZP_ObjectiveSubsystem::RestoreSaveState(const TArray<FName>& InActive, const TArray<FName>& InCompleted, const TArray<FName>& InCompletedSubs, const TArray<FName>& InFlags)
 {
-	TGuardValue<bool> Guard(bRestoring, true);
-	ActiveObjectives = TSet<FName>(InActive);
-	CompletedObjectives = TSet<FName>(InCompleted);
-	CompletedSubObjectives = TSet<FName>(InCompletedSubs);
-	Flags = TSet<FName>(InFlags);
-	// This legacy 4-set path carries no reveal/stage data — clear it and let TryAdvance re-derive
-	// flag-based reveals/stages. (The active path is WriteToSave/ReadFromSave, which round-trips both.)
-	RevealedSubObjectives.Reset();
-	SubObjectiveStage.Reset();
-	TryAdvance();
+	{
+		TGuardValue<bool> Guard(bRestoring, true);
+		ActiveObjectives = TSet<FName>(InActive);
+		CompletedObjectives = TSet<FName>(InCompleted);
+		CompletedSubObjectives = TSet<FName>(InCompletedSubs);
+		Flags = TSet<FName>(InFlags);
+		// This legacy 4-set path carries no reveal/stage data — clear it and let TryAdvance re-derive
+		// flag-based reveals/stages. (The active path is WriteToSave/ReadFromSave, which round-trips both.)
+		RevealedSubObjectives.Reset();
+		SubObjectiveStage.Reset();
+		TryAdvance();
+	}
+	OnStateRestored.Broadcast(); // after the guard: a re-asserting listener's TryAdvance persists normally
 }
 
 void UZP_ObjectiveSubsystem::ReevaluateObjectives()
@@ -475,14 +493,17 @@ void UZP_ObjectiveSubsystem::WriteToSave(UZP_SaveGame* Save) const
 void UZP_ObjectiveSubsystem::ReadFromSave(const UZP_SaveGame* Save)
 {
 	if (!Save) return;
-	TGuardValue<bool> Guard(bRestoring, true);
-	ActiveObjectives       = TSet<FName>(Save->ActiveObjectives);
-	CompletedObjectives    = TSet<FName>(Save->CompletedObjectives);
-	CompletedSubObjectives = TSet<FName>(Save->CompletedSubObjectives);
-	RevealedSubObjectives  = TSet<FName>(Save->RevealedSubObjectives);
-	SubObjectiveStage      = Save->SubObjectiveStages;
-	Flags                  = TSet<FName>(Save->ProgressFlags);
-	TryAdvance(); // monotonic: never regresses restored stage/reveal progress, only carries it forward
+	{
+		TGuardValue<bool> Guard(bRestoring, true);
+		ActiveObjectives       = TSet<FName>(Save->ActiveObjectives);
+		CompletedObjectives    = TSet<FName>(Save->CompletedObjectives);
+		CompletedSubObjectives = TSet<FName>(Save->CompletedSubObjectives);
+		RevealedSubObjectives  = TSet<FName>(Save->RevealedSubObjectives);
+		SubObjectiveStage      = Save->SubObjectiveStages;
+		Flags                  = TSet<FName>(Save->ProgressFlags);
+		TryAdvance(); // monotonic: never regresses restored stage/reveal progress, only carries it forward
+	}
+	OnStateRestored.Broadcast(); // after the guard: a re-asserting listener's TryAdvance persists normally
 }
 
 void UZP_ObjectiveSubsystem::SaveObjectiveState()

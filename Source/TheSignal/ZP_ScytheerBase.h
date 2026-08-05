@@ -89,6 +89,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
 	float AZP_DetectionRange = 1000.f;
 
+	/** Seconds between detection probes (LOS trace + navmesh reachability). Ran EVERY FRAME
+	 *  before 2026-08-04. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
+	float AZP_DetectEvalInterval = 0.15f;
+
+	/** Freeze anim evaluation while off-screen and un-aggroed (VSM page-invalidation relief). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Perf")
+	bool bAZP_AnimOnlyWhenRendered = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
 	float AZP_LoseSightTime = 4.f;
 
@@ -374,6 +383,10 @@ protected:
 private:
 	bool bDead = false;
 	bool bAggro = false;
+	// Detection probe cache (refreshed every AZP_DetectEvalInterval; see Tick)
+	float DetectEvalAccum = 1000.f;
+	bool bCachedSee = false;
+	bool bCachedReachable = false;
 	bool bRestoringDeadState = false; // true only while ApplyDeadStateInstant runs -> Die entry stays silent (no death cry replay on load)
 	float LostSightTimer = 0.f;
 	float PauseTimer = 0.f;

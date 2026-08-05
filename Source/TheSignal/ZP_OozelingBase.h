@@ -107,6 +107,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Detect")
 	float AZP_DetectionRange = 1000.f;
 
+	/** Seconds between detection probes (LOS trace + navmesh reachability). These ran EVERY
+	 *  FRAME per Oozeling before 2026-08-04 — up to 16 traces + a sync pathfind each tick. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Detect")
+	float AZP_DetectEvalInterval = 0.15f;
+
+	/** Freeze anim evaluation while off-screen and un-aggroed — a moving skeletal mesh
+	 *  invalidates the cached VSM shadow pages of every light containing it, every frame. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Perf")
+	bool bAZP_AnimOnlyWhenRendered = true;
+
 	/** Seconds without line of sight before a chasing Oozeling de-aggros. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Detect")
 	float AZP_LoseSightTime = 4.f;
@@ -376,6 +386,10 @@ protected:
 private:
 	bool bDead = false;
 	bool bAggro = false;
+	// Detection probe cache (refreshed every AZP_DetectEvalInterval; see Tick)
+	float DetectEvalAccum = 1000.f;
+	bool bCachedSee = false;
+	bool bCachedReachable = false;
 	/** True only while Detonate()'s self-kill runs — routes OnOwnerDied to AZP_BurstSound
 	 *  (touch-death) instead of AZP_DeathSound (killed). */
 	bool bBurstDeath = false;

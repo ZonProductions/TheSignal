@@ -29,7 +29,14 @@ void UZP_ObjectiveHudBridge::BeginPlay()
 		}
 	}
 
-	HandleTrackerRefresh(); // initial state
+	// Defer the initial refresh one tick so every BeginPlay bootstrap settles first — a per-level
+	// reactor's StartObjective (e.g. RESEARCH1 in ResearchFacility) may run AFTER this component's
+	// BeginPlay, and an immediate refresh would push the PREVIOUS level's bStartOnLoad main
+	// ("Search for clues") into the tracker's 8s show window before the takeover.
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimerForNextTick(this, &UZP_ObjectiveHudBridge::HandleTrackerRefresh);
+	}
 }
 
 void UZP_ObjectiveHudBridge::EndPlay(const EEndPlayReason::Type Reason)
@@ -69,8 +76,12 @@ void UZP_ObjectiveHudBridge::HandleTrackerRefresh()
 
 	FZP_ObjectiveDef Def;
 	TArray<FZP_ObjectiveRow> Rows;
-	if (!Subsystem->GetActiveMainObjectiveView(Def, Rows))
+	if (!Subsystem->GetActiveMainObjectiveView(Def, Rows) || Rows.Num() == 0)
 	{
+		// No active main, OR the active main has no revealed step yet (e.g. RESEARCH1 at level
+		// start: every sub is reveal-gated). Clear the tracker instead of pushing an empty quest
+		// list — an empty DisplayNewQuest never visibly replaces the previous quest, which left a
+		// prior main's steps stuck on screen. Steps re-push here the moment one reveals.
 		if (UWorld* W = GetWorld()) W->GetTimerManager().ClearTimer(FadeTimer);
 		HideObjective(QuestWidget);
 		return;

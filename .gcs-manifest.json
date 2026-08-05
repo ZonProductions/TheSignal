@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-07-15T22:53:11",
+  "created": "2026-08-05T00:06:17",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -5784,8 +5784,8 @@
       "size": 532450
     },
     "Content/BACKUP_InventorySystemPro/ExampleContent/Common/Art/Key/MI_HotelKey.uasset": {
-      "hash": "sha256:21d82df9d2e6f5c89465b6c8c12deca602fd093aea20c170c4ed2a7712baab93",
-      "size": 14702
+      "hash": "sha256:518ad1782e69c1756e81f7f45a5d54f6b5fe5d6635192aae6379c72c1d123f62",
+      "size": 12030
     },
     "Content/BACKUP_InventorySystemPro/ExampleContent/Common/Art/Key/PA_HotelKeyBodies.uasset": {
       "hash": "sha256:ca642911d8e4acbfc20d783d33ec2b9c4bd15ea171436148b65a9e18dc1a12ab",
@@ -5804,8 +5804,8 @@
       "size": 7928
     },
     "Content/BACKUP_InventorySystemPro/ExampleContent/Common/Art/Key/SM_HotelKey.uasset": {
-      "hash": "sha256:e48d1dbc06c2e98c06ccdbea72a70d4c38c813369d79c53426d1ed080fc00fde",
-      "size": 547464
+      "hash": "sha256:3508e0bc7285f4d211bf2090fb1c7e3088008282376cd879c7b2adda4c457c05",
+      "size": 545881
     },
     "Content/BACKUP_InventorySystemPro/ExampleContent/Common/Art/Key/T_HotelKeyIcon.uasset": {
       "hash": "sha256:57fbc3cdb95b8bf59a22ba0e6b323798d570fa59de8deb19e93d7b92f1316d05",
@@ -12796,32 +12796,32 @@
       "size": 18043
     },
     "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Creep_1.uasset": {
-      "hash": "sha256:f5d1f31d4ac77e76012e70c04c73872771338fc35f02f5c7abb58654daa874da",
-      "size": 17914
+      "hash": "sha256:0e39034ff158e5d23ae3252df660b87c2e4f0f14e4b1381e0a560a10fe5ce0de",
+      "size": 17934
     },
     "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Creep_2.uasset": {
-      "hash": "sha256:775d5ae402b0e19a568e345e9f6e900db9582cad0c58d33536f6e9ded840927e",
-      "size": 16646
+      "hash": "sha256:9cf5dc9ba696c8cbda44077717ccf67f2e0ba85bd6ed954524180971e6935d8e",
+      "size": 16503
     },
     "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Plants.uasset": {
-      "hash": "sha256:af8123d39c075adb8801938d64fd48c01f82793c08767be5ee61e8ac081be9a0",
-      "size": 18279
+      "hash": "sha256:2e958b49d93fe001bbfda9b1dab92456d7c325f7900fbb1830802f9e7578780e",
+      "size": 16946
     },
     "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Plants_Emissive.uasset": {
       "hash": "sha256:fe4446eb182214b3d979675588bfb339b0326e569cdeba793bf59195890dcba9",
       "size": 16251
     },
     "Content/Biomass_Bundle/Biomass_Kit/Material_Inst/MI_Tentacles.uasset": {
-      "hash": "sha256:bd269d03822e21e7c90ec933e8e34b1303265e46d318b11e3c7d894471413c18",
-      "size": 17008
+      "hash": "sha256:21fdad9554525c6a172dcce80e6dff8cfcef4e1bf48e1ebdd730a7c49a66a037",
+      "size": 15885
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Big_Corner_Biomass.uasset": {
       "hash": "sha256:c4dfd9c80891b96de1b56fd7fbf90ff1c88a6def188d90d720f9f39ea4dc4a8c",
       "size": 1067255
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Big.uasset": {
-      "hash": "sha256:8f353bb60f5ba50ab57d59eb05c571d3ea5865fd1805dbd17a6d8756e22feba5",
-      "size": 275661
+      "hash": "sha256:80f799d93fd555c352bd9392dba44808d9708f5b032eb0e3239a4bb41df7366c",
+      "size": 275785
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep1_Corner1.uasset": {
       "hash": "sha256:75adc3643fe9f07e3f30ee6d00c69ec565b2ddcc7fb0e2333092496e428af99a",
@@ -12868,8 +12868,8 @@
       "size": 51167
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Big.uasset": {
-      "hash": "sha256:8ef6392d8d1c31e103b39f01d236d5fa751b44d63798889ef8230fa27e7ebd6f",
-      "size": 272861
+      "hash": "sha256:2fce39f43917ff3d7f1e3f50a4f2915a4bb92a246e1784bbb85a05c56accbab2",
+      "size": 272936
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Corner1.uasset": {
       "hash": "sha256:0a260ea94961256cc92a0fcd93693866784b6f74d1e437c8a0f0d82d4acad146",
@@ -12880,12 +12880,12 @@
       "size": 86873
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Middle1.uasset": {
-      "hash": "sha256:3f7990b9cb092ca7cb265f172eacbb422ad8c1bb73c30e659b9d44a99a74b2ce",
-      "size": 118219
+      "hash": "sha256:5d4daf494b001e426b2086ddbe7c5c3a9968d00a7a8823caaa3d7f109625bc61",
+      "size": 118781
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Middle2.uasset": {
-      "hash": "sha256:35f3cbebf9d279bb927a5e8b3336aacb785e8b644d0a43d95f328d925b256c65",
-      "size": 113558
+      "hash": "sha256:e54d266885393c7c5c175b452e8abbe6fc335af0d5fd9c4ddd6c04fdf3b8852f",
+      "size": 113903
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Creep2_Small1.uasset": {
       "hash": "sha256:a8442581c09effbec8d8064ffdcb5801d074e125c9c4954d24cdcd3dd8da3577",
@@ -12924,8 +12924,8 @@
       "size": 27357
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mushroom_1.uasset": {
-      "hash": "sha256:88819b40e222397b2172d950a05ae33ec10c8c2621de365714d090d343227b29",
-      "size": 189913
+      "hash": "sha256:3819abc7377c231d85ed8bbe82a29995988e36f4767a31246e67fe5fff1fc305",
+      "size": 189657
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Mushroom_2.uasset": {
       "hash": "sha256:fa9be0fa93a65b619fe725ec6b93fe944fa35f831eabebe2b8f3ff6b0456a7f7",
@@ -12948,8 +12948,8 @@
       "size": 34719
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_10.uasset": {
-      "hash": "sha256:6da38f601a429a597232c7444cd9f6553570c303e068988f543882f8c0f26955",
-      "size": 171424
+      "hash": "sha256:dd0f533938b08435275095ffefdf81a49af27a10ed5dc62f24839575e52f3c93",
+      "size": 172038
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_2.uasset": {
       "hash": "sha256:9c29205e09872827bc333fb2ebf99248860442276b64c45b980a5e96bc27a733",
@@ -12964,24 +12964,24 @@
       "size": 64242
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_5.uasset": {
-      "hash": "sha256:d0b64075a961a830fd48e35090c6a59e00caa551510de334f4796e1f2870196e",
-      "size": 172070
+      "hash": "sha256:b4cf22be896bb07a43339993ad361c0575fab704b21fc062248898f49c29e850",
+      "size": 172526
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_6.uasset": {
       "hash": "sha256:5e425eacd8692e6de9c1fece5af10a294380ccb1af8fb558ea8914ebdf4ffdf6",
       "size": 54189
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_7.uasset": {
-      "hash": "sha256:f78fccd5ed7bcca44adcf7019ce9ee02af200d0d3bb1096590b947eaf20bc63b",
-      "size": 165436
+      "hash": "sha256:0391c73084075629708465750fa07ba7f23e3eb49c01cd733f71a7fab1201468",
+      "size": 165980
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_8.uasset": {
-      "hash": "sha256:573ac532c9a9c8a34785f1ea9a4d94f257466dfd8a03223af4f9bebd2b8bd942",
-      "size": 130434
+      "hash": "sha256:3e68818d7a0de576a943fb0e944acfbede47f28282d630b0ad767cac73a67b6c",
+      "size": 131114
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_9.uasset": {
-      "hash": "sha256:b41f40491ef5a9304765ed9b31436d9be30226d6f41f8234c9b6a19eeff5da03",
-      "size": 178956
+      "hash": "sha256:a6ce149c816c7ad001a2a1306cfd27313eeae723133d2762587e46539a562da9",
+      "size": 179493
     },
     "Content/Biomass_Bundle/Biomass_Kit/Static_Meshes/SM_Tentacle_Flashlight_1.uasset": {
       "hash": "sha256:a436ee129ced684f688b19c8542d5cdee05aedb74b6af3f4b9a0a8e337b45e0f",
@@ -13464,8 +13464,8 @@
       "size": 18678
     },
     "Content/Biomass_Bundle/Egg_Lifeform/Material_Inst/MI_Egg_Lifeform.uasset": {
-      "hash": "sha256:34a99208776ca7a5cea4d561b04446c660d72c01a9f159f00b7216dcdc0f26bb",
-      "size": 18372
+      "hash": "sha256:d70162f6d10ffe4bb0d269c92fb10fd44d5fe61a95b06308ef5f1acd4336c8f1",
+      "size": 17581
     },
     "Content/Biomass_Bundle/Egg_Lifeform/Meshes/PA_Egg_Lifeform.uasset": {
       "hash": "sha256:3a4770f487b623f5bcb40c96d105ced84b4fd85c70ed12f289de45085c74e945",
@@ -13480,8 +13480,8 @@
       "size": 14473
     },
     "Content/Biomass_Bundle/Egg_Lifeform/Static_Meshes/SM_Egg_Lifeform_Base.uasset": {
-      "hash": "sha256:79480a3cb0aaf83f251e0ba8ed0976536ceb8fb431af989e7f83fbe263e6acd4",
-      "size": 1051414
+      "hash": "sha256:2ee15992fa37f1e9a2baed48b77e124a4ccbe1ac0539c8fa669de8a05398f51b",
+      "size": 1051601
     },
     "Content/Biomass_Bundle/Egg_Lifeform/Static_Meshes/SM_Egg_Lifeform_Opening_Ceiling_End.uasset": {
       "hash": "sha256:1c190ad2b8bf0c5e257b2a6f6872a2f96e19f64d8df9f1f81549d97683d4e488",
@@ -13492,8 +13492,8 @@
       "size": 1050802
     },
     "Content/Biomass_Bundle/Egg_Lifeform/Static_Meshes/SM_Egg_Lifeform_Opening_End.uasset": {
-      "hash": "sha256:4990cb8dbb90a9ca1b9b920fac87c2a2f9125e94f96c892ff100662a142374be",
-      "size": 1046947
+      "hash": "sha256:1c5a3ec46da3c62bf3260400ef6838915cc08016faf1cdbc8bb4c4b0b7be54d8",
+      "size": 1046767
     },
     "Content/Biomass_Bundle/Egg_Lifeform/Textures/2k/T_2k_Egg_Lifeform_Albedo.uasset": {
       "hash": "sha256:71db13bd5ef6363eac590a769afbc71534bb8b2edccd852e577970e4ef31bff9",
@@ -13708,8 +13708,8 @@
       "size": 18492
     },
     "Content/Biomass_Bundle/Whip_Monster/Material_Inst/MI_Whip_Monster.uasset": {
-      "hash": "sha256:313e8136b3afc87c56409d1fb222607b2073011d41db7210520319a01165af91",
-      "size": 17437
+      "hash": "sha256:f5f4f7c35bb37607400a402e96dd3cb15a55d52489d439a3a2c43b57c788000b",
+      "size": 11199
     },
     "Content/Biomass_Bundle/Whip_Monster/Meshes/PA_Whip_Monster.uasset": {
       "hash": "sha256:c1ab3151506c30c979bad5ca503bf17154d510d47388bb77e8ae4fee1df39b48",
@@ -13724,8 +13724,8 @@
       "size": 9453
     },
     "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Base.uasset": {
-      "hash": "sha256:01769e1bd286e87b46b2caf4dae5884ccae34fccd15ec972eb997b14dfd7febc",
-      "size": 825846
+      "hash": "sha256:779d73575259c541f143a9a895b99e78b810d9fe12d26ed7b0add3c98289ecb6",
+      "size": 825885
     },
     "Content/Biomass_Bundle/Whip_Monster/Static_Meshes/Base/SM_Whip_Monster_Dead_1.uasset": {
       "hash": "sha256:e8b2647a9661335cbc825ae7d0876a6b7388fb8a05a2976d912f91364701ac8b",
@@ -15268,8 +15268,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:ac0f55e77b6accf72743a7031bfaec73f2025531de6226b4f88603491ce6a9d3",
-      "size": 7252057
+      "hash": "sha256:6733f77095145648ae5807a05a9e96007545bc311792f28d8aba7120241271fa",
+      "size": 7379335
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -26076,8 +26076,8 @@
       "size": 1353
     },
     "Content/Core/Input/IMC_Grace.uasset": {
-      "hash": "sha256:971ba9c9a35a6ecf36f491fb5b5b4ceac57b100d6d7fa15ba2a2eca845190b12",
-      "size": 19875
+      "hash": "sha256:d789d6f77916fe1811603c562e8db6d76e56617977c4662ff101767a96270192",
+      "size": 32260
     },
     "Content/Core/Input/Actions/IA_Aim.uasset": {
       "hash": "sha256:2aa39b8438b5e5976a75e8f36f593d7a477d6cda0ca1969173290fb4ca12dd2f",
@@ -26292,8 +26292,8 @@
       "size": 9042
     },
     "Content/Core/Meshes/SM_PoliceShotgun.uasset": {
-      "hash": "sha256:c2f4fc3c74bcf069cbe8e06e06f6bd7fe75a70b79e036e92defce55fc1c71eaa",
-      "size": 369570
+      "hash": "sha256:bc42ab4460868cd60ab5e879d1e888bb28872e40a5537e85a8883d68a9fead4a",
+      "size": 369260
     },
     "Content/Core/Meshes/SM_PoliceShotgun_PhysicsAsset.uasset": {
       "hash": "sha256:91594e9018398b4a1bdaa716690d12eb711a7e388a890c496f8579d25e22fad4",
@@ -26316,8 +26316,8 @@
       "size": 68476
     },
     "Content/Core/Player/BP_GraceCharacter.uasset": {
-      "hash": "sha256:f9707d50ba3d258a14a2ff8ab63921c67d58709475cb422a0b96ab5ddaf7a07b",
-      "size": 137751
+      "hash": "sha256:5181beb0614fa267a606efe516ec817033150dabdef01d4d0b245722980cf4bc",
+      "size": 138336
     },
     "Content/Core/Player/BS_Grace_Locomotion.uasset": {
       "hash": "sha256:05d4977b92f33e6e336c833ef35dbd9fb12e437190952b287de4baf3190d90e7",
@@ -26428,12 +26428,12 @@
       "size": 199699
     },
     "Content/EasyGameUI/Core/GlobalConfig/DA_EGUI_DemoConfig.uasset": {
-      "hash": "sha256:9b6f582711e0777f4ce3633e65ad9086f44e73365796afee8b40189cc2ec937e",
-      "size": 9043
+      "hash": "sha256:c9bae1b79e4b3a3c9bde6a8015635ce0b7b713f5f7323334521cc3afc44a97cc",
+      "size": 8140
     },
     "Content/EasyGameUI/Core/GlobalConfig/DA_EGUI_GlobalConfig.uasset": {
-      "hash": "sha256:fc9b6476961ab431f91921043d8e5d5c1f18e01a772455c4147ce6f0586648c9",
-      "size": 125439
+      "hash": "sha256:df355582fdae7a4314681931d6e8b455dd63d6569ab502681a2933924a5af947",
+      "size": 129872
     },
     "Content/EasyGameUI/Core/GlobalConfig/EUW_GlobalConfigExporter.uasset": {
       "hash": "sha256:507d850707b4a2ba94521af97199420ec30d03b2c6863293a3346498969b0175",
@@ -26500,8 +26500,8 @@
       "size": 1795
     },
     "Content/EasyGameUI/Core/UINavigation/IMC_UI_Navigation.uasset": {
-      "hash": "sha256:8d1db46a7a67f841b737c4e85c32f12dada6c873e43a7fce22b88b32d93fd925",
-      "size": 9336
+      "hash": "sha256:1916597a9f1483dff0c5cc6c76e2c66e0ffe4aba220165623947596f76271542",
+      "size": 12195
     },
     "Content/EasyGameUI/Core/Utilities/BFL_EasyFunctionUtilities.uasset": {
       "hash": "sha256:c8ec7a012638287e5314ff21c435607e009c433f73e2bbff0208beb9929ab62d",
@@ -26532,8 +26532,8 @@
       "size": 185902
     },
     "Content/EasyGameUI/Core/Widgets/WBP_EasyMainMenu.uasset": {
-      "hash": "sha256:c5d21ccf75ad26f20e3d39a0c1baed5e55e8e2412f9c729b46a76c700dd7dbb3",
-      "size": 749460
+      "hash": "sha256:798371d9f6fe93581b47ef44f54874dbc07f94fdbd5ad86c5439c7a11b6aac53",
+      "size": 755377
     },
     "Content/EasyGameUI/Core/Widgets/WBP_EasyPauseMenu.uasset": {
       "hash": "sha256:bee6412d9f9e5fc85c88e20402a28c4fbd7c27533eb13eaa280d0e2484d45631",
@@ -28596,8 +28596,8 @@
       "size": 76877
     },
     "Content/Enemies/Shambler/BP_Shambler.uasset": {
-      "hash": "sha256:35d2d7311fdaec808bea78b7e99b387de5c8ba346480020b58aed9709589c115",
-      "size": 60508
+      "hash": "sha256:a0df09b68cbb2a283ee583b1269b74067be24ad1a4e9f5498508a30b133b147d",
+      "size": 60413
     },
     "Content/Enemies/Shambler/BS_Shambler.uasset": {
       "hash": "sha256:c8a4aeff4c85ab989518da99ba90e11f94492d1cd4da1b707018cbf5469dd22a",
@@ -28688,20 +28688,20 @@
       "size": 133727
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Turn_L180.uasset": {
-      "hash": "sha256:4769aae71d02838c0d695b433d554dd0c9ef85520b294178cca70992d94c0953",
-      "size": 193429
+      "hash": "sha256:43cb32d59d48d1fc00b1bd551d74287b62ed787c8e7fd02fda2b06c5d87eeaa9",
+      "size": 195308
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Turn_L90.uasset": {
-      "hash": "sha256:3c039454d26aa55c25e00d894e233ec8bdf696d1afd261fb7a49f3a59dd69323",
-      "size": 188380
+      "hash": "sha256:0f01e0b0b6b73a738cdfb195ffe66040c9eb8995d6aecbcbdead2b4282efabc5",
+      "size": 190340
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Turn_R180.uasset": {
-      "hash": "sha256:34a41ba49372f4040144a6f367e1801b4889ed5388be7b0c934113059713cb10",
-      "size": 193431
+      "hash": "sha256:468a2c2398df192b01a6c0c49e612dd013d5f08a79c69e2f3b3c05cea65360ae",
+      "size": 195527
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Turn_R90.uasset": {
-      "hash": "sha256:4c0fd5161838a1617ed11b583a48cfff6977db1cd2cc9beb6c116cb92b65e14c",
-      "size": 193424
+      "hash": "sha256:987aa5f968bd172c19a950bd96017dc4345e346640c58d780a8a6e49fc3aa0b8",
+      "size": 195470
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Walk.uasset": {
       "hash": "sha256:97a7801739632830eaa974ca33a2d35393c931fb22fa2d5aaea828af9f73c2e0",
@@ -28804,8 +28804,8 @@
       "size": 76153
     },
     "Content/Fab/Electronic_Fuse/electronic_fuse/StaticMeshes/electronic_fuse.uasset": {
-      "hash": "sha256:53ceb1fff7435544e2ea25dfa7bc94cba08e543c6ba907620da2991165abecbc",
-      "size": 528229
+      "hash": "sha256:2987343ef3c7fe4775b938506b0fe35104f5598ca1cee33540710f32a1a18a1f",
+      "size": 527850
     },
     "Content/Fab/Electronic_Fuse/electronic_fuse/Textures/electronic_fuse_texture_0.uasset": {
       "hash": "sha256:d013b8d498625d18f8ebe3fe02abed8494022301b6e81458f7d8f52ff74bc584",
@@ -38780,8 +38780,8 @@
       "size": 2320
     },
     "Content/InventorySystemPro/Blueprints/Input/InventoryCharacter/IMC_InventoryCharacter.uasset": {
-      "hash": "sha256:f685e240ecae7f33af4abac871f8fd12bb252ef5757ad7ac89dc2539001066be",
-      "size": 18629
+      "hash": "sha256:46c70efcfafa4c93f029a30af02328d4a69e6093f9f40cf7eb6b441fa6c52f69",
+      "size": 29770
     },
     "Content/InventorySystemPro/Blueprints/Input/InventoryInspectionMenu/IA_UI_InventoryInspectionInteract.uasset": {
       "hash": "sha256:b25a96cc190abbdb9e1b6d91381e0c1cf18b168187280892ec2c26e2f247c069",
@@ -39992,12 +39992,12 @@
       "size": 243457
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Ammo9mm/MI_GoldBullet.uasset": {
-      "hash": "sha256:982eff7619e0cfc4b30e9faaccb1e331936f35a3b6aadf428164b3781b531388",
-      "size": 11686
+      "hash": "sha256:ab81fe43d5b27ef5294f8a672053f0fe70dae377b4740e30d3d428f2e0080cb8",
+      "size": 12044
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Ammo9mm/SM_Ammo9mm.uasset": {
-      "hash": "sha256:bdcfbf1ec913a25a722a5f29dbe1c4cf00e5b503f2591d47a48dbf3c54da5d08",
-      "size": 356991
+      "hash": "sha256:3a612adb2b4a54e3d3ee00a5c940933b7129e247713dd8dda5a8f5ed1449d33a",
+      "size": 358101
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Ammo9mm/T_Ammo9mm.uasset": {
       "hash": "sha256:06e1478e9bdace7a192a4167b39ad1ceca69940e139a59d063be3722dbd44e90",
@@ -40020,8 +40020,8 @@
       "size": 22513
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/AmmoBuckshot/SM_AmmoBuckshot3.uasset": {
-      "hash": "sha256:6bc648703c0f0ece59ad28e98f073dc4d75f36d76f4856bef8b56bb756bae7d4",
-      "size": 112793
+      "hash": "sha256:f138cc0b5bafcf778e7f27f98955914b65fc138b63d24df1306f2773307b622f",
+      "size": 113989
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/AmmoBuckshot/T_Ammo_BuckshotIcon.uasset": {
       "hash": "sha256:2b343d9d6effe90ae8549b3aa957beb60edc5adb08e2b0fc4a8f91cb45fdc949",
@@ -40576,24 +40576,24 @@
       "size": 4693
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/MI_FlashlightAddGlow.uasset": {
-      "hash": "sha256:6b1b1b143341968e2dc696a610dd8afdfc9e5422447145953d4296572fbfecc9",
-      "size": 13558
+      "hash": "sha256:6b2af0eaf7901f58e33501ef0874dde2c30c7dcc4b81e52ea85019f1627acd69",
+      "size": 13633
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/MI_FlashlightAdditionals.uasset": {
       "hash": "sha256:5055f80e11478b332566c196f94ca8fe559b643e66134b69781e9db2380f7d43",
       "size": 13886
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/MI_FlashlightGlow.uasset": {
-      "hash": "sha256:b6ded0ed72f13e0e79d4d62e02dd66c440aa148d1845ddc7b5ae993cdab28395",
-      "size": 12840
+      "hash": "sha256:7f7a448338e6e59c94997841bdcfddbd13dbfa34fd448049f65b0ccb190e150e",
+      "size": 12915
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/M_Flashlight.uasset": {
       "hash": "sha256:1194767595aebf2ecb438b40b3a9418514235e720404647c78b8368a7d0fc2ae",
       "size": 14731
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/M_FlashlightBulb.uasset": {
-      "hash": "sha256:ed2e57d96b5eb5356c1084c4c07fb54c95b8e1ef1db95b6b70d231b7f7f2de58",
-      "size": 10128
+      "hash": "sha256:f6681c846e6bec89f3eeb155cc495377acf4f1e33f995bf4e502324ead5de828",
+      "size": 10960
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/NRM_flashlight.uasset": {
       "hash": "sha256:95c10a856fbf26246662ddbaedef272528c92663d072735849a7c463982557bd",
@@ -40616,8 +40616,8 @@
       "size": 229264
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/SM_flashlight2.uasset": {
-      "hash": "sha256:57599d13fe973b434042d848273196d1dcb19e8a51788582d7925e193b964277",
-      "size": 142893
+      "hash": "sha256:40d5bf01b30f4f0288aa807748fa5ffc80dc8c264ff6f0420dc271027dc6b453",
+      "size": 141448
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Flashlight/T_FlashlightIcon.uasset": {
       "hash": "sha256:63c1deeae1a35a5e0ae6e062b00981ddf36d8db5b46a977f45cd54ba249d4962",
@@ -41620,8 +41620,8 @@
       "size": 12849
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Materials/M_RedFresnelGlow.uasset": {
-      "hash": "sha256:f66aeb0076d3ce29069047df7d09fd440b8bcf5e40facc92d963bf6a448d1de5",
-      "size": 26367
+      "hash": "sha256:782add40d97bd47b09b5590e72fdab4a3dc3bdf82ed19ebce518a12dea505752",
+      "size": 27646
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Materials/M_SecretDrawer.uasset": {
       "hash": "sha256:4490e7d1fd5770c33f707279468f894e5bb8029acf2cbed807b556c37c7154ac",
@@ -41800,12 +41800,12 @@
       "size": 218084
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Medkit/MI_Medkit.uasset": {
-      "hash": "sha256:e5ef50fefbd97d413848a336cfeab398e99777864e8e71bd178681c7b979cb3e",
-      "size": 14407
+      "hash": "sha256:93c3bf4f441d49cc0fbddb9d3cf1249936c85c6db25abdccbc55b85c0cd52b45",
+      "size": 11780
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Medkit/SM_Medkit.uasset": {
-      "hash": "sha256:7689e1a14be22182e0b3d5c3cdad3cf3b76a7e6eba4438a71874c74daf9da755",
-      "size": 143042
+      "hash": "sha256:39e0251f1a7a03c963f43dbfb9e6ae933317a83c3e92a0bae044c27e41815a5f",
+      "size": 141706
     },
     "Content/InventorySystemPro/ExampleContent/Common/Art/Medkit/T_MedkitIcon.uasset": {
       "hash": "sha256:a45b0ca55a946c14b9a32654fa7f368cbf4a1d518e49a43e848e95ca045e1bbf",
@@ -56988,8 +56988,8 @@
       "size": 15784
     },
     "Content/KINEMATION/TacticalShooterPack/Weapons/Herrington_11-87/Materials/MI_Herrington_11-87_Police.uasset": {
-      "hash": "sha256:64ce480980957a07b9ea1eeb3c789e6b8f9e4544b9b0c6113fbab0c800492dd2",
-      "size": 16066
+      "hash": "sha256:908201ff092a6c6517c7eb8c5051385354c94370dc4c110368ac615c2ff0f97f",
+      "size": 13141
     },
     "Content/KINEMATION/TacticalShooterPack/Weapons/Herrington_11-87/Materials/MI_Herrington_11-87_Wood.uasset": {
       "hash": "sha256:a16537d885e8490169a206561311872652caae66e4de3ffc65360984ca030c44",
@@ -75308,16 +75308,16 @@
       "size": 34099
     },
     "Content/Office/Meshes/Sm_CopyMachine.uasset": {
-      "hash": "sha256:64d2cc358c2060511eaa1e3c9ceca84ae24b9fa32c6c14fbf271f239a296034f",
-      "size": 489443
+      "hash": "sha256:e45b8b2fc4e5e1453b2982d4f3521a788f170308e602125a1d7fea21a5204f9c",
+      "size": 487518
     },
     "Content/Office/Meshes/Sm_DocumentHolder02.uasset": {
       "hash": "sha256:f9518af158014968ea3b5ea57a59c262f882c9f69a00a1fec957f4a27061603c",
       "size": 25098
     },
     "Content/Office/Meshes/Sm_Door01.uasset": {
-      "hash": "sha256:08f7746252168050a9fab835f2dbe7a1524f1fbb7b2fc3e2833e872ecdb4a374",
-      "size": 96995
+      "hash": "sha256:43af25f66d615ad531233ba633bf11e1a97c36fc1397bdfa8a765dc84a775d67",
+      "size": 96296
     },
     "Content/Office/Meshes/Sm_Door02.uasset": {
       "hash": "sha256:56a6ae821441c4d3b81b83fac070c1f641e1ea85c5f731a67ad11e2dc04b51a2",
@@ -75476,8 +75476,8 @@
       "size": 20789
     },
     "Content/Office/Meshes/Sm_PaperHolder.uasset": {
-      "hash": "sha256:c0b726b0c3d6bb1d3b31b809e35ac2d77cd6d9b4610d2c4ee7feac0a00d29ea1",
-      "size": 113937
+      "hash": "sha256:09942c5935291e5f79f93b134c2696d0e7d2c0971d522ff391fdaf74d9f87ccf",
+      "size": 111001
     },
     "Content/Office/Meshes/Sm_PcScreen.uasset": {
       "hash": "sha256:fdd97f91b1163c7945d76f24135e08965b779cd9bc349b6aa16d6e72b79d962a",
@@ -75504,8 +75504,8 @@
       "size": 38739
     },
     "Content/Office/Meshes/Sm_Phone02.uasset": {
-      "hash": "sha256:b4ef56aaf1d6178336ed79a84e854dd63f968059f11a07be1f37d56acc9e6fc2",
-      "size": 149409
+      "hash": "sha256:847ad8eec8599163bbaa11428114bdfbb8a239a55396a1a7f7c9a46ce97f78b9",
+      "size": 148241
     },
     "Content/Office/Meshes/Sm_Plug01.uasset": {
       "hash": "sha256:f8385f5f32a513eb63b93fd17c44a93d4c0e513dd8448e2a557f25c36613734d",
@@ -75516,8 +75516,8 @@
       "size": 40813
     },
     "Content/Office/Meshes/Sm_Printer.uasset": {
-      "hash": "sha256:f2f4bf547ec9b66253921984187292478fab1a979473da05c5bf67a654402f83",
-      "size": 117093
+      "hash": "sha256:8c3124ac3f524699b8d39991e571b82e731b1f8784fd6319c4630b4b0b429765",
+      "size": 115242
     },
     "Content/Office/Meshes/Sm_Shelf01.uasset": {
       "hash": "sha256:b49a9fd8bb43fde482d6e6f2c474febc63c4ae4193a0a9bddfda9981ae676882",
@@ -75612,8 +75612,8 @@
       "size": 349628
     },
     "Content/Office/Meshes/Building/Sm_BathRoomSink.uasset": {
-      "hash": "sha256:b5bae6039573a3ca747b6c1df0b879c3f41e27550b94b31032039ac79a964fe8",
-      "size": 107166
+      "hash": "sha256:4f702df71c59d7f50a1ccba02e10b99cad1985fbc8cc95c8e2b2d6a846711635",
+      "size": 106709
     },
     "Content/Office/Meshes/Building/Sm_Ceilling01.uasset": {
       "hash": "sha256:b3ce0dae014d879ead02fb40c8b6c928e94de23a0a516b2cc15048d85183e990",
@@ -76016,12 +76016,12 @@
       "size": 37979
     },
     "Content/Office/OfficeMats/MI_Bin.uasset": {
-      "hash": "sha256:4eecb78e130303bc2cb3dd83838b5fd3c8be035b22879bd08e2ff814d879144a",
-      "size": 22479
+      "hash": "sha256:09e17c46300fae8fb556f2a057eb70e4f36c56653c67292758025eda76283766",
+      "size": 14946
     },
     "Content/Office/OfficeMats/MI_BlackPlastic.uasset": {
-      "hash": "sha256:d195123b68518de97ad3a7346bc845684bc0666998b9cad35483dc9c83fc1a82",
-      "size": 14955
+      "hash": "sha256:67481ef56ec854fc17f419b66111c98d50f07c49cdb1187e10b6144c96c76bd8",
+      "size": 15122
     },
     "Content/Office/OfficeMats/MI_BlackPlastic_2.uasset": {
       "hash": "sha256:cd5694c83515e5d5a0ea9f176da786e82cfbf81aaef85f3c865b8d4eedb396f3",
@@ -76080,8 +76080,8 @@
       "size": 7865
     },
     "Content/Office/OfficeMats/MI_Dark.uasset": {
-      "hash": "sha256:6874d36fff56a92d3ba2b08fbbbdfb2d730921f00e325401b023fa503e98d6a1",
-      "size": 15948
+      "hash": "sha256:233f53975d488fc5d18d96e0c8d6b009c3b305e02d11b760e674cfa3865fd4de",
+      "size": 15912
     },
     "Content/Office/OfficeMats/MI_DarkPlastic.uasset": {
       "hash": "sha256:8edc7ccfedfe618f6805eca51a7103779fc151c6dbe026ef6edeefd581870add",
@@ -76104,8 +76104,8 @@
       "size": 11252
     },
     "Content/Office/OfficeMats/MI_DirtyMetal.uasset": {
-      "hash": "sha256:b1a2f391c61510dd0cad78f0a2d72c0dbed2910d1e685e96b2aa283a182f9ce2",
-      "size": 15523
+      "hash": "sha256:483e51a3dc05d79cc52a897a60a1b9b25b81808f8e8d81d603eeb4af32e9a24d",
+      "size": 15634
     },
     "Content/Office/OfficeMats/MI_Document.uasset": {
       "hash": "sha256:b4165931caba7dbf660c702ad40ef5888962231e8d9521cce2032839a389b188",
@@ -76180,8 +76180,8 @@
       "size": 14762
     },
     "Content/Office/OfficeMats/MI_Metal03.uasset": {
-      "hash": "sha256:e567d5bacc5023880ac68f502f01bb3c1b09776e14956f1f7677edf4abffdaf2",
-      "size": 16554
+      "hash": "sha256:1ec429bedd829a0c53acc4a044723194705ec5f17fcfa127adaae98ea7aff2a3",
+      "size": 16557
     },
     "Content/Office/OfficeMats/MI_MIrror.uasset": {
       "hash": "sha256:4c50edb3cdeb1077a12e124a4e736223733d821c374cdd65fe3b5319a09897c9",
@@ -76220,8 +76220,8 @@
       "size": 14633
     },
     "Content/Office/OfficeMats/MI_Plastic01.uasset": {
-      "hash": "sha256:8af02e50db97e7c6aa2bde391bc082930f686685c2bb8f6b0c3abef965fd53e7",
-      "size": 11884
+      "hash": "sha256:8ef3f65d99e5a05fd6ddfa82143afa6d8aabf34f544a73774559270e7cbcf413",
+      "size": 11430
     },
     "Content/Office/OfficeMats/MI_PlasticBlue.uasset": {
       "hash": "sha256:0387674da0a4bc799dd0d3e71a8cf180f4b7ce6c8688839a428733663ddfa2c6",
@@ -76276,8 +76276,8 @@
       "size": 13708
     },
     "Content/Office/OfficeMats/MI_Wood01.uasset": {
-      "hash": "sha256:00f838b1b4386b83af52deb5af160482917a6027ea14998c818d6550de95ee8d",
-      "size": 15377
+      "hash": "sha256:bf7f23376ace3dbe47b651beb7a18827a173bf34f2d458a5bdb0c5a8c1a0ac45",
+      "size": 15195
     },
     "Content/Office/OfficeMats/MI_Wood02.uasset": {
       "hash": "sha256:ea94832723f5b520d8c97349fa724d172f9f11bdc3d3d1bc68344dabf5ab1df2",
@@ -76364,12 +76364,12 @@
       "size": 16020
     },
     "Content/Office/OfficeMats/Props/MI_CopyMachineDisplay.uasset": {
-      "hash": "sha256:3b0da1eee912f0a20d1fe69e369bc498bda2e43fd885c8ab70436e37c021db4a",
-      "size": 17593
+      "hash": "sha256:9a46b273d991f16811751c951c26f3604b302eff49c2fa1b8542c70def07cf4d",
+      "size": 17258
     },
     "Content/Office/OfficeMats/Props/MI_CopyMachineMain.uasset": {
-      "hash": "sha256:fc5da712a0c863d32cb72f6445bc43a5689108d1acea422b97b7159972c1b64c",
-      "size": 17259
+      "hash": "sha256:1dfba0994760313fb3b39a3d3c319d098a317dcfe8605f0ba3c5a6179c8816b4",
+      "size": 17446
     },
     "Content/Office/OfficeMats/Props/MI_fax.uasset": {
       "hash": "sha256:c6aa74ab8892b734af1dd6bc19c07b75d6b7ad78a36a77a800b07bebe8aa97e4",
@@ -76384,16 +76384,16 @@
       "size": 20101
     },
     "Content/Office/OfficeMats/Props/MI_Phone02.uasset": {
-      "hash": "sha256:3ca6e5b282195d6a1a65ad917bfb91a239329e1d7a70203f462fa6cdd80f672e",
-      "size": 18082
+      "hash": "sha256:47296732cd1a3a34e9cc40b9b2d7ea1ce5636f7bb4f2fcdda76fbf3edc5683f0",
+      "size": 17160
     },
     "Content/Office/OfficeMats/Props/MI_Plug01.uasset": {
       "hash": "sha256:e665fdebec48aa3f2e71a0a24fdc4c74163ac0c33084d4620aa61526750b4d8d",
       "size": 15637
     },
     "Content/Office/OfficeMats/Props/MI_Printer.uasset": {
-      "hash": "sha256:2e12cca0a67751b824f61b32bba4d8ae43b426c079bcb76ea35c195dd6c8b77f",
-      "size": 20070
+      "hash": "sha256:ac3f273884ed8cb471924001c2f7f9d4cf70d72588c743d955a1df7a7835656f",
+      "size": 17548
     },
     "Content/Office/OfficeMats/Props/MI_SmallChair01.uasset": {
       "hash": "sha256:4c4f6177b647045e6c0e1037c7c5894f2f4af9b3aa5521737d5915015c01cf1d",
@@ -77396,8 +77396,8 @@
       "size": 124733
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ArmchairManagerBBlack.uasset": {
-      "hash": "sha256:b6a0ef14aedab0ebd784b1bcd3fd523d8326c5451e0aed9ca1966015bc0cbfdc",
-      "size": 114758
+      "hash": "sha256:0a8ad5ae552b9f29e83b537fad69a21bb16a0b7c74fac18e2b8106a76a6e4d3a",
+      "size": 12049
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ArmchairManagerBBrown.uasset": {
       "hash": "sha256:0e98f14a5f08b88c6dad5d05d14a80aa357be014164ef3d137a247bfc498b541",
@@ -77600,16 +77600,16 @@
       "size": 10172
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ColorOrange.uasset": {
-      "hash": "sha256:187357c60fbaa3ab4ed52cbb146b252211ace41cf5dd52ff4d3a049f7bbfdd5a",
-      "size": 12494
+      "hash": "sha256:4de7c989d5a4d32d388dd8c1660f0c4d5dcec8751dfe39016840655b44540a69",
+      "size": 10793
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ColorShinyBlackPlastic.uasset": {
-      "hash": "sha256:0da3850b1e05236e95fc3a66c44a4a796df4b733f278a89b2f68b630af76a882",
-      "size": 98461
+      "hash": "sha256:08a6f6d5f4ea0bf013e8c70ad11fc388e133d4697d3c9b953aa66aaf30908929",
+      "size": 8035
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ColorShinyWhitePlastic.uasset": {
-      "hash": "sha256:eb752f2829e2ba85e3c8ad4d865163d977702635d5b0c61dfbf7b0482a8c4b63",
-      "size": 91399
+      "hash": "sha256:d3f0158673fb42f46f34247fb9ae6129b8ff6d9f994bf08a9dc97115492445c5",
+      "size": 10466
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ColorWhiteSolid.uasset": {
       "hash": "sha256:90e1396d0fc5b3b596000c8f56a98f7fff72a0a57c8c4aae8ec8009bed868051",
@@ -77624,8 +77624,8 @@
       "size": 117624
     },
     "Content/office_BigCompanyArchViz/Materials/MI_ComfySeat.uasset": {
-      "hash": "sha256:f6d16222faac0638cd4cdaaeba6628466c4b0f99f942f6873c234e2f429afd38",
-      "size": 126827
+      "hash": "sha256:5b9df3846378315c43d47e0040bfe214ea341140fce7ee0a301dc1c5d0362cb2",
+      "size": 126855
     },
     "Content/office_BigCompanyArchViz/Materials/MI_CopyMachine.uasset": {
       "hash": "sha256:70facb290bd490d38cdf5ff37480d67ff3792186923e2e40d5a999221e1d4b9d",
@@ -77672,8 +77672,8 @@
       "size": 135278
     },
     "Content/office_BigCompanyArchViz/Materials/MI_DeskThreeSide.uasset": {
-      "hash": "sha256:a8378b5f7302fc6253fcac96ef676a6a2907f71743dd49f033aa6a1241b38b98",
-      "size": 137859
+      "hash": "sha256:be5a0a34d3f072c5fabb0a8d34235ba8fcf74c1bc0ae7c2a41bb220b06ebdb16",
+      "size": 137887
     },
     "Content/office_BigCompanyArchViz/Materials/MI_DoorBW.uasset": {
       "hash": "sha256:eeee986d857122220d1a38122645096c1f9662121df48cff05a347f0327b6081",
@@ -77872,8 +77872,8 @@
       "size": 80608
     },
     "Content/office_BigCompanyArchViz/Materials/MI_LightWhite.uasset": {
-      "hash": "sha256:3e840b543a075fae69dd17ef1319e760f7e0b1e80d11964c1f3e4c670590ce1f",
-      "size": 45489
+      "hash": "sha256:0fe751019194454e47a55e0afabebe75e53e3886b3fcacebf8c842f14fdd9f0d",
+      "size": 9118
     },
     "Content/office_BigCompanyArchViz/Materials/MI_LightWhite_lOW.uasset": {
       "hash": "sha256:4393bf7a574bbc9574af6188e57f03cb17decd5e8eec00a44632ed44c498c44d",
@@ -78024,8 +78024,8 @@
       "size": 139592
     },
     "Content/office_BigCompanyArchViz/Materials/MI_PlantE.uasset": {
-      "hash": "sha256:af6e256132d4b5183ca0dc10e307e8d774770594d618e14413bb308f34af56d4",
-      "size": 161305
+      "hash": "sha256:89617e1fa42fb85403cc5f767837318f8da037255a0ec47d8fc5a48293bc2c85",
+      "size": 13878
     },
     "Content/office_BigCompanyArchViz/Materials/MI_PlantF.uasset": {
       "hash": "sha256:4fc499b5bdfc78903ab8509bdcc4de5373e8b0adcd1d61c7562e32e9e3794477",
@@ -78124,8 +78124,8 @@
       "size": 122573
     },
     "Content/office_BigCompanyArchViz/Materials/MI_SofaA_Dark.uasset": {
-      "hash": "sha256:0c8c2a7c6f15fddeaa3ce695d81ac41d9376fea2b3524d6b8746e2b45b3b152a",
-      "size": 128062
+      "hash": "sha256:e4a32e6c9db2370f94493422d1c52c859f832fd4d7d8ca4c10fb7f5d5fea09ed",
+      "size": 128090
     },
     "Content/office_BigCompanyArchViz/Materials/MI_SofaA_Light.uasset": {
       "hash": "sha256:bcc350df4d50d969c6d3a3a0bd8c952fb2adda99659519d5c24366dff1a28f0f",
@@ -78160,8 +78160,8 @@
       "size": 127180
     },
     "Content/office_BigCompanyArchViz/Materials/MI_Stationery.uasset": {
-      "hash": "sha256:baf880b7de222b4d89fe50ca88943e2638bf9e2b4b4898c0309d05be1d59d135",
-      "size": 129627
+      "hash": "sha256:3bd89ba94a49050936fa5189708c675a5f4874bc3fbf7dfb49768fa67bba0dbf",
+      "size": 129655
     },
     "Content/office_BigCompanyArchViz/Materials/MI_Steel1.uasset": {
       "hash": "sha256:c93f06eff5997f728334e997c91dcfcaaee729ba51da6ffb84c9d8e391569f74",
@@ -78292,16 +78292,16 @@
       "size": 121086
     },
     "Content/office_BigCompanyArchViz/Materials/MI_WoodBright.uasset": {
-      "hash": "sha256:a750d8a9dcdb9192fdfa7f048b6448d8e5ecf2ae3c800c79087f3ee62aba9bbf",
-      "size": 123500
+      "hash": "sha256:3e6014006d52e5ea6d287474f9413675ea54d9805c56c751969f7eff207dca57",
+      "size": 123528
     },
     "Content/office_BigCompanyArchViz/Materials/MI_Woodfloor.uasset": {
       "hash": "sha256:e572826abf0b178122b18930d187e0e624c696b15623a134a218d569b1b95210",
       "size": 139405
     },
     "Content/office_BigCompanyArchViz/Materials/MI_WoodVenge.uasset": {
-      "hash": "sha256:96af44523fcb7b83b53487b1b4fd30a522811e80a84de65fc6475e3ef235420b",
-      "size": 138489
+      "hash": "sha256:34c83402c30459b8b4e33ee1e428ad345bdb69af5ba2444d9af5ef367b7fcb65",
+      "size": 138517
     },
     "Content/office_BigCompanyArchViz/Materials/MI_YellowLine.uasset": {
       "hash": "sha256:10dec174cdac8655d12a72143690f5ca47436dfa5233e0c3e5d2a1ac5072c773",
@@ -78424,8 +78424,8 @@
       "size": 114880
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Environment/SM_security_text.uasset": {
-      "hash": "sha256:84d24eda0abb8869cf8addbeb7e7d13655b2dce30cbff1bbb6616c824e3accc2",
-      "size": 166960
+      "hash": "sha256:362876ab4f927d3493932990aef5c720c0decb878c986e75b26668277f5f00d6",
+      "size": 91686
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Environment/SM_SillingCompoDark.uasset": {
       "hash": "sha256:7f356f426a73f196de310c5880913a583461f6abd0c217457336a0e93fc65287",
@@ -78524,8 +78524,8 @@
       "size": 272796
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_ArmchairManagerB.uasset": {
-      "hash": "sha256:94e0c92963d67cce7d97d18c05ad89c98f75c51affbdeb785c8a9b7271c50afa",
-      "size": 281475
+      "hash": "sha256:d4b663f5828eb3932c89c4c2ca2370d9fb98e1ff3d8a90bca946513e8cbbee8a",
+      "size": 207768
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_ArmchairManagerC.uasset": {
       "hash": "sha256:eaadba1cafd4e04ff9226f396a3b8e068749a31b84f09213764de8737686ba0b",
@@ -78752,8 +78752,8 @@
       "size": 33714
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_Cupboard.uasset": {
-      "hash": "sha256:c4064d41ce55f4addcb3238800090b8f8267d449925d2816c8f4664e4ecf9546",
-      "size": 156787
+      "hash": "sha256:e53a88213710e2f320dc604339d3c8e9432bfefd289a4ffa73eec9bfd5a40ed3",
+      "size": 156670
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_CurtainLarge.uasset": {
       "hash": "sha256:30c038e84c020a44ee07cb83822fb3202601ce6595910f40d91c21c4eb168986",
@@ -78792,8 +78792,8 @@
       "size": 108844
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_Deskthreeway.uasset": {
-      "hash": "sha256:9b2361405a8b6caf73c59a2b511a2a48bc6eb26a4052c1937b3d64ad77d04cd4",
-      "size": 390245
+      "hash": "sha256:295d8afbbc043adf7d93651d7a2f0be5dbb69d4393894310830e8ba72a500d07",
+      "size": 388758
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_DoorExit.uasset": {
       "hash": "sha256:ae8ae7dde13658ddc18737264080bf70717c3a76c19c52a5663660ba04045027",
@@ -78980,8 +78980,8 @@
       "size": 214693
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_MarkerMug.uasset": {
-      "hash": "sha256:d7d1d2242ea2554829f464b72885113a2f246b6a456dcdb5f64242c640b47c21",
-      "size": 228553
+      "hash": "sha256:b462d427e8d1c8529cd28b321f846196c92be441a0a4f56335cd1ebb91202c52",
+      "size": 150344
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_Microwave.uasset": {
       "hash": "sha256:9df33591f460cec473e3c8d46a284c7e966e1266ecdb8d2ff6f24b4549fc0a0e",
@@ -79132,8 +79132,8 @@
       "size": 343580
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_PlantE.uasset": {
-      "hash": "sha256:380477fe37518a0157582ebee9cfa1e17106158360e03f023f4b44db54ef1725",
-      "size": 756337
+      "hash": "sha256:ddc180666787802a00beb046483ac730b75a7c5d95ccfd2fb5503607a1f68f48",
+      "size": 645636
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_PlantF.uasset": {
       "hash": "sha256:05247858261a7415ad2a7037ae7b5be98ba1e98d067211789d8ba6aed05b1f0f",
@@ -79320,8 +79320,8 @@
       "size": 195769
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_SofaComfySeat.uasset": {
-      "hash": "sha256:32e6d09075db1e44e6032b9fd6e7fd85ce7165b143385e9b990a4454dde1aa5e",
-      "size": 319055
+      "hash": "sha256:87285fd789a143d109ad3d66505f472085063c38c795ac1925f9cd1cba7384d7",
+      "size": 226702
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_SofaGuestDuble.uasset": {
       "hash": "sha256:4377789318db48a8a484b2e14a5c6cda83a1f7ae1a17c426b9bc3e8f80d40f98",
@@ -79368,12 +79368,12 @@
       "size": 352926
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_Sofa_A.uasset": {
-      "hash": "sha256:d033892b703b41caf5bd9c68031edf030ebea33e606775b1f176a27f0fb2008d",
-      "size": 266946
+      "hash": "sha256:9ac65487361f914891866d0e3254a75e72fc346784b2a8351a0dce5e836da405",
+      "size": 184168
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_Sofa_A_Single.uasset": {
-      "hash": "sha256:c28aa03b07c49456bab652feac94efafab7139cc3dce4099f635bdbac521c9bb",
-      "size": 235299
+      "hash": "sha256:1fb82c3a3135e29a137735129db8d481eef46acc4f31115435b143eb9a592caa",
+      "size": 151447
     },
     "Content/office_BigCompanyArchViz/StaticMesh/Probs/SM_Sofa_A_Table.uasset": {
       "hash": "sha256:e15651e2a26a5554351de8ae2d25efe519f8b42da25f00899f8c8ae1bf5e3a6e",
@@ -90176,8 +90176,8 @@
       "size": 106020
     },
     "Content/ResearchMegaPack/ResearchFacility/Blueprint/BP_Gurney_1.uasset": {
-      "hash": "sha256:6b9d7c61220d78dbcf01a1e7b5f9049c3dd34cbb0f647797be82b93de6292b98",
-      "size": 101574
+      "hash": "sha256:7f2d4b35d90e71b1f6105f3339661c72cf4bf20da3c9f4f5adba6c8d29b6d828",
+      "size": 31924
     },
     "Content/ResearchMegaPack/ResearchFacility/Blueprint/BP_Light_1.uasset": {
       "hash": "sha256:894169be154a19bea73d4e68020526db1ddc35b1798d3bef054702d1334b6de3",
@@ -90296,12 +90296,12 @@
       "size": 13513
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Bed_2.uasset": {
-      "hash": "sha256:3a45c9228096b77d4ef72f96d2be2af8a2e9854e6fccf133b5a70ce692add030",
-      "size": 112469
+      "hash": "sha256:aaa85eaa7b449c259fc8664025ca561f467491e264e93d1ee3da8e873048a27a",
+      "size": 15029
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Bed_2_A.uasset": {
-      "hash": "sha256:b37e4909427db79d5c43bf59fbc6daad378206d6602590ba104d18ba1855e595",
-      "size": 120972
+      "hash": "sha256:76a8edb39a95a2d45693d2f10a0a3e0937ce865d9d166cf0e7f7a7146f48ff51",
+      "size": 14166
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Bed_Cabinet_1.uasset": {
       "hash": "sha256:17669a600f8aa1ed8b2818edd8f57c550a8cbefb09c3028bce5c2047c74d51c8",
@@ -90344,8 +90344,8 @@
       "size": 110395
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cabinet_1_A.uasset": {
-      "hash": "sha256:ec8f969247677b70aa4f74c70183d50395aaee9d2da1cb658d365d5bf332c6ef",
-      "size": 91769
+      "hash": "sha256:6ad08d58ca5aa0183635dd6e51de12e6b7ec3f87ea5fcd460c65e27b6abca800",
+      "size": 13046
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cabinet_2.uasset": {
       "hash": "sha256:720e38f769898513e58e9ae47bc54b6f88eec0c36176a09e121d59febc6c8441",
@@ -90360,8 +90360,8 @@
       "size": 13471
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cable_1.uasset": {
-      "hash": "sha256:92b8c96a058172542800710900148a7a635c22747a6eab56bc4ab1bcb0e620f6",
-      "size": 104010
+      "hash": "sha256:70de3fbeb8f5e519c42b8804d70ab1b3844b1ebbe22d474ef4b9170368914287",
+      "size": 9952
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Capsule_1.uasset": {
       "hash": "sha256:ae76d958809987f6d8e1bef1b11a6a9a0f186787fbbeec90ebb8e4c788debeab",
@@ -90384,20 +90384,20 @@
       "size": 15256
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Chair_1.uasset": {
-      "hash": "sha256:b8b2a0cdff2a47863908d27485a45234adde6c02c29a3ba3e240b6469d31460c",
-      "size": 116326
+      "hash": "sha256:262486014caf31c59debb7c30847f9b27045cddf3e3dfde4f28a6285aafdea13",
+      "size": 13138
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Cloth_1.uasset": {
-      "hash": "sha256:f67d7c952e3b94e74d5635f12834282278e03ec62d2fed02e4293887a3d7d543",
-      "size": 110404
+      "hash": "sha256:8bf73039071c096d365456e73ecdf5c32adac4f83d66d6131b4f8d917cd1ef2b",
+      "size": 13058
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Colomn_3.uasset": {
       "hash": "sha256:99ad270fbc1b652c03b29f36a7add37e2bfb59c46f3c5361a5fab7146be89ab1",
       "size": 13493
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Computer_Cart_1.uasset": {
-      "hash": "sha256:0c27d92a6f01fd0d9d8c15ec16cd35be98caa26c6b8c92b15bece6b5bb1766fc",
-      "size": 106055
+      "hash": "sha256:7f77f5d1752a9aeb57431f64b8f262f97ff29ec7c761c54040baf46c699336e8",
+      "size": 14340
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Concrete_1.uasset": {
       "hash": "sha256:c6f06ce5dad6d56004dd4f4d329a3740b52aa86f202b6d55ceee455127c6c468",
@@ -90500,8 +90500,8 @@
       "size": 73559
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Light_3.uasset": {
-      "hash": "sha256:b63db14f54e7b8dd0ccded0f2a0c9b31063f95f185952a8ed970396988e0d8aa",
-      "size": 42733
+      "hash": "sha256:d2f80da3f3a468a9abadf4c1cbd5c6d2a199dad7eb0034bda4eda485fd30fa96",
+      "size": 10157
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Elevator_Metal_5.uasset": {
       "hash": "sha256:c9bf7354c1fec92eb1744bf37e287fd38c8917fe3bd0f1fca84629525e25aae1",
@@ -90564,12 +90564,12 @@
       "size": 13110
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Gurney_Metal_1.uasset": {
-      "hash": "sha256:e0e8202891f3bf119bd516d0ca703a3a2e86d618c92192f14406b944b5c5463e",
-      "size": 109002
+      "hash": "sha256:216ae135c7ccf2c3aba39bea31fc88065a8445c4ece653b7878b22535c754c04",
+      "size": 15070
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Gurney_Metal_2.uasset": {
-      "hash": "sha256:5b6da6973def6ac4586c061e782a3d5cba7657dd0ed62e193f8631d796e97ad1",
-      "size": 103492
+      "hash": "sha256:3fbec458ecf35583388f2183c7a6164618a7944d958325161a0b89349fe9b0d9",
+      "size": 14544
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Infant_Scale_1.uasset": {
       "hash": "sha256:22e3b2a4159fe365414dbfafe3ca7e2f20f9b20e86563a7ed68c13f830b4a55c",
@@ -90580,32 +90580,32 @@
       "size": 100970
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Iv_1.uasset": {
-      "hash": "sha256:847b2b68b5a7d61353f6caccf1b9167819ffcd24557f2684fcf06eccef20e45c",
-      "size": 112449
+      "hash": "sha256:50900565d684726b360e771f5f29bb0fae8ef3aba20fd4d4d85190f0bb54ab5c",
+      "size": 14807
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Keyboard.uasset": {
-      "hash": "sha256:61514dfa0ac101aa54774fbb30513dc08f11cbb5fc9197495cce66fc2d140bb6",
-      "size": 134882
+      "hash": "sha256:fe1168b6a72b51992dad13da8d91acc2e9d101fcd201a80e56284b04bec54e14",
+      "size": 18481
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Light_2.uasset": {
-      "hash": "sha256:babf61f9deca07514e3f30449e9fd6a996128df255cfacf6417f200b28bae3bd",
-      "size": 108198
+      "hash": "sha256:aa3081720437dd7c126dbd58065c3a1d899b39a3d7117e40b8ec225d317330f9",
+      "size": 15040
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Light_3.uasset": {
-      "hash": "sha256:37865a62309fc1953379ccc55447dd2502b56f8a37883121c3cca7f43626ff76",
-      "size": 91766
+      "hash": "sha256:5111a3f9ccd8bf58f289478da2a79693216c3c5c869ab869c95949b793990bf1",
+      "size": 13076
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Mattress_1.uasset": {
       "hash": "sha256:798aa275a9791d5c3f0091b2328ba423dadb572b6648e0e8e67e9817800a0db2",
       "size": 96237
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Medical_Curtain_1.uasset": {
-      "hash": "sha256:6b896d0fd9f856fc563268e5ca49239afaa6390cb233c662e146d0d5dbe71a5c",
-      "size": 135061
+      "hash": "sha256:af188c77f2a6ed08524c97d886596884ad4b207fdf64fc4162a39e500c02c6cd",
+      "size": 15938
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Medical_Curtain_Metal.uasset": {
-      "hash": "sha256:416c54055b427b40d837394095357e19fad8701773c040bf86b0857462a69653",
-      "size": 112526
+      "hash": "sha256:05533780027aab9d3d4374dd6e571005e4944865fad8883ceaae68e0d660d1b1",
+      "size": 14300
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Metal_1.uasset": {
       "hash": "sha256:176fe855a261a33a6357a110b120a4f11bc560c7588f07b9f8c1846c5687b5d2",
@@ -90644,8 +90644,8 @@
       "size": 109649
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_1_A.uasset": {
-      "hash": "sha256:2f13d23da592c57e8b72cd172facb41e24085a1a990386b258c462706a9f3bc2",
-      "size": 117747
+      "hash": "sha256:6d9b604788ed271e786fc6b0f66cc608a4c170d2454c9262ac9eb11a6caff940",
+      "size": 14115
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Monitor_2.uasset": {
       "hash": "sha256:80024287be0a2635d9653bbbe0c38b09060715a651a03cce83356e0bf419ad26",
@@ -90664,20 +90664,20 @@
       "size": 128078
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Mouse_1.uasset": {
-      "hash": "sha256:a152e52f7fdeb77293b560b41b03944b1cba0c134ac3caa43283e886a0eea08c",
-      "size": 111761
+      "hash": "sha256:1742d6b870a67ad7703d983f32e1a7b7e942bce7b2206c2c7212b08da04464d9",
+      "size": 12374
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_MRI_1.uasset": {
-      "hash": "sha256:e36959816ac3b8d5b2a9cf45793286348184615dc63fc072697a62916982f69e",
-      "size": 90529
+      "hash": "sha256:a51cf7f24145a1fb3613f32b90791efe4b9d7ddeacc9c63de25122b03619ceb6",
+      "size": 12967
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_MRI_Bed_1.uasset": {
       "hash": "sha256:e824de40994611f2997d4d82d801a50b5819872242f619cde346877d6d0a401e",
       "size": 98393
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Othoscope_1.uasset": {
-      "hash": "sha256:bb98c97d261613d2c96775bce8e251ba3642e37928daac35c772b9c7cb4b6259",
-      "size": 104384
+      "hash": "sha256:899e52480da39e4e338aaee5c6aa03f455563d55111a4c110516b8166d109a05",
+      "size": 15031
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Overbed_Table.uasset": {
       "hash": "sha256:2c5d063b66ba0ed177e674759e4afe7887a14d23b42f0da47df3223424dd32e2",
@@ -90708,24 +90708,24 @@
       "size": 12832
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Panel_Box_1.uasset": {
-      "hash": "sha256:32c10edf571bea8d9b6930617e10d6f0f535b4b9d23a7a092a9a8864b53ec621",
-      "size": 14257
+      "hash": "sha256:80f5abc4a4fcb0131a598742245942ffa43644c3c9701d4b559a994b77a22f74",
+      "size": 14292
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Rust_1.uasset": {
       "hash": "sha256:8cd1a3f0f0cc25fc36c0f24030cc6c3a1aab9da30f54b2948e2c18ce156f6ae1",
       "size": 15184
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Steel_1.uasset": {
-      "hash": "sha256:a0c433384736338e47bf5b78105fe607fb9c6042db24773368a65c50db005948",
-      "size": 13659
+      "hash": "sha256:6fc4d567b50409781a00ac4d54a0a06783055ffbb388e9c37777effdf4c19a15",
+      "size": 13711
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Stool_1.uasset": {
-      "hash": "sha256:a40634224875df0f95e1a38d3c48722a63a797d7ea7c2938abe870eb9e66d567",
-      "size": 133325
+      "hash": "sha256:bad0b8d5de75f2eadb7fd0b7971813aca5dfe4e3a32bc3d5934b6e1a07d7c6a8",
+      "size": 15790
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Table_1.uasset": {
-      "hash": "sha256:8694c09fd59ca89d7bdd4467043cf7ef49613737ecca61253cef0c71681a91fa",
-      "size": 107450
+      "hash": "sha256:66049918caa03ac3aba273b079a98936691910aff23d301813500e0ad118a71d",
+      "size": 13548
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Tape_1.uasset": {
       "hash": "sha256:3ce7fb5be82f597d20c3673b8422d61302981db7ae37a08f4cb49169cf976ecb",
@@ -90740,12 +90740,12 @@
       "size": 109363
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Vital_Monitor_1.uasset": {
-      "hash": "sha256:8177ace8e16729b837de251f585134e03ca5c066e964faaaf82d5f4cca54ddf5",
-      "size": 102674
+      "hash": "sha256:e503ef1c03f74a1bdbf69e71a34eb4dd12c77a21b4a9035928b785e473a404f5",
+      "size": 13385
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Vital_Monitor_2.uasset": {
-      "hash": "sha256:7bd514910180dbb132dc5c25b135f26858a7eb40761d6ef202723bab28a39039",
-      "size": 98113
+      "hash": "sha256:4e04dea06bcd0814d35ed9552c14c312a82908619685ca45821818b6a3fe6d4e",
+      "size": 13777
     },
     "Content/ResearchMegaPack/ResearchFacility/Materials/M_Wall_1.uasset": {
       "hash": "sha256:49c10b23b26829b674b10f0df6031c04c3eeae7399c01b84dc0dd34fdeb535dc",
@@ -90840,8 +90840,8 @@
       "size": 148744
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Bed_2.uasset": {
-      "hash": "sha256:345e058d44321676a70ac971c85175ed3de0881f27015e98769c1393b11d958a",
-      "size": 639748
+      "hash": "sha256:156c0f2a38e705771145e01de7af8610a2a83abb0301a81f520c10300658b5ce",
+      "size": 392419
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Bed_2_A.uasset": {
       "hash": "sha256:f4d5f2d42d4e748321ebe4c3d5559196b25c334a8ec9d9796da8d52ab0d5197c",
@@ -90916,12 +90916,12 @@
       "size": 105001
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Chair_1.uasset": {
-      "hash": "sha256:4445d031c7452811f8e3433f6d441c4c8e60a11c418f300ad282b53d84622968",
-      "size": 222151
+      "hash": "sha256:a530ef81a9dfbfc11f263e6c6afb9b1923b58ad94df3d7fa1ea7083cecaf2380",
+      "size": 104310
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Cloth_1.uasset": {
-      "hash": "sha256:4fe94643bc90887238d8149e98c70977e3093de5448efff5f3b2750cea41d55d",
-      "size": 218745
+      "hash": "sha256:d238c7fa28fd4d4bf0c938bda38adabb3f8196c0b35cfeb2e20a40391d3d2f35",
+      "size": 100200
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Colomn_1.uasset": {
       "hash": "sha256:163846fa8bb9cf0753db8aec7d2c20586663334f004d0f1974b2ba0e7c2f0687",
@@ -90936,8 +90936,8 @@
       "size": 99588
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Computer_Cart_1.uasset": {
-      "hash": "sha256:e654a8b04db831e60e168bc85a160b276e79eeacd79d629d400a980f787d645c",
-      "size": 431107
+      "hash": "sha256:1fa4d4bb28d3cc3ada6bf742c65fa487fec7c31dd70a73d7785e6cbb1c3f77ba",
+      "size": 253092
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Control_Panel_1.uasset": {
       "hash": "sha256:6a2aaa9ec55c22303b2b2d6c16341aed1555ae1dacd54e196ea90e2c2a38af54",
@@ -91004,8 +91004,8 @@
       "size": 237518
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Cable_1.uasset": {
-      "hash": "sha256:ea14843a688e663a2c20147f46447c44d5d48c4210550379fa1587921f0bb074",
-      "size": 172539
+      "hash": "sha256:db899cacdecb87952435add045d5388b68196132fb9ea507ec03ad250ba6ff65",
+      "size": 88161
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Elevator_Ceiling_1.uasset": {
       "hash": "sha256:f11ceedff1fe1a42be25f24e886f2b851d9aa468d310529aa2460828469e5334",
@@ -91076,8 +91076,8 @@
       "size": 99347
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Gurney_1.uasset": {
-      "hash": "sha256:37a7765ee74cc14f04fb2d092b632c5b1e8a48287ece74ac8c41825861abf315",
-      "size": 533088
+      "hash": "sha256:d26763d96bdf433381c8e0f5f5e4d9020a0f0bea5c9afe45775be2b0675d895a",
+      "size": 371277
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Infant_Scale_1.uasset": {
       "hash": "sha256:8cb9529c5a9caf7a239b69329d41f8305752afccf87d5bd5e8c9393c2fca98f9",
@@ -91088,8 +91088,8 @@
       "size": 356215
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Iv_1.uasset": {
-      "hash": "sha256:763d827ac3462efd3089331323880bd48baf78a8a0ca563c1629065269ecc718",
-      "size": 488671
+      "hash": "sha256:72145873cba781fc17e5152b69a4e3dfd096acf7a0d0eb684b86721f2eb8a03c",
+      "size": 302136
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Keyboard.uasset": {
       "hash": "sha256:065fb46c456d72568901eaa64fd729aa35ed40fa966fbffeb8bb4e3670b55dbf",
@@ -91100,24 +91100,24 @@
       "size": 194790
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Light_2.uasset": {
-      "hash": "sha256:f5ddedac74213ce1e37e9eddbed7683fc9a3d38c958b76fbb34c592fd1e3a5f6",
-      "size": 452842
+      "hash": "sha256:9a692cc2b86e303237732aff8d2fd3e2db9dc9fa11eef8b0c3975fc036e85b54",
+      "size": 282303
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Light_3.uasset": {
-      "hash": "sha256:2be5fa4442aaefd233d1279e8f451fb2a6299015ac8e7f4130d9533f06e46438",
-      "size": 338518
+      "hash": "sha256:d7570a652d6d4d01d90160709a5c3b0a63030935c78eb08cb0c85e0c0d82159d",
+      "size": 210352
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Mattress_1.uasset": {
       "hash": "sha256:ef9a5f310424d435a18ad95821181e6e5a4328e031cb746c03150499da3e2f47",
       "size": 106765
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_MedicalCurtain_1.uasset": {
-      "hash": "sha256:e3f43b744e3e552bc7b5031c345b9afadfbcec0f2dc1efac5d2aa4d7ee79869e",
-      "size": 169213
+      "hash": "sha256:54a1a5500c2a633e38e7fd8a28267804d302bd227a9011f748fb0db0cc65ae6c",
+      "size": 72116
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_MedicalCurtain_2.uasset": {
-      "hash": "sha256:95b11644ed989b21022931f5f4e795d259db8a97ed77c2b9179e02c066381d12",
-      "size": 412162
+      "hash": "sha256:9277459166c657e7f5e3e36f2fb4ff8ba9240519a8d5cf3f139b414b9b22c93a",
+      "size": 255480
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Missle_1.uasset": {
       "hash": "sha256:ed7f7e2d267925ee9ce32533ac8842e769fb76e1c6faf9979d85f930b40cb472",
@@ -91152,16 +91152,16 @@
       "size": 126000
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_MRI_1.uasset": {
-      "hash": "sha256:0a2e81ba2253324bbdeab22e3aebda11c675dec9a783172d20ccaaa8e7046d9d",
-      "size": 171537
+      "hash": "sha256:a61b55ac3ec9e814a42e890a597a25dd534ba0e06692efbf88fc8db9edaadb5a",
+      "size": 73336
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_MRI_Bed_1.uasset": {
       "hash": "sha256:3e0292fcc6c8055134e5ebdc229888cfc7a0a8cad9cd107ac3ed077ef491a41e",
       "size": 153313
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Othoscope_1.uasset": {
-      "hash": "sha256:ba190cc7379706790d5fc76e072bca875ad28a302813e637d22c0f5ec509bc24",
-      "size": 196996
+      "hash": "sha256:7b5bd83775cb88bb7a243aa32e0901d9ead04c59284ea0a746bbdbb71c809611",
+      "size": 86950
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Overbed_Table.uasset": {
       "hash": "sha256:c690947633c91717d1d7489c08cfbc111b16f06701090775579836bf67a0e548",
@@ -91228,8 +91228,8 @@
       "size": 105102
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Stool_1.uasset": {
-      "hash": "sha256:eee6acf8348bffbe2e53f6cab31fd31373ee8cc3e6aa854fb81809e9c808ec9a",
-      "size": 220797
+      "hash": "sha256:cee00e2451525c9ed064fb6a3f358be9083d89ac3ed7e746253f1e11450ebc8c",
+      "size": 105858
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Vital_Monitor_1.uasset": {
       "hash": "sha256:98fe1d6021dd6be3644a4aa5a5b390bc35ef1b9900cde1192e5191d118eed9d9",
@@ -91240,8 +91240,8 @@
       "size": 86340
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Vital_Monitor_3.uasset": {
-      "hash": "sha256:364e78403e56354fd6346d26ad33e43e4a69c72b875838d38a22d22c3781fda8",
-      "size": 778683
+      "hash": "sha256:1ddfbd9b93a455a8fb4e6fcc319749245308c22c8e07cfa98595892322528680",
+      "size": 545646
     },
     "Content/ResearchMegaPack/ResearchFacility/Meshes/SM_Wall_1.uasset": {
       "hash": "sha256:9c6f70986562966fb27bca4937477f21a1807705058a9b04b11bb3c7d9016e4c",
@@ -92888,12 +92888,12 @@
       "size": 13588
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Chair_1.uasset": {
-      "hash": "sha256:a372be3755986452615f1f083aee2552797fc143d7695040cddfbde91d196f1a",
-      "size": 100820
+      "hash": "sha256:193c341d84fe4be605f9ad40201e88eca962a978553b6c9dc7e343afc2cf86c0",
+      "size": 12871
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Chair_1_A.uasset": {
-      "hash": "sha256:904e6a0f085167dcce508cf1305e16cd707d19a01426dec7bc866d84afd0e609",
-      "size": 111131
+      "hash": "sha256:f51d06fb4c87337ef658c68822bed928d4e6c2f9b5e090ac72029aad0fe3d235",
+      "size": 14406
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Concrete_2.uasset": {
       "hash": "sha256:df7eb919977265b01573cc57a26648183d503a8f8b0fbf28b66fa61df649ed43",
@@ -93160,16 +93160,16 @@
       "size": 13543
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_1.uasset": {
-      "hash": "sha256:8b24ca07664f6e54520f5f0d0f75911fac887866a3f3ba33b208ee33cbe6a28d",
-      "size": 14490
+      "hash": "sha256:8e93ed87ce6529eca9735243358fbc9ce4dee1a85d9b273348176f7f1a61fa25",
+      "size": 14514
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_2.uasset": {
       "hash": "sha256:3eb37f1b68f1a837016ad3d68789a7efc367bc5b1748dce112a62f049617b7a3",
       "size": 14385
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_3.uasset": {
-      "hash": "sha256:58389a221891c45920c1660b5073545f84a6951542f5c803a240c81280778d52",
-      "size": 14380
+      "hash": "sha256:f3809304e5941665608202d3038bf97b1b26ed7afe1daf6f033fd1a3270bf5d0",
+      "size": 14425
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Steel_4.uasset": {
       "hash": "sha256:5a6afe73b7679364733646f5ba9124ddc474feb3899a83af901958342147e881",
@@ -93180,12 +93180,12 @@
       "size": 13966
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Table_2.uasset": {
-      "hash": "sha256:b3175e7432d3b539179b445863ffd5e0ca725b7fcd48e2849fa3005d69a0c1c3",
-      "size": 111738
+      "hash": "sha256:c641a72b501ef2f9f8e37dcf3296a6eed48d1859f4e30067098b3d01b424ce2c",
+      "size": 14110
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Table_Wheel_1.uasset": {
-      "hash": "sha256:21686d3db695f7ec2322b6998bbe51bde5fa504a7d2695ffc10f30fec5dbf6d9",
-      "size": 114795
+      "hash": "sha256:60e02fb222861bda617ec73b0a6624e3cdd42b98e5da95f0ec6506b0f3241b92",
+      "size": 14600
     },
     "Content/ResearchMegaPack/ResearchUnderground/Materials/MasterMaterial/M_Tunnel_1.uasset": {
       "hash": "sha256:07a26ac8d66d1cb5bcf3e7dc4d4ac1852eb72788ea69b94e22dad14243b41db9",
@@ -93580,8 +93580,8 @@
       "size": 93999
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Chair_1.uasset": {
-      "hash": "sha256:c14d2f97d9e2be7dee6404f8b31eb66bd26647acaa95e86b18dff88ccbe2e396",
-      "size": 397797
+      "hash": "sha256:436aaff3887a6b7ae2890189e0dab572c0b704a717620781ae44b6696adbe85a",
+      "size": 216456
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Colomn_1.uasset": {
       "hash": "sha256:823235b2fc0e1c3db1af101efa7f1dea831cbebaac42174b28d3cfd2fc191ee3",
@@ -93708,8 +93708,8 @@
       "size": 92545
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Elevator_Cable_2.uasset": {
-      "hash": "sha256:631318ee4646ec56e051215d0bdef58047d12bcdd3423d933a00624dbd3f561f",
-      "size": 195542
+      "hash": "sha256:6ecc711ac354c4af2b7600f1f4f24f4a508060ebcb43a6f1aad798f2c4590615",
+      "size": 91147
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Elevator_Floor_1.uasset": {
       "hash": "sha256:62993714e1202995010df83bf2ad1907c2f6cebba4b96a5c38c35739a61935cc",
@@ -93876,8 +93876,8 @@
       "size": 113377
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Panel_Box_1.uasset": {
-      "hash": "sha256:667002526628fa04579994d7d92c733161bea69b467dc840a0eaa86d7c91db9c",
-      "size": 179776
+      "hash": "sha256:f7cd6acee46bf16e8b912bd3bffb347bb64a087209ca389cddaab7402c73e6f3",
+      "size": 93958
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Pillow_1.uasset": {
       "hash": "sha256:720fc4902c1209dcba6694bf89d287d6e4a3fc1243cda230c237e10993b31b8b",
@@ -93904,8 +93904,8 @@
       "size": 130592
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Pipe_19.uasset": {
-      "hash": "sha256:6d2340981cd2eb4916b6ba54287d1e3361d1b5f5f358948fe7ada79f5939c2cf",
-      "size": 147654
+      "hash": "sha256:3048b94f360ba55b80e8b6558acf27e4e34ea29dec81440f1675721157be5607",
+      "size": 66506
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Pipe_2.uasset": {
       "hash": "sha256:e5fed0be3fa78f94f2a140f29fb6fa7eed42e1cda4f74050e8f4928463372d39",
@@ -94144,12 +94144,12 @@
       "size": 121647
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Table_1.uasset": {
-      "hash": "sha256:dc17b0ea8392fc22b5929263f884d74ae006dcbe40188aa69d924bb0e49b53d7",
-      "size": 276139
+      "hash": "sha256:1787285e0e01c72da69e6d19f9a67e1e15df5da2c21bb3f92ddafb10bde8db84",
+      "size": 153182
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Table_2.uasset": {
-      "hash": "sha256:4ab813736df5a63759abfea23f2b1530d4fa667b43c22b2b1122b70c18f16acc",
-      "size": 235157
+      "hash": "sha256:8f43548b756855124ea96ffa7e0a8944f1bfa52e3a8438c8e3b341af868efc76",
+      "size": 125334
     },
     "Content/ResearchMegaPack/ResearchUnderground/Meshes/SM_Tape_1.uasset": {
       "hash": "sha256:b4f97f336b48c2b53448b7eeb4d1277515eb3ac7298b5d12288328ca07cf91b4",
@@ -96076,12 +96076,12 @@
       "size": 15110
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Hand_Pallet_1.uasset": {
-      "hash": "sha256:df73100ccaa56aa66563e755cbbfb2af6e07318294397f89faed1aacc0b2cf1c",
-      "size": 116672
+      "hash": "sha256:1add6cf98fff57d7d33327db7e25942da1cba180317d82d8e9a61a71a3975fe4",
+      "size": 14379
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Hand_Pallet_2.uasset": {
-      "hash": "sha256:2d344970e8fd379383134162cb28ccf4b75e8c47be889767c538c4534f9b3e69",
-      "size": 110298
+      "hash": "sha256:41617ddd7fc76a464ab0d71b1378147d4dddd8ca4fce5fc63af5f1aa3cec6d03",
+      "size": 13559
     },
     "Content/ResearchMegaPack/SecretBase/Materials/M_Landscape_1.uasset": {
       "hash": "sha256:64e68d0fdc6c233afee5758030b619e1a0d1fb04460c33edc52dc667971ea77c",
@@ -96760,8 +96760,8 @@
       "size": 107545
     },
     "Content/ResearchMegaPack/SecretBase/Meshes/SM_Hand_Pallet_1.uasset": {
-      "hash": "sha256:1de3d4e76d1b597d2a05c7c6fcdc71884380c650b484af02b37dfb2cb441d2fc",
-      "size": 202654
+      "hash": "sha256:b94a6a522de0ab06c4d0bba809cee51ee41993483ff62fc33de97f069878365a",
+      "size": 107622
     },
     "Content/ResearchMegaPack/SecretBase/Meshes/SM_Hut_1.uasset": {
       "hash": "sha256:08871c2de2c573cd25b8b50cc75aa76ddf02bae6423235bc3ac56526c89f93f6",

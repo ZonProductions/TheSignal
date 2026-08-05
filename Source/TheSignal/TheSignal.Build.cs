@@ -44,7 +44,12 @@ public class TheSignal : ModuleRules
 			// This is the GAME module, NOT a plugin — the NightShadow "no Slate in
 			// Build.cs" rule targets PLUGIN Build.cs (packaged crash 777006) and
 			// does not apply here.
-			"SlateCore"
+			"SlateCore",
+			// FLAGGED FOR REVIEW (2026-08-05): "Slate" added for IInputProcessor /
+			// FSlateApplication (ZP_GlyphDeviceSubsystem — hardware-level input-device
+			// detection; PlayerController polling is blind to menu-consumed gamepad keys).
+			// GAME module, not a plugin Build.cs — the 777006 crash rule does not apply.
+			"Slate"
 		});
 
 		// OVRLipSync C API — ThirdParty lib, NOT a UE plugin module dependency.

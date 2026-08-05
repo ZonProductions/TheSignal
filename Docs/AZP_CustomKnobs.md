@@ -126,6 +126,8 @@ _First-person player character (Marcus; 'Grace' is legacy naming): thin shell ow
 
 | Knob | Type | Default | Category | Exposure | Tunes |
 |---|---|---|---|---|---|
+| `AZP_FullHealthRefuseActions` | `TArray<FString>` | `{"BP_ConsumeHealthAction", "BP_ConsumeHydrationAction"}` | Items\|Consumables | EditAnywhere + BP | Consume-action class-name prefixes (PDA_Item.ItemActionActor) refused from quickslots when health is already FULL — the press does nothing and the item is not consumed; pure heals only, buff actions stay usable. |
+| `AZP_HealRefuseSound` | `TObjectPtr<USoundBase>` | `null` | Items\|Consumables | EditAnywhere + BP | Optional 2D cue played when a heal item is refused at full HP; None = silent refuse. |
 | `AZP_RangedArmsOffset` | `FVector` | `FVector::ZeroVector` | Appearance | EditAnywhere + BP | Live position offset for the ranged arm view-model (arms+hands+sleeve moved together) on top of the leader-posed Kinemation aim. |
 | `AZP_RangedArmsRotation` | `FRotator` | `FRotator::ZeroRotator` | Appearance | EditAnywhere + BP | Live rotation offset for the ranged arm view-model. |
 | `AZP_RangedArmsScale` | `float` | `1.0f` | Appearance | EditAnywhere + BP | Uniform scale of the ranged arm view-model meshes. |
@@ -715,6 +717,9 @@ _Loading-screen warm-up gate (added 2026-07-12): world subsystem that holds the 
 | `zp.WarmupGate.TimeoutSec` | `float` | `45.0` | WarmupGate | console variable | Hard release cap; on timeout logs which drain condition never finished. |
 | `zp.WarmupGate.Pause` | `int32` | `1` | WarmupGate | console variable | 1 = pause the world while holding (enemies frozen, no damage; loads/PSOs still progress on engine threads). |
 | `zp.WarmupGate.WaitForShaders` | `int32` | `1` | WarmupGate | console variable | 1 = also wait for GShaderCompilingManager to go idle (editor on-demand compiles); bounded by TimeoutSec. |
+| `zp.WarmupGate.StreamTextures` | `int32` | `1` | WarmupGate | console variable | 1 = force-stream ALL /Game textures to full mip residency behind the loading screen (kills first-sight texture streaming at floor crossings). |
+| `zp.WarmupGate.TextureTimeoutSec` | `float` | `30.0` | WarmupGate | console variable | Texture pre-stream sub-timeout; past it the gate releases without full residency and logs pool pressure. |
+| `zp.WarmupGate.KeepTexturesResident` | `int32` | `1` | WarmupGate | console variable | 1 = pin pre-streamed mips for the session (8h force-resident) so crossings never re-stream. Set 0 FIRST if GPU device-hung/VRAM pressure returns. |
 
 ### FZP_DialogueChoice
 _A single player choice presented during dialogue; can fire a narrative beat and/or jump to another dialogue._
@@ -1379,6 +1384,7 @@ _Runtime draw-call reducer: scans StaticMeshActors, groups them by (floor, mesh,
 | Knob | Type | Default | Category | Exposure | Tunes |
 |---|---|---|---|---|---|
 | `AZP_MinInstanceCount` | `int32` | `10` | ISM Batcher | EditAnywhere + BP | Minimum number of identical mesh+material instances on a floor before they get batched into one ISM; groups below this stay as individual actors. |
+| `bAZP_StabilizeLights` | `bool` | `true` | ISM Batcher\|Lights | EditAnywhere + BP | Runtime light pass (StabilizeLights, called from ZP_GraceCharacter after BatchStaticMeshes): flips placed MOVABLE shadow-casting lights to STATIONARY at game start so VSM/Lumen cache their shadows; skips lights on actors attached to another actor (elevator car) and on Pawns (flashlight, enemies); never modifies the level on disk. |
 | `AZP_FloorHeight` | `float` | `500.0f` | ISM Batcher|Floors | internal (C++ only) | Height in UU of one building floor, used to bucket actors into floor indices by Z; NOT the authoring point - it is overwritten at runtime from UZP_FloorCullingComponent.FloorHeight by ZP_GraceCharacter.cpp:684, so it stays a plain synced member. |
 | `AZP_FloorBaseZ` | `float` | `0.0f` | ISM Batcher|Floors | internal (C++ only) | World Z of the bottom of floor 0 for the floor-index calculation; synced at runtime from UZP_FloorCullingComponent (ZP_GraceCharacter.cpp:685) - canonical knob lives on the culling component, this is the mirror. |
 | `AZP_NumFloors` | `int32` | `5` | ISM Batcher|Floors | internal (C++ only) | Number of floor buckets for per-floor ISM arrays and Z clamping; synced at runtime from UZP_FloorCullingComponent (ZP_GraceCharacter.cpp:686) - mirror of the culling component's knob. |
@@ -1450,6 +1456,8 @@ _Self-contained ground-zombie (Shambler) AI component: wander/scream/chase/attac
 | `AZP_WindupEndTime` | `float` | `1.0f` | Shambler|Attack | EditAnywhere + BP | Clip time (s) where the wind-up ends and the strike launches (play-rate snap point). |
 | `AZP_WindupPlayRate` | `float` | `0.8f` | Shambler|Attack | EditAnywhere + BP | Play rate of the swing's wind-up portion; below 1 = slower, more readable 'block now' telegraph. |
 | `AZP_StrikePlayRate` | `float` | `1.6f` | Shambler|Attack | EditAnywhere + BP | Play rate of the strike + recovery portion; above 1 = the swing snaps once released. |
+| `AZP_AlertTurnMinAngle` | `float` | `45.f` | Shambler|Attack | EditAnywhere + BP | Min yaw delta (deg) to the player at sight aggro before the stepping alert-turn clip plays; below it the residual snap is invisible and it screams directly. Hurt/stagger aggro always skips the turn. |
+| `AZP_AlertTurnPlayRate` | `float` | `2.5f` | Shambler|Attack | EditAnywhere + BP | THE turn-speed dial. Play-rate on the alert turn clips (2.0s raw — 2.5 ≈ a 0.8s reaction turn; 1.5 was the old "pretty slow" ~1.3s). Actor yaw rate is derived so the rotation completes at ~70% of the clip — one knob scales clip + turn speed together. Higher = snappier. |
 | `AZP_GrabRange` | `float` | `230.f` | Shambler|Grab | EditAnywhere + BP | Distance (UU) at which it latches the grab; the grab is the opener, melee is the fallback. |
 | `AZP_GrabCooldown` | `float` | `30.f` | Shambler|Grab | EditAnywhere + BP | Seconds after a LANDED grab before this zombie may grab again (anti-chain-grab rule). |
 | `AZP_GrabFailCooldown` | `float` | `6.f` | Shambler|Grab | EditAnywhere + BP | Seconds after a FAILED grab attempt (deflected/evaded) before the next try; clamped to GrabCooldown at use. |
@@ -1510,6 +1518,10 @@ _Self-contained ground-zombie (Shambler) AI component: wander/scream/chase/attac
 | `AZP_DeathBackAnim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_Death_Back)` | Shambler|Anim | EditAnywhere + BP | Back-fall death clip (shot from behind), held on the final frame as the corpse. |
 | `AZP_HitFrontAnim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_Hit_Front)` | Shambler|Anim | EditAnywhere + BP | Front hit-reaction flinch clip (non-lethal damage from the front; also the stagger clip). |
 | `AZP_HitBackAnim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_Hit_Back)` | Shambler|Anim | EditAnywhere + BP | Back hit-reaction flinch clip (non-lethal damage from behind). |
+| `AZP_TurnL90Anim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_Turn_L90)` | Shambler|Anim | EditAnywhere + BP | Alert-turn stepping clip, left ~90° bucket (sight aggro yaw delta 45–135°). C++ rotates the ACTOR; the clip only provides the stepping feet. Empty slot = snap+scream. |
+| `AZP_TurnR90Anim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_Turn_R90)` | Shambler|Anim | EditAnywhere + BP | Alert-turn stepping clip, right ~90° bucket. |
+| `AZP_TurnL180Anim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_Turn_L180)` | Shambler|Anim | EditAnywhere + BP | Alert-turn stepping clip, left ~180° bucket (yaw delta ≥135°). |
+| `AZP_TurnR180Anim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_Turn_R180)` | Shambler|Anim | EditAnywhere + BP | Alert-turn stepping clip, right ~180° bucket. |
 | `AZP_GrabEntryAnim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_GrabEntry)` | Shambler|Grab | EditAnywhere + BP | Attacker-side NAAT grab entry clip, paired 1:1 with the player's victim clip. |
 | `AZP_GrabMunchAnim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_GrabMunch)` | Shambler|Grab | EditAnywhere + BP | Grab munch-phase loop clip (paired). |
 | `AZP_GrabWrestleAnim` | `TObjectPtr<UAnimSequence>` | `null (lazy default /Game/Enemies/Shambler/Anims/A_Shambler_GrabWrestle)` | Shambler|Grab | EditAnywhere + BP | Grab wrestle/struggle-phase loop clip (paired). |
@@ -1577,3 +1589,14 @@ _Floor-selection menu for the Transit system; WBP mode populates a designer-boun
 | `AZP_TransitMenuHeaderText` | `FText` | `"SELECT DESTINATION"` | Transit|Text | EditAnywhere + BP | Player-facing header label of the code-mode destination list; hardcoded FText::FromString violates the expose-player-facing-text rule (unlike the LOCKED strings, which already use NSLOCTEXT). |
 | `AZP_TransitCloseButtonText` | `FText` | `"Close"` | Transit|Text | EditAnywhere + BP | Player-facing label of the code-mode Close button; hardcoded FText::FromString, should be an editable FText. |
 
+
+### Addendum 2026-08-04 — enemy perf knobs (VSM-churn + per-tick detection fixes)
+| Knob | Type | Default | Class | Kind | Purpose |
+|---|---|---|---|---|---|
+| `AZP_DetectEvalInterval` | `float` | `0.15` | AZP_OozelingBase | UPROPERTY | Seconds between detection probes (LOS + navmesh reachability); ran every frame before. |
+| `bAZP_AnimOnlyWhenRendered` | `bool` | `true` | AZP_OozelingBase | UPROPERTY | Freeze anim eval while off-screen and un-aggroed (stops VSM shadow-page invalidation churn). |
+| `AZP_DetectEvalInterval` | `float` | `0.15` | AZP_ScytheerBase | UPROPERTY | Same as Oozeling. |
+| `bAZP_AnimOnlyWhenRendered` | `bool` | `true` | AZP_ScytheerBase | UPROPERTY | Same as Oozeling. |
+| `bAZP_AnimOnlyWhenRendered` | `bool` | `true` | UZP_ShamblerBehaviorComponent | UPROPERTY | Wander-only anim freeze off-screen; combat states always evaluate (swing chaining reads anim positions). |
+| `AZP_FarWanderTickInterval` | `float` | `0.25` | UZP_ShamblerBehaviorComponent | UPROPERTY | Behavior tick interval while wandering beyond AZP_FarWanderDistance. |
+| `AZP_FarWanderDistance` | `float` | `3500` | UZP_ShamblerBehaviorComponent | UPROPERTY | Distance gate for the far-wander tick interval. |

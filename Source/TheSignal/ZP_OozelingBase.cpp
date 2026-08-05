@@ -243,7 +243,34 @@ void AZP_OozelingBase::Tick(float DeltaTime)
 
 	APawn* Player = GetPlayer();
 	const float Dist = Player ? FVector::Dist(GetActorLocation(), Player->GetActorLocation()) : TNumericLimits<float>::Max();
-	const bool bSee = Player ? HasLOS(Player) : false;
+
+	// perf 2026-08-04: LOS trace + navmesh reachability at AZP_DetectEvalInterval cadence — these
+	// ran EVERY FRAME per Oozeling (the reachability sync-pathfind fired per tick whenever the
+	// player was merely visible anywhere).
+	DetectEvalAccum += DeltaTime;
+	if (DetectEvalAccum >= FMath::Max(0.02f, AZP_DetectEvalInterval))
+	{
+		DetectEvalAccum = 0.f;
+		bCachedSee = Player ? HasLOS(Player) : false;
+		if (!bAggro)
+		{
+			UCharacterMovementComponent* CMDetect = GetCharacterMovement();
+			const bool bClingingDetect = CMDetect && CMDetect->MovementMode == MOVE_None && AZP_PatrolPath;
+			bCachedReachable = (Player && bCachedSee)
+				? (bClingingDetect ? true : IsPlayerReachable(Player))
+				: false;
+		}
+	}
+	const bool bSee = bCachedSee;
+
+	// perf 2026-08-04: off-screen un-aggroed bodies stop evaluating anim — a moving skeletal mesh
+	// invalidates the cached VSM shadow pages of every light containing it, every frame.
+	if (bAZP_AnimOnlyWhenRendered && GetMesh())
+	{
+		GetMesh()->VisibilityBasedAnimTickOption = (bAggro || bDead)
+			? EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones
+			: EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	}
 
 	// Detection / aggro management. Grounded aggro = range + LOS + navmesh reachability (closed
 	// doors block it). Wall/ceiling aggro = range + LOS only — the clinging body isn't on the
@@ -252,9 +279,7 @@ void AZP_OozelingBase::Tick(float DeltaTime)
 	{
 		UCharacterMovementComponent* CM = GetCharacterMovement();
 		const bool bSplineClinging = CM && CM->MovementMode == MOVE_None && AZP_PatrolPath;
-		const bool bReachable = (Player && bSee)
-			? (bSplineClinging ? true : IsPlayerReachable(Player))
-			: false;
+		const bool bReachable = bCachedReachable; // probed at AZP_DetectEvalInterval cadence above
 		if (Player && Dist <= AZP_DetectionRange && bSee && bReachable)
 		{
 			bAggro = true;

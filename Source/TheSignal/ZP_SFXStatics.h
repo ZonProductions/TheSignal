@@ -134,6 +134,12 @@ public:
 	static void ComputePropagation(UWorld* World, const FVector& SourceLoc, const AActor* IgnoreActor,
 		float& OutVolumeMul, float& OutLowPassHz, bool* bOutTransmitConfident = nullptr);
 
+	/** The uncached body of ComputePropagation (occlusion trace + navmesh diffraction pathfind).
+	 *  ComputePropagation memoizes it per (source-cell, listener-cell) for 0.5s — every occluded
+	 *  enemy footstep used to re-run a SYNC pathfind from effectively the same spots (perf 2026-08-04). */
+	static void ComputePropagationUncached(UWorld* World, const FVector& SourceLoc, const AActor* IgnoreActor,
+		float& OutVolumeMul, float& OutLowPassHz, bool* bOutTransmitConfident = nullptr);
+
 	/** The shared, transient attenuation object for a carry profile (built once, reused, rooted). */
 	static USoundAttenuation* GetCarryAttenuation(EZP_SFXCarry Carry);
 

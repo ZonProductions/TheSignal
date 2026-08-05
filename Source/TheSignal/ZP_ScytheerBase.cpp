@@ -232,7 +232,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		static int32 sLogCounter = 0;
 		if ((++sLogCounter % 60) == 0)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[Scytheer] TICK state=%d AICon=%s AZP_PatrolPath=%s splineLen=%.0f bWanderMoving=%d loc=(%.0f,%.0f,%.0f) vel=%.0f"),
+			UE_LOG(LogTemp, Verbose, TEXT("[Scytheer] TICK state=%d AICon=%s AZP_PatrolPath=%s splineLen=%.0f bWanderMoving=%d loc=(%.0f,%.0f,%.0f) vel=%.0f"),
 				(int32)State,
 				AICon ? *AICon->GetName() : TEXT("NULL"),
 				AZP_PatrolPath ? *AZP_PatrolPath->GetName() : TEXT("NULL"),
@@ -247,7 +247,28 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 
 	APawn* Player = GetPlayer();
 	const float Dist = Player ? FVector::Dist(GetActorLocation(), Player->GetActorLocation()) : TNumericLimits<float>::Max();
-	const bool bSee = Player ? HasLOS(Player) : false;
+
+	// perf 2026-08-04: LOS + navmesh reachability probes at AZP_DetectEvalInterval cadence
+	// (ran EVERY FRAME before). Cached values feed the same locals the logic always used.
+	DetectEvalAccum += DeltaTime;
+	if (DetectEvalAccum >= FMath::Max(0.02f, AZP_DetectEvalInterval))
+	{
+		DetectEvalAccum = 0.f;
+		bCachedSee = Player ? HasLOS(Player) : false;
+		if (!bAggro)
+		{
+			bCachedReachable = (Player && bCachedSee) ? IsPlayerReachable(Player) : false;
+		}
+	}
+	const bool bSee = bCachedSee;
+
+	// perf 2026-08-04: off-screen un-aggroed bodies stop evaluating anim (VSM page churn relief).
+	if (bAZP_AnimOnlyWhenRendered && GetMesh())
+	{
+		GetMesh()->VisibilityBasedAnimTickOption = bAggro
+			? EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones
+			: EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	}
 
 	// "On wall" test = is the body currently elevated above the patrol spline's ground point?
 	// If yes, aggro should run DOWN the spline first (WallDescent) instead of instant-dropping +
@@ -260,7 +281,7 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	{
 		// "Same geometry" gate: LOS trace + navmesh reachability. A closed door blocks both. An
 		// open door lets the navmesh path through and aggro fires only then.
-		const bool bReachable = (Player && bSee) ? IsPlayerReachable(Player) : false;
+		const bool bReachable = bCachedReachable; // probed at AZP_DetectEvalInterval cadence above
 		if (Player && Dist <= AZP_DetectionRange && bSee && bReachable)
 		{
 			// Log what the LOS trace actually hit (or didn't). If HasLOS thinks it sees the player

@@ -228,6 +228,29 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (!Owner) { return; }
+
+	// perf 2026-08-04: distant wandering shamblers tick at interval, and wandering bodies stop
+	// evaluating anim while off-screen (each moving mesh invalidates VSM shadow pages of every
+	// light containing it). Combat/death states always run full-rate — swing chaining reads
+	// anim positions and must never stall. The dev-built BP wander is untouched.
+	{
+		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		const float DistToPlayer = PlayerPawn
+			? FVector::Dist(Owner->GetActorLocation(), PlayerPawn->GetActorLocation()) : 1.e9f;
+		const bool bFarIdle = State == EShamblerState::Wander && !bDead
+			&& DistToPlayer > AZP_FarWanderDistance;
+		SetComponentTickInterval(bFarIdle ? AZP_FarWanderTickInterval : 0.f);
+		if (bAZP_AnimOnlyWhenRendered)
+		{
+			if (USkeletalMeshComponent* GateM = Owner->GetMesh())
+			{
+				GateM->VisibilityBasedAnimTickOption = (State == EShamblerState::Wander && !bDead)
+					? EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered
+					: EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+			}
+		}
+	}
+
 	if (bDead)
 	{
 		// Lower the mesh over the death clip to fake the missing root-motion drop -> corpse grounds.
@@ -417,7 +440,7 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	if (bMovementFrozen && AICon && AICon->GetMoveStatus() == EPathFollowingStatus::Moving)
 	{
 		AICon->StopMovement();
-		UE_LOG(LogTemp, Warning, TEXT("[GrabProbe] stopped external AI move during frozen window (state=%d staggered=%d)"),
+		UE_LOG(LogTemp, Verbose, TEXT("[GrabProbe] stopped external AI move during frozen window (state=%d staggered=%d)"),
 			(int32)State, bStaggered ? 1 : 0);
 	}
 

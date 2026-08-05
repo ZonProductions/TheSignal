@@ -20,7 +20,182 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
-- Last session (2026-07-14): OOZELING v3.3 — (1) AZP_EruptAnimCutoff (freeze the Hug_Attack
+- Last session (2026-08-04 late): XBOX CONTROLLER ITEMS (graphics saga CLOSED — Low enforced every
+  PIE start, dev satisfied). (1) First-time pickup B-dismiss FIXED + BUILT: my own 4Hz perf
+  throttle was eating the key poll (WasInputKeyJustPressed is single-frame — NEVER throttle such
+  polls); detect stays 4Hz, poll every tick via CachedPickupW. NEEDS dev controller PIE. (2) EGUI
+  settings glyphs: mechanism fully mapped (IsUsingGamepad? x brand-table x key), brand verified
+  Xbox. Dev answered: ALL glyphs = "ANY" on both devices -> ROOT CAUSE FOUND + FIXED (asset-only):
+  DA_EGUI_GlobalConfig's input maps were EMPTY (never integrated). Populated + saved:
+  KeybindMappingsContexts = {IMC_Grace:"On Foot", IMC_InventoryCharacter:"Inventory",
+  IMC_UI_Navigation:"Menus"}, GameplayInputMappingContexts={IMC_Grace:0};
+  AddInputMappingContextsOnLevelLoad stays FALSE (ZP_PlayerController owns gameplay adds).
+  Keybindings tab should now also populate. Category labels = placeholders, dev renames in the
+  config asset. SECOND LAYER FOUND (dev still saw ANY): **the LIVE config is DA_EGUI_DemoConfig**
+  (GetConfigDataAsset call-verified — misleading name, the GlobalConfig CDO is UNUSED; all future
+  EGUI config edits target DemoConfig!). Live object fixed (same maps + AddOnLevelLoad=False,
+  stops demo-IMC injection); save was PIE-blocked -> background watcher saves on PIE end (VERIFY
+  it landed before editor restart: scratchpad/retry_save_cfg.py). NEEDS dev: reopen pause->options
+  (values live now) + pickup B test. Checkpoint: 2026-08-04_controller_pickup_b_glyph_research.md
+- Earlier (2026-08-04): FLOOR-CROSSING LOADING KILLED — dev confirmed 08-02 VSM tuning "did
+  improve a lot" (FrameStats: steady 45-55fps/0 hitches) but hitch storms remained (3fps window
+  post-gate-release + ~400ms spikes at crossings). Root cause: warmup gate released in 1.8s WITHOUT
+  waiting on texture streaming. UZP_WarmupGateSubsystem now force-streams ALL /Game textures behind
+  the loading screen (4th drain condition, GetNumWantingResources==0) and pins them resident 8h
+  (zp.WarmupGate.StreamTextures/TextureTimeoutSec/KeepTexturesResident — KeepTexturesResident 0 is
+  the FIRST rollback if DXGI device-hung/VRAM pressure returns). First PIE per editor session holds
+  longer (by design). Built clean, editor relaunched, light pass INTACT (160 casters). Checkpoint:
+  2026-08-04_warmupgate_texture_prestream_floor_crossings.md
+  ROUND 2 same day (dev: "pull pipe = lag, open door = lag, stairs = lag" + "downscale to 720/1080"):
+  9-agent hunt (wf_91c5bb35, 29/30 CONFIRMED) -> ONE BUILD: 50% res (4K->1080p internal, TSR);
+  gate now drains DDC TEXTURE ENCODES (151 ran mid-play!) + PSO-warms via 360° camera spin with
+  occlusion queries off + shows melee view meshes 0.3s (render-only warm); manifest +20 (weapon BP
+  classes sync-loaded on first equip/near-pickup + item DAs sync-loaded on door/vent PROMPTS);
+  BloodFX prewarm was frustum-culled at Z=-100000 (never compiled!) -> now in-view; 9 hidden player
+  meshes OnlyTickPoseWhenRendered; bAZP_FloatProbe was ON (72 traces+72 warnings/sec) -> off,
+  verified CDO+21 instances; 3 spam logs -> Verbose; pickup-widget scan 4Hz; FrameStats hitches now
+  wall-clock (real stalls were 943-2405ms, clamped-reported as 400). Built clean 86.7s, relaunched,
+  RF loaded, res 50 live, light pass INTACT. FIRST PIE per session/pack-import holds screen longer
+  BY DESIGN. Queued: weapon equip-cycle warm (dev call on mag state), shambler/oozeling/scytheer
+  tick cadence, SFX async pathfinding, Kinemation ActiveSettings BP error, shambler physics scale,
+  CCMH compile ordering, vignette+niagara warms. Checkpoint: 2026-08-04_first_use_hitch_fixes_res50.md
+  ROUND 3 same day (dev: "any camera/OBJECT movement = massive delays, never smooth >2-3s"):
+  VRAM-pinning hypothesis CHECKED + CLEARED (no memory warnings, 1199 textures fit). Real driver =
+  ~25 enemies animating level-wide invalidating VSM pages of 160 casters every frame + per-tick
+  LOS/pathfind detection + per-footstep sync audio pathfinds. BUILT: enemy anim gating
+  (bAZP_AnimOnlyWhenRendered x3 classes — wander-only, combat always evaluates), detection at
+  0.15s cadence (AZP_DetectEvalInterval, ooze+scytheer), shambler far-wander tick 0.25s
+  (AZP_FarWanderTickInterval/Distance), SFX propagation memoized 0.5s/200uu cells, FrameStats now
+  logs sp= (screen %). 7 knobs in registry addendum. Built clean 82s, relaunched, verified. NEXT:
+  dev PIE -> read [FrameStats]: if sp=50 + gpu still ~20ms -> VSM/Lumen tier (dev look call).
+  Checkpoint: 2026-08-04_enemy_vsm_churn_batch.md
+  ROUND 4 same day — **ROOT CAUSE FOUND** (dev furious, rightly): editor ran EPIC scalability
+  since 07-18 (EditorSettings.ini — the editor's actual scalability store — NEVER EXISTED; console
+  fix died with that session; GameUserSettings [ScalabilityGroups] is standalone-only and fooled
+  the 08-02 check). PIE also ignored r.ScreenPercentage (Editor Prefs override, sp=67 proof) and
+  tearing needed rhi.SyncInterval=1. FIXED + live-verified: EditorSettings.ini created (High +
+  Shadow/GI MEDIUM), sg.ShadowQuality=1 live, rhi.SyncInterval=1, EPS Manual/50 appended (proof =
+  next session sp=). Arm-render bug = my OnlyTickPoseWhenRendered on start-hidden view meshes
+  (bounds deadlock) — REVERTED + rebuilt clean. Checkpoint:
+  2026-08-04_epic_tier_rootcause_scalability_vsync_res.md
+  ROUND 5 — TIER EXPERIMENT REVERTED (dev: lighting "beyond broken and unrecognizable" at Medium
+  GI — DEAD ENDS row added; the horror look is CALIBRATED against EPIC Lumen, never drop GI/Shadow
+  tier here). Experiment PROVED gpu 20-26ms -> 8.5ms = tier-bound. TRUE CEILING NOW EXPOSED:
+  game thread 19-21ms caps ~45-48fps; sub-60 fps + rhi.SyncInterval=1 vsync = the "staggering"
+  motion feel (16/33ms alternation). sp STILL 67 — my EditorPerformanceSettings ini key names were
+  wrong; find the real PIE screen-% mechanism (verify via FrameStats sp=). Epic restored LIVE (no
+  restart needed) + EditorSettings.ini now explicit EPIC + GameUserSettings/DefaultGameUserSettings
+  restored. NEXT SESSION PLAN: (1) Kinemation "Accessed None ActiveSettings" per-frame BP error
+  (formats a script callstack EVERY FRAME — prime game-thread suspect), (2) queued game-thread list
+  (SFX radius trim, shambler montage block, Moonville widget scans), (3) real PIE resolution
+  scaling so Epic lighting fits the GPU budget, (4) consider t.MaxFPS 30 lock as interim smooth-
+  pacing option if dev prefers stable-30 over staggering-45.
+  ROUND 9 — LOW ENFORCED EVERY START (dev, furious + final: "GET IT SET TO LOW FOR EVERY GRAPHIC
+  SETTING ON EVERY PIE START UP EVER... DO NOT UPDATE THE WIDGET"): ApplyLowSeed() — all groups 0,
+  res scale 100 — at GI Initialize + every PostLoadMap + RE-ASSERT 0.75s later (beats any EGUI/
+  engine startup apply). In-memory only, widgets untouched, menu changes apply on top per-session.
+  Log: "[GraphicsMode] LOW enforced". CAUSE of prior failure: saved GUS ini is DIFF-format (drops
+  default-equal values -> "apply saved" resurrected ultra); EGUI does NOT auto-reapply its stored
+  values. LESSON: verify fixes at the layer THE DEV SEES (their EGUI screen). If any EGUI entry
+  still shows high next PIE -> that entry has an EGUI-custom store: inspect WBP_EOM_SettingsMaster
+  via MCP. Checkpoint: 2026-08-04_low_enforced_every_pie_start.md
+  ROUND 8 — FINAL SETTINGS CONTRACT (dev, in PIE: "copy what I have in my easy ui settings and
+  make sure that's what loads each time"): dev's tuning captured LIVE (ALL groups LOW, res scale
+  100, 1080p windowed-fullscreen, vsync ON) → backup Config/DevPreferredSettings_backup_2026-08-04.ini
+  + DefaultGameUserSettings mirrored. Map load now ONLY APPLIES saved GameUserSettings
+  (EnforceSavedSettings — zero writes); Epic-pin/mode-writes fire ONLY on explicit zp.Mode /
+  SetGraphicsMode presets. VERIFY next PIE: dev's Low tuning should come back on its own (EGUI
+  may reapply via its own save path — saved GUS ini diff didn't list the Low groups); if NOT,
+  seed GUS.ScalabilityQuality from the backup. Also still pending: [EquipProbe] pipe-pull read +
+  FXAA-in-Quality edge check (dev now runs TSR at their own Low tuning — edge breakup may return
+  at low tiers if fps drops; their call). Checkpoint: 2026-08-04_gameusersettings_single_owner.md
+  (ROUND-3 UPDATE section).
+- **"ANY GLYPHS" TRUE ROOT CAUSE FOUND + FIXED (2026-08-04 latest)**: EGUI's prompt key-resolution
+  iterates the DEPRECATED IMC.Mappings flat array — UE5.8 migration left it EMPTY (real data in
+  DefaultKeyMappings). Every UseInputAction prompt -> no key -> AnyKey fallback. FIX: mirrored
+  mappings into the deprecated array on IMC_UI_Navigation/IMC_Grace/IMC_InventoryCharacter
+  (function-test proven: IA_NavBack [] -> [Escape]|[Gamepad_FaceButton_Right]). Saves PIE-blocked,
+  watcher saving on PIE end — ALL SAVED confirmed. MAINTENANCE: re-run
+  Scripts/Python/sync_imc_prompt_mappings.py after ANY IMC edit. Checkpoint:
+  2026-08-04_any_glyphs_root_cause_deprecated_mappings.md
+  ROUND 2: glyphs render; dev hit the DETECTION layer ("always keyboard on open; A press reads as
+  keyboard" — construct-default + mouse-noise wins most-recent-device in menus). BUILT: NEW
+  UZP_GlyphDeviceSubsystem — C++ owns bGamepadActive (gamepad input -> pad; kbd key/mouse BUTTON ->
+  KBM; mouse MOVE never counts) and pushes into live displayers via reflection (IsUsingGamepad? +
+  UpdateStyling/UpdateInputIcon), change + 0.5s heartbeat (seeds fresh menus). Knob
+  zp.GlyphDevice.Enabled. Built clean, relaunched, class verified. NEEDS dev controller PIE.
+  ROUND 3: dev — defaults correct, but unbound A press mid-options flipped to keyboard. MY hole:
+  pause menu pauses the world and the subsystem wasn't tickable-when-paused (seed landed pre-pause;
+  pack's poisoned handler flipped widgets; corrector asleep -> stuck). FIXED + BUILT:
+  IsTickableWhenPaused=true + per-tick mismatch correction (same-frame, invisible). Test matrix:
+  open options on pad = Xbox glyphs; A press = stays Xbox; key/CLICK = keyboard; mouse move only =
+  no flip.
+  ROUND 4 (dev: "failed test" on A-press): CommonUI's analog cursor SYNTHESIZES LeftMouseButton
+  clicks from pad presses in EGUI menus — MY detector saw the fake click and flipped to KBM in
+  agreement with the pack. Guard added at PC level — STILL FAILED because (ROUND 5, log-proven):
+  Slate CONSUMES the pad press while menus are up, so PC polling never sees it (June gotcha applied
+  to me) — the recency guard was blind. FINAL FIX BUILT: detection moved to an FSlateApplication
+  INPUT PREPROCESSOR (FZPGlyphInputProcessor — sees all hardware events pre-consumption): gamepad
+  key/analog -> pad; real kbd keys -> KBM; mouse buttons + Enter/Space -> KBM only if no pad event
+  within 0.35s; mouse move ignored. Build.cs +"Slate" (FLAGGED FOR REVIEW). MEMORY-GRADE RULE:
+  device detection MUST live in a Slate preprocessor — PC polling is blind to menu-consumed keys
+  and fooled by synthesized ones. Built clean, relaunched, RF loaded. NEEDS dev A-press test.
+  ROUND 6 (3rd fail, toggle keyboard/xbox/none): [GlyphDevice] ages proved CommonUI's preprocessor
+  sits AHEAD of mine and CONSUMES every other pad press (G stale at press, S fresh). FIXED + BUILT:
+  RegisterInputPreProcessor(proc, 0) — INDEX 0, first in chain, observe-only. MEMORY-GRADE: device
+  detection preprocessor MUST register at index 0 or CommonUI starves it. NEEDS dev A-press test.
+  ROUND 7 — SINGLE OWNER = GameUserSettings (dev: "make sure all my settings can be changed in
+  the settings UI I have from easy ui assets. Cause I turned vsync on directly this time"): the
+  last stomper was the EGUI MENU's ApplySettings vs our raw cvars (log: mode set res 100 →
+  menu action → back to 67). GraphicsModeSubsystem now writes ScalabilityQuality INTO
+  GameUserSettings + ApplyNonResolutionSettings every map load — menu vsync/settings apply WITH
+  the mode, stick by construction. VSync = MENU-OWNED (never forced). BP API for the dev's EGUI
+  options widget: SetGraphicsMode(bPerformance) + IsPerformanceMode() (dev authors the selector
+  UI). [EquipProbe] added — pipe pull measured 1507ms; next session's log NAMES the cost
+  (game-thread ms vs render/PSO). Game thread 13-15ms now. RULE: never mix raw-cvar enforcement
+  with GameUserSettings-driven UI. Checkpoint: 2026-08-04_gameusersettings_single_owner.md
+  ROUND 6 — DEV HAPPY ("performing well... consistent... like an actual game I buy") = native 4K
+  Epic at steady vsync ~18fps. KEY: PIE obeys sg.ResolutionQuality, NOT r.ScreenPercentage (sp= in
+  FrameStats reads the cvar only — judge by gpu ms). SHIPPED: UZP_GraphicsModeSubsystem —
+  `zp.Mode Quality|Performance` (both pin Epic look; Performance = 50% internal res ≈ 3x GPU
+  headroom, game-thread-limited ~45fps until queued C++ lands), persisted + ENFORCED every game
+  start (anti-drift guard). FIXED dev-reported per-frame "Accessed None ActiveSettings" spam:
+  FKinemationBridge::AnimEnsureActiveSettings (reflection fallback settings object; zero pack
+  edits). Built clean, relaunched, verified. NEXT: dev tastes both modes + confirms error gone;
+  game-thread list continues; wire modes into EGUI settings menu (dev authors UI). Checkpoint:
+  2026-08-04_graphics_modes_activesettings_fix.md
+- Last session (2026-08-02): RESEARCHFACILITY LIGHT PERF PASS 3 — dev reported FPS drops +
+  light-complexity red/purple/white over large map portions. Census: 210 lights (was 132 in June),
+  205 shadow-casting, spheres 8-12 deep in the z2477-2491 band; the ENTIRE June 06-30m shadow pass
+  had silently reverted. Applied (level saved + DISK-RELOAD VERIFIED durable): 44 adversarially-
+  adjudicated cast_shadows=False (205->161 casters; 10-agent workflow, ~140 live trace probes, 42
+  candidates KEPT on proven through-wall-splotch evidence), 2 geometry-gated radius trims
+  (SpotLight7 1506->1179, BP_Light_67 1494->831; all other trims REJECTED by offset-origin gate —
+  radius lever exhausted), max_draw_distance on all 206 unset lights (BP-class = 9500 HARD cull,
+  fade broken on BP instances — reverts on save, see checkpoint GOTCHAS; natives 6000/1500 or
+  9500/2000; longest sightline 8130 so no visible pop). ZERO dimming — intensity/color untouched.
+  Tool: Scripts/Python/light_perf_pass3.py MODE=verify/apply/restore (+ snapshot/droplist JSONs).
+  NEEDS dev PIE: z~2900 elevator stop (PointLight33/46), BP_Light_52 room, walls SM_Wall_439/231.
+  PASS 4 (after dev pushback — pass 3 hadn't touched the actual complaint area): the 17 r=1327
+  dense-wing lights CUT to 550 + spots 1494->900 + r=1000 stragglers ->750/800; stacking now max 8
+  at one sample (was 12x6 zones), blinding wing gone. LOOK CHANGED in that wing (per-room pools) —
+  dev may raise individual fixture Intensity if a room reads too dark. Saved + verify PASS INTACT.
+  Checkpoint: 2026-08-02_researchfacility_light_perf_pass3.md (PASS 4 section on top)
+  ROUND 2 same day (dev: still laggy + horizontal line on vertical camera moves): the line was
+  TEARING — bUseVSync was False + uncapped fps; VSync now ON live + persisted (editor saved settings
+  via API + DefaultGameUserSettings for packaged). Scalability was already persisted High (07-18 win
+  in place — not the cost). NANITE enabled on 57 heavy RF meshes (>=2000 tris, opaque/masked only;
+  roadmap #3) — INCIDENT owned: sweep initially caught /Engine SM_SkySphere, reverted, zero non-/Game
+  nanite remains; always filter bulk asset mutations to /Game. BP_HorrorLight_C_6 deleted by dev
+  (160 casters now). Checkpoint: 2026-08-02_rf_perf_vsync_nanite_pass.md
+  ROUND 3 (dev: "laggy in lit areas, camera turn = momentary freeze"): = VSM page-render bursts on
+  camera reveal. DefaultEngine.ini [SystemSettings] += ResolutionLodBiasLocal=1 (half-res local VSM
+  pages), NonNanite.IncludeInCoarsePages=0, r.VSyncEditor=1. NEW UZP_FrameStatsSubsystem (PIE/game,
+  non-shipping) logs [FrameStats] 5s thread-split + hitch lines to Saved/Logs/TheSignal.log — dev
+  just plays, Claude greps the log to pick the next lever (game ms->C++ / render->HISM Track A /
+  gpu->Lumen-TSR / hitches->VSM round 2). Built clean, editor relaunched, RF reloaded, light pass
+  INTACT (160). Checkpoint: 2026-08-02_rf_camera_hitch_vsm_framestats.md
+- Earlier (2026-07-14): OOZELING v3.3 — (1) AZP_EruptAnimCutoff (freeze the Hug_Attack
   erupt clip at N seconds, hold pose for the fuse — clips the flubber tail; wrap-proof elapsed-
   time trigger; registry 1022/76). (2) Mid-wall 180° flip FIXED: MakeOrientation reworked with
   residual-conditioned continuity — reference = LastPatrolUp (previous DESIRED frame's up,

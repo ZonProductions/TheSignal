@@ -1,6 +1,8 @@
 // Copyright The Signal. All Rights Reserved.
 
 #include "ZP_KinemationComponent.h"
+
+#include "Misc/ScopeExit.h"
 #include "ZP_CrawlerBehaviorComponent.h"
 #include "ZP_GraceCharacter.h"
 #include "ZP_GrenadeProjectile.h"
@@ -379,6 +381,10 @@ void UZP_KinemationComponent::InitKinemationAnimation()
 	if (TacticalAnimComp)
 	{
 		TacticalAnimComp->SetComponentTickEnabled(false);
+		// The tick-disable silences the COMPONENT's own null derefs, but the UE5_ABP_IK_Pose
+		// layer on PlayerMesh reads ActiveSettings every frame regardless — install a neutral
+		// settings object so it never reads None (dev-reported message-log spam, 2026-08-04).
+		FKinemationBridge::AnimEnsureActiveSettings(TacticalAnimComp);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: TacticalAnim=%s, Recoil=%s, IK=%s"),
@@ -482,6 +488,18 @@ bool UZP_KinemationComponent::EquipWeapon()
 
 bool UZP_KinemationComponent::EquipWeaponClass(TSubclassOf<UObject> NewWeaponClass)
 {
+	// [EquipProbe] 2026-08-04: time every equip so the 1.5s first-pipe stall gets named in the log.
+	const double ProbeStart = FPlatformTime::Seconds();
+	ON_SCOPE_EXIT
+	{
+		const double Ms = (FPlatformTime::Seconds() - ProbeStart) * 1000.0;
+		if (Ms > 25.0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[EquipProbe] EquipWeaponClass(%s) took %.0fms on the game thread"),
+				*GetNameSafe(NewWeaponClass), Ms);
+		}
+	};
+
 	if (!NewWeaponClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] KinemationComponent::EquipWeaponClass — null weapon class."));
@@ -851,6 +869,9 @@ void UZP_KinemationComponent::UnequipWeapon()
 	if (TacticalAnimComp)
 	{
 		FKinemationBridge::AnimToggleReadyPose(TacticalAnimComp, false);
+		// Keep ActiveSettings non-null while unarmed — the UE5_ABP_IK_Pose layer reads it
+		// every frame (per-frame "Accessed None" spam otherwise; 2026-08-04).
+		FKinemationBridge::AnimEnsureActiveSettings(TacticalAnimComp);
 	}
 
 	OnWeaponChanged.Broadcast(nullptr);
@@ -1689,6 +1710,18 @@ void UZP_KinemationComponent::UpdateMeleeGrip(float DeltaSeconds, bool bBlocking
 
 void UZP_KinemationComponent::ActivateMeleeViewModel()
 {
+	// [EquipProbe] 2026-08-04: dev-felt 1.5s stall on first pipe pull — time this path so the
+	// log names the cost (game-thread here vs render-thread PSO elsewhere).
+	const double ProbeStart = FPlatformTime::Seconds();
+	ON_SCOPE_EXIT
+	{
+		const double Ms = (FPlatformTime::Seconds() - ProbeStart) * 1000.0;
+		if (Ms > 25.0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[EquipProbe] ActivateMeleeViewModel took %.0fms on the game thread"), Ms);
+		}
+	};
+
 	if (bMeleeViewModelActive)
 	{
 		return;
@@ -1743,6 +1776,9 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 	SetMeleeWeaponBlockGrip(false);
 	MeleeWeaponMeshComp->SetVisibility(true);
 
+	// perf 2026-08-04: constructor default is OnlyTickPoseWhenRendered (no eval while stowed);
+	// force full ticking while the view model is live so swing timing never skips a pose frame.
+	MeleeViewMeshComponent->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 	MeleeViewMeshComponent->SetVisibility(true);
 
 	// --- PROBE: report the pipe's actual state right after we show it, so we can see
@@ -1833,6 +1869,7 @@ void UZP_KinemationComponent::ActivateThrowableViewModel()
 		ActiveWeapon->SetActorHiddenInGame(false);
 	}
 
+	MeleeViewMeshComponent->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones; // perf 2026-08-04
 	MeleeViewMeshComponent->SetVisibility(true);
 
 	// Only the back half of the Kubold Equip — the first half mimes drawing

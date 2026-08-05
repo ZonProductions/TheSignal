@@ -155,6 +155,11 @@ public:
 	/** Fires on ANY objective/sub/flag change AND on NotifyMenuClosed — the HUD tracker binds to this. */
 	UPROPERTY(BlueprintAssignable, Category = "Objectives") FZP_OnTrackerRefresh OnTrackerRefresh;
 
+	/** Fires after a save restore WHOLESALE-REPLACED objective state (ReadFromSave/RestoreSaveState).
+	 *  Level bootstraps (AZP_ObjectiveReactor) re-assert their level main off this — a slot saved in
+	 *  another level doesn't contain this level's main, so the restore would otherwise wipe it. */
+	UPROPERTY(BlueprintAssignable, Category = "Objectives") FZP_OnTrackerRefresh OnStateRestored;
+
 private:
 	UPROPERTY()
 	TArray<FZP_ObjectiveDef> Definitions; // keyed in logic by FZP_ObjectiveDef::Id

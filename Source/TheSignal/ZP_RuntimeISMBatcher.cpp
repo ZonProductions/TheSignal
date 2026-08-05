@@ -3,6 +3,8 @@
 #include "ZP_RuntimeISMBatcher.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/LightComponent.h"
+#include "GameFramework/Pawn.h"
 #include "EngineUtils.h"
 
 // Batch key: groups static mesh actors by (floor, mesh, material set)
@@ -169,6 +171,10 @@ void UZP_RuntimeISMBatcher::BatchStaticMeshes()
 			}
 		}
 
+		// STATIC mobility (default is Movable): lets VSM cache shadow pages and Lumen treat the
+		// batched geometry as static scene — Movable ISMs re-render shadows/GI every frame, which
+		// is exactly the "FPS tanks when turning / entering a new room" cost.
+		ISMC->SetMobility(EComponentMobility::Static);
 		ISMC->SetWorldTransform(FTransform::Identity);
 		ISMC->RegisterComponent();
 
@@ -197,6 +203,51 @@ void UZP_RuntimeISMBatcher::BatchStaticMeshes()
 	{
 		UE_LOG(LogTemp, Log, TEXT("  Floor %d: %d ISMs"), i + 1, FloorISMCs[i].Num());
 	}
+}
+
+void UZP_RuntimeISMBatcher::StabilizeLights()
+{
+	if (!bAZP_StabilizeLights)
+	{
+		return;
+	}
+
+	int32 Changed = 0, SkippedAttached = 0, SkippedPawn = 0;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (!Actor)
+		{
+			continue;
+		}
+
+		TArray<ULightComponent*> Lights;
+		Actor->GetComponents(Lights);
+		if (Lights.Num() == 0)
+		{
+			continue;
+		}
+
+		// Derive eligibility from DATA, not class names: anything attached to another actor may ride
+		// a mover (elevator-car lights), and Pawns carry gameplay lights (flashlight, enemy glows).
+		if (Actor->GetAttachParentActor() != nullptr) { SkippedAttached += Lights.Num(); continue; }
+		if (Actor->IsA<APawn>())                      { SkippedPawn += Lights.Num(); continue; }
+
+		for (ULightComponent* L : Lights)
+		{
+			// Only shadow-casting Movable lights — non-shadow indicator lights are cheap and some
+			// (TransitReturn button) are gameplay-driven; leave them exactly as placed.
+			if (!L || L->Mobility != EComponentMobility::Movable || !L->CastShadows)
+			{
+				continue;
+			}
+			L->SetMobility(EComponentMobility::Stationary); // intensity/color changes still work
+			++Changed;
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("ISMBatcher: StabilizeLights — %d movable shadow lights -> Stationary (%d kept: attached, %d kept: pawn)"),
+		Changed, SkippedAttached, SkippedPawn);
 }
 
 void UZP_RuntimeISMBatcher::SetFloorVisible(int32 FloorIndex, bool bVisible)
