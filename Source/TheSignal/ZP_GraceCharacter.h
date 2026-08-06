@@ -56,6 +56,7 @@ class USpotLightComponent;
 class UPointLightComponent;
 class USoundBase;
 class UZP_BriefcaseSubsystem;
+class UTexture;
 
 UCLASS(Blueprintable)
 class THESIGNAL_API AZP_GraceCharacter : public ACharacter, public IZP_Grabbable
@@ -1055,6 +1056,73 @@ public:
 
 	/** Runtime-hidden slot indices on PlayerMesh (BeginPlay list + console toggles). */
 	TSet<int32> HiddenBodySlots;
+
+	/** PACK-NATIVE apparel skin masking (dev 2026-08-06: "pants are not covering my legs...
+	 *  skin breaking through" — keep the pants mesh, keep the legs). The Character Customizer
+	 *  skin material (M_Skin_CCMH) WPO-SHRINKS every body vertex painted into an
+	 *  ApparelMask_<slot> texture so covered skin tucks INSIDE the apparel — the exact dress-up
+	 *  step the pack's customizer runs and our manual SetupMarcusAppearance always skipped
+	 *  (the MI defaults sit on the neutral T_DefaultWPO_Mask = zero shrink). Nothing is hidden
+	 *  or removed; exposed skin (hands/neck/head) is untouched. Applied at BeginPlay via a
+	 *  DYNAMIC MI on MarcusBody only — the shared MI_Skin_Body_CCMH asset is never edited, so
+	 *  the ranged-arm view models that borrow it keep full skin. false = raw skin (old look). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	bool bAZP_ApparelSkinMask = true;
+
+	/** ApparelMask_0 (Upper Body apparel slot). Marcus wears Overalls_01, whose own
+	 *  DT_Apparel_M_UpperBody+ row assigns T_ApparelMask_FullBody (full-body suit: arms,
+	 *  torso, legs shrunk under the cloth; hands stay). Empty = leave the MI's neutral mask. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	TSoftObjectPtr<UTexture> AZP_ApparelMaskUpper = TSoftObjectPtr<UTexture>(FSoftObjectPath(
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Apparel/ApparelMasks/T_ApparelMask_FullBody.T_ApparelMask_FullBody")));
+
+	/** ApparelMask_1 (Lower Body apparel slot). Marcus has no lower-only garment — the
+	 *  overalls row even hides that slot — so this stays empty (neutral mask, no shrink). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	TSoftObjectPtr<UTexture> AZP_ApparelMaskLower;
+
+	/** ApparelMask_2 (Footwear apparel slot). Sneaker_02 -> T_ApparelMask_Shoes per its
+	 *  DT_Apparel_M_Footwear row (feet shrunk inside the sneakers). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	TSoftObjectPtr<UTexture> AZP_ApparelMaskFootwear = TSoftObjectPtr<UTexture>(FSoftObjectPath(
+		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Apparel/ApparelMasks/T_ApparelMask_Shoes.T_ApparelMask_Shoes")));
+
+	/** 'Neck Shrink' scalar on the body skin MI — the Overalls_01 row sets 1 (tuck the body's
+	 *  neck stub under the collar; the visible neck belongs to the head mesh). Negative =
+	 *  leave the MI default (0). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	float AZP_ApparelNeckShrink = 1.0f;
+
+	/** 'Upper Body_Mask_Mult' — shrink strength for skin under ApparelMask_0 (the overalls'
+	 *  FullBody mask: torso+arms+legs). MI default is 3; raised to 5 after the pipe-walk
+	 *  right-leg poke (2026-08-06 round 2: "just barely" clipping at leg-swing extremes).
+	 *  The wrist/collar boundary sits under the sleeve/collar so a deeper tuck stays
+	 *  invisible. Negative = leave the MI default. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	float AZP_ApparelMaskMultUpper = 5.0f;
+
+	/** 'Lower Body_Mask_Mult' — shrink strength under ApparelMask_1 (unused on Marcus).
+	 *  Negative = leave the MI default (3). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	float AZP_ApparelMaskMultLower = -1.0f;
+
+	/** 'Footwear_Mask_Mult' — shrink strength under ApparelMask_2 (T_ApparelMask_Shoes).
+	 *  Negative = leave the MI default (1). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	float AZP_ApparelMaskMultFootwear = -1.0f;
+
+	/** GLOVE match for the unarmed hands (dev 2026-08-06: "unarmed hands don't use the same
+	 *  gloves as the other weapons"). The weapon view models are bare-hand geometry painted
+	 *  with AZP_MeleeHandMaterial (M_Gloves) — a flat dark-leather tone. The CCMH body is one
+	 *  material section, so its hands get the same tone via the skin material's TATTOO layer
+	 *  (base-color lerp by alpha, body branch only): this texture paints ONLY the hand UV
+	 *  islands (built from the mesh's own hand/finger skin weights, glove tone averaged from
+	 *  the real T_Gloves_BaseColor) and is fully transparent elsewhere. Applied on the same
+	 *  MarcusBody dynamic MI with identity placement (offset 0 / scale 1 / rotation 0).
+	 *  Empty = bare skin hands (old look). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	TSoftObjectPtr<UTexture> AZP_UnarmedGloveOverlay = TSoftObjectPtr<UTexture>(FSoftObjectPath(
+		TEXT("/Game/Marcus/Textures/T_Marcus_GloveOverlay.T_Marcus_GloveOverlay")));
 
 	/** Cosine of the look-at cone (~60 deg) required for a door overlap to consume the E press. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")

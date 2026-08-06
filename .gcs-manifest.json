@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-08-05T21:09:18",
+  "created": "2026-08-06T10:19:01",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -15288,7 +15288,7 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:fc83a9ad75e1ba65daeab2af46132a0874453e119730a8fb470840bc85cf2e82",
+      "hash": "sha256:1a000c77c3f138a492bffbefa298875bce5d6dbc7d9e5364c334bd62caeab0bd",
       "size": 7376757
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
@@ -22450,6 +22450,10 @@
     "Content/CharacterCustomizer/Characters/CC_MetaHuman_Example/UI/Widget_CC_Customization_UI_MH.uasset": {
       "hash": "sha256:d86a10b9b3f8b4de74a331cb2c292d7793366e9ab06dc1a81f3008f19bf58cd1",
       "size": 1180803
+    },
+    "Content/CharacterCustomizer/checkpoints/2026-08-06d_fp_skin_gloves_session_pointer.md": {
+      "hash": "sha256:9788f6b5a3c8cf6a608b669b59b37e613fd1b7b151d7e88dbab4b754230bfb90",
+      "size": 1781
     },
     "Content/CharacterCustomizer/checkpoints/cc_outershell_swap_plan_20260619.md": {
       "hash": "sha256:95d2951a0b6a027e8ec2e058a816069380dea01f9da08fb237ce1c32b4e75e41",
@@ -66830,6 +66834,10 @@
     "Content/Marcus/Rigs/RTG_UE5Manny_to_UEFN.uasset": {
       "hash": "sha256:1fe1554ee8c7f5951f55ae08b871a6e0753cc172704bd16145be4595da02bfe9",
       "size": 26541
+    },
+    "Content/Marcus/Textures/T_Marcus_GloveOverlay.uasset": {
+      "hash": "sha256:fa1a22e505057120a6d2c71cc2a705c0bf9098f0e252872369b7f5ca998affbe",
+      "size": 16198
     },
     "Content/Marlitia_Outpost/Blockout/SM_Cube.009.fbx": {
       "hash": "sha256:65ab96934c2280cdc1a707d097cf01e6c39b9ef06bda2af03b73278a5ee57904",

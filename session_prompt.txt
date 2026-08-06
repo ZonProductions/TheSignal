@@ -20,6 +20,33 @@
 ## PROJECT STATE
 - Phase: Campaign Build — past vertical slice, building actual campaign and level design
 - Branch: main
+- Last session (2026-08-06): FP SKIN-THROUGH-PANTS FIXED THE PACK'S WAY (round 5 — dev
+  rejected the 08-06a thigh-bone hide: "do not remove the legs, same pants mesh, no skin").
+  ROOT CAUSE: manual SetupMarcusAppearance never ran the Character Customizer's dress-up
+  side effects — M_Skin_CCMH WPO-shrinks skin verts painted in ApparelMask_0/1/2 (0 Upper/
+  1 Lower/2 Footwear) inside the clothing, and all three sat on neutral T_DefaultWPO_Mask.
+  FIX (C++): dynamic MI on MarcusBody sets ApparelMask_0=T_ApparelMask_FullBody +
+  ApparelMask_2=T_ApparelMask_Shoes + Neck Shrink=1 (values straight from the pack's own
+  DT_Apparel rows for Overalls_01/Sneaker_02). Legs render (tucked inside pants), pants
+  mesh untouched, hands/neck untouched, shared skin MI asset untouched (ranged arms safe).
+  Knobs bAZP_ApparelSkinMask + AZP_ApparelMask*/AZP_ApparelNeckShrink (registry updated).
+  LESSON (memory + checkpoint): HideBoneByName on MarcusBody collapses the leader-posed
+  overalls/sneakers too — never again for skin bugs. Built clean 58s, editor relaunched.
+  NEEDS dev PIE: look down unarmed = overalls+sneakers, legs present, zero skin.
+  Checkpoint: 2026-08-06b_apparel_wpo_skin_mask_pack_native.md
+  ROUND 2 (dev: legs good unarmed; (1) unarmed hands lack the weapon-view gloves, dev
+  pointed at AZP_MeleeHandMaterial=M_Gloves; (2) pipe walk/run right leg "just barely"
+  poking): (1) weapon gloves = M_Gloves paint on bare-hand geometry -> matched on the
+  one-section CCMH body via the skin material's TATTOO layer (base-color lerp, identity
+  placement): NEW /Game/Marcus/Textures/T_Marcus_GloveOverlay (hand UV islands from the
+  mesh's own skin weights, tone = T_Gloves_BaseColor average 35,31,28; v-orientation
+  cross-validated vs T_ApparelMask_FullBody), knob AZP_UnarmedGloveOverlay (empty=bare).
+  (2) shrink formula graph-verified (max of mask*mult -> -VertexNormal WPO); Upper mult
+  3->5 (AZP_ApparelMaskMultUpper + Lower/Footwear knobs, negative=MI default). NOTE:
+  tattoo canNOT change roughness — body branch has no regional roughness path; if glove
+  sheen bothers dev, retint texture or edit pack material (don't). Built clean 50s,
+  relaunched. NEEDS dev PIE both. Checkpoint:
+  2026-08-06c_unarmed_glove_tattoo_overlay_leg_mult.md
 - Last session (2026-08-04 late): XBOX CONTROLLER ITEMS (graphics saga CLOSED — Low enforced every
   PIE start, dev satisfied). (1) First-time pickup B-dismiss FIXED + BUILT: my own 4Hz perf
   throttle was eating the key poll (WasInputKeyJustPressed is single-frame — NEVER throttle such

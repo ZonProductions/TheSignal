@@ -47,6 +47,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/Texture.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Animation/AnimSequenceBase.h"
@@ -4746,6 +4747,70 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 	{
 		MarcusSneakers->SetSkeletalMesh(Sneakers);
 		MarcusSneakers->SetLeaderPoseComponent(MarcusBody);
+	}
+
+	// PACK-NATIVE APPAREL SKIN MASKING (dev 2026-08-06: skin breaking through the pants on
+	// look-down — keep the pants mesh, keep the legs). M_Skin_CCMH WPO-shrinks every body
+	// vertex painted into an ApparelMask_<slot> texture so covered skin sits INSIDE the
+	// clothing; the pack's customizer runs this on every dress-up, our manual assembly never
+	// did (all three MI slots idle on the neutral T_DefaultWPO_Mask). Slot order mirrors the
+	// customizer's apparel slots (0 Upper Body / 1 Lower Body / 2 Footwear — the overalls
+	// row's "Hides These Slots: [1]" pins the ordering). Dynamic MI on MarcusBody ONLY: the
+	// shared MI_Skin_Body_CCMH asset also skins the ranged-arm view models and is not edited.
+	if (bAZP_ApparelSkinMask)
+	{
+		if (UMaterialInstanceDynamic* SkinMID = MarcusBody->CreateDynamicMaterialInstance(0))
+		{
+			if (UTexture* UpperMask = AZP_ApparelMaskUpper.LoadSynchronous())
+			{
+				SkinMID->SetTextureParameterValue(FName(TEXT("ApparelMask_0")), UpperMask);
+			}
+			if (UTexture* LowerMask = AZP_ApparelMaskLower.LoadSynchronous())
+			{
+				SkinMID->SetTextureParameterValue(FName(TEXT("ApparelMask_1")), LowerMask);
+			}
+			if (UTexture* FootMask = AZP_ApparelMaskFootwear.LoadSynchronous())
+			{
+				SkinMID->SetTextureParameterValue(FName(TEXT("ApparelMask_2")), FootMask);
+			}
+			if (AZP_ApparelNeckShrink >= 0.0f)
+			{
+				SkinMID->SetScalarParameterValue(FName(TEXT("Neck Shrink")), AZP_ApparelNeckShrink);
+			}
+			// Region shrink strengths (negative knob = keep the MI default). Upper raised
+			// 3 -> 5 for the pipe-walk right-leg poke at leg-swing extremes (2026-08-06).
+			if (AZP_ApparelMaskMultUpper >= 0.0f)
+			{
+				SkinMID->SetScalarParameterValue(FName(TEXT("Upper Body_Mask_Mult")), AZP_ApparelMaskMultUpper);
+			}
+			if (AZP_ApparelMaskMultLower >= 0.0f)
+			{
+				SkinMID->SetScalarParameterValue(FName(TEXT("Lower Body_Mask_Mult")), AZP_ApparelMaskMultLower);
+			}
+			if (AZP_ApparelMaskMultFootwear >= 0.0f)
+			{
+				SkinMID->SetScalarParameterValue(FName(TEXT("Footwear_Mask_Mult")), AZP_ApparelMaskMultFootwear);
+			}
+			// Unarmed glove match: hand-UV-only overlay through the skin material's Tattoo
+			// layer (base-color lerp by alpha; transparent everywhere but the hands).
+			// Identity placement — MF_Tattoo's center-pivot transform is a no-op at
+			// offset 0 / scale 1 / rotation 0.
+			if (UTexture* GloveTex = AZP_UnarmedGloveOverlay.LoadSynchronous())
+			{
+				SkinMID->SetTextureParameterValue(FName(TEXT("Tattoo")), GloveTex);
+				SkinMID->SetVectorParameterValue(FName(TEXT("Tattoo Offset")), FLinearColor(0.f, 0.f, 0.f, 1.f));
+				SkinMID->SetVectorParameterValue(FName(TEXT("Tattoo Scale")), FLinearColor(1.f, 1.f, 1.f, 1.f));
+				SkinMID->SetScalarParameterValue(FName(TEXT("Tattoo Rotation")), 0.f);
+			}
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] SetupMarcusAppearance — apparel skin masks applied (upper=%s lower=%s foot=%s neckShrink=%.1f upperMult=%.1f gloves=%s)."),
+				*GetNameSafe(AZP_ApparelMaskUpper.Get()), *GetNameSafe(AZP_ApparelMaskLower.Get()),
+				*GetNameSafe(AZP_ApparelMaskFootwear.Get()), AZP_ApparelNeckShrink,
+				AZP_ApparelMaskMultUpper, *GetNameSafe(AZP_UnarmedGloveOverlay.Get()));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] SetupMarcusAppearance — could not create body skin MID; apparel masks NOT applied."));
+		}
 	}
 
 	// Weapon-arm view-model SLEEVES: DISABLED 2026-06-20. This leader-posed a CCMH
