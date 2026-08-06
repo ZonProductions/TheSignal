@@ -107,6 +107,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Detect")
 	float AZP_DetectionRange = 1000.f;
 
+	/** UNAVOIDABLE aggro radius (UU) — inside it, aggro fires regardless of LOS/reachability
+	 *  (dev 2026-08-05: "aggro is impossible to avoid within proximity", all NPC enemies).
+	 *  Stealth still works outside it via the LOS/reachability rules above. Also keeps the
+	 *  lose-sight timer pinned while the player stays inside. 600 = 6m. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Detect")
+	float AZP_ProximityAggroRange = 600.f;
+
 	/** Seconds between detection probes (LOS trace + navmesh reachability). These ran EVERY
 	 *  FRAME per Oozeling before 2026-08-04 — up to 16 traces + a sync pathfind each tick. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Detect")
@@ -378,6 +385,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	/** Editor authoring preview — assigns the idle pose + evaluates it in the viewport so a
+	 *  placed Oozeling is visible/authorable before PIE (dev 2026-08-05). */
+	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void Tick(float DeltaTime) override;
 	/** CMC Falling->grounded transition. Finalizes a death fall into the corpse (plays the death
 	 *  clip) and turns an alive ceiling Drop into Chase. */

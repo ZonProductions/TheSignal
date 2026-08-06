@@ -16,11 +16,25 @@
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimSequence.h"
 #include "AIController.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
+
+// Prone/rise ground-contact bone set — extremities AND the load-bearing core (round-17: the
+// army-crawl bears on FOREARMS/chest/pelvis; clamping only hands/feet sank everything below
+// that plane). Shared by the runtime clamp and the WITH_EDITOR preview grounding so the placed
+// preview and the playing body rest on the SAME plane (round-18: they disagreed by 12uu).
+static const FName GShamblerContactBones[] = {
+	FName(TEXT("mixamorig_LeftHand_011")),    FName(TEXT("mixamorig_RightHand_019")),
+	FName(TEXT("mixamorig_LeftFoot_026")),    FName(TEXT("mixamorig_RightFoot_030")),
+	FName(TEXT("mixamorig_LeftToeBase_027")), FName(TEXT("mixamorig_RightToeBase_031")),
+	FName(TEXT("mixamorig_LeftLeg_025")),     FName(TEXT("mixamorig_RightLeg_029")),
+	FName(TEXT("mixamorig_LeftForeArm_010")), FName(TEXT("mixamorig_RightForeArm_018")),
+	FName(TEXT("mixamorig_Hips_01")),         FName(TEXT("mixamorig_Spine_02")),
+	FName(TEXT("mixamorig_Spine2_04")),       FName(TEXT("mixamorig_Head_06")) };
 
 UZP_ShamblerBehaviorComponent::UZP_ShamblerBehaviorComponent()
 {
@@ -76,6 +90,16 @@ void UZP_ShamblerBehaviorComponent::LoadAnimDefaults()
 	Fill(AZP_TurnR90Anim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Turn_R90.A_Shambler_Turn_R90"));
 	Fill(AZP_TurnL180Anim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Turn_L180.A_Shambler_Turn_L180"));
 	Fill(AZP_TurnR180Anim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Turn_R180.A_Shambler_Turn_R180"));
+	// Crawl stance set (NAAT crawl clips retargeted 2026-08-05 via retarget_shambler_crawl.py —
+	// curve-stripped + additive/root-lock cleared + size-verified at retarget time).
+	Fill(AZP_CrawlIdleAnim,     TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_CrawlIdle.A_Shambler_CrawlIdle"));
+	Fill(AZP_CrawlWalkAnim,     TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_CrawlWalk.A_Shambler_CrawlWalk"));
+	Fill(AZP_CrawlRunAnim,      TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_CrawlRun.A_Shambler_CrawlRun"));
+	Fill(AZP_AttackCrawlAnim,   TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_Crawl.A_Shambler_Attack_Crawl"));
+	Fill(AZP_AttackStandLHAnim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_StandLH.A_Shambler_Attack_StandLH"));
+	Fill(AZP_AttackStandBHAnim, TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_Attack_StandBH.A_Shambler_Attack_StandBH"));
+	Fill(AZP_SlumpToStandAnim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_SlumpToStand.A_Shambler_SlumpToStand"));
+	Fill(AZP_PlayDeadPoseAnim,  TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_ProneToStand.A_Shambler_ProneToStand"));
 }
 
 void UZP_ShamblerBehaviorComponent::BeginPlay()
@@ -84,6 +108,14 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 
 	Owner = Cast<ACharacter>(GetOwner());
 	if (!Owner) { return; }
+
+	// The body must NEVER affect nav generation (the 2026-07-13 Oozeling ctor lesson, never
+	// applied here — moot under STATIC nav, live since the 2026-08-05 DYNAMIC flip): a
+	// nav-relevant pawn carves a moving hole under ITSELF, the tiles rebuild every step, and
+	// its own path invalidates in a stall-restart loop (the round-19 one-sided-crawl trigger).
+	Owner->SetCanAffectNavigationGeneration(false);
+	if (UCapsuleComponent* NavCap = Owner->GetCapsuleComponent()) { NavCap->SetCanEverAffectNavigation(false); }
+	if (USkeletalMeshComponent* NavMesh = Owner->GetMesh()) { NavMesh->SetCanEverAffectNavigation(false); }
 
 	LoadAnimDefaults(); // fill any anim slots the BP didn't override (was a crashing ctor load)
 
@@ -180,6 +212,16 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 
 	if (USkeletalMeshComponent* M0 = Owner->GetMesh())
 	{
+		// The EDITOR PREVIEW grounds the mesh visually (preview-only cosmetic write) — restore
+		// the AUTHORED base Z from the archetype before capturing, or the preview offset would
+		// poison every runtime state offset. Mesh Z is never hand-authored per instance in this
+		// project (all Z tuning is knob-driven).
+		if (USceneComponent* MeshArch = Cast<USceneComponent>(M0->GetArchetype()))
+		{
+			FVector RL0 = M0->GetRelativeLocation();
+			RL0.Z = MeshArch->GetRelativeLocation().Z;
+			M0->SetRelativeLocation(RL0);
+		}
 		MeshBaseRelZ = M0->GetRelativeLocation().Z;
 		MeshBaseRelXY = FVector2D(M0->GetRelativeLocation().X, M0->GetRelativeLocation().Y);
 		M0->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore); // capsule takes the bullet instead
@@ -196,6 +238,29 @@ void UZP_ShamblerBehaviorComponent::BeginPlay()
 		Cap->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 		UE_LOG(LogTemp, Warning, TEXT("[Shambler] shootable via capsule: VisResp=%d"),
 			(int32)Cap->GetCollisionResponseToChannel(ECC_Visibility));
+	}
+
+	// CRAWLER CAPSULE (dev 2026-08-05: "it swims... should cling to the ground"): shrink the
+	// standing capsule so the body rides at floor height, with mesh-base + actor-Z compensation
+	// (ApplyCrawlCapsule). Standing values are captured FIRST — the one-way stand-up restores
+	// them, and revive re-shrinks. Also clamps the CMC yaw rate (wild-rotation fix).
+	if (UCapsuleComponent* CapBP = Owner->GetCapsuleComponent())
+	{
+		StandingCapsuleHH = CapBP->GetUnscaledCapsuleHalfHeight();
+	}
+	if (UCharacterMovementComponent* CMBP = Owner->GetCharacterMovement())
+	{
+		StandingRotationRateYaw = CMBP->RotationRate.Yaw;
+	}
+	bCrawlStoodUp = false;
+	// Legacy bAZP_Crawling (pre-preset) maps onto the preset dropdown.
+	if (bAZP_Crawling && AZP_Preset == EShamblerPreset::Standing)
+	{
+		AZP_Preset = EShamblerPreset::Crawler;
+	}
+	if (IsPronePreset())
+	{
+		ApplyCrawlCapsule(true);
 	}
 
 	SetState(EShamblerState::Wander);
@@ -220,9 +285,103 @@ void UZP_ShamblerBehaviorComponent::EndPlay(const EEndPlayReason::Type EndPlayRe
 		W->GetTimerManager().ClearTimer(GrabSlideProbeTimer);
 		W->GetTimerManager().ClearTimer(LatchWindowProbeTimer);
 		W->GetTimerManager().ClearTimer(EscapePushbackDelayTimer);
+		W->GetTimerManager().ClearTimer(CrawlStandUpTimer);
+		W->GetTimerManager().ClearTimer(CrawlClampReleaseTimer);
 	}
 	Super::EndPlay(EndPlayReason);
 }
+
+#if WITH_EDITOR
+void UZP_ShamblerBehaviorComponent::OnRegister()
+{
+	Super::OnRegister();
+	// EDITOR AUTHORING PREVIEW (dev 2026-08-05: "I can't author... without seeing it in editor").
+	// The necromorph ref pose renders microscopic, so placed shamblers showed NOTHING in the
+	// viewport. Evaluate a real pose in-editor: prone/slumped presets preview their dormant
+	// clip (single-node, frame 0); Standing evaluates the ABP idle. Re-runs when the dev edits
+	// the preset dropdown (components re-register on property edits). PIE is untouched —
+	// BeginPlay -> SetState(Wander) -> EnsureLocomotion restores the ABP mode at runtime.
+	UWorld* W = GetWorld();
+	if (!W || (W->WorldType != EWorldType::Editor && W->WorldType != EWorldType::EditorPreview))
+	{
+		return;
+	}
+	ACharacter* Ch = Cast<ACharacter>(GetOwner());
+	USkeletalMeshComponent* M = Ch ? Ch->GetMesh() : nullptr;
+	if (!M) { return; }
+	M->SetUpdateAnimationInEditor(true);
+
+	const bool bLegacyCrawl = bAZP_Crawling && AZP_Preset == EShamblerPreset::Standing;
+	const EShamblerPreset Preview = bLegacyCrawl ? EShamblerPreset::Crawler : AZP_Preset;
+	UAnimSequence* PreviewClip = nullptr;
+	if (Preview == EShamblerPreset::PlayingDead)
+	{
+		// Lifeless flat pose — matches the dormant in-game hold.
+		PreviewClip = AZP_PlayDeadPoseAnim ? AZP_PlayDeadPoseAnim.Get() : LoadObject<UAnimSequence>(nullptr,
+			TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_ProneToStand.A_Shambler_ProneToStand"));
+	}
+	else if (Preview == EShamblerPreset::Crawler)
+	{
+		PreviewClip = AZP_CrawlIdleAnim ? AZP_CrawlIdleAnim.Get() : LoadObject<UAnimSequence>(nullptr,
+			TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_CrawlIdle.A_Shambler_CrawlIdle"));
+	}
+	else if (Preview == EShamblerPreset::Slumped)
+	{
+		PreviewClip = AZP_SlumpToStandAnim ? AZP_SlumpToStandAnim.Get() : LoadObject<UAnimSequence>(nullptr,
+			TEXT("/Game/Enemies/Shambler/Anims/A_Shambler_SlumpToStand.A_Shambler_SlumpToStand"));
+	}
+	if (PreviewClip)
+	{
+		if (M->GetAnimationMode() != EAnimationMode::AnimationSingleNode
+			|| M->AnimationData.AnimToPlay != PreviewClip)
+		{
+			// Serialized play data, not SetAnimation() — the editor instance initializes from
+			// AnimationData (a runtime-only SetAnimation call leaves the preview empty).
+			M->AnimationData.AnimToPlay = PreviewClip;
+			M->AnimationData.SavedPosition = 0.f;
+			M->AnimationData.SavedPlayRate = 0.f;
+			M->AnimationData.bSavedLooping = true;
+			M->AnimationData.bSavedPlaying = false;
+			M->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+			M->InitAnim(true);
+		}
+	}
+	else if (M->GetAnimationMode() != EAnimationMode::AnimationBlueprint && M->GetAnimClass())
+	{
+		M->SetAnimationMode(EAnimationMode::AnimationBlueprint); // Standing: back to the ABP idle
+	}
+	// PUSH the pose to the RENDERER — the editor doesn't tick anims, so without this the GPU
+	// keeps REF-POSE matrices and the necromorph renders microscopic (invisible).
+	M->TickAnimation(0.f, false);
+	M->RefreshBoneTransforms();
+	M->MarkRenderStateDirty();
+
+	// GROUND THE PREVIEW (dev round-10: "the preview should touch the bottom of the capsule,
+	// not float") — SAME contact-bone set and SAME AZP_CrawlBoneLift as the runtime ground
+	// clamp, so the placed preview and the playing body rest on an identical plane (round-18:
+	// all-bones-min@+2 here vs contact-min@-10 in game = editor floats, game buries — one dial
+	// now drives both). Cosmetic, editor-only: BeginPlay restores the authored Z.
+	if (PreviewClip && Ch->GetCapsuleComponent() && M->GetNumBones() > 0)
+	{
+		float MinZ = TNumericLimits<float>::Max();
+		for (const FName& B : GShamblerContactBones)
+		{
+			if (M->GetBoneIndex(B) != INDEX_NONE)
+			{
+				MinZ = FMath::Min(MinZ, (float)M->GetBoneLocation(B).Z);
+			}
+		}
+		if (MinZ < TNumericLimits<float>::Max())
+		{
+			const float CapBottom = Ch->GetActorLocation().Z - Ch->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			const float Err = MinZ - (CapBottom + AZP_CrawlBoneLift);
+			FVector RL = M->GetRelativeLocation();
+			RL.Z -= Err;
+			M->SetRelativeLocation(RL);
+		}
+	}
+}
+#endif
 
 void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -244,7 +403,12 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		{
 			if (USkeletalMeshComponent* GateM = Owner->GetMesh())
 			{
-				GateM->VisibilityBasedAnimTickOption = (State == EShamblerState::Wander && !bDead)
+				// Prone bodies NEVER skip pose eval (round-17): the ground clamp reads
+				// GetBoneLocation every tick — with the pose frozen off-screen it clamps against
+				// stale/ref-pose bone Z and the body surfaces buried until FInterpTo recovers.
+				// A dormant crawler's held pose is a frozen frame anyway — eval is cheap.
+				GateM->VisibilityBasedAnimTickOption =
+					(State == EShamblerState::Wander && !bDead && !IsCrawlingNow())
 					? EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered
 					: EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 			}
@@ -355,6 +519,47 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		}
 	}
 
+	// CRAWL STANCE — a crawler keeps a crawl loop seated on the DefaultSlot at ALL times (the
+	// BS_Shambler BlendSpace underneath is standing-only; ANY slot gap shows a standing pose).
+	// The maintainer owns every gap the standing regimes below would otherwise handle, wander
+	// AND combat, so those regimes are skipped for crawlers.
+	if (!bDead)
+	{
+		// Ground clamp runs through the WHOLE slump-rise window (rise + settle) AND while a
+		// Slumped preset sits dormant — the pose plants itself wherever it is in its curve.
+		if (bCrawlStandWindow || IsDormantSlumped())
+		{
+			GroundClampCrawlRise(DeltaTime);
+		}
+		if (IsCrawlingNow())
+		{
+			MaintainCrawlLocomotion(DeltaTime);
+		}
+		else if (CrawlLoopMontage.IsValid() && Owner && Owner->GetMesh())
+		{
+			// No longer prone — release any leftover crawl loop so the BlendSpace shows.
+			if (UAnimInstance* StAI = Owner->GetMesh()->GetAnimInstance())
+			{
+				if (StAI->Montage_IsPlaying(CrawlLoopMontage.Get())) { StopSlotLoop(); }
+			}
+			CrawlLoopMontage = nullptr;
+		}
+		// SLUMPED dormant pose: SlumpToStand frame 0 held on the slot (near-zero rate loop),
+		// re-seated if anything displaces it. Cleared by StartSlumpRise.
+		if (IsDormantSlumped() && !bStandingUpNow && AZP_SlumpToStandAnim && Owner && Owner->GetMesh())
+		{
+			if (UAnimInstance* SlAI = Owner->GetMesh()->GetAnimInstance())
+			{
+				if (!SlumpHoldMontage.IsValid() || !SlAI->Montage_IsPlaying(SlumpHoldMontage.Get()))
+				{
+					SlumpHoldMontage = SlAI->PlaySlotAnimationAsDynamicMontage(
+						AZP_SlumpToStandAnim, FName(TEXT("DefaultSlot")), 0.25f, 0.25f, 0.001f,
+						/*LoopCount=*/INT32_MAX);
+				}
+			}
+		}
+	}
+
 	// SLOT GAP COVER — a stationary, alive, non-grabbing body must never show naked
 	// BS_Shambler@speed-0 (wander-pause marching, post-takedown swim, post-flinch T-freeze).
 	// TWO regimes (dev 2026-07-03: "in combat, idle shouldn't happen at all"):
@@ -365,7 +570,7 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	//    swing/decision crossfades over it (same-slot montages auto-interrupt with blend-in).
 	//    Movement resumes -> the hold is released and locomotion takes back over. No new
 	//    animation content anywhere — the held pose IS the clip the dev already authored/uses.
-	if (!bDead && State != EShamblerState::Grab)
+	if (!bDead && State != EShamblerState::Grab && !IsCrawlingNow())
 	{
 		if (USkeletalMeshComponent* M = Owner->GetMesh())
 		{
@@ -431,7 +636,15 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	// this component deliberately freezes movement (the grab hold, grab-reaction staggers, the
 	// loom over a downed player) any path it starts must be stopped, or it drives the body
 	// mid-reaction (the [GrabSlideProbe] moveStatus=Moving orbit/slide, root-caused 2026-07-02).
+	// NOTE round-21: this guard MUST keep running before the NEXT frame's crawl maintainer —
+	// the maintainer samples velocity earlier in this same tick, so the one-tick spike of a
+	// just-started BP move is additionally armored against in the maintainer itself
+	// (sustained-motion requirement) — ordering alone can't close the same-tick window.
 	const bool bMovementFrozen = (State == EShamblerState::Grab) || bStaggered
+		|| bStandingUpNow
+		// Dormant presets are MOTIONLESS (dev 2026-08-05: "the zombie should be motionless") —
+		// the dev-built BP wander must not drag a prone/slumped body around before aggro.
+		|| (State == EShamblerState::Wander && (IsPronePreset() || IsDormantSlumped()))
 		|| GetWorld()->GetTimerManager().IsTimerActive(VictimUpWaitTimer)
 		// the escape pushback (pending or live) is also a frozen window — if the knobs are ever
 		// dialed past the stun length, the lerp must not fight a live AI path (review finding)
@@ -440,6 +653,15 @@ void UZP_ShamblerBehaviorComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	if (bMovementFrozen && AICon && AICon->GetMoveStatus() == EPathFollowingStatus::Moving)
 	{
 		AICon->StopMovement();
+		// StopMovement kills the REQUEST but the CMC braking ramp lets the velocity tail decay
+		// over ~0.5s. Under STATIC nav the BP wander's moves failed instantly (no velocity, so
+		// this never showed); DYNAMIC nav gave its 3s timer real paths again, and the decaying
+		// blip crossed the crawl anim threshold on every fire — the round-19 one-arm metronome
+		// ([CrawlProbe]: vel 6-23 for ~0.5s every ~3s in Wander). A frozen body stops NOW.
+		if (UCharacterMovementComponent* FrozenCM = Owner->GetCharacterMovement())
+		{
+			FrozenCM->StopMovementImmediately();
+		}
 		UE_LOG(LogTemp, Verbose, TEXT("[GrabProbe] stopped external AI move during frozen window (state=%d staggered=%d)"),
 			(int32)State, bStaggered ? 1 : 0);
 	}
@@ -527,7 +749,93 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 	{
 		UpdateLurk(DistToPlayer);
 
-		// Spotted? Needs range + roughly facing the player + a clear sightline (same room).
+		// SLUMPED preset, dormant: motionless against its wall. 3-TIER WAKE (dev 2026-08-05:
+		// room entry was "immediate" — the dread should BUILD): tier 3 = within
+		// AZP_SlumpProximityRange (instant); tier 1 = AZP_SlumpWakePresenceTime continuous
+		// seconds inside the room envelope with LOS; tier 2 = AZP_SlumpWakeStareTime seconds
+		// of the player's view centered on the body. Damage always wakes (OnPointDamage).
+		if (IsDormantSlumped())
+		{
+			const TCHAR* WakeTier = nullptr;
+			if (Player)
+			{
+				if (DistToPlayer <= AZP_SlumpProximityRange && IsProximityAggroValid(Player))
+				{
+					WakeTier = TEXT("PROXIMITY");
+				}
+				else if (DistToPlayer <= AZP_SlumpWakeRange && HasLOS(Player))
+				{
+					SlumpPresenceTimer += AZP_EvalInterval;
+					bool bStaring = false;
+					if (APlayerController* PC = Cast<APlayerController>(Player->GetController()))
+					{
+						FVector CamLoc;
+						FRotator CamRot;
+						PC->GetPlayerViewPoint(CamLoc, CamRot);
+						const FVector To = (Owner->GetActorLocation() - CamLoc).GetSafeNormal();
+						bStaring = FVector::DotProduct(CamRot.Vector(), To) >= 0.95f; // ~18 deg cone
+					}
+					SlumpStareTimer = bStaring ? SlumpStareTimer + AZP_EvalInterval : 0.f;
+					if (SlumpStareTimer >= AZP_SlumpWakeStareTime)       { WakeTier = TEXT("STARE"); }
+					else if (SlumpPresenceTimer >= AZP_SlumpWakePresenceTime) { WakeTier = TEXT("PRESENCE"); }
+				}
+				else
+				{
+					// Left the room / lost LOS — the clocks reset; the corpse goes back to scenery.
+					SlumpPresenceTimer = 0.f;
+					SlumpStareTimer = 0.f;
+				}
+			}
+			if (WakeTier)
+			{
+				Target = Player;
+				if (Audio) { Audio->PlayAlert(); }
+				UE_LOG(LogTemp, Warning, TEXT("[Shambler] SLUMPED WAKE (%s): dist=%.0f presence=%.1fs stare=%.1fs"),
+					WakeTier, DistToPlayer, SlumpPresenceTimer, SlumpStareTimer);
+				StartSlumpRise();
+			}
+			break; // dormant: never wanders
+		}
+
+		// PLAYING DEAD preset: corpse-still — sight NEVER wakes it; only the proximity floor
+		// (or damage). "These shamblers look dead, but get too close..." (dev 2026-08-05).
+		if (AZP_Preset == EShamblerPreset::PlayingDead)
+		{
+			if (Player && DistToPlayer <= AZP_ProximityAggroRange && IsProximityAggroValid(Player))
+			{
+				Target = Player;
+				PlayCrawlAlert();
+				UE_LOG(LogTemp, Warning, TEXT("[Shambler] PLAYING-DEAD WAKE: dist=%.0f"), DistToPlayer);
+				SetState(EShamblerState::Chase);
+			}
+			break; // corpse-still: never wanders
+		}
+
+		// PROXIMITY AGGRO — UNAVOIDABLE, EVERY STANCE (dev 2026-08-05: "aggro is impossible to
+		// avoid within proximity" — and it applies to ALL NPC enemies, not a crawler thing).
+		// Inside this radius the hunt starts regardless of facing, LOS or noise. Stealth still
+		// exists at range: the sight detection below is unchanged (some stealth, not full TLOU).
+		if (Player && DistToPlayer <= AZP_ProximityAggroRange && IsProximityAggroValid(Player))
+		{
+			Target = Player;
+			UE_LOG(LogTemp, Warning, TEXT("[Shambler] PROXIMITY AGGRO: dist=%.0f (radius %.0f)"),
+				DistToPlayer, AZP_ProximityAggroRange);
+			if (IsCrawlingNow())
+			{
+				PlayCrawlAlert();
+				SetState(EShamblerState::Chase);
+			}
+			else
+			{
+				bPendingAlertTurn = true;
+				SetState(EShamblerState::Scream);
+			}
+			break;
+		}
+
+		// Spotted? Needs range + roughly facing the player + a clear sightline (same room) —
+		// the STEALTH-ABLE layer, all stances (a sighted crawler stays prone unless the 20m
+		// stand rule fires).
 		if (Player && DistToPlayer <= AZP_DetectionRange)
 		{
 			const FVector ToP = (Player->GetActorLocation() - Owner->GetActorLocation()).GetSafeNormal();
@@ -555,6 +863,13 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 					UE_LOG(LogTemp, Warning, TEXT("[Shambler] SIGHT AGGRO: dist=%.0f facing=%.2f close=%d propVol=%.2f"),
 						DistToPlayer, Facing, bClose ? 1 : 0, PropVol);
 					Target = Player;
+					if (IsCrawlingNow())
+					{
+						// Crawler sighted the player: bark and hunt prone. Never stands.
+						PlayCrawlAlert();
+						SetState(EShamblerState::Chase);
+						break;
+					}
 					// SIGHT aggro is the ONLY path that earns the stepping alert turn — hurt/
 					// stagger/takedown reuse SetState(Scream) verbatim and keep the instant snap.
 					bPendingAlertTurn = true;
@@ -564,14 +879,23 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			}
 		}
 
+		// CRAWLER preset: MOTIONLESS until aggro (dev 2026-08-05: "the zombie should be
+		// motionless, the idle crawl") — no wander legs; the maintainer holds the crawl idle.
+		if (IsCrawlingNow())
+		{
+			break;
+		}
+
 		// Two-phase wander: WALK for WalkDuration (3-6s) then IDLE for IdleDuration (6-9s).
 		// During WALK, legs chain seamlessly via OnMoveCompleted so velocity never drops to zero
 		// (no idle frame leaking through from the BlendSpace). During IDLE, movement is fully
 		// stopped and the zombie idle anim plays via the slot.
+		// STANDING LURKER preset never enters the idle phase at all (dev 2026-08-05: "ensure
+		// they are never pausing fully") — legs chain forever; stumbles stay the only beat.
 		if (bWanderMoving)
 		{
 			// Walk timer up -> drop into idle.
-			if (StateTimer >= WalkDuration)
+			if (StateTimer >= WalkDuration && AZP_Preset != EShamblerPreset::Standing)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[Shambler] WALK→IDLE (walked %.2fs of %.2fs)"), StateTimer, WalkDuration);
 				bWanderMoving = false;
@@ -584,16 +908,20 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 				// blend. After AZP_IdleLockDelay, LockIdleMovement() snaps MOVE_None to freeze anything
 				// residual (RVO, accel, etc.).
 				if (AICon) { AICon->StopMovement(); }
-				if (AZP_IdleAnim)
+				if (UAnimSequence* IdleClip = PickIdleAnim())
 				{
-					PlaySlotLoop(AZP_IdleAnim);
+					UAnimMontage* IdleLoop = PlaySlotLoop(IdleClip);
+					if (IsCrawlingNow()) { CrawlLoopMontage = IdleLoop; CrawlLoopClip = IdleClip; }
 					// Idle groan — tied verbatim to the idle ANIMATION starting (one-shot per idle phase).
 					UZP_SFXStatics::PlaySFXAttached(AZP_IdleSound, Owner->GetRootComponent(), EZP_SFXCarry::Far);
-					if (USkeletalMeshComponent* SM = Owner->GetMesh())
+					if (!IsCrawlingNow()) // effective crawlers: the Tick maintainer owns mesh Z
 					{
-						FVector RL = SM->GetRelativeLocation();
-						RL.Z = MeshBaseRelZ + AZP_IdleMeshZOffset;
-						SM->SetRelativeLocation(RL);
+						if (USkeletalMeshComponent* SM = Owner->GetMesh())
+						{
+							FVector RL = SM->GetRelativeLocation();
+							RL.Z = MeshBaseRelZ + AZP_IdleMeshZOffset;
+							SM->SetRelativeLocation(RL);
+						}
 					}
 				}
 				GetWorld()->GetTimerManager().SetTimer(IdleLockTimer, this,
@@ -622,11 +950,14 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[Shambler] IDLE→WALK (idled %.2fs of %.2fs)"), StateTimer, IdleDuration);
 				StopSlotLoop();
-				if (USkeletalMeshComponent* SM = Owner->GetMesh())
+				if (!IsCrawlingNow()) // effective crawlers: the Tick maintainer owns mesh Z
 				{
-					FVector RL = SM->GetRelativeLocation();
-					RL.Z = MeshBaseRelZ + AZP_LocoMeshZOffset; // walk pose floated +5.97 without it ([FloatProbe])
-					SM->SetRelativeLocation(RL);
+					if (USkeletalMeshComponent* SM = Owner->GetMesh())
+					{
+						FVector RL = SM->GetRelativeLocation();
+						RL.Z = MeshBaseRelZ + AZP_LocoMeshZOffset; // walk pose floated +5.97 without it ([FloatProbe])
+						SM->SetRelativeLocation(RL);
+					}
 				}
 				// Cancel a pending idle lock (shouldn't be pending this late but defensive),
 				// and re-enable walking before issuing the next leg.
@@ -680,8 +1011,13 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 	{
 		if (!Target) { SetState(EShamblerState::Wander); break; }
 
+		// Mid-slump-rise: hold position until FinishSlumpRise releases the hunt.
+		if (bStandingUpNow) { break; }
+
 		const bool bSee = HasLOS(Target);
-		LostSightTimer = bSee ? 0.f : (LostSightTimer + AZP_EvalInterval);
+		// Proximity pins the lose-sight timer too — a proximity-aggroed shambler must not give
+		// up while the player is still inside the unavoidable radius without LOS.
+		LostSightTimer = (bSee || DistToPlayer <= AZP_ProximityAggroRange) ? 0.f : (LostSightTimer + AZP_EvalInterval);
 
 		// Give up: lost sight too long, or leashed out.
 		if (LostSightTimer >= AZP_LoseSightTime || DistToPlayer > AZP_GiveUpRange)
@@ -707,7 +1043,7 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 		const float GrabDist2D = Player
 			? FVector::Dist2D(Owner->GetActorLocation(), Player->GetActorLocation())
 			: TNumericLimits<float>::Max();
-		if (GrabDist2D <= AZP_GrabRange && bSee
+		if (!IsCrawlingNow() && GrabDist2D <= AZP_GrabRange && bSee
 			&& (Now - LastGrabTime) >= AZP_GrabCooldown)
 		{
 			TryStartGrab();
@@ -746,8 +1082,13 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 		// Once it's spent (landed -> AZP_GrabCooldown, failed -> AZP_GrabFailCooldown) the swing gate
 		// returns to AZP_AttackRange and it melees at range exactly as before — which is the documented
 		// intent: "This is the window in which it melees instead".
-		const bool bGrabReady = (Now - LastGrabTime) >= AZP_GrabCooldown;
-		const float EngageRange = bGrabReady ? AZP_GrabRange : AZP_AttackRange;
+		// Crawlers never grab (standing paired clips) — bGrabReady must be false or the engage
+		// range would park them at AZP_GrabRange with a latch that can never fire.
+		const bool bGrabReady = !IsCrawlingNow() && (Now - LastGrabTime) >= AZP_GrabCooldown;
+		// Prone claws are short/low — crawlers engage at their OWN range (round-24: "it swings
+		// at a distance where it cannot hit me" at the standing 230).
+		const float EngageRange = IsCrawlingNow() ? AZP_CrawlAttackRange
+			: (bGrabReady ? AZP_GrabRange : AZP_AttackRange);
 
 		// HORIZONTAL for the engage decision too (dev: "crouching requires me to walk closer to melee
 		// for the shambler to react"). DistToPlayer is 3D, so a crouched player's 44uu centre drop
@@ -799,7 +1140,13 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			// RUN BURST (AZP_RunBurstDuration @ AZP_RunSpeed, run clip) -> FAST WALK (AZP_RunWalkDuration @
 			// AZP_ChaseSpeed, walk BlendSpace) -> burst -> ... for as long as the band holds.
 			// Always OPENS with a burst. AZP_RunWalkDuration 0 = continuous run (old behavior).
-			if (!bRunningChase && bSee && DistToPlayer > AZP_RunTriggerDistance)
+			// PRONE GAIT is DISTANCE-based (dev 2026-08-05: "crawl slow if closer and crawl
+			// fast if far") — no sprint bursts; the maintainer picks the matching clip.
+			if (IsCrawlingNow())
+			{
+				SetSpeed(DistToPlayer > AZP_CrawlFastDistance ? AZP_CrawlRunSpeed : AZP_CrawlChaseSpeed);
+			}
+			if (!IsCrawlingNow() && !bRunningChase && bSee && DistToPlayer > AZP_RunTriggerDistance)
 			{
 				bRunningChase = true;
 				bRunBurstNow = true; // open with the burst — that's the scare
@@ -819,7 +1166,7 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 				{
 					bRunBurstNow = !bRunBurstNow;
 					RunPhaseStart = Now;
-					SetSpeed(bRunBurstNow ? AZP_RunSpeed : AZP_ChaseSpeed);
+					SetSpeed(bRunBurstNow ? AZP_RunSpeed : AZP_ChaseSpeed); // sprint = standing-only
 					if (!bRunBurstNow)
 					{
 						// Burst over — release the run clip so the walk BlendSpace takes back
@@ -836,11 +1183,12 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 						bRunBurstNow ? TEXT("BURST") : TEXT("fast walk"), DistToPlayer);
 				}
 			}
-			if (bRunningChase && bRunBurstNow && AZP_RunAnim)
+			if (bRunningChase && bRunBurstNow && AZP_RunAnim && !IsCrawlingNow())
 			{
 				// (Re-)assert the run loop — a flinch crossfading over it mid-sprint ends on the
 				// slot, so after each interruption the loop must be re-seated. Stride-matched:
-				// play rate = AZP_RunSpeed / AZP_RunAnimRefSpeed.
+				// play rate = AZP_RunSpeed / AZP_RunAnimRefSpeed. (Crawlers: the crawl maintainer
+				// in Tick owns the slot and picks the fast-crawl clip by speed instead.)
 				UAnimInstance* RunAI = (Owner && Owner->GetMesh()) ? Owner->GetMesh()->GetAnimInstance() : nullptr;
 				if (RunAI && (!RunLoopMontage.IsValid() || !RunAI->Montage_IsPlaying(RunLoopMontage.Get())))
 				{
@@ -852,7 +1200,29 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			// never triggers. With the latch ready that means closing on AZP_GrabRange (125), not
 			// AZP_AttackRange (230) — the old max(230-70,40)=160 parked it 35uu outside grab reach,
 			// so the opener could never fire (dev 2026-07-14 crouch-immunity report).
-			if (AICon) { AICon->MoveToActor(Target, FMath::Max(EngageRange - AZP_ChaseAcceptanceInset, 40.f)); }
+			// Re-issue ONLY when the goal actually moved (round-19 "shuffles 1 arm constantly":
+			// under DYNAMIC nav every MoveToActor abort+re-path costs a beat of velocity, and the
+			// 0.25s blind re-issue turned chase speed into a sawtooth that reset the crawl gait
+			// each dip; under STATIC pathfinds resolved instantly so this never showed). MoveToActor
+			// tracks a moving goal by itself — the re-issue is only needed after big goal jumps.
+			if (AICon && Target)
+			{
+				const FVector GoalNow = Target->GetActorLocation();
+				UPathFollowingComponent* PFC = AICon->GetPathFollowingComponent();
+				const bool bMoveActive = AICon->GetMoveStatus() == EPathFollowingStatus::Moving;
+				// MOVE OWNERSHIP by REQUEST ID (round-22: the 400uu destination heuristic let a
+				// BP-wander random point NEAR the player pass as "ours" — "crawled/approached me
+				// and then turned around then staggered around"). The dev-built BP wander seizing
+				// path-following gets a NEW request id; if the live move's id isn't the one WE
+				// issued, it isn't ours — retake immediately. Exact, no distance guesswork.
+				const bool bOurs = bMoveActive && PFC && PFC->GetCurrentRequestId() == LastChaseMoveId;
+				if (!bOurs || FVector::Dist2D(GoalNow, LastChaseGoal) > 150.f)
+				{
+					AICon->MoveToActor(Target, FMath::Max(EngageRange - AZP_ChaseAcceptanceInset, 40.f));
+					LastChaseGoal = GoalNow;
+					if (PFC) { LastChaseMoveId = PFC->GetCurrentRequestId(); }
+				}
+			}
 		}
 		break;
 	}
@@ -885,7 +1255,7 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 			const float GrabDist2DAtk = Target
 				? FVector::Dist2D(Owner->GetActorLocation(), Target->GetActorLocation())
 				: TNumericLimits<float>::Max();
-			if (Target && GrabDist2DAtk <= AZP_GrabRange && HasLOS(Target)
+			if (!IsCrawlingNow() && Target && GrabDist2DAtk <= AZP_GrabRange && HasLOS(Target)
 				&& (NowAtk - LastGrabTime) >= AZP_GrabCooldown)
 			{
 				TryStartGrab();
@@ -897,7 +1267,8 @@ void UZP_ShamblerBehaviorComponent::Evaluate()
 
 			// Still on top of the player when the swing ends -> immediately swing again (other side,
 			// other strike sound). No cooldown gap: it flurries L/R/L/R until you die or break away.
-			if (Target && DistToPlayer <= AZP_AttackRange && HasLOS(Target))
+			if (Target && DistToPlayer <= (IsCrawlingNow() ? AZP_CrawlAttackRange : AZP_AttackRange)
+				&& HasLOS(Target))
 			{
 				BeginAttack();
 			}
@@ -975,9 +1346,15 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 			// clip actually begins.
 			if (NewState == EShamblerState::Scream) { StateZ = bPendingAlertTurn ? 0.f : AZP_ScreamMeshZOffset; }
 			else if (NewState == EShamblerState::Grab) { StateZ = AZP_GrabPairZOffset; }
-			FVector RL = SM->GetRelativeLocation();
-			RL.Z = MeshBaseRelZ + StateZ;
-			SM->SetRelativeLocation(RL);
+			// Effective crawlers: the Tick maintainer owns mesh Z; during the stand window the
+			// ground clamp owns it (through rise AND settle — state-entry snaps here would pop
+			// the plant). A fully stood-up crawler takes the normal standing write.
+			if (!IsCrawlingNow() && !bCrawlStandWindow)
+			{
+				FVector RL = SM->GetRelativeLocation();
+				RL.Z = MeshBaseRelZ + StateZ;
+				SM->SetRelativeLocation(RL);
+			}
 		}
 	}
 
@@ -985,7 +1362,7 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 	{
 	case EShamblerState::Wander:
 		EnsureLocomotion();
-		SetSpeed(AZP_WanderSpeed);
+		SetSpeed(IsCrawlingNow() ? AZP_CrawlWanderSpeed : AZP_WanderSpeed);
 		bWanderMoving = false;
 		bStumbling = false;
 		IdleDuration = 0.f; // pick a first leg on the very next eval — no startup pause
@@ -1047,7 +1424,7 @@ void UZP_ShamblerBehaviorComponent::SetState(EShamblerState NewState)
 
 	case EShamblerState::Chase:
 		EnsureLocomotion();
-		SetSpeed(AZP_ChaseSpeed);
+		SetSpeed(IsCrawlingNow() ? AZP_CrawlChaseSpeed : AZP_ChaseSpeed);
 		break;
 
 	case EShamblerState::Attack:
@@ -1076,13 +1453,28 @@ void UZP_ShamblerBehaviorComponent::BeginAttack()
 	// readable "block now" telegraph — then ReleaseSwing snaps it to AZP_StrikePlayRate so the strike
 	// lands fast. All timers below are in REAL seconds, remapped through the two rates.
 	UAnimSequence* Swing = bAttackIsLeft ? AZP_AttackLAnim : AZP_AttackRAnim;
+	float HitTimeClipKnob    = AZP_AttackHitTime;
+	float WindupEndClipKnob  = AZP_WindupEndTime;
+	if (IsCrawlingNow())
+	{
+		// Prone presets swing the crawl swipe only (presets rework 2026-08-05). The stand
+		// attacks stay wired as slots for future presets; a risen SLUMPED shambler is a normal
+		// standing shambler and uses the plain L/R swipes above. The L/R alternator still
+		// drives the strike-sound alternation regardless of which clip plays.
+		// NEVER a standing swipe on a prone body (round-23 "flys in the air like switching to
+		// standing"): a missing crawl clip means NO swing visual — the crawl loop holds and the
+		// timers below still deal the damage (null Swing is handled by the fallbacks).
+		Swing             = AZP_AttackCrawlAnim.Get();
+		HitTimeClipKnob   = AZP_CrawlAttackHitTime;
+		WindupEndClipKnob = AZP_CrawlWindupEndTime;
+	}
 	ActiveSwingMontage = PlayOneShot(Swing, AZP_WindupPlayRate);
 	bSwingReleased = false;
 	bHitchedThisSwing = false;
 
 	const float ClipLen     = Swing ? Swing->GetPlayLength() : AZP_AttackDuration;
-	const float WindupClip  = FMath::Clamp(AZP_WindupEndTime, 0.f, ClipLen);
-	const float HitClip     = FMath::Clamp(AZP_AttackHitTime, WindupClip, ClipLen);
+	const float WindupClip  = FMath::Clamp(WindupEndClipKnob, 0.f, ClipLen);
+	const float HitClip     = FMath::Clamp(HitTimeClipKnob, WindupClip, ClipLen);
 	const float WindupRate  = FMath::Max(AZP_WindupPlayRate, 0.05f);
 	const float StrikeRate  = FMath::Max(AZP_StrikePlayRate, 0.05f);
 	const float WindupReal  = WindupClip / WindupRate;
@@ -1093,6 +1485,120 @@ void UZP_ShamblerBehaviorComponent::BeginAttack()
 	FTimerManager& TM = GetWorld()->GetTimerManager();
 	TM.SetTimer(WindupReleaseTimer, this, &UZP_ShamblerBehaviorComponent::ReleaseSwing, WindupReal, false);
 	TM.SetTimer(AttackHitTimer, this, &UZP_ShamblerBehaviorComponent::ApplyAttackDamage, HitReal, false);
+}
+
+bool UZP_ShamblerBehaviorComponent::IsProximityAggroValid(APawn* Player)
+{
+	// SAME-SPACE POSITIVE CONFIRM (round-15, dev 2026-08-05: "BP_Shambler14 aggrod through
+	// walls" WITH the propagation veto in place — log-proven dist=550/571). The acoustic
+	// veto's failed-path default is LENIENT ("unknown route: don't blind the enemy"), which
+	// is right for the sight veto (LOS already passed) and exactly backwards here (no LOS):
+	// a wall or shut door makes the nav path FAIL, the veto never fires, aggro passes.
+	// Proximity now requires POSITIVE proof of shared space — LOS, or a valid COMPLETE
+	// navmesh route that isn't a wall-detour (closed doors carve the dynamic navmesh, so a
+	// wall/shut door = no route = no aggro; crouching behind furniture stays a short route).
+	if (!Player || !Owner) { return false; }
+	if (HasLOS(Player)) { return true; }
+	UNavigationSystemV1* Nav = UNavigationSystemV1::GetCurrent(GetWorld());
+	if (!Nav) { return true; } // no nav system -> keep the unavoidable floor (test maps)
+	const ANavigationData* NavData = Nav->GetDefaultNavDataInstance(FNavigationSystem::DontCreate);
+	if (!NavData) { return true; }
+	FPathFindingQuery Query(Owner, *NavData, Owner->GetActorLocation(), Player->GetActorLocation());
+	Query.SetAllowPartialPaths(false); // partial still means "blocked somewhere" — reject
+	const FPathFindingResult Result = Nav->FindPathSync(Query, EPathFindingMode::Regular);
+	if (Result.Result != ENavigationQueryResult::Success || !Result.Path.IsValid())
+	{
+		return false;
+	}
+	// Route must be same-space SHORT: around furniture is ~1x the straight line, through the
+	// hallway around a wall is 2x+. The +300 floor keeps point-blank distances from making
+	// the 2x cap degenerate (straight 100 -> cap 400, still a real desk detour).
+	const float Straight = FVector::Dist(Owner->GetActorLocation(), Player->GetActorLocation());
+	return Result.Path->GetLength() <= FMath::Max(Straight * 2.f, Straight + 300.f);
+}
+
+void UZP_ShamblerBehaviorComponent::PlayCrawlAlert()
+{
+	// Crawler/PlayingDead aggro bark — separate SFX slot for later replacement (dev
+	// 2026-08-05); the standard alert vocal is the fallback.
+	if (!Owner) { return; }
+	if (AZP_CrawlAlertSound)
+	{
+		UZP_SFXStatics::PlaySFXAttached(AZP_CrawlAlertSound, Owner->GetRootComponent(), EZP_SFXCarry::Far);
+	}
+	else if (Audio)
+	{
+		Audio->PlayAlert();
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::StartSlumpRise()
+{
+	// Slumped preset wake: rise IN PLACE through SlumpToStand under the ground clamp, then
+	// hunt as a NORMAL standing shambler.
+	// Window ON BEFORE SetState — its state-entry mesh-Z write must not snap the still-slumped
+	// body up to the standing calibration for one beat (dev round-10: "it jolts up and then
+	// the animation starts... like it's readjusting"). With the window up, SetState skips the
+	// write and the ground clamp owns Z through the whole rise.
+	bStandingUpNow = true;
+	bCrawlStandWindow = true;
+	SetState(EShamblerState::Chase); // Target is set; the Chase eval idles while bStandingUpNow
+	SetSpeed(0.f);
+	if (AICon) { AICon->StopMovement(); }
+
+	float Lead = 1.0f;
+	const float Rate = FMath::Max(AZP_SlumpRiseRate, 0.1f);
+	if (AZP_SlumpToStandAnim && Owner)
+	{
+		ReleaseCombatPoseHold();
+		if (USkeletalMeshComponent* M = Owner->GetMesh())
+		{
+			if (UAnimInstance* AI = M->GetAnimInstance())
+			{
+				if (SlumpHoldMontage.IsValid() && AI->Montage_IsPlaying(SlumpHoldMontage.Get()))
+				{
+					AI->Montage_Stop(0.2f, SlumpHoldMontage.Get());
+				}
+				SlumpHoldMontage = nullptr;
+				// LONG blend-out (0.6s): the risen end pose eases into the standing
+				// BlendSpace instead of popping.
+				StandUpMontage = AI->PlaySlotAnimationAsDynamicMontage(
+					AZP_SlumpToStandAnim, FName(TEXT("DefaultSlot")), 0.25f, 0.6f, Rate);
+			}
+		}
+		Lead = FMath::Max(AZP_SlumpToStandAnim->GetPlayLength() / Rate - 0.3f, 0.2f);
+	}
+	GetWorld()->GetTimerManager().SetTimer(CrawlStandUpTimer, this,
+		&UZP_ShamblerBehaviorComponent::FinishSlumpRise, Lead, false);
+}
+
+void UZP_ShamblerBehaviorComponent::FinishSlumpRise()
+{
+	if (bDead) { return; }
+	// THE ONE-WAY WAKE: from here on this shambler IS STANDING — every IsDormantSlumped()
+	// gate releases and normal standing behaviors own it. Revive resets to the dormant slump.
+	bStandingUpNow = false;
+	bCrawlStoodUp = true;
+	ApplyCrawlCapsule(false); // no-op on the capsule for slumped (never shrunk); restores rot rate
+	SetSpeed(State == EShamblerState::Chase ? AZP_ChaseSpeed : AZP_WanderSpeed);
+	// Keep the ground clamp through the montage's 0.6s blend-out so the settle into standing
+	// locomotion stays planted, then hand mesh Z back to the state machine at the standing
+	// calibration.
+	GetWorld()->GetTimerManager().SetTimer(CrawlClampReleaseTimer,
+		FTimerDelegate::CreateWeakLambda(this, [this]()
+		{
+			bCrawlStandWindow = false;
+			if (Owner && !bDead)
+			{
+				if (USkeletalMeshComponent* SM = Owner->GetMesh())
+				{
+					FVector RL = SM->GetRelativeLocation();
+					RL.Z = MeshBaseRelZ + AZP_LocoMeshZOffset;
+					SM->SetRelativeLocation(RL);
+				}
+			}
+		}), 0.7f, false);
+	UE_LOG(LogTemp, Log, TEXT("[Shambler] SLUMP RISE complete — standing shambler from here"));
 }
 
 void UZP_ShamblerBehaviorComponent::ReleaseSwing()
@@ -1142,9 +1648,11 @@ void UZP_ShamblerBehaviorComponent::CancelPendingSwing()
 void UZP_ShamblerBehaviorComponent::ApplyAttackDamage()
 {
 	if (bDead || !Owner || !Target) { return; }
-	// Must still be close and visible at the moment of impact — back-stepping out of AZP_AttackHitRange
-	// during the wind-up makes the swing whiff (no hitting through walls / after the player ran).
-	if (FVector::Dist(Owner->GetActorLocation(), Target->GetActorLocation()) > AZP_AttackHitRange) { return; }
+	// Must still be close and visible at the moment of impact — back-stepping out of hit range
+	// during the wind-up makes the swing whiff (no hitting through walls / after the player
+	// ran). Prone claws use their own shorter reach (round-24).
+	const float HitRange = IsCrawlingNow() ? AZP_CrawlAttackHitRange : AZP_AttackHitRange;
+	if (FVector::Dist(Owner->GetActorLocation(), Target->GetActorLocation()) > HitRange) { return; }
 	if (!HasLOS(Target)) { return; }
 
 	AController* Inst = Owner->GetController();
@@ -1902,7 +2410,7 @@ void UZP_ShamblerBehaviorComponent::StopRunChase()
 	if (!bRunningChase) { return; }
 	bRunningChase = false;
 	bRunBurstNow = false; // next sprint entry re-opens with a fresh burst
-	SetSpeed(AZP_ChaseSpeed);
+	SetSpeed(IsCrawlingNow() ? AZP_CrawlChaseSpeed : AZP_ChaseSpeed);
 	// Release the run loop back to the walk BlendSpace — but only if the run loop is what's
 	// actually on the slot (a flinch may have displaced it; never cut someone else's clip).
 	if (RunLoopMontage.IsValid() && Owner)
@@ -1930,6 +2438,263 @@ void UZP_ShamblerBehaviorComponent::StopSlotLoop()
 		if (UAnimInstance* AI = M->GetAnimInstance())
 		{
 			AI->StopSlotAnimation(AZP_IdleBlendOutTime, FName(TEXT("DefaultSlot")));
+		}
+	}
+}
+
+UAnimSequence* UZP_ShamblerBehaviorComponent::PickIdleAnim() const
+{
+	return (IsCrawlingNow() && AZP_CrawlIdleAnim) ? AZP_CrawlIdleAnim.Get() : AZP_IdleAnim.Get();
+}
+
+void UZP_ShamblerBehaviorComponent::GroundClampCrawlRise(float DeltaTime)
+{
+	// REAR-UP GROUND CLAMP (round-4 "floats in mid air", round-5 "feet were in the ground"):
+	// the stand-up pose sweeps prone -> half-risen -> standing on ITS own curve, so no blind
+	// lerp can track it — pin the LOWEST contact bone to capsule bottom + AZP_CrawlBoneLift
+	// every tick instead (the lift ~= limb radius: bones are joint centres, flesh hangs below
+	// — round-18 "shins and feet and arms partly buried" was the old -10 sink). Runs through
+	// the whole stand window (rise AND the blend-out settle after the stance flips).
+	if (bDead || !Owner) { return; }
+	USkeletalMeshComponent* M = Owner->GetMesh();
+	if (!M) { return; }
+	float MinBoneZ = TNumericLimits<float>::Max();
+	for (const FName& B : GShamblerContactBones)
+	{
+		if (M->GetBoneIndex(B) != INDEX_NONE)
+		{
+			MinBoneZ = FMath::Min(MinBoneZ, (float)M->GetBoneLocation(B).Z);
+		}
+	}
+	if (MinBoneZ == TNumericLimits<float>::Max()) { return; }
+	float CapBottomZ = Owner->GetActorLocation().Z - 40.f;
+	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent())
+	{
+		CapBottomZ = Owner->GetActorLocation().Z - Cap->GetScaledCapsuleHalfHeight();
+	}
+	const float Err = MinBoneZ - (CapBottomZ + AZP_CrawlBoneLift);
+	// UPPER bound: standing-plane headroom exists ONLY for the slump-rise window. A prone body
+	// stays pinned near the crawl plane — the crawl ATTACK rears the contact bones up mid-pounce
+	// and chasing that pose launched the whole mesh toward the standing plane (round-23:
+	// "when the crawler attacks sometimes it flys in the air like it's switching to standing").
+	// The attack clip's rear-up is AUTHORED body motion; the origin must not compensate for it.
+	const float UpperZ = bCrawlStandWindow
+		? MeshBaseRelZ + AZP_LocoMeshZOffset + 30.f
+		: MeshBaseRelZ + AZP_CrawlMeshZOffset + 15.f;
+	FVector RL = M->GetRelativeLocation();
+	RL.Z = FMath::Clamp(FMath::FInterpTo(RL.Z, RL.Z - Err, DeltaTime, 12.f),
+		MeshBaseRelZ + AZP_CrawlMeshZOffset - 110.f, UpperZ);
+	M->SetRelativeLocation(RL);
+}
+
+void UZP_ShamblerBehaviorComponent::ApplyCrawlCapsule(bool bCrawl)
+{
+	if (!Owner) { return; }
+	UCapsuleComponent* Cap = Owner->GetCapsuleComponent();
+	if (Cap)
+	{
+		const float CurHH  = Cap->GetUnscaledCapsuleHalfHeight();
+		const float WantHH = bCrawl
+			? FMath::Clamp(AZP_CrawlCapsuleHalfHeight, Cap->GetUnscaledCapsuleRadius(), StandingCapsuleHH)
+			: StandingCapsuleHH;
+		if (!FMath::IsNearlyEqual(CurHH, WantHH, 0.5f))
+		{
+			// The capsule centre settles by exactly the half-height delta — mirror it into the
+			// mesh base and the actor Z so the body's WORLD plane never pops.
+			const float Delta = CurHH - WantHH; // + when shrinking, - when restoring
+			Cap->SetCapsuleHalfHeight(WantHH);
+			MeshBaseRelZ += Delta;
+			Owner->AddActorWorldOffset(FVector(0.f, 0.f, -Delta), false, nullptr, ETeleportType::TeleportPhysics);
+			if (!bCrawl)
+			{
+				// Restoring mid-pose: shift the mesh rel-Z by the same delta so its WORLD
+				// position is unchanged — the ground clamp (still live through the settle)
+				// keeps owning the plant; the clamp-release timer hands Z to the state machine.
+				if (USkeletalMeshComponent* SM = Owner->GetMesh())
+				{
+					FVector RL = SM->GetRelativeLocation();
+					RL.Z += Delta;
+					SM->SetRelativeLocation(RL);
+				}
+			}
+			UE_LOG(LogTemp, Log, TEXT("[Shambler] capsule %.0f -> %.0f (%s; mesh base rel-Z %+.0f)"),
+				CurHH, WantHH, bCrawl ? TEXT("crawl") : TEXT("STAND"), Delta);
+		}
+	}
+	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+	{
+		CM->RotationRate.Yaw = bCrawl ? FMath::Max(AZP_CrawlRotationRate, 10.f) : StandingRotationRateYaw;
+	}
+}
+
+void UZP_ShamblerBehaviorComponent::MaintainCrawlLocomotion(float DeltaTime)
+{
+	// Keeps a crawl loop on the DefaultSlot whenever no one-shot owns it. Runs every Tick for
+	// crawlers, all living states — the BS_Shambler BlendSpace underneath is standing-only, so
+	// any slot gap (stagger window, post-swing beat, post-revive, chase hold) would flash a
+	// standing pose. Clip pick: idle when stationary, slow crawl when moving, fast crawl in the
+	// sprint band; stride-matched via the crawl ref-speed knobs.
+	if (bDead || !Owner || State == EShamblerState::Grab) { return; }
+	USkeletalMeshComponent* M = Owner->GetMesh();
+	UAnimInstance* AI = M ? M->GetAnimInstance() : nullptr;
+	if (!AI) { return; }
+
+	// MESH-Z OWNER (crawlers only — SetState/wander skip their snaps for us). During the
+	// rear-up window the GroundClampCrawlRise tick (called from TickComponent) owns Z instead.
+	if (!bCrawlStandWindow)
+	{
+		// Bone-measured plant every tick, not the fixed -87 plane (round-15, dev: "feet were
+		// breaking through the ground" on a crawler holding at a door — the constant plane is
+		// only right for the pose it was measured on; the clamp pins the lowest contact bone
+		// to the capsule bottom through every crawl/idle/flat pose, same as the rise window).
+		GroundClampCrawlRise(DeltaTime);
+	}
+
+	// One-shots own the slot while they play (the crawl swing, the rear-up; the alert montage
+	// never fires for crawlers but the guard is cheap and future-proof).
+	// CRAWL SWING TAIL (round-25: "periodically stands after attacking prone but its waist is
+	// going through the floor"): waiting for the swing's Montage_IsPlaying to go false let its
+	// BLEND-OUT hand slot weight back to the standing BlendSpace underneath — a standing pose
+	// flashing at the crawl mesh plane (-87) = waist buried. Fall through once the swing is
+	// inside its blend-out window so the crawl loop's blend-in crossfades OVER the tail
+	// (same-slot montages auto-interrupt) and the slot never exposes the BS.
+	if (ActiveSwingMontage.IsValid() && AI->Montage_IsPlaying(ActiveSwingMontage.Get()))
+	{
+		UAnimMontage* Sw = ActiveSwingMontage.Get();
+		const float SwRate = FMath::Max(AI->Montage_GetPlayRate(Sw), 0.05f);
+		const float SwRemaining = (Sw->GetPlayLength() - AI->Montage_GetPosition(Sw)) / SwRate;
+		if (SwRemaining > 0.25f) { return; }
+	}
+	if (StandUpMontage.IsValid() && AI->Montage_IsPlaying(StandUpMontage.Get())) { return; }
+	if (AlertMontage && AI->Montage_IsPlaying(AlertMontage)) { return; }
+
+	// Clip pick + stride from the state's BASE speed (not live velocity — the limb-pulse below
+	// makes velocity oscillate on purpose and must not flicker the clip choice or the rate).
+	// Chase base is DISTANCE-picked (slow crawl near / fast crawl far, dev 2026-08-05).
+	float BaseSpeed = AZP_CrawlWanderSpeed;
+	if (State == EShamblerState::Chase && Target)
+	{
+		const float DistT = FVector::Dist(Owner->GetActorLocation(), Target->GetActorLocation());
+		BaseSpeed = (DistT > AZP_CrawlFastDistance) ? AZP_CrawlRunSpeed : AZP_CrawlChaseSpeed;
+	}
+	const float Speed2D = Owner->GetVelocity().Size2D();
+	UAnimSequence* WantClip = nullptr;
+	float WantRate = 1.f;
+	// Stationary threshold sits BELOW the limb-pulse's speed troughs (base * (1-PulseAmount)) —
+	// at 20 the wander pulse dipped under it every cycle, flipping walk->idle->walk and
+	// restarting the crawl clip at its FIRST (right-arm) pull forever (round-5: "only moves one
+	// side... right side extending and returning constantly").
+	// PLAYING DEAD, dormant: LIFELESS flat pose — ProneToStand frame 0 held frozen, no crawl
+	// idle lift at all (dev 2026-08-05). On wake (Target set) this branch stops matching and
+	// the crawl loops crossfade in — the body visibly comes to life.
+	if (AZP_Preset == EShamblerPreset::PlayingDead && State == EShamblerState::Wander && !Target)
+	{
+		if (AZP_PlayDeadPoseAnim
+			&& (!CrawlLoopMontage.IsValid() || !AI->Montage_IsPlaying(CrawlLoopMontage.Get())
+				|| CrawlLoopClip.Get() != AZP_PlayDeadPoseAnim.Get()))
+		{
+			CrawlLoopMontage = PlaySlotLoop(AZP_PlayDeadPoseAnim.Get(), 0.001f);
+			CrawlLoopClip = AZP_PlayDeadPoseAnim.Get();
+		}
+		return;
+	}
+
+	// BOTH clip edges are debounced (round-21, [CrawlProbe]-proven): the walk clip needs
+	// SUSTAINED MOTION and the idle pose needs SUSTAINED STILLNESS. The BP wander's 3s timer
+	// produces a ONE-TICK velocity spike (10-23uu/s) before the frozen-body guard — which runs
+	// AFTER this function in the same tick — kills it; the instant walk-engage turned that
+	// single tick into one arm pull toward a random heading every 3s ("still not in a straight
+	// line"). Between the two thresholds the CURRENT clip keeps playing untouched.
+	if (Speed2D < 6.f) { CrawlIdleStillTime += DeltaTime; CrawlMoveSustain = 0.f; }
+	else { CrawlMoveSustain += DeltaTime; CrawlIdleStillTime = 0.f; }
+	if (CrawlIdleStillTime >= FMath::Max(AZP_CrawlIdleDebounce, 0.f))
+	{
+		WantClip = PickIdleAnim();
+	}
+	else if (CrawlMoveSustain < 0.15f)
+	{
+		// Neither edge sustained — hold whatever is on the slot (a live loop keeps cycling; a
+		// one-tick blip on a resting body changes NOTHING).
+		return;
+	}
+	else if (AZP_CrawlRunAnim && BaseSpeed >= AZP_CrawlRunClipMinSpeed)
+	{
+		// The slow->fast clip handoff sits on its own knob (dev 2026-08-05: "crawl speed should
+		// be measured differently even for crawl slow to fast").
+		WantClip = AZP_CrawlRunAnim.Get();
+		WantRate = FMath::Max(0.1f, BaseSpeed / FMath::Max(AZP_CrawlRunAnimRefSpeed, 1.f));
+	}
+	else if (AZP_CrawlWalkAnim)
+	{
+		WantClip = AZP_CrawlWalkAnim.Get();
+		WantRate = FMath::Max(0.1f, BaseSpeed / FMath::Max(AZP_CrawlWalkAnimRefSpeed, 1.f));
+	}
+	if (!WantClip) { return; }
+
+	// LIMB-PHASE MEMORY: remember the live loop's normalized position every tick, and start
+	// any replacement moving-loop AT that phase — a restart resumes mid-stride wherever the
+	// limbs were, never snapping back to the clip's first (right-arm) pull. Idle poses start
+	// clean (they're a rest, not a stride).
+	const bool bLoopLive = CrawlLoopMontage.IsValid() && AI->Montage_IsPlaying(CrawlLoopMontage.Get());
+	if (bLoopLive && CrawlLoopClip.IsValid())
+	{
+		const float LiveLen = FMath::Max(CrawlLoopClip->GetPlayLength(), 0.01f);
+		CrawlLoopPhase = FMath::Fmod(AI->Montage_GetPosition(CrawlLoopMontage.Get()), LiveLen) / LiveLen;
+	}
+	if (!bLoopLive || CrawlLoopClip.Get() != WantClip)
+	{
+		// [CrawlProbe] round-19 instrumentation: every restart names its reason — if the gait
+		// still resets in PIE, this line identifies the displacing path beyond argument.
+		UE_LOG(LogTemp, Warning, TEXT("[CrawlProbe] RESTART loopLive=%d prev='%s' want='%s' phase=%.2f vel=%.0f state=%d t=%.2f"),
+			bLoopLive ? 1 : 0, CrawlLoopClip.IsValid() ? *CrawlLoopClip->GetName() : TEXT("none"),
+			*WantClip->GetName(), CrawlLoopPhase, Speed2D, (int32)State, GetWorld()->GetTimeSeconds());
+		CrawlLoopMontage = PlaySlotLoop(WantClip, WantRate);
+		CrawlLoopClip = WantClip;
+		if (WantClip != PickIdleAnim() && CrawlLoopMontage.IsValid())
+		{
+			AI->Montage_SetPosition(CrawlLoopMontage.Get(), CrawlLoopPhase * WantClip->GetPlayLength());
+		}
+	}
+	else
+	{
+		AI->Montage_SetPlayRate(CrawlLoopMontage.Get(), WantRate);
+	}
+
+	// BONE-DRIVEN PROPULSION (round-22, dev: "movements don't feel driven by bone movement...
+	// the animation is there, but the movement amount/timing is off" — replaces the hand-tuned
+	// sine pulse). The crawl clips are IN-PLACE, so a planted limb sweeps BACKWARD in actor
+	// space at exactly the drag speed the animator authored for the body. Read that sweep off
+	// the drive limbs every tick and let the fastest one BE the walk speed: the body surges
+	// precisely when — and exactly as hard as — the arms pull, and settles to the floor speed
+	// while they recover. Timing AND amount come from the playing animation itself; the clip's
+	// play rate (stride-matched to BaseSpeed above) scales the sweeps automatically.
+	if (WantClip != PickIdleAnim())
+	{
+		static const FName DriveBones[] = {
+			FName(TEXT("mixamorig_LeftHand_011")),    FName(TEXT("mixamorig_RightHand_019")),
+			FName(TEXT("mixamorig_LeftForeArm_010")), FName(TEXT("mixamorig_RightForeArm_018")),
+			FName(TEXT("mixamorig_LeftFoot_026")),    FName(TEXT("mixamorig_RightFoot_030")) };
+		constexpr int32 NumDrive = UE_ARRAY_COUNT(DriveBones);
+		if (CrawlDrivePrevX.Num() != NumDrive)
+		{
+			CrawlDrivePrevX.Init(TNumericLimits<float>::Max(), NumDrive);
+		}
+		const FTransform ActorTM = Owner->GetActorTransform();
+		float Drive = 0.f;
+		for (int32 i = 0; i < NumDrive; ++i)
+		{
+			if (M->GetBoneIndex(DriveBones[i]) == INDEX_NONE) { continue; }
+			const float RelX = (float)ActorTM.InverseTransformPosition(M->GetBoneLocation(DriveBones[i])).X;
+			const float Prev = CrawlDrivePrevX[i];
+			CrawlDrivePrevX[i] = RelX;
+			if (Prev == TNumericLimits<float>::Max() || DeltaTime <= KINDA_SMALL_NUMBER) { continue; }
+			// + = the limb sweeping BACKWARD through stance = propulsion.
+			Drive = FMath::Max(Drive, (Prev - RelX) / DeltaTime);
+		}
+		if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
+		{
+			const float Cap = FMath::Max(BaseSpeed * FMath::Max(AZP_CrawlDriveCap, 0.1f), 10.f);
+			CM->MaxWalkSpeed = FMath::Clamp(Drive * AZP_CrawlDriveScale, FMath::Max(AZP_CrawlDriveFloor, 1.f), Cap);
 		}
 	}
 }
@@ -2078,7 +2843,10 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 	// hits carry no bone, so headshots go by how high up the body the shot landed).
 	const bool bMelee = DamageType && DamageType->IsA(UZP_MeleeDamageType::StaticClass());
 	const float HitZAboveCentre = HitLocation.Z - Owner->GetActorLocation().Z;
-	const bool bHead = !bMelee && (HitZAboveCentre >= AZP_HeadshotMinZ);
+	// Crawler head sits near/below the capsule centre — the standing 55uu threshold would make
+	// headshots impossible while prone.
+	const float HeadMinZ = IsCrawlingNow() ? AZP_CrawlHeadshotMinZ : AZP_HeadshotMinZ;
+	const bool bHead = !bMelee && (HitZAboveCentre >= HeadMinZ);
 	const float Dmg = bMelee ? Damage : (bHead ? AZP_HeadShotDamage : AZP_BodyShotDamage);
 	UE_LOG(LogTemp, Warning, TEXT("[Shambler] HIT z+%.0f -> %s, %.0f dmg (was %.0f HP)"),
 		HitZAboveCentre, bMelee ? TEXT("melee/body") : (bHead ? TEXT("HEADSHOT") : TEXT("body")), Dmg, Health->CurrentHealth);
@@ -2099,8 +2867,23 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 		if (State == EShamblerState::Wander)
 		{
 			Target = GetPlayer();
-			SetState(EShamblerState::Scream);
-			CurrentScreamHold = AZP_HurtScreamHoldTime;
+			if (IsDormantSlumped())
+			{
+				// Damage always wakes the slumped body.
+				if (Audio) { Audio->PlayAlert(); }
+				StartSlumpRise();
+			}
+			else if (IsCrawlingNow())
+			{
+				// Prone: no standing scream pose — bark and hunt. Never stands.
+				PlayCrawlAlert();
+				SetState(EShamblerState::Chase);
+			}
+			else
+			{
+				SetState(EShamblerState::Scream);
+				CurrentScreamHold = AZP_HurtScreamHoldTime;
+			}
 		}
 		else if (State == EShamblerState::Scream)
 		{
@@ -2148,6 +2931,13 @@ void UZP_ShamblerBehaviorComponent::OnPointDamage(AActor* DamagedActor, float Da
 			if (State == EShamblerState::Attack)
 			{
 				if (DoSwingHitch()) { LastHitReactTime = Now; } // (2)
+			}
+			else if (IsCrawlingNow())
+			{
+				// Crawler: the flinch clips are STANDING poses — keep the hit vocal (the mesh
+				// punch above already sells the impact) and skip the clip + movement gate.
+				LastHitReactTime = Now;
+				if (Audio) { Audio->PlayHit(); }
 			}
 			else if (State != EShamblerState::Scream)
 			{
@@ -2341,8 +3131,23 @@ void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration, UAnimSeque
 	if (State == EShamblerState::Wander)
 	{
 		Target = GetPlayer();
-		SetState(EShamblerState::Scream);
-		CurrentScreamHold = AZP_HurtScreamHoldTime;
+		if (IsDormantSlumped())
+		{
+			// Melee contact wakes the slumped body (stagger pause overlays the rise).
+			if (Audio) { Audio->PlayAlert(); }
+			StartSlumpRise();
+		}
+		else if (IsCrawlingNow())
+		{
+			// Prone: no standing scream pose — bark and hunt (stagger pause overlays Chase).
+			PlayCrawlAlert();
+			SetState(EShamblerState::Chase);
+		}
+		else
+		{
+			SetState(EShamblerState::Scream);
+			CurrentScreamHold = AZP_HurtScreamHoldTime;
+		}
 	}
 
 	// Staggered mid-grab (defensive — the victim can't block while grabbed, but an external
@@ -2368,7 +3173,10 @@ void UZP_ShamblerBehaviorComponent::ReceiveStaggerHit(float Duration, UAnimSeque
 	// OverrideAnim = the damage path's DIRECTIONAL flinch (back clip for a shot from behind). The block
 	// path passes nullptr and keeps its original front-first pick.
 	UAnimSequence* DefaultFlinch = AZP_HitFrontAnim ? AZP_HitFrontAnim : AZP_HitBackAnim;
-	if (UAnimSequence* Anim = OverrideAnim ? OverrideAnim : DefaultFlinch)
+	// Crawlers have no crawl flinch clips — the stagger degrades to a clip-less AI pause for
+	// Duration (the crawl Tick maintainer keeps the crawl idle seated over the pause).
+	UAnimSequence* Anim = IsCrawlingNow() ? nullptr : (OverrideAnim ? OverrideAnim : DefaultFlinch);
+	if (Anim)
 	{
 		PlayOneShot(Anim);
 		ResumeDelay = FMath::Clamp(Anim->GetPlayLength() - 0.15f, 0.1f, FMath::Max(0.1f, Duration));
@@ -2482,6 +3290,35 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 	{
 		if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent()) { Cap->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
 		if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement()) { CM->StopMovementImmediately(); CM->DisableMovement(); }
+
+		// PRONE / DORMANT-SLUMPED DEATH (dev 2026-08-05: "crawling shambler rise and fall
+		// after dying" — the standing fall clips STAND the body UP first). A prone body dies
+		// IN PLACE: crossfade into the flat corpse pose over the crawl pose (reads as going
+		// limp); a dormant slumped body just freezes in its slump. No death-drop Z either —
+		// AZP_DeathDropZ is calibrated for a standing hip height and would bury a body that is
+		// already on the ground.
+		if (IsCrawlingNow() || IsDormantSlumped())
+		{
+			if (USkeletalMeshComponent* M = Owner->GetMesh())
+			{
+				if (IsCrawlingNow() && AZP_PlayDeadPoseAnim)
+				{
+					PlaySlotLoop(AZP_PlayDeadPoseAnim.Get(), 0.001f); // collapse into the flat corpse
+				}
+				// Dormant slumped: the frozen slump hold already on the slot IS the corpse.
+				MeshPunch = FVector2D::ZeroVector;
+				FVector RL = M->GetRelativeLocation();
+				RL.X = MeshBaseRelXY.X;
+				RL.Y = MeshBaseRelXY.Y;
+				M->SetRelativeLocation(RL);
+			}
+			DeathStartTime = GetWorld()->GetTimeSeconds();
+			DeathAnimLen = 0.f;
+			bDropping = false;
+			UE_LOG(LogTemp, Warning, TEXT("[Shambler] DEATH (prone/slumped — died in place, no fall clip)"));
+			return;
+		}
+
 		UAnimSequence* DeathAnim = bLastHitFront ? AZP_DeathFrontAnim : AZP_DeathBackAnim;
 		if (USkeletalMeshComponent* M = Owner->GetMesh())
 		{
@@ -2528,19 +3365,41 @@ void UZP_ShamblerBehaviorComponent::ApplyDeadStateInstant_Implementation()
 	if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent()) { Cap->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
 	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement()) { CM->StopMovementImmediately(); CM->DisableMovement(); }
 
-	UAnimSequence* DeathAnim = AZP_DeathFrontAnim ? AZP_DeathFrontAnim : AZP_DeathBackAnim;
 	if (USkeletalMeshComponent* M = Owner->GetMesh())
 	{
-		if (DeathAnim)
+		if (IsCrawlingNow() || IsDormantSlumped())
 		{
-			M->PlayAnimation(DeathAnim, /*bLooping=*/false);
-			M->SetPosition(DeathAnim->GetPlayLength(), /*bFireNotifies=*/false); // hold the final (corpse) frame
+			// Prone/dormant-slumped corpse: the flat (or slump) pose frame 0, at the pose's own
+			// ground plane — no standing fall clip, no death drop (see OnOwnerDied).
+			UAnimSequence* CorpsePose = IsCrawlingNow()
+				? (AZP_PlayDeadPoseAnim ? AZP_PlayDeadPoseAnim.Get() : nullptr)
+				: (AZP_SlumpToStandAnim ? AZP_SlumpToStandAnim.Get() : nullptr);
+			if (CorpsePose)
+			{
+				M->PlayAnimation(CorpsePose, /*bLooping=*/false);
+				M->SetPosition(0.f, /*bFireNotifies=*/false);
+				M->Stop();
+			}
+			FVector RL = M->GetRelativeLocation();
+			RL.X = MeshBaseRelXY.X;
+			RL.Y = MeshBaseRelXY.Y;
+			RL.Z = MeshBaseRelZ + (IsCrawlingNow() ? AZP_CrawlMeshZOffset : AZP_LocoMeshZOffset);
+			M->SetRelativeLocation(RL);
 		}
-		FVector RL = M->GetRelativeLocation();
-		RL.X = MeshBaseRelXY.X; // also clear any stale hit-punch offset
-		RL.Y = MeshBaseRelXY.Y;
-		RL.Z = MeshBaseRelZ - AZP_DeathDropZ; // apply the full grounding drop instantly
-		M->SetRelativeLocation(RL);
+		else
+		{
+			UAnimSequence* DeathAnim = AZP_DeathFrontAnim ? AZP_DeathFrontAnim : AZP_DeathBackAnim;
+			if (DeathAnim)
+			{
+				M->PlayAnimation(DeathAnim, /*bLooping=*/false);
+				M->SetPosition(DeathAnim->GetPlayLength(), /*bFireNotifies=*/false); // hold the final (corpse) frame
+			}
+			FVector RL = M->GetRelativeLocation();
+			RL.X = MeshBaseRelXY.X; // also clear any stale hit-punch offset
+			RL.Y = MeshBaseRelXY.Y;
+			RL.Z = MeshBaseRelZ - AZP_DeathDropZ; // apply the full grounding drop instantly
+			M->SetRelativeLocation(RL);
+		}
 	}
 	MeshPunch = FVector2D::ZeroVector;
 	UE_LOG(LogTemp, Log, TEXT("[Shambler] dead-state restored on load: %s"), *Owner->GetName());
@@ -2568,6 +3427,26 @@ void UZP_ShamblerBehaviorComponent::ReviveEnemy_Implementation()
 	if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement())
 	{
 		CM->SetMovementMode(MOVE_Walking);
+	}
+
+	// Revive restores the SPAWN preset: prone presets back to the crawl (shrunken capsule,
+	// crawl rotation rate; maintainer re-seats the loops next tick), a risen Slumped back to
+	// its dormant slump (the Tick hold re-seats the pose).
+	bStandingUpNow = false;
+	bCrawlStandWindow = false;
+	StandUpMontage = nullptr;
+	SlumpHoldMontage = nullptr;
+	bCrawlStoodUp = false;
+	SlumpPresenceTimer = 0.f;
+	SlumpStareTimer = 0.f;
+	if (UWorld* W = GetWorld())
+	{
+		W->GetTimerManager().ClearTimer(CrawlStandUpTimer);
+		W->GetTimerManager().ClearTimer(CrawlClampReleaseTimer);
+	}
+	if (IsPronePreset())
+	{
+		ApplyCrawlCapsule(true); // no-op if it never stood (capsule persisted through death)
 	}
 
 	// SetState(Wander) re-links the locomotion AnimBP (EnsureLocomotion), restores walk speed and the

@@ -89,6 +89,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
 	float AZP_DetectionRange = 1000.f;
 
+	/** UNAVOIDABLE aggro radius (UU) — inside it, aggro fires regardless of LOS/reachability
+	 *  (dev 2026-08-05: "aggro is impossible to avoid within proximity", all NPC enemies).
+	 *  Stealth still works outside it via the LOS/reachability rules above. Also keeps the
+	 *  lose-sight timer pinned while the player stays inside. 600 = 6m. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
+	float AZP_ProximityAggroRange = 600.f;
+
 	/** Seconds between detection probes (LOS trace + navmesh reachability). Ran EVERY FRAME
 	 *  before 2026-08-04. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Detect")
@@ -307,12 +314,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> AZP_LurkSound;
 
-	// ── Footsteps (distance-based; see PlayFootstep) ───────────────
-	/** Footstep one-shot, played once per AZP_FootstepStride of 2D travel. Defaults to
-	 *  /Game/Audio/Scytheer/SFX_Scytheer_Footsteps in LoadSFXDefaults. Distance is measured from the
-	 *  body's OWN position delta (not GetVelocity()) so it cadence-matches every gait: the navmesh
-	 *  wander/chase AND the teleport-driven spline patrol, where GetVelocity() reads 0 and the
-	 *  Shambler's velocity scheme would be silent. 0 volume = silent feet. */
+	// ── Footsteps (bone-contact synced; see PlayFootstep) ───────────
+	/** Footstep one-shot, fired per LIMB PLANT (see AZP_FootstepBones). Defaults to
+	 *  /Game/Audio/Scytheer/SFX_Scytheer_Footsteps in LoadSFXDefaults. 0 volume = silent feet. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	TObjectPtr<USoundBase> AZP_FootstepSound;
 
@@ -320,10 +324,32 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	float AZP_FootstepVolume = 1.f;
 
-	/** Distance (UU) of 2D travel per footstep. Distance-based so cadence scales with actual speed —
-	 *  slow wander steps slowly, chase steps fast — with zero per-clip work. */
+	/** FALLBACK ONLY (2026-08-05): distance (UU) of 2D travel per footstep, used when none of
+	 *  AZP_FootstepBones resolves on the mesh. Bone-contact detection owns the cadence otherwise. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
 	float AZP_FootstepStride = 80.f;
+
+	/** ANIMATION-SYNCED footsteps (dev 2026-08-05: "sounds slower and bipedal — the scytheer is
+	 *  4-legged"): the ground-contact bone of each limb. A step fires at each limb's TOUCHDOWN,
+	 *  detected as the forward->backward sweep REVERSAL of the bone in ACTOR-RELATIVE space (a limb
+	 *  swings forward, touches down, then sweeps backward through stance — the reversal IS the
+	 *  contact). Pure animation signal: independent of body speed, play rate, and clip-vs-CMC
+	 *  stride mismatch (the world-speed-ratio v1 missed half the plants exactly because the slices
+	 *  play decoupled from CMC speed). Offline-verified against the clip: 4 distinct touchdowns per
+	 *  walk/run loop. Defaults to the scytheer rig's 4 contacts (front hands + rear toes).
+	 *  Empty/invalid names = distance-metronome fallback. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	TArray<FName> AZP_FootstepBones;
+
+	/** Touchdown detector arming speed (uu/s): a limb arms once its actor-relative FORWARD sweep
+	 *  exceeds this; the next reversal to backward fires the step and disarms. Walk-swing peaks
+	 *  ~130+ uu/s, stance noise ~0 — raise if phantom steps, lower if steps are missed. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	float AZP_FootstepArmSpeed = 50.f;
+
+	/** Per-limb re-trigger lockout (s) so a jittery plant edge can't double-fire. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scytheer|Audio")
+	float AZP_FootstepMinInterval = 0.12f;
 
 	/** Random pitch spread per step (1 +/- this) so a single footstep asset never reads as a
 	 *  mechanical loop. */
@@ -378,6 +404,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	/** Editor authoring preview — poses the master clip at the idle slice + evaluates it in
+	 *  the viewport so a placed Scytheer is visible/authorable before PIE (dev 2026-08-05). */
+	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void Tick(float DeltaTime) override;
 
 private:
@@ -415,9 +444,13 @@ private:
 	float ChaseStuckTimer = 0.f;
 	FVector LastChaseStuckLoc = FVector::ZeroVector;
 
-	// distance-based footsteps: accumulate 2D position delta, one step per AZP_FootstepStride.
+	// footsteps: bone-contact detection state (per entry in AZP_FootstepBones) + the distance
+	// accumulator kept for the no-valid-bones fallback.
 	float StepDistanceAccum = 0.f;
 	FVector LastFootstepLoc = FVector::ZeroVector;
+	TArray<FVector> FootPrevPos;   // last ACTOR-RELATIVE pos per contact bone (ZeroVector = unseeded)
+	TArray<bool> FootPlanted;      // true = planted/disarmed, false = armed (forward swing seen)
+	TArray<double> FootLastStep;   // world time of last step per limb (min-interval lockout)
 	int32 PendingAttackVariant = 1;
 	double StateEnteredAt = 0.0;
 
@@ -440,8 +473,10 @@ private:
 	 *  construction crashes when the target asset is renamed/moved (Shambler hit that in this same
 	 *  session). LoadObject in BeginPlay is the safe pattern. */
 	void LoadSFXDefaults();
-	/** Play one footstep one-shot at the body (Room carry, AZP_FootstepVolume / AZP_FootstepPitchVar). */
-	void PlayFootstep();
+	/** Play one footstep one-shot at AtLoc — the planting bone's world position for bone-synced
+	 *  steps, the actor location for the distance fallback (Room carry, AZP_FootstepVolume /
+	 *  AZP_FootstepPitchVar). */
+	void PlayFootstep(const FVector& AtLoc);
 	float Frame2Time(int32 Frame) const;
 	APawn* GetPlayer() const;
 	bool HasLOS(const AActor* Target) const;

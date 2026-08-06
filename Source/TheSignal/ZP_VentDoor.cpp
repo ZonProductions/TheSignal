@@ -32,6 +32,9 @@ AZP_VentDoor::AZP_VentDoor()
 	VentMesh->SetRelativeLocation(-AZP_HingeOffset);
 	VentMesh->SetCollisionProfileName(TEXT("BlockAll"));
 	VentMesh->SetGenerateOverlapEvents(false);
+	// Dynamic nav obstacle (2026-08-05 nav-aware doors): closed grate carves; FinishOpen's
+	// NoCollision drops its nav contribution automatically.
+	VentMesh->SetCanEverAffectNavigation(true);
 }
 
 void AZP_VentDoor::OnConstruction(const FTransform& Transform)

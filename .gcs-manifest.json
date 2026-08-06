@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-08-05T00:06:17",
+  "created": "2026-08-05T21:09:18",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -2820,16 +2820,20 @@
       "size": 115336
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Alert.uasset": {
-      "hash": "sha256:280aaeda840cf3a1af148013096feeb7ba252c1fcf076d290712405a933714db",
-      "size": 199162
+      "hash": "sha256:9869838a74cbf0a0f21d2c72299d53001f514a474770aca82a0bfa5693d52f78",
+      "size": 79273
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Attack.uasset": {
       "hash": "sha256:4326bd07f7b519d4e915b44363d957c7751cf30a2df090c0cec7c6f14b236ca3",
       "size": 54887
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Death.uasset": {
-      "hash": "sha256:11a6968bd8477cd2c83587ac565d89b2422088aae367b9c6dae346a5e79ea45d",
-      "size": 217085
+      "hash": "sha256:40f8e099fb64fecfe59524e44f80a4cca352bce33d32cdab804af9e3aca5166a",
+      "size": 217129
+    },
+    "Content/Audio/Scytheer/SFX_Scytheer_Footstep.uasset": {
+      "hash": "sha256:958b6e323df8ad05842ecbcd6106ed417d8cedc607fe39352ca29cd4df46e3be",
+      "size": 102885
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Footsteps.uasset": {
       "hash": "sha256:ddb0ce03464e06908b4bad5c8a4730c0621fbecbf12f46ee25dc3855d635f73d",
@@ -2838,6 +2842,10 @@
     "Content/Audio/Scytheer/SFX_Scytheer_Hit.uasset": {
       "hash": "sha256:dac15bc44eac0253ae991cf4f63e0f8eb641024a930ebdfe3a599ded28c066a4",
       "size": 137820
+    },
+    "Content/Audio/Scytheer/SFX_Scytheer_Lunge.uasset": {
+      "hash": "sha256:61b8e8099f91e21a9100c86ec0c1d24887d5b67067181fd2b496d63d9c57cdc2",
+      "size": 268999
     },
     "Content/Audio/Scytheer/SFX_Scytheer_Lurk.uasset": {
       "hash": "sha256:e22db6254ec2dd01dcff7e270170d2f0346d976af75d37d72aedfc6adb197cd3",
@@ -2956,36 +2964,48 @@
       "size": 1105654
     },
     "Content/Audio/Weapons/SFX_MELEE_IMPACT1.uasset": {
-      "hash": "sha256:d845f06f96c4827db44f7fe5ca5fb54fc2c8bb4703fdfecc85f012f24b0322fb",
-      "size": 106551
+      "hash": "sha256:5867a2ed3735fd541db7832b2dd326e6729ad840a9e9620500c1e81ccf5058af",
+      "size": 25438
     },
     "Content/Audio/Weapons/SFX_MELEE_IMPACT2.uasset": {
-      "hash": "sha256:d386e4485fa1ded7c8d0c4a4ffca165068074d23e37a8e0878643d7133fe4f5a",
-      "size": 109613
+      "hash": "sha256:59a6c10cfe276735f3022525487f10bbb02e60c6342ca2a674023f917633ba21",
+      "size": 25481
     },
     "Content/Audio/Weapons/SFX_MELEE_SWING.uasset": {
       "hash": "sha256:725185d9d36e2e61acbca8d97247de2d013d51c66796e0e4e760ed8b6a48d916",
       "size": 90586
     },
     "Content/Audio/Weapons/SFX_PIPE_HIT.uasset": {
-      "hash": "sha256:82ac5066278a18df344fc4e94a266d778f299f2221bfaed4bb71402eb5082890",
-      "size": 65107
+      "hash": "sha256:94ba364965fb5d2a558e35b737c975255053577e658c3d027f9bba3b80fb3d1e",
+      "size": 32071
+    },
+    "Content/Audio/Weapons/SFX_PIPE_SURFACE_GLASS_IMPACT.uasset": {
+      "hash": "sha256:ab5c065c13c40757571b01a897e2d5f0b93896a568dd19c94ae99692932b0ffc",
+      "size": 117609
+    },
+    "Content/Audio/Weapons/SFX_PIPE_SURFACE_METAL_IMPACT.uasset": {
+      "hash": "sha256:5e1a7c99d4b5a0eafa2652a8ab36f4d8402285b47d92bf4612a28611f1ca4589",
+      "size": 100826
     },
     "Content/Audio/Weapons/SFX_PIPE_SURFACE_WALL_IMPACT.uasset": {
-      "hash": "sha256:c68149651c762e6770f643e2829d7becd8021218bc41ca80bc0bf459b2d2072b",
-      "size": 65219
+      "hash": "sha256:0cce4eb50d791113e56e1e0c9c9d94a70dc22ed96f5de5d4727841a3fddef102",
+      "size": 76911
+    },
+    "Content/Audio/Weapons/SFX_PIPE_SURFACE_WOOD_IMPACT.uasset": {
+      "hash": "sha256:be249c7287a966a5ff0504b921971918c965864d5f18ee7c8f59e098cacc395e",
+      "size": 62270
     },
     "Content/Audio/Weapons/SFX_RANGE_IMPACT_PISTOL.uasset": {
-      "hash": "sha256:2394766bb751c27087505a96d6213b557360771b06b75a5bc5c8d7744597bdcd",
-      "size": 27707
+      "hash": "sha256:5cd4ee7d8dc34905509a82aac2211e55d6e1b57e5327a865ed2ae8640ca5985e",
+      "size": 28006
     },
     "Content/Audio/Weapons/SFX_RANGE_IMPACT_RIFLE.uasset": {
-      "hash": "sha256:b2c70fd7a4291be8e850b4eaf46bd53bb5c61ee6a01e967214c756e7722e2c54",
-      "size": 45414
+      "hash": "sha256:46234398028cb5ae5c63c9286508148d5f4d0732453b5d3f9e8887941ce90dcd",
+      "size": 45713
     },
     "Content/Audio/Weapons/SFX_RANGE_IMPACT_SHOTGUN.uasset": {
-      "hash": "sha256:26313041fefb59afac5d75ecf84ba0a28b9f09eb7741cd5d1bdb7cdb4a49eb34",
-      "size": 23479
+      "hash": "sha256:56503a04bc63371b406a09ae5c2212a23d2539edf3825dc1d851971442cbf362",
+      "size": 23778
     },
     "Content/BackgroundBuildings/Blueprint/B_LowPolyBuilding.uasset": {
       "hash": "sha256:b83f928021966c52ed9ef2ea5fad2e4fd32f4e58182a53e21d1d8000ffd33a69",
@@ -15268,8 +15288,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:6733f77095145648ae5807a05a9e96007545bc311792f28d8aba7120241271fa",
-      "size": 7379335
+      "hash": "sha256:fc83a9ad75e1ba65daeab2af46132a0874453e119730a8fb470840bc85cf2e82",
+      "size": 7376757
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -26331,6 +26351,66 @@
       "hash": "sha256:884afc1c3a416d4c2754f13315d6b7effc1ae9b7936f51cc72c1968bfe5621fe",
       "size": 7902
     },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_00.uasset": {
+      "hash": "sha256:002bad9054ad3e5f8234307e96197eaadcdbabf8281ae0624b57aee7ad5f494d",
+      "size": 7302
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_01.uasset": {
+      "hash": "sha256:45c9f53b3bc6a6ad08fc9d9e716d6962c99efe517705570873cbf312fc3dde86",
+      "size": 8415
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_02.uasset": {
+      "hash": "sha256:57cbee6acfaa7e74a0a1d8b56f1436abae84dcf61c59cd3b4d3ea94b1f53ecb6",
+      "size": 8289
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_03.uasset": {
+      "hash": "sha256:5b083040ba0c7ef29e230d23e23693476b9ccb004d06b697250ee5a224279d6c",
+      "size": 8283
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_04.uasset": {
+      "hash": "sha256:c8b3a2b4d933975a0430ccbb30d721fbb9d4ef341a16f0c419c01df982efb632",
+      "size": 8109
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_05.uasset": {
+      "hash": "sha256:85a92cfd334ef35569b6bd136ffc91ff387ffbe838d31607254f98b2f84170bc",
+      "size": 8320
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_06.uasset": {
+      "hash": "sha256:56336cd8571c795fcdad712336ae7eaa5a3088b1eca84ee8824663e5f5f99871",
+      "size": 8200
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_07.uasset": {
+      "hash": "sha256:a39e434585485efc5d520a15f37bac478c53584724351c6ee8ae9e3b700f6ff8",
+      "size": 8016
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_08.uasset": {
+      "hash": "sha256:6e3d035d666f84c02a521f3bce3cacf7755abe43ed5f5628f834fde6dc89a699",
+      "size": 7907
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_09.uasset": {
+      "hash": "sha256:fe8896d4cc3ae94e39988eabd2e06a8a8bfa7c604cc57b940bb63c57b18313aa",
+      "size": 7194
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_10.uasset": {
+      "hash": "sha256:2c5968d69e438bedb54fd2808e044b2a8cb2bf7a32af276207fa71b510c44fe3",
+      "size": 8239
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_11.uasset": {
+      "hash": "sha256:1d78aa43c1c6db405c9f531bc87b649c056481a7b31cb51660cb1b79507d7326",
+      "size": 7591
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_12.uasset": {
+      "hash": "sha256:e177d3a6d1d46ba8e8dfd9ee457e6e33834484fca263978fa74982149150bb8b",
+      "size": 7913
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_13.uasset": {
+      "hash": "sha256:9e106100a57bfde6a5d92f99a950745f5fba41527dc345e373f46f8a96c14d53",
+      "size": 8243
+    },
+    "Content/Dev/SlotColors/DEV_MI_SlotColor_14.uasset": {
+      "hash": "sha256:c36c0cf334d54373db78f88e254a816fea0503a4fcaa196dee597ef70ed3f7fe",
+      "size": 7828
+    },
     "Content/Dialogue/Dialogue_Test.uasset": {
       "hash": "sha256:98831845dc9341524ec30b6cdce299e0728e24f6ea87f4b94d7c49b8030bc4f2",
       "size": 5270
@@ -28584,8 +28664,8 @@
       "size": 39157
     },
     "Content/Enemies/Scytheer/BP_Scytheer.uasset": {
-      "hash": "sha256:bcbb987e5babd4889088641fe414e31aaeff0106b2a1e9a4e6a98b881a604bd7",
-      "size": 39985
+      "hash": "sha256:21f36768ca3a948554f05a4ee18da6ba434c16a35868f2c6e3240230be43b6cd",
+      "size": 39880
     },
     "Content/Enemies/Scytheer/MI_ZP_ScytheerSkin.uasset": {
       "hash": "sha256:db32d84e276d48af40db5dd42785b791151ac9bc057e54c346555754ddc4b77e",
@@ -28611,6 +28691,10 @@
       "hash": "sha256:93a99561c392e0a1ca2831ca56a3f6e2fc14ea799b9e24448c1b333be8284cb5",
       "size": 13186
     },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Attack_Crawl.uasset": {
+      "hash": "sha256:52d654a901c0639066f65a62808bf87ba4c97201dc280a18012f5681f600949e",
+      "size": 400019
+    },
     "Content/Enemies/Shambler/Anims/A_Shambler_Attack_L.uasset": {
       "hash": "sha256:8511036156925df2270b7912b8b89c42833c7b76888159adc7fbbd3caacf476d",
       "size": 240068
@@ -28618,6 +28702,26 @@
     "Content/Enemies/Shambler/Anims/A_Shambler_Attack_R.uasset": {
       "hash": "sha256:955cf043b64257023051c48779bf65d98b8a67921a2daff356e44394a08d84b9",
       "size": 240226
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Attack_StandBH.uasset": {
+      "hash": "sha256:e5bda118fac67f70e9cb9772642e0ab1edb6718c5b6c247ba3797a1be63dcc9e",
+      "size": 289631
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_Attack_StandLH.uasset": {
+      "hash": "sha256:5357f5d41e24674745bdecc768feb37bb25481e3de09a6f2516ceacdf83d23e4",
+      "size": 231088
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_CrawlIdle.uasset": {
+      "hash": "sha256:5deb91989110fbc24b83cbc5e0ba97f17ed7a007562ca4e8833c559ed316c1f6",
+      "size": 621992
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_CrawlRun.uasset": {
+      "hash": "sha256:fae6f3ea4c3c335dc9f640f8749485ec7ec530cd8353e73bbc3dea8841c30cfb",
+      "size": 114477
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_CrawlWalk.uasset": {
+      "hash": "sha256:cc77a26bd0e79a67d036d51cf55ea3db903fc272fc37b55917b98aa07b8801e3",
+      "size": 781044
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Death_Back.uasset": {
       "hash": "sha256:5ea36765ccb577ea75ea25bd126de6721f3444a3b140dd1c26420f9c86989f36",
@@ -28667,6 +28771,10 @@
       "hash": "sha256:3fcbe16ca30dc5756e746df61b7d0adb2bb4dc6cd7c645f32d862b6ced534cce",
       "size": 1760422
     },
+    "Content/Enemies/Shambler/Anims/A_Shambler_ProneToStand.uasset": {
+      "hash": "sha256:0235a5897ecfe1a6a486ebd382331e31695334855acf46c7e069522ff787fc21",
+      "size": 1352360
+    },
     "Content/Enemies/Shambler/Anims/A_Shambler_Run.uasset": {
       "hash": "sha256:8cecd7c2243cefbe0372a3683cbdf319fe4cee5322891c5eeb24cd5c95c742e2",
       "size": 143368
@@ -28686,6 +28794,14 @@
     "Content/Enemies/Shambler/Anims/A_Shambler_ScreamPinned.uasset": {
       "hash": "sha256:fb58d04f673b86d6cf3f44501b2ad34fa6a80ed3edb35213e1293f6f8dd65084",
       "size": 133727
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_SlumpToStand.uasset": {
+      "hash": "sha256:e060c693cb921e4f70e2bb06f6fecce19466063fad8d6bacfe19571a9fdec49f",
+      "size": 631560
+    },
+    "Content/Enemies/Shambler/Anims/A_Shambler_StandUp.uasset": {
+      "hash": "sha256:26c6c299c182dd6703eb33645c85faebe9d031a2b5ea1e80913a82cd7c26f8e3",
+      "size": 932667
     },
     "Content/Enemies/Shambler/Anims/A_Shambler_Turn_L180.uasset": {
       "hash": "sha256:43cb32d59d48d1fc00b1bd551d74287b62ed787c8e7fd02fda2b06c5d87eeaa9",
@@ -28748,8 +28864,8 @@
       "size": 16176
     },
     "Content/Enemies/Shambler/SkeletalMeshes/zombie_monster_slasher_necromorph.uasset": {
-      "hash": "sha256:eb3e23cb89fd99bc54d0bb6b51ec6507f8c61be3353b229cb4c2b80e56b34171",
-      "size": 984891
+      "hash": "sha256:d610103c370f1ca408088df964bfc90371fe55ee4f5f0ad4cccea6a003e39855",
+      "size": 1002357
     },
     "Content/Enemies/Shambler/SkeletalMeshes/zombie_monster_slasher_necromorph_Anim.uasset": {
       "hash": "sha256:80169d7946f2287f8c08c8d133d88831f9c038aa1b1656a1a3b43eec0198f5db",

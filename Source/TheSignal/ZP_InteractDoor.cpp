@@ -65,6 +65,13 @@ AZP_InteractDoor::AZP_InteractDoor()
 	DoorMesh->SetupAttachment(Root);
 	DoorMesh->SetMobility(EComponentMobility::Movable);
 	DoorMesh->SetCollisionProfileName(TEXT("BlockAll"));
+	// NAV-AWARE DOOR (2026-08-05: the whole door->navmesh layer had silently rotted — RF's
+	// RecastNavMesh reverted to STATIC and the placed BP's DoorMesh carried navAffect=False, so
+	// door state never touched pathing: crawlers dead-ended at OPEN doorways and audio read them
+	// as walls). The leaf is a dynamic nav OBSTACLE: closed = carves the doorway (no path, no
+	// proximity aggro, muffled audio), open = swung aside, doorway navigable. Requires the map's
+	// RecastNavMesh RuntimeGeneration=Dynamic (ini default added same day); under full Dynamic the leaf re-rasterizes wherever it stands — no obstacle flag needed (bDynamicObstacle is UShapeComponent-only in 5.8).
+	DoorMesh->SetCanEverAffectNavigation(true);
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionVolume"));
 	InteractionVolume->SetupAttachment(Root);
@@ -102,6 +109,10 @@ void AZP_InteractDoor::BeginPlay()
 	if (bSelfContained)
 	{
 		DoorMesh->SetMobility(EComponentMobility::Movable);
+		// Enforce nav relevance at runtime too — the placed BP serialized navAffect=False at some
+		// point (found 2026-08-05) and a serialized flag silently overrides the ctor default.
+		// BeginPlay wins over serialization: doors can never go nav-invisible again.
+		DoorMesh->SetCanEverAffectNavigation(true);
 
 		if (AZP_OpenMode == EZP_InteractDoorMode::Rotate)
 		{
@@ -131,12 +142,14 @@ void AZP_InteractDoor::BeginPlay()
 	}
 
 	// Ensure door meshes are Movable so they can be moved at runtime.
-	// BigCompany pack doors ship as Static — override to Movable.
+	// BigCompany pack doors ship as Static — override to Movable. Same nav enforcement as the
+	// self-contained leaf: the panel is a dynamic nav obstacle (closed carves, open releases).
 	TArray<UStaticMeshComponent*> MeshComps;
 	AZP_DoorActor->GetComponents(MeshComps);
 	for (UStaticMeshComponent* MC : MeshComps)
 	{
 		MC->SetMobility(EComponentMobility::Movable);
+		MC->SetCanEverAffectNavigation(true);
 	}
 
 	if (AZP_OpenMode == EZP_InteractDoorMode::Rotate)

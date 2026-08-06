@@ -14,6 +14,13 @@
 #include "NavigationPath.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/SkeletalMesh.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Materials/MaterialInterface.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 USoundAttenuation* UZP_SFXStatics::GetCarryAttenuation(EZP_SFXCarry Carry)
 {
@@ -129,6 +136,72 @@ void UZP_SFXStatics::EnsureWorldReverb(const UObject* WorldContextObject)
 	UE_LOG(LogTemp, Log, TEXT("[SFX] facility reverb bed activated on %s"), *World->GetName());
 }
 
+EZP_ImpactSurface UZP_SFXStatics::ClassifySurface(const FHitResult& Hit)
+{
+	// Gather every name string the hit can tell us about itself. Purchased-pack content has no
+	// authored physical materials, but its MATERIAL/MESH names are consistently descriptive
+	// (MI_Concrete_5, SM_MetalShelf, M_WoodCrate...) — that's the signal. PhysMaterial name goes
+	// in FIRST so an authored PM_Metal wins over a generic mesh name whenever the project starts
+	// assigning phys materials (query must set bReturnPhysicalMaterial for it to be present).
+	FString Haystack;
+	if (const UPhysicalMaterial* Phys = Hit.PhysMaterial.Get())
+	{
+		Haystack += Phys->GetName() + TEXT(" ");
+	}
+	if (const UPrimitiveComponent* Comp = Hit.GetComponent())
+	{
+		for (int32 i = 0; i < Comp->GetNumMaterials(); ++i)
+		{
+			if (const UMaterialInterface* M = Comp->GetMaterial(i)) { Haystack += M->GetName() + TEXT(" "); }
+		}
+		if (const UStaticMeshComponent* SMC = Cast<UStaticMeshComponent>(Comp))
+		{
+			if (SMC->GetStaticMesh()) { Haystack += SMC->GetStaticMesh()->GetName() + TEXT(" "); }
+		}
+		else if (const USkeletalMeshComponent* SKC = Cast<USkeletalMeshComponent>(Comp))
+		{
+			if (SKC->GetSkeletalMeshAsset()) { Haystack += SKC->GetSkeletalMeshAsset()->GetName() + TEXT(" "); }
+		}
+		Haystack += Comp->GetName() + TEXT(" ");
+	}
+	if (const AActor* A = Hit.GetActor())
+	{
+		Haystack += A->GetName();
+	}
+	Haystack = Haystack.ToLower();
+
+	auto Matches = [&Haystack](std::initializer_list<const TCHAR*> Keys) -> bool
+	{
+		for (const TCHAR* K : Keys)
+		{
+			if (Haystack.Contains(K)) { return true; }
+		}
+		return false;
+	};
+
+	// Order = specificity: glass/tile names are unambiguous; wood next; metal has the widest net
+	// (facility doors/fixtures are metal); everything else is the concrete family.
+	if (Matches({ TEXT("glass"), TEXT("window"), TEXT("tile"), TEXT("ceramic"), TEXT("porcelain"),
+	              TEXT("mirror"), TEXT("monitor"), TEXT("screen") }))
+	{
+		return EZP_ImpactSurface::Glass;
+	}
+	if (Matches({ TEXT("wood"), TEXT("crate"), TEXT("plank"), TEXT("pallet"), TEXT("timber"),
+	              TEXT("plywood"), TEXT("board"), TEXT("desk"), TEXT("table"), TEXT("chair"),
+	              TEXT("cardboard"), TEXT("furniture") }))
+	{
+		return EZP_ImpactSurface::Wood;
+	}
+	if (Matches({ TEXT("metal"), TEXT("steel"), TEXT("iron"), TEXT("alum"), TEXT("vent"),
+	              TEXT("duct"), TEXT("pipe"), TEXT("locker"), TEXT("rail"), TEXT("grate"),
+	              TEXT("machine"), TEXT("generator"), TEXT("barrel"), TEXT("tank"), TEXT("door"),
+	              TEXT("elevator"), TEXT("fence"), TEXT("server"), TEXT("silo"), TEXT("container") }))
+	{
+		return EZP_ImpactSurface::Metal;
+	}
+	return EZP_ImpactSurface::Concrete;
+}
+
 bool UZP_SFXStatics::IsOccludedFromListener(UWorld* World, const FVector& SourceLoc, const AActor* IgnoreActor)
 {
 	if (!World) { return false; }
@@ -222,10 +295,68 @@ void UZP_SFXStatics::ComputePropagationUncached(UWorld* World, const FVector& So
 		const float StraightDist = FVector::Dist(PawnLoc, SourceLoc);
 		if (StraightDist > 1.f)
 		{
-			if (UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(World, PawnLoc, SourceLoc))
+			// Round-15 (dev: "sfx attenuation is broken with open doors"): a source pressed into
+			// a door's navmesh CARVE (a crawler hugging the door frame) makes the raw-goal path
+			// FAIL, dropping the sound to the full through-wall muffle while the listener stands
+			// across an OPEN frame. Project the source onto the navmesh first — the projected
+			// point is the open-air spot the sound actually pours from. The trace guard keeps the
+			// projection from jumping THROUGH a thin wall (which would un-muffle a sealed room).
+			FVector NavGoal = SourceLoc;
+			if (UNavigationSystemV1* Nav = UNavigationSystemV1::GetCurrent(World))
 			{
-				if (Path->IsValid() && !Path->IsPartial())
+				FNavLocation Projected;
+				if (Nav->ProjectPointToNavigation(SourceLoc, Projected, FVector(250.f, 250.f, 400.f)))
 				{
+					FHitResult ProjHit;
+					FCollisionQueryParams ProjParams(FName(TEXT("ZPSFXNavProject")), false);
+					if (IgnoreActor) { ProjParams.AddIgnoredActor(IgnoreActor); }
+					const FVector ProjTarget = Projected.Location + FVector(0.f, 0.f, 40.f);
+					if (!World->LineTraceSingleByChannel(ProjHit, SourceLoc, ProjTarget, ECC_WorldStatic, ProjParams))
+					{
+						NavGoal = Projected.Location;
+					}
+				}
+			}
+			if (UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(World, PawnLoc, NavGoal))
+			{
+				// ONE-BEND UPGRADE (dev 2026-08-05: at an OPEN door, shambler alerted in the
+				// room — "muffled until I stepped through the door". The doorway route's
+				// detour RATIO landed deep in the diffraction band and muffled it like a
+				// wall). Geometry beats ratios: if some point on the open-air route sees
+				// BOTH the listener and the source, the sound bends exactly ONCE — an open
+				// doorway / single corner aperture — and arrives nearly clean no matter how
+				// long the detour reads. Multi-corner routes and sealed walls have no such
+				// pivot and keep the bands below.
+				// Runs on PARTIAL paths too (round-17: the stale STATIC navmesh dead-ended at
+				// doorways, every path came back partial, and this test never fired — the sound
+				// hard-failed to the wall muffle with the door wide open). A partial path still
+				// walks up to the aperture; the pivot rays are what decide open vs sealed — a
+				// closed BlockAll door leaf blocks the pivot->source ray, so no false clears.
+				if (Path->IsValid())
+				{
+					const TArray<FVector>& Pts = Path->PathPoints;
+					if (Pts.Num() >= 2 && PC)
+					{
+						FVector CamLoc; FRotator CamRot;
+						PC->GetPlayerViewPoint(CamLoc, CamRot);
+						FCollisionQueryParams PivotParams(FName(TEXT("ZPSFXOneBend")), false);
+						if (IgnoreActor) { PivotParams.AddIgnoredActor(IgnoreActor); }
+						if (Pawn) { PivotParams.AddIgnoredActor(Pawn); }
+						const FVector SrcEar = SourceLoc + FVector(0.f, 0.f, 40.f);
+						const int32 Stride = FMath::Max(1, (Pts.Num() - 2) / 8); // cap ~8 probes
+						for (int32 i = 1; i < Pts.Num() - 1; i += Stride)
+						{
+							const FVector Pivot = Pts[i] + FVector(0.f, 0.f, AZP_OneBendPivotHeight);
+							FHitResult HitA, HitB;
+							if (!World->LineTraceSingleByChannel(HitA, CamLoc, Pivot, ECC_WorldStatic, PivotParams) &&
+								!World->LineTraceSingleByChannel(HitB, Pivot, SrcEar, ECC_WorldStatic, PivotParams))
+							{
+								OutVolumeMul = AZP_OneBendVolume;
+								OutLowPassHz = AZP_OneBendLPFHz;
+								return;
+							}
+						}
+					}
 					const float Ratio = Path->GetPathLength() / StraightDist;
 					if (Ratio <= AZP_MaxDiffractionDetour)
 					{

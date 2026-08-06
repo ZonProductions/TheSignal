@@ -1012,6 +1012,50 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float AZP_InteractTraceDistance = 300.0f;
 
+	/** Through-wall interact protection source (2026-08-05). Moonville's own
+	 *  PreventInteractionThroughWall traces from the PAWN'S ACTOR LOCATION (waist height) to
+	 *  the item — that ray clips the tier board under any EYE-LEVEL shelf pickup and silently
+	 *  kills the E press (popup shows, nothing happens; log-proven on a second-tier item).
+	 *  true = turn the pack's waist ray OFF at BeginPlay and gate the press with a
+	 *  CAMERA->item visibility trace instead (if you can see it, you can grab it; real walls
+	 *  still block, and the pack still requires the InteractionArea overlap, so range is
+	 *  unchanged). false = stock Moonville waist ray. Applied at BeginPlay — restart PIE. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	bool bAZP_CameraInteractLOS = true;
+
+	/** Hide under-outfit FP body sections at BeginPlay (dev 2026-08-05: "my actor's skin is
+	 *  breaking through the pants" on look-down). The Operator body carries full skin geometry
+	 *  BENEATH the outfit, and the FBX import also left an unassigned leftover slot
+	 *  (Fbx_Default_Material_1) of under-body geometry wearing the pants material — both poke
+	 *  through the clothes in the FP spine-bend. false = restore everything instantly. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	bool bAZP_HideBodySkin = true;
+
+	/** Material SLOT names whose mesh sections get hidden by bAZP_HideBodySkin. Operator slot
+	 *  map: 0 Boots, 1 Gloves, 2 Googles, 3 Glass, 4 Skin, 5 Eye, 6 Headset, 7 Mask,
+	 *  8 Pouches, 9 Mask_001, 10 Pants, 11 Fbx_Default_Material_1, 12 Tshirt, 13 Vest,
+	 *  14 Pouches_001 — add/remove names here live if anything still pokes through/goes
+	 *  missing (applied at BeginPlay; restart PIE). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Body")
+	TArray<FName> AZP_HiddenBodySections = { FName(TEXT("MI_Skin")), FName(TEXT("Fbx_Default_Material_1")) };
+
+	/** PIE console diagnostic (` console while possessing): "BodySlotToggle <index>" flips every
+	 *  mesh section of that material slot on the FP body live — toggle slots until the offending
+	 *  geometry vanishes, then bake the answer into AZP_HiddenBodySections. "BodySlotList"
+	 *  prints every slot index/name and its current state to the log/screen. */
+	UFUNCTION(Exec)
+	void BodySlotToggle(int32 SlotIndex);
+
+	/** Companion of BodySlotToggle — prints the FP body's slot map + hidden states. */
+	UFUNCTION(Exec)
+	void BodySlotList();
+
+	/** Apply one slot's section visibility on the FP body across all LODs. */
+	void SetBodySlotVisible(int32 SlotIndex, bool bVisible);
+
+	/** Runtime-hidden slot indices on PlayerMesh (BeginPlay list + console toggles). */
+	TSet<int32> HiddenBodySlots;
+
 	/** Cosine of the look-at cone (~60 deg) required for a door overlap to consume the E press. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float AZP_DoorLOSDotThreshold = 0.5f;

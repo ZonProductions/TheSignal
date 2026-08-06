@@ -27,6 +27,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Engine/HitResult.h"
 #include "ZP_SFXStatics.generated.h"
 
 class USoundBase;
@@ -42,6 +43,18 @@ enum class EZP_SFXCarry : uint8
 	Close UMETA(ToolTip = "Small foley - impacts, handling, container rummage. ~30 m"),
 	Room  UMETA(ToolTip = "Ordinary world SFX - doors, machines, footfalls of others. ~60 m"),
 	Far   UMETA(ToolTip = "Enemy voices, screams, gunshots, explosions. ~80 m")
+};
+
+/** Broad surface family of a struck world surface — picks impact SFX variants (melee pipe today;
+ *  reusable for bullet impacts / footsteps later). Small deliberately: a couple of families that
+ *  cover the facility, Concrete as the catch-all (dev 2026-08-05). */
+UENUM(BlueprintType)
+enum class EZP_ImpactSurface : uint8
+{
+	Concrete UMETA(ToolTip = "Concrete/brick/plaster/stone - the facility default"),
+	Metal    UMETA(ToolTip = "Vents, lockers, machines, doors, railings, pipes"),
+	Wood     UMETA(ToolTip = "Crates, pallets, furniture, boards"),
+	Glass    UMETA(ToolTip = "Glass, windows, tile, ceramic, screens")
 };
 
 UCLASS()
@@ -102,6 +115,15 @@ public:
 	static constexpr float AZP_DiffractedVolumeMax    = 0.5f;   // long detour, several corners
 	static constexpr float AZP_DiffractedLPFMinHz     = 15000.f; // inaudible filtering at ratio ~1
 	static constexpr float AZP_DiffractedLPFMaxHz     = 3200.f;
+	/** ONE-BEND aperture (2026-08-05: "muffled until I stepped through the door"): when some point
+	 *  on the open-air route can see BOTH the listener and the source, the sound bends exactly once
+	 *  (an open doorway / single corner) and arrives nearly clean — the detour RATIO is meaningless
+	 *  there (a doorway route can read 2x+ while acoustically wide open). Near-full level, barely
+	 *  audible filtering. */
+	static constexpr float AZP_OneBendVolume          = 0.92f;
+	static constexpr float AZP_OneBendLPFHz           = 12000.f;
+	/** Height (UU) above a nav path point for the one-bend pivot probe — mid-door-opening. */
+	static constexpr float AZP_OneBendPivotHeight     = 80.f;
 	static constexpr float AZP_TransmittedVolumeScale = 0.3f;
 	static constexpr float AZP_TransmittedLowPassHz   = 500.f;
 	/** A blocker within this many UU of the source is the source's OWN perch/contact geometry
@@ -124,6 +146,14 @@ public:
 
 	/** True if solid WorldStatic geometry sits between the listener (player viewpoint) and SourceLoc. */
 	static bool IsOccludedFromListener(UWorld* World, const FVector& SourceLoc, const AActor* IgnoreActor);
+
+	/** Classify the surface family a trace/sweep struck, for impact-SFX selection (melee pipe today).
+	 *  Priority: the hit's PhysicalMaterial name (authored ground truth when present — requires
+	 *  bReturnPhysicalMaterial on the query), then a keyword scan over the hit component's material
+	 *  slot names + mesh asset name + component/actor names — works on purchased-pack content with
+	 *  zero per-asset setup. Unmatched = Concrete (the facility default). */
+	UFUNCTION(BlueprintCallable, Category = "SFX")
+	static EZP_ImpactSurface ClassifySurface(const FHitResult& Hit);
 
 	/** 3-tier propagation: writes the volume multiplier and low-pass (0 = none) for a source at
 	 *  SourceLoc as heard by the player. Direct = 1.0/none; Diffracted = detour-scaled level drop

@@ -1,6 +1,9 @@
 // Copyright The Signal. All Rights Reserved.
 
 #include "ZP_GraceCharacter.h"
+#include "Rendering/SkeletalMeshRenderData.h"
+#include "Rendering/SkeletalMeshLODRenderData.h"
+#include "Engine/SkeletalMesh.h"
 #include "ZP_GraceGameplayComponent.h"
 #include "ZP_KinemationComponent.h"
 #include "ZP_FootstepData.h"
@@ -537,9 +540,78 @@ void AZP_GraceCharacter::PostInitializeComponents()
 	}
 }
 
+void AZP_GraceCharacter::SetBodySlotVisible(int32 SlotIndex, bool bVisible)
+{
+	if (!PlayerMesh || !PlayerMesh->GetSkeletalMeshAsset()) { return; }
+	FSkeletalMeshRenderData* RenderData = PlayerMesh->GetSkeletalMeshRenderData();
+	if (!RenderData) { return; }
+	for (int32 Lod = 0; Lod < RenderData->LODRenderData.Num(); ++Lod)
+	{
+		const FSkeletalMeshLODRenderData& LodData = RenderData->LODRenderData[Lod];
+		for (int32 Sec = 0; Sec < LodData.RenderSections.Num(); ++Sec)
+		{
+			if (LodData.RenderSections[Sec].MaterialIndex == SlotIndex)
+			{
+				PlayerMesh->ShowMaterialSection(SlotIndex, Sec, bVisible, Lod);
+			}
+		}
+	}
+	if (bVisible) { HiddenBodySlots.Remove(SlotIndex); } else { HiddenBodySlots.Add(SlotIndex); }
+}
+
+void AZP_GraceCharacter::BodySlotToggle(int32 SlotIndex)
+{
+	// PIE console diagnostic — flips one slot's sections live so the dev can identify
+	// poke-through geometry by eye instead of anyone guessing at slot semantics.
+	const bool bNowVisible = HiddenBodySlots.Contains(SlotIndex);
+	SetBodySlotVisible(SlotIndex, bNowVisible);
+	const FString Msg = FString::Printf(TEXT("[BodySlot] slot %d -> %s"), SlotIndex,
+		bNowVisible ? TEXT("VISIBLE") : TEXT("HIDDEN"));
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *Msg);
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(9200 + SlotIndex, 6.f, FColor::Yellow, Msg); }
+}
+
+void AZP_GraceCharacter::BodySlotList()
+{
+	if (!PlayerMesh || !PlayerMesh->GetSkeletalMeshAsset()) { return; }
+	const TArray<FSkeletalMaterial>& BodyMats = PlayerMesh->GetSkeletalMeshAsset()->GetMaterials();
+	for (int32 i = 0; i < BodyMats.Num(); ++i)
+	{
+		const FString Msg = FString::Printf(TEXT("[BodySlot] %d = %s (%s)"), i,
+			*BodyMats[i].MaterialSlotName.ToString(),
+			HiddenBodySlots.Contains(i) ? TEXT("HIDDEN") : TEXT("visible"));
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Msg);
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(9100 + i, 12.f, FColor::Cyan, Msg); }
+	}
+}
+
 void AZP_GraceCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// HIDE THE UNDER-OUTFIT BODY SECTIONS (dev 2026-08-05: "my actor's skin is breaking
+	// through the pants" / "still see the skin breaking through the clothing details").
+	// SKM_Operator_Mono ships full body geometry beneath the clothes across TWO slots: the
+	// authored MI_Skin section AND an unassigned FBX-import leftover (Fbx_Default_Material_1,
+	// under-body geometry wearing the pants material). Everything the FP camera can see is
+	// covered by outfit sections, so hide every slot named in AZP_HiddenBodySections per LOD
+	// section. Reversible live via bAZP_HideBodySkin / the name list.
+	if (bAZP_HideBodySkin && PlayerMesh && PlayerMesh->GetSkeletalMeshAsset())
+	{
+		const TArray<FSkeletalMaterial>& BodyMats = PlayerMesh->GetSkeletalMeshAsset()->GetMaterials();
+		for (const FName& SlotName : AZP_HiddenBodySections)
+		{
+			for (int32 i = 0; i < BodyMats.Num(); ++i)
+			{
+				if (BodyMats[i].MaterialSlotName == SlotName)
+				{
+					SetBodySlotVisible(i, false);
+					UE_LOG(LogTemp, Log, TEXT("[TheSignal] FP body: section '%s' hidden (slot %d)"), *SlotName.ToString(), i);
+					break;
+				}
+			}
+		}
+	}
 
 	// Clamp how far the camera can pitch up/down. Reduces look-down so the FP
 	// camera never reaches the visible body's interior, and limits look-up to a
@@ -609,6 +681,19 @@ void AZP_GraceCharacter::BeginPlay()
 	if (!MoonvilleInventoryComp)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] ZP_GraceCharacter: MoonvilleInventoryComp NOT FOUND — inventory menu disabled."));
+	}
+
+	// bAZP_CameraInteractLOS: the pack's PreventInteractionThroughWall ray starts at the pawn's
+	// ACTOR LOCATION (waist) — it clips the tier board under eye-level shelf pickups and kills
+	// the press. Turn it off; Input_Interact Layer 3 runs a camera->item gate instead.
+	if (MoonvilleInteractionComp && bAZP_CameraInteractLOS)
+	{
+		if (FBoolProperty* WallProp = CastField<FBoolProperty>(
+			MoonvilleInteractionComp->GetClass()->FindPropertyByName(TEXT("PreventInteractionThroughWall"))))
+		{
+			WallProp->SetPropertyValue_InContainer(MoonvilleInteractionComp, false);
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] Moonville PreventInteractionThroughWall OFF — camera-LOS gate owns through-wall protection (bAZP_CameraInteractLOS)."));
+		}
 	}
 
 	// Bind to Moonville OnInventoryUpdate for notes bridge
@@ -2100,6 +2185,55 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 			GrabAllGrabbedActors.Reset();
 			GrabAllGrabbedActors.Add(FirstPickup);
 			GrabAllTicksRemaining = AZP_GrabAllSweepTicks;
+		}
+
+		// Camera-based through-wall gate (bAZP_CameraInteractLOS). Replaces the pack's
+		// waist-height ray, which clips the tier board under eye-level shelf pickups
+		// (2026-08-05: popup showed, E silently no-op'd on a second-tier item). Camera can't
+		// see the target's interaction point = press refused, same dead-end the pack check
+		// produced; camera sees it = Interact() proceeds (the pack still requires the
+		// InteractionArea overlap, so range is unchanged). The grab-all sweep (tick path)
+		// stays ungated on purpose — it's a deliberate radius sweep behind the first grab.
+		if (bAZP_CameraInteractLOS)
+		{
+			if (FObjectProperty* GateProp = CastField<FObjectProperty>(
+				MoonvilleInteractionComp->GetClass()->FindPropertyByName(TEXT("ClosestInteractable"))))
+			{
+				UActorComponent* GateComp = Cast<UActorComponent>(GateProp->GetObjectPropertyValue(
+					GateProp->ContainerPtrToValuePtr<void>(MoonvilleInteractionComp)));
+				AActor* GateOwner = GateComp ? GateComp->GetOwner() : nullptr;
+				APlayerController* GatePC = Cast<APlayerController>(GetController());
+				if (GateOwner && GatePC)
+				{
+					FVector GateCamLoc;
+					FRotator GateCamRot;
+					GatePC->GetPlayerViewPoint(GateCamLoc, GateCamRot);
+					// Aim at the same point the pack's ray targeted: the item's
+					// InteractionCollision sphere (fallback: actor location).
+					FVector GateTarget = GateOwner->GetActorLocation();
+					for (UActorComponent* C : GateOwner->GetComponents())
+					{
+						if (C && C->GetFName() == FName(TEXT("InteractionCollision")))
+						{
+							if (USceneComponent* SC = Cast<USceneComponent>(C))
+							{
+								GateTarget = SC->GetComponentLocation();
+							}
+							break;
+						}
+					}
+					FHitResult GateHit;
+					FCollisionQueryParams GateParams;
+					GateParams.AddIgnoredActor(this);
+					GateParams.AddIgnoredActor(GateOwner);
+					if (GetWorld()->LineTraceSingleByChannel(GateHit, GateCamLoc, GateTarget, ECC_Visibility, GateParams))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 3 camera-LOS gate: %s hidden behind %s — press refused"),
+							*GateOwner->GetName(), GateHit.GetActor() ? *GateHit.GetActor()->GetName() : TEXT("?"));
+						return;
+					}
+				}
+			}
 		}
 
 		UFunction* InteractFunc = MoonvilleInteractionComp->FindFunction(FName("Interact"));

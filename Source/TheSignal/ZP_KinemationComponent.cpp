@@ -60,6 +60,21 @@ UZP_KinemationComponent::UZP_KinemationComponent()
 		TEXT("/Game/Audio/Weapons/SFX_PIPE_SURFACE_WALL_IMPACT.SFX_PIPE_SURFACE_WALL_IMPACT"));
 	if (PipeWallFinder.Succeeded()) { AZP_PipeWallImpactSound = PipeWallFinder.Object; }
 
+	// Per-surface pipe impact variants (dev 2026-08-05: "pipe hit different for each wall/floor
+	// type"). The assets start as duplicates of SFX_PIPE_SURFACE_WALL_IMPACT — the dev replaces
+	// each file with the sourced sound; concrete stays the original wall-impact asset above.
+	static ConstructorHelpers::FObjectFinder<USoundBase> PipeMetalSurfFinder(
+		TEXT("/Game/Audio/Weapons/SFX_PIPE_SURFACE_METAL_IMPACT.SFX_PIPE_SURFACE_METAL_IMPACT"));
+	if (PipeMetalSurfFinder.Succeeded()) { AZP_PipeImpactMetal = PipeMetalSurfFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> PipeWoodSurfFinder(
+		TEXT("/Game/Audio/Weapons/SFX_PIPE_SURFACE_WOOD_IMPACT.SFX_PIPE_SURFACE_WOOD_IMPACT"));
+	if (PipeWoodSurfFinder.Succeeded()) { AZP_PipeImpactWood = PipeWoodSurfFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> PipeGlassSurfFinder(
+		TEXT("/Game/Audio/Weapons/SFX_PIPE_SURFACE_GLASS_IMPACT.SFX_PIPE_SURFACE_GLASS_IMPACT"));
+	if (PipeGlassSurfFinder.Succeeded()) { AZP_PipeImpactGlass = PipeGlassSurfFinder.Object; }
+
 	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeFlesh1Finder(
 		TEXT("/Game/Audio/Weapons/SFX_MELEE_IMPACT1.SFX_MELEE_IMPACT1"));
 	if (MeleeFlesh1Finder.Succeeded()) { AZP_MeleeFleshImpactSounds.Add(MeleeFlesh1Finder.Object); }
@@ -1550,6 +1565,8 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 		FHitResult Hit;
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(GetOwner());
+		// Surface-family SFX pick: hand ClassifySurface the authored phys material when one exists.
+		Params.bReturnPhysicalMaterial = true;
 		if (ActiveWeapon)
 		{
 			Params.AddIgnoredActor(ActiveWeapon);
@@ -1611,8 +1628,23 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 			}
 			else
 			{
-				// Pipe struck a wall / hard surface.
-				UZP_SFXStatics::PlaySFXAtLocation(this, AZP_PipeWallImpactSound, ImpactLoc, EZP_SFXCarry::Close);
+				// Pipe struck a wall / hard surface — pick the variant for the surface FAMILY the
+				// swing actually hit (dev 2026-08-05: miss attacks "all not sounding the same").
+				// Null/unmatched slots fall back to the concrete/default wall impact.
+				const EZP_ImpactSurface Surf = UZP_SFXStatics::ClassifySurface(Hit);
+				USoundBase* SurfSound = nullptr;
+				switch (Surf)
+				{
+				case EZP_ImpactSurface::Metal: SurfSound = AZP_PipeImpactMetal; break;
+				case EZP_ImpactSurface::Wood:  SurfSound = AZP_PipeImpactWood;  break;
+				case EZP_ImpactSurface::Glass: SurfSound = AZP_PipeImpactGlass; break;
+				default: break;
+				}
+				if (!SurfSound) { SurfSound = AZP_PipeWallImpactSound; }
+				UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee surface impact: %s -> %s (hit %s)"),
+					*UEnum::GetValueAsString(Surf), SurfSound ? *SurfSound->GetName() : TEXT("none"),
+					Hit.GetComponent() ? *Hit.GetComponent()->GetName() : TEXT("?"));
+				UZP_SFXStatics::PlaySFXAtLocation(this, SurfSound, ImpactLoc, EZP_SFXCarry::Close);
 			}
 
 			if (Hit.GetActor())

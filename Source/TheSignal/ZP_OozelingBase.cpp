@@ -110,9 +110,76 @@ void AZP_OozelingBase::LoadAssetDefaults()
 	FillSnd(AZP_FootstepSound, TEXT("/Game/Audio/Oozeling/SFX_Oozeling_Squelch.SFX_Oozeling_Squelch"));
 }
 
+void AZP_OozelingBase::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+#if WITH_EDITOR
+	// EDITOR AUTHORING PREVIEW (dev 2026-08-05): the placed Oozeling showed only its ref pose
+	// in the viewport (single-node mode with no clip assigned until BeginPlay). Pose the idle
+	// breath clip and evaluate it in-editor. PIE untouched — BeginPlay's PlayClip overrides.
+	UWorld* W = GetWorld();
+	if (W && (W->WorldType == EWorldType::Editor || W->WorldType == EWorldType::EditorPreview))
+	{
+		if (USkeletalMeshComponent* M = GetMesh())
+		{
+			M->SetUpdateAnimationInEditor(true);
+			UAnimSequence* Preview = AZP_IdleAnim ? AZP_IdleAnim.Get() : LoadObject<UAnimSequence>(nullptr,
+				TEXT("/Game/BigBlob/Animations/idle/AS_BigBlob_Idle_Breath.AS_BigBlob_Idle_Breath"));
+			if (Preview)
+			{
+				// Serialized play data — the editor instance initializes from AnimationData
+				// (SetAnimation() only reaches a live runtime instance).
+				M->AnimationData.AnimToPlay = Preview;
+				M->AnimationData.SavedPosition = 0.f;
+				M->AnimationData.SavedPlayRate = 0.f;
+				M->AnimationData.bSavedLooping = true;
+				M->AnimationData.bSavedPlaying = false;
+				M->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+				M->InitAnim(true);
+				M->SetPosition(0.f, false);
+				M->SetPlayRate(0.f);
+				// Push the pose to the renderer (editor doesn't tick anims).
+				M->TickAnimation(0.f, false);
+				M->RefreshBoneTransforms();
+				M->MarkRenderStateDirty();
+				// Ground the preview to the capsule bottom (cosmetic; BeginPlay restores the
+				// authored mesh Z from the archetype).
+				if (GetCapsuleComponent() && M->GetNumBones() > 0)
+				{
+					float MinZ = TNumericLimits<float>::Max();
+					for (int32 i = 0; i < M->GetNumBones(); ++i)
+					{
+						MinZ = FMath::Min(MinZ, (float)M->GetBoneTransform(i).GetLocation().Z);
+					}
+					if (MinZ < TNumericLimits<float>::Max())
+					{
+						const float CapBottom = GetActorLocation().Z - GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+						FVector RL = M->GetRelativeLocation();
+						RL.Z -= (MinZ - (CapBottom + 2.f));
+						M->SetRelativeLocation(RL);
+					}
+				}
+			}
+		}
+	}
+#endif
+}
+
 void AZP_OozelingBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// The editor preview grounds the mesh cosmetically — restore the AUTHORED mesh Z from the
+	// archetype so the preview offset never leaks into runtime placement.
+	if (USkeletalMeshComponent* M0 = GetMesh())
+	{
+		if (USceneComponent* MeshArch = Cast<USceneComponent>(M0->GetArchetype()))
+		{
+			FVector RL0 = M0->GetRelativeLocation();
+			RL0.Z = MeshArch->GetRelativeLocation().Z;
+			M0->SetRelativeLocation(RL0);
+		}
+	}
 
 	LoadAssetDefaults();
 
@@ -256,7 +323,9 @@ void AZP_OozelingBase::Tick(float DeltaTime)
 		{
 			UCharacterMovementComponent* CMDetect = GetCharacterMovement();
 			const bool bClingingDetect = CMDetect && CMDetect->MovementMode == MOVE_None && AZP_PatrolPath;
-			bCachedReachable = (Player && bCachedSee)
+			// Also probe reachability inside the proximity radius WITHOUT LOS — the proximity
+			// floor needs it as its through-wall guard (dev 2026-08-05: aggro through walls).
+			bCachedReachable = (Player && (bCachedSee || Dist <= AZP_ProximityAggroRange))
 				? (bClingingDetect ? true : IsPlayerReachable(Player))
 				: false;
 		}
@@ -280,7 +349,13 @@ void AZP_OozelingBase::Tick(float DeltaTime)
 		UCharacterMovementComponent* CM = GetCharacterMovement();
 		const bool bSplineClinging = CM && CM->MovementMode == MOVE_None && AZP_PatrolPath;
 		const bool bReachable = bCachedReachable; // probed at AZP_DetectEvalInterval cadence above
-		if (Player && Dist <= AZP_DetectionRange && bSee && bReachable)
+		// Proximity floor (dev 2026-08-05, all NPC enemies): inside AZP_ProximityAggroRange,
+		// aggro is UNAVOIDABLE — no LOS/reachability gate. Stealth still works outside it.
+		// Proximity floor is gated (bSee || bReachable) — unavoidable in the SAME space (seen,
+		// or hiding behind furniture = still navmesh-reachable), but a wall/closed door blocks
+		// both and must block the aggro too (dev 2026-08-05: "aggroing through the wall").
+		if (Player && ((Dist <= AZP_DetectionRange && bSee && bReachable)
+			|| (Dist <= AZP_ProximityAggroRange && (bSee || bReachable))))
 		{
 			bAggro = true;
 			LostSightTimer = 0.f;
@@ -298,7 +373,9 @@ void AZP_OozelingBase::Tick(float DeltaTime)
 	}
 	else
 	{
-		LostSightTimer = bSee ? 0.f : (LostSightTimer + DeltaTime);
+		// Proximity also pins the lose-sight timer — a proximity-aggroed body must not shrug
+		// after AZP_LoseSightTime while the player is still standing next to it without LOS.
+		LostSightTimer = (bSee || Dist <= AZP_ProximityAggroRange) ? 0.f : (LostSightTimer + DeltaTime);
 		if (LostSightTimer >= AZP_LoseSightTime || Dist > AZP_GiveUpRange)
 		{
 			bAggro = false;

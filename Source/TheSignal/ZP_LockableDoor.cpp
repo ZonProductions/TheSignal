@@ -22,6 +22,9 @@ AZP_LockableDoor::AZP_LockableDoor()
 	// Door mesh — rotates with pivot
 	DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
 	DoorMesh->SetupAttachment(DoorPivot);
+	// Dynamic nav obstacle, same contract as AZP_InteractDoor (2026-08-05 nav-aware doors):
+	// closed leaf carves the doorway, open leaf releases it.
+	DoorMesh->SetCanEverAffectNavigation(true);
 }
 
 void AZP_LockableDoor::BeginPlay()

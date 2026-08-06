@@ -179,9 +179,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	TArray<TObjectPtr<USoundBase>> AZP_MeleeFleshImpactSounds;
 
-	/** Pipe striking a wall / hard non-enemy surface (SFX_PIPE_SURFACE_WALL_IMPACT). */
+	/** Pipe striking a wall / hard non-enemy surface — the CONCRETE/default family
+	 *  (SFX_PIPE_SURFACE_WALL_IMPACT). Also the fallback whenever a per-surface slot below is
+	 *  null. Surface family comes from UZP_SFXStatics::ClassifySurface on the swing hit. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	TObjectPtr<USoundBase> AZP_PipeWallImpactSound;
+
+	/** Pipe striking METAL (vents, lockers, machines, doors, railings) — SFX_PIPE_SURFACE_METAL_IMPACT.
+	 *  Ships as a duplicate of the wall impact; replace the asset's wave with the sourced sound. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<USoundBase> AZP_PipeImpactMetal;
+
+	/** Pipe striking WOOD (crates, pallets, furniture) — SFX_PIPE_SURFACE_WOOD_IMPACT. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<USoundBase> AZP_PipeImpactWood;
+
+	/** Pipe striking GLASS/TILE (windows, lab tile, screens) — SFX_PIPE_SURFACE_GLASS_IMPACT. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
+	TObjectPtr<USoundBase> AZP_PipeImpactGlass;
 
 	// --- Melee View Model (TICKET-054) ---
 	// Kubold FPP Melee Animset plays on a dedicated camera-child mesh

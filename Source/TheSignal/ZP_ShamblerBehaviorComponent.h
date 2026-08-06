@@ -51,6 +51,17 @@ enum class EShamblerState : uint8
 	Grab      // latched onto the player — paired grab/struggle (victim-driven, see IZP_Grabber)
 };
 
+/** Shambler placement presets (dev 2026-08-05). One dropdown on the placed instance decides the
+ *  whole archetype; see AZP_Preset. */
+UENUM(BlueprintType)
+enum class EShamblerPreset : uint8
+{
+	Standing    UMETA(DisplayName = "Standing Lurker"),
+	Crawler     UMETA(DisplayName = "Crawler"),
+	Slumped     UMETA(DisplayName = "Slumped (rises on wake)"),
+	PlayingDead UMETA(DisplayName = "Playing Dead"),
+};
+
 UCLASS(ClassGroup = (TheSignal), meta = (BlueprintSpawnableComponent))
 class THESIGNAL_API UZP_ShamblerBehaviorComponent : public UActorComponent, public IZP_Staggerable, public IZP_Revivable, public IZP_Grabber
 {
@@ -64,6 +75,13 @@ public:
 	 *  line of sight, NOT this range. Left at the original 1800; let LOS do the containing. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Detect")
 	float AZP_DetectionRange = 1800.f;
+
+	/** UNAVOIDABLE aggro radius (UU) — inside it, the hunt starts regardless of facing, LOS or
+	 *  noise (dev 2026-08-05: "aggro is impossible to avoid within proximity", all NPC enemies,
+	 *  both stances). Stealth still works OUTSIDE this radius via the sight rules above — some
+	 *  stealth, not full TLOU. 600 = 6m. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Detect")
+	float AZP_ProximityAggroRange = 600.f;
 
 	/** Seconds without a clear sightline to the player before it gives up and wanders off.
 	 *  This is the "wait at the shut door" beat — it pursues to the last spot, then resets. */
@@ -338,8 +356,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
 	float AZP_RunHeadStabilize = 1.f;
 
-	/** True while the sprint-chase is in a RUN burst (the anim instance's head-stabilize gate). */
-	bool IsRunBurstActive() const { return bRunningChase && bRunBurstNow; }
+	/** True while the sprint-chase is in a RUN burst (the anim instance's head-stabilize gate).
+	 *  False while effectively crawling — the world-space head hold was authored for the
+	 *  standing run (a stood-up crawler gets it back). */
+	bool IsRunBurstActive() const { return bRunningChase && bRunBurstNow && !IsCrawlingNow(); }
 
 	/** Run cycle, played as a slot loop over the walk BlendSpace for the whole sprint. Default =
 	 *  A_Shambler_RunStiffArmsHead: the NAAT run body with arms AND head/neck frozen at the
@@ -486,6 +506,219 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Audio")
 	float AZP_LurkIntervalMax = 13.f;
+
+	// --- Presets (dev 2026-08-05) ---
+	/** THE PRESET — one dropdown decides the archetype of this placed shambler:
+	 *  STANDING LURKER: normal standing shambler that NEVER fully pauses its wander (always
+	 *    shuffling; stumbles are the only hesitation).
+	 *  CRAWLER: prone forever — motionless crawl idle in place until aggro (sight or
+	 *    proximity), then barks AZP_CrawlAlertSound and crawls at the player (slow crawl near,
+	 *    fast crawl beyond AZP_CrawlFastDistance). Never stands, never wanders.
+	 *  SLUMPED: sits slumped against a wall (SlumpToStand frame 0); wakes when the player
+	 *    enters AZP_SlumpWakeRange with LOS (the proximity floor + damage always wake) — rises
+	 *    through SlumpToStand and becomes a NORMAL standing shambler.
+	 *  PLAYING DEAD: corpse-still prone body — ONLY the proximity floor or damage wakes it,
+	 *    then Crawler behavior. Sight never does.
+	 *  Legacy bAZP_Crawling=true maps to Crawler at BeginPlay. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	EShamblerPreset AZP_Preset = EShamblerPreset::Standing;
+
+	/** Crawler/PlayingDead aggro bark — separate slot for later replacement (dev). Null = the
+	 *  standard alert vocal. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	TObjectPtr<USoundBase> AZP_CrawlAlertSound;
+
+	/** Distance (UU) to the target beyond which a chasing crawler uses the FAST crawl
+	 *  (clip + AZP_CrawlRunSpeed); inside it, the slow crawl (dev: "crawl slow if closer and
+	 *  crawl fast if far"). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	float AZP_CrawlFastDistance = 800.f;
+
+	/** Slumped preset: the ROOM envelope (UU, LOS-gated) inside which the presence/stare wake
+	 *  clocks run. Being here does NOT wake it by itself — see the 3-tier knobs below.
+	 *  Damage always wakes regardless. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	float AZP_SlumpWakeRange = 1500.f;
+
+	// 3-TIER WAKE (dev 2026-08-05: room entry was "immediate" — it should build):
+	/** Tier 1: continuous seconds spent inside the room envelope (with LOS) before it wakes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	float AZP_SlumpWakePresenceTime = 10.f;
+	/** Tier 2: continuous seconds the player must STARE at the body (view centered on it,
+	 *  ~18 degree cone, LOS) before it wakes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	float AZP_SlumpWakeStareTime = 3.f;
+	/** Tier 3: INSTANT wake radius (UU) — get this close and it rises immediately. 500 = 5m. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	float AZP_SlumpProximityRange = 500.f;
+
+	/** Slumped preset: play rate on the rise clip (A_Shambler_SlumpToStand, 4.67s raw —
+	 *  2.0 ≈ a 2.3s rise). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	float AZP_SlumpRiseRate = 2.f;
+
+	/** Slump pose/rise clip (lazy default A_Shambler_SlumpToStand). Frame 0 = the dormant
+	 *  slumped-against-the-wall pose. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	TObjectPtr<UAnimSequence> AZP_SlumpToStandAnim;
+
+	/** PlayingDead preset: the LIFELESS dormant pose — frame 0 of this clip held frozen (lazy
+	 *  default A_Shambler_ProneToStand = flat face-down, NO torso lift; the crawl idle's
+	 *  propped-up stance read as alive — dev 2026-08-05). On wake the crawl loops crossfade in
+	 *  and the body visibly "comes to life". */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Preset")
+	TObjectPtr<UAnimSequence> AZP_PlayDeadPoseAnim;
+
+	// --- Crawl stance internals ---
+	/** LEGACY switch (pre-preset). true maps to AZP_Preset=Crawler at BeginPlay; use the
+	 *  preset dropdown instead. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	bool bAZP_Crawling = false;
+
+	/** Crawl clip set (NAAT crawl clips retargeted 2026-08-05 —
+	 *  Scripts/Python/retarget_shambler_crawl.py; lazy defaults = A_Shambler_Crawl*). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	TObjectPtr<UAnimSequence> AZP_CrawlIdleAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	TObjectPtr<UAnimSequence> AZP_CrawlWalkAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	TObjectPtr<UAnimSequence> AZP_CrawlRunAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	TObjectPtr<UAnimSequence> AZP_AttackCrawlAnim;
+
+	/** Stand attacks — the crawler REARS UP to strike (dev 2026-08-05: part of the crawler
+	 *  set). Each swing randomly picks among the non-empty crawl/stand attack slots; empty a
+	 *  slot to remove that swing from the pool. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	TObjectPtr<UAnimSequence> AZP_AttackStandLHAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	TObjectPtr<UAnimSequence> AZP_AttackStandBHAnim;
+
+	/** CLIP contact / wind-up-end times per stand attack (A_Shambler_Attack_StandLH 1.47s,
+	 *  StandBH 1.93s raw). Same windup/strike rate remap as every other swing. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_StandAttackLHHitTime = 0.85f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_StandAttackLHWindupEndTime = 0.6f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_StandAttackBHHitTime = 1.1f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_StandAttackBHWindupEndTime = 0.8f;
+
+	/** Crawler yaw turn rate (deg/s) — replaces the standing CMC RotationRate while crawling.
+	 *  At crawl speeds the velocity direction jitters and orient-to-movement whipped the body
+	 *  around ("rotates wildly", dev 2026-08-05); a low cap turns those flips into slow,
+	 *  heavy pivots. Restored to the standing rate when it stands up. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlRotationRate = 90.f;
+
+	/** BONE-DRIVEN PROPULSION (round-22, replaces the hand-tuned sine pulse — dev: "movements
+	 *  don't feel driven by bone movement... the movement amount/timing is off"). The crawl
+	 *  clips are in-place, so a PLANTED limb sweeps BACKWARD in actor space at exactly the drag
+	 *  speed the animator authored. Every tick the fastest backward sweep across the drive limbs
+	 *  (hands/forearms/feet) BECOMES the walk speed — the body surges precisely when and as hard
+	 *  as the arms pull, and settles to the floor speed while they recover.
+	 *  Scale: authored-sweep-to-body-speed multiplier (1 = the animator's motion verbatim;
+	 *  the clip play rate already stride-matches the state's base speed). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlDriveScale = 1.f;
+	/** Speed floor (UU/s) between pulls — keeps a trace of forward creep so paths never wedge. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlDriveFloor = 3.f;
+	/** Speed cap as a multiple of the state's base crawl speed (surges can't overshoot pathing). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlDriveCap = 1.5f;
+
+	/** Prone presets: Crawler and PlayingDead — crawl behaviors, never stand. */
+	bool IsPronePreset() const { return AZP_Preset == EShamblerPreset::Crawler || AZP_Preset == EShamblerPreset::PlayingDead; }
+	/** Effective crawl stance right now (prone presets never leave it). */
+	bool IsCrawlingNow() const { return IsPronePreset(); }
+	/** Slumped preset, still dormant against its wall (bCrawlStoodUp = it has risen). */
+	bool IsDormantSlumped() const { return AZP_Preset == EShamblerPreset::Slumped && !bCrawlStoodUp; }
+
+	/** Crawler collision capsule half-height (UU), applied at BeginPlay. The standing capsule
+	 *  (~88) leaves a prone body riding at chest height ("it swims") and makes the mesh offset
+	 *  dial fight it. Shrinking drops the whole body to floor level; the mesh ground
+	 *  compensation happens automatically (base rel-Z rises by exactly the shrink), so
+	 *  AZP_CrawlMeshZOffset stays a true 1:1 fine-tune. Clamped to [capsule radius, standing
+	 *  half-height]. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlCapsuleHalfHeight = 40.f;
+
+	/** Crawler speeds (UU/s): wander / chase / sprint-burst. Standing equivalents:
+	 *  AZP_WanderSpeed / AZP_ChaseSpeed / AZP_RunSpeed. Deliberately SLOW — a crawl covers a
+	 *  fraction of a walk (dev 2026-08-05: "waaaay too fast" at 60/180/300). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlWanderSpeed = 25.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlChaseSpeed = 70.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlRunSpeed = 130.f;
+
+	/** Speed (UU/s) at or above which the FAST crawl clip replaces the slow crawl — the
+	 *  slow->fast clip handoff on its own dial, independent of the speed knobs. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlRunClipMinSpeed = 100.f;
+
+	/** Speed (UU/s) at which the crawl WALK clip's stride looks natural — the loop plays at
+	 *  current speed / this (hand-skate dial, AZP_RunAnimRefSpeed pattern). The standing walk
+	 *  stride lives in the ABP BlendSpace, but crawl locomotion is slot-driven, so it needs its
+	 *  own C++ ref speed. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlWalkAnimRefSpeed = 70.f;
+	/** Speed (UU/s) at which the crawl RUN clip's stride looks natural. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlRunAnimRefSpeed = 150.f;
+
+	/** CLIP time (s) of the contact frame in the crawl swipe (A_Shambler_Attack_Crawl, 2.77s
+	 *  raw). Crawl analog of AZP_AttackHitTime — remapped through the same
+	 *  AZP_WindupPlayRate/AZP_StrikePlayRate machinery. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlAttackHitTime = 1.5f;
+	/** CLIP time (s) where the crawl swipe's wind-up ends (AZP_WindupEndTime analog). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlWindupEndTime = 1.1f;
+
+	/** Mesh Z nudge (UU) for crawlers in ALL crawling states. MEASURED, not guessed
+	 *  (2026-08-05, AnimPoseExtensions contact-plane sweep): the standing clips plant their
+	 *  toes at ~-100 below the mesh origin, but the crawl clips' contact plane (knees/hands)
+	 *  sits at only -10..-15 — the crawl pose rides ~87uu HIGHER in clip space, which was the
+	 *  entire "it swims" float (no capsule setting could fix it). -87 lands the crawl contacts
+	 *  within ~2uu of the floor across all three loops. Fine-tune here; the maintainer slides
+	 *  to the STANDING offset during the reared-up stand-attack window. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlMeshZOffset = -87.f;
+
+	/** THE prone ground-contact dial (round-18 "shins and feet and arms partly buried"): height
+	 *  (UU) of the LOWEST contact bone above the capsule bottom. Bones are joint CENTRES — the
+	 *  flesh extends below them by the limb radius, so ~a limb radius of lift reads as resting
+	 *  ON the slab. Shared verbatim by the runtime ground clamp AND the editor preview
+	 *  grounding, so what you see placed is what plays. Raise if buried, lower if floating. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlBoneLift = 6.f;
+
+	/** Sustained stillness (s) required before the crawl loop yields to the idle pose. Brief
+	 *  velocity stalls (nav repath hitches under DYNAMIC nav) shorter than this keep the walk
+	 *  loop cycling — the instant flip restarted the loop at its first right-arm pull on every
+	 *  stall (round-19 one-sided-crawl regression). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlIdleDebounce = 0.5f;
+
+	/** Crawl swing gate (UU): the prone claws are short and low — the standing AZP_AttackRange
+	 *  (230) had crawlers swinging from a distance where they cannot connect (round-24). The
+	 *  chase hold, the swing decision, and the between-swing flurry all use THIS while prone. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlAttackRange = 140.f;
+
+	/** Crawl impact validation (UU): back-stepping past this during the wind-up whiffs the hit
+	 *  (the prone counterpart of AZP_AttackHitRange). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlAttackHitRange = 170.f;
+
+	/** Crawler headshot height (UU above body centre) — prone head sits near/below the capsule
+	 *  centre, so the standing AZP_HeadshotMinZ (55) makes headshots impossible. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Crawl")
+	float AZP_CrawlHeadshotMinZ = 0.f;
 
 	// --- Animations (defaulted to the retargeted Shambler clips) ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shambler|Anim")
@@ -687,6 +920,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+#if WITH_EDITOR
+	/** Editor authoring preview — the necromorph REF POSE renders microscopic, so placed
+	 *  shamblers were invisible in the viewport. Evaluates a preset-appropriate pose in-editor
+	 *  (prone/slumped = dormant clip frame; Standing = the ABP idle). Runtime self-heals any
+	 *  anim-mode change (BeginPlay -> SetState(Wander) -> EnsureLocomotion). */
+	virtual void OnRegister() override;
+#endif
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
@@ -711,6 +951,34 @@ private:
 	void StopRunChase();
 	/** Stop whatever is currently on the DefaultSlot so locomotion takes back over. */
 	void StopSlotLoop();
+	/** Crawl-stance idle clip (falls back to the standing idle if the crawl slot is empty). */
+	UAnimSequence* PickIdleAnim() const;
+	/** CRAWL STANCE Tick maintainer: keeps a crawl loop seated on the DefaultSlot whenever no
+	 *  one-shot (swing/alert) owns it — the BS_Shambler BlendSpace underneath is standing-only,
+	 *  so ANY slot gap while crawling shows a standing pose. Picks crawl idle vs walk vs run by
+	 *  current 2D speed, stride-matched via the crawl ref-speed knobs. ALSO the crawler's
+	 *  mesh-Z owner: slides between the crawl ground plane (AZP_CrawlMeshZOffset, measured -87 —
+	 *  the crawl clips' contact plane sits ~87uu higher than the standing toes) and the
+	 *  STANDING plane (AZP_LocoMeshZOffset) through the reared-up stand-attack window. */
+	void MaintainCrawlLocomotion(float DeltaTime);
+	/** Slumped preset wake: rise through SlumpToStand in place under the ground clamp, then
+	 *  hunt as a NORMAL standing shambler. */
+	void StartSlumpRise();
+	/** The rise landed: flips bCrawlStoodUp (one-way until revive) and schedules the clamp
+	 *  release after the blend-out settle. */
+	void FinishSlumpRise();
+	/** Crawler/PlayingDead aggro bark: AZP_CrawlAlertSound if set, else the standard vocal. */
+	void PlayCrawlAlert();
+	/** Through-wall guard for the proximity aggro floor: true when the player shares this
+	 *  body's space — LOS, or no-LOS with a short acoustic detour (behind furniture). A
+	 *  CONFIDENT through-wall propagation result = real geometry between = no aggro. */
+	bool IsProximityAggroValid(APawn* Player);
+	/** Per-tick ground clamp while bCrawlStandWindow: pins the lowest contact bone to the
+	 *  capsule bottom so the rise can never float or bury. */
+	void GroundClampCrawlRise(float DeltaTime);
+	/** Shrink (crawl) / restore (stand) the capsule with mesh-base + actor-Z compensation so
+	 *  the body plane never pops; also swaps the CMC yaw rate. */
+	void ApplyCrawlCapsule(bool bCrawl);
 
 	/** COMBAT gap cover (dev 2026-07-03: "in combat, idle shouldn't happen at all"): instead of
 	 *  vacuum-filling combat gaps with the docile wander idle, HOLD the final pose of whatever
@@ -903,6 +1171,25 @@ private:
 	TWeakObjectPtr<UAnimMontage> SlotVacuumFill;       // Tick-spawned idle fill (WANDER ONLY — never in combat)
 	TWeakObjectPtr<UAnimMontage> CombatPoseHold;       // combat clip paused at its final pose to cover a gap
 	TWeakObjectPtr<UAnimMontage> RunLoopMontage;       // sprint-chase run cycle (slot loop)
+	TWeakObjectPtr<UAnimMontage> CrawlLoopMontage;     // crawl-stance locomotion loop (Tick-maintained)
+	TWeakObjectPtr<UAnimSequence> CrawlLoopClip;       // which clip the current crawl loop plays (switch detect)
+	bool bCrawlStandWindow = false;                    // rear-up + settle: ground clamp owns the mesh Z
+	bool bCrawlStoodUp = false;                        // one-way: rear-up landed, now a STANDING shambler (reset on revive)
+	bool bStandingUpNow = false;                       // rear-up montage in flight — Chase eval idles
+	float SlumpPresenceTimer = 0.f;                    // tier-1 wake clock (in-room + LOS)
+	float SlumpStareTimer = 0.f;                       // tier-2 wake clock (view centered on it)
+	float StandingCapsuleHH = 88.f;                    // capsule half-height captured before the crawl shrink
+	float StandingRotationRateYaw = 360.f;             // CMC yaw rate captured before the crawl clamp
+	float CrawlIdleStillTime = 0.f;                    // consecutive seconds under the stationary threshold
+	float CrawlMoveSustain = 0.f;                      // consecutive seconds OVER it — walk needs sustained motion
+	float CrawlLoopPhase = 0.f;                        // last live crawl-loop position, normalized 0-1 (limb-phase memory)
+	FVector LastChaseGoal = FVector::ZeroVector;       // last MoveToActor goal — chase re-issues only on >150uu goal jumps
+	FAIRequestID LastChaseMoveId;                      // OUR chase move's request ID — any other ID = BP wander seized the controller
+	TArray<float> CrawlDrivePrevX;                     // per drive bone: last actor-relative X (propulsion measurement)
+	TWeakObjectPtr<UAnimMontage> StandUpMontage;       // the slump-rise slot montage (maintainer defers on it)
+	TWeakObjectPtr<UAnimMontage> SlumpHoldMontage;     // dormant slumped pose hold (SlumpToStand frame 0)
+	FTimerHandle CrawlStandUpTimer;                    // fires FinishSlumpRise when the rise lands
+	FTimerHandle CrawlClampReleaseTimer;               // hands mesh Z back to the state machine post-settle
 	bool bRunningChase = false;                        // Chase is in the sprint band (> AZP_RunTriggerDistance)
 	bool bRunBurstNow = false;                         // sprint sub-phase: true = run burst, false = fast walk
 	double RunPhaseStart = 0.0;                        // when the current burst/walk sub-phase began

@@ -32,7 +32,11 @@ AZP_ScytheerBase::AZP_ScytheerBase()
 		Cap->SetCapsuleHalfHeight(65.f);
 		Cap->SetCapsuleRadius(40.f);
 		Cap->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+		// Never nav-relevant (Oozeling 2026-07-13 lesson; live since the 2026-08-05 DYNAMIC nav
+		// flip): a nav-relevant pawn carves a moving hole under itself and churns tile rebuilds.
+		Cap->SetCanEverAffectNavigation(false);
 	}
+	SetCanAffectNavigationGeneration(false);
 
 	// Mesh: re-anchor + scale 0.5. Capsule eats the bullet, mesh ignores Visibility so we never
 	// double-trigger damage. SingleNode mode so PlayAnimation() + SetPosition control the slice.
@@ -78,6 +82,11 @@ AZP_ScytheerBase::AZP_ScytheerBase()
 	}
 	bUseControllerRotationYaw = false;
 
+	// The 4 ground-contact bones of the quadruped gait (3ds Max Biped rig: front limbs end in
+	// Hand bones, rear limbs in Toe0). Probed from scytheer_alien_monster 2026-08-05.
+	AZP_FootstepBones = { TEXT("Bip001_L_Hand_021"), TEXT("Bip001_R_Hand_027"),
+	                      TEXT("Bip001_L_Toe0_034"), TEXT("Bip001_R_Toe0_040") };
+
 	// NOTE: SFX defaults are loaded lazily in BeginPlay (LoadSFXDefaults), NOT here.
 	// ConstructorHelpers::FObjectFinder loading /Game assets during CDO construction crashed the
 	// editor when the Shambler hit the same pattern with anim assets this session
@@ -111,19 +120,85 @@ void AZP_ScytheerBase::LoadSFXDefaults()
 	// AudioAttenuation is legacy and no longer loaded or passed anywhere.
 }
 
-void AZP_ScytheerBase::PlayFootstep()
+void AZP_ScytheerBase::PlayFootstep(const FVector& AtLoc)
 {
 	if (!AZP_FootstepSound || AZP_FootstepVolume <= 0.f) { return; }
 	// Room carry (~60 m — the "footfalls of others" profile) + slight random pitch so a single
 	// footstep asset never reads as a mechanical loop. AZP_FootstepVolume is THE dev volume knob.
 	const float Pitch = 1.f + FMath::FRandRange(-AZP_FootstepPitchVar, AZP_FootstepPitchVar);
-	UZP_SFXStatics::PlaySFXAtLocation(this, AZP_FootstepSound, GetActorLocation(),
+	UZP_SFXStatics::PlaySFXAtLocation(this, AZP_FootstepSound, AtLoc,
 		EZP_SFXCarry::Room, AZP_FootstepVolume, Pitch);
+}
+
+void AZP_ScytheerBase::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+#if WITH_EDITOR
+	// EDITOR AUTHORING PREVIEW (dev 2026-08-05): the placed Scytheer showed only its ref pose
+	// in the viewport (single-node mode with no clip assigned until BeginPlay). Pose the
+	// master clip at the idle slice and evaluate it in-editor. PIE untouched — BeginPlay's
+	// StartSegment playback overrides everything.
+	UWorld* W = GetWorld();
+	if (W && (W->WorldType == EWorldType::Editor || W->WorldType == EWorldType::EditorPreview))
+	{
+		if (USkeletalMeshComponent* M = GetMesh())
+		{
+			M->SetUpdateAnimationInEditor(true);
+			if (AZP_SingleAnim)
+			{
+				// Serialized play data — the editor instance initializes from AnimationData
+				// (SetAnimation() only reaches a live runtime instance).
+				M->AnimationData.AnimToPlay = AZP_SingleAnim;
+				M->AnimationData.SavedPosition = AZP_SingleAnim->GetTimeAtFrame(FMath::Max(AZP_IdleStartFrame, 0));
+				M->AnimationData.SavedPlayRate = 0.f;
+				M->AnimationData.bSavedLooping = true;
+				M->AnimationData.bSavedPlaying = false;
+				M->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+				M->InitAnim(true);
+				M->SetPosition(M->AnimationData.SavedPosition, false);
+				M->SetPlayRate(0.f);
+				// Push the pose to the renderer (editor doesn't tick anims).
+				M->TickAnimation(0.f, false);
+				M->RefreshBoneTransforms();
+				M->MarkRenderStateDirty();
+				// Ground the preview to the capsule bottom (cosmetic; BeginPlay restores the
+				// authored mesh Z from the archetype).
+				if (GetCapsuleComponent() && M->GetNumBones() > 0)
+				{
+					float MinZ = TNumericLimits<float>::Max();
+					for (int32 i = 0; i < M->GetNumBones(); ++i)
+					{
+						MinZ = FMath::Min(MinZ, (float)M->GetBoneTransform(i).GetLocation().Z);
+					}
+					if (MinZ < TNumericLimits<float>::Max())
+					{
+						const float CapBottom = GetActorLocation().Z - GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+						FVector RL = M->GetRelativeLocation();
+						RL.Z -= (MinZ - (CapBottom + 2.f));
+						M->SetRelativeLocation(RL);
+					}
+				}
+			}
+		}
+	}
+#endif
 }
 
 void AZP_ScytheerBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// The editor preview grounds the mesh cosmetically — restore the AUTHORED mesh Z from the
+	// archetype so the preview offset never leaks into runtime placement.
+	if (USkeletalMeshComponent* M0 = GetMesh())
+	{
+		if (USceneComponent* MeshArch = Cast<USceneComponent>(M0->GetArchetype()))
+		{
+			FVector RL0 = M0->GetRelativeLocation();
+			RL0.Z = MeshArch->GetRelativeLocation().Z;
+			M0->SetRelativeLocation(RL0);
+		}
+	}
 
 	LoadSFXDefaults(); // fill any SFX slots the BP didn't override (was a crashing ctor load)
 
@@ -257,7 +332,10 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		bCachedSee = Player ? HasLOS(Player) : false;
 		if (!bAggro)
 		{
-			bCachedReachable = (Player && bCachedSee) ? IsPlayerReachable(Player) : false;
+			// Also probe reachability inside the proximity radius WITHOUT LOS — the proximity
+			// floor needs it as its through-wall guard (dev 2026-08-05: aggro through walls).
+			bCachedReachable = (Player && (bCachedSee || Dist <= AZP_ProximityAggroRange))
+				? IsPlayerReachable(Player) : false;
 		}
 	}
 	const bool bSee = bCachedSee;
@@ -282,7 +360,13 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		// "Same geometry" gate: LOS trace + navmesh reachability. A closed door blocks both. An
 		// open door lets the navmesh path through and aggro fires only then.
 		const bool bReachable = bCachedReachable; // probed at AZP_DetectEvalInterval cadence above
-		if (Player && Dist <= AZP_DetectionRange && bSee && bReachable)
+		// Proximity floor (dev 2026-08-05, all NPC enemies): inside AZP_ProximityAggroRange,
+		// aggro is UNAVOIDABLE — no LOS/reachability gate. Stealth still works outside it.
+		// Proximity floor is gated (bSee || bReachable) — unavoidable in the SAME space (seen,
+		// or hiding behind furniture = still navmesh-reachable), but a wall/closed door blocks
+		// both and must block the aggro too (dev 2026-08-05: "aggroing through the wall").
+		if (Player && ((Dist <= AZP_DetectionRange && bSee && bReachable)
+			|| (Dist <= AZP_ProximityAggroRange && (bSee || bReachable))))
 		{
 			// Log what the LOS trace actually hit (or didn't). If HasLOS thinks it sees the player
 			// through a wall, this fires whenever bAggro flips on — we can see the trace start/end +
@@ -312,7 +396,9 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 	}
 	else if (bAggro)
 	{
-		LostSightTimer = bSee ? 0.f : (LostSightTimer + DeltaTime);
+		// Proximity also pins the lose-sight timer — a proximity-aggroed body must not shrug
+		// after AZP_LoseSightTime while the player is still standing next to it without LOS.
+		LostSightTimer = (bSee || Dist <= AZP_ProximityAggroRange) ? 0.f : (LostSightTimer + DeltaTime);
 		if (LostSightTimer >= AZP_LoseSightTime || Dist > AZP_GiveUpRange)
 		{
 			bAggro = false;
@@ -632,24 +718,75 @@ void AZP_ScytheerBase::Tick(float DeltaTime)
 		break;
 	}
 
-	// DISTANCE-BASED FOOTSTEPS: one step SFX per AZP_FootstepStride of 2D travel, measured from the
-	// body's OWN position delta (not GetVelocity()) so it works for BOTH navmesh-driven gaits AND the
-	// teleport-driven spline patrol — the latter reports zero velocity, which would silence a velocity
-	// scheme. Only reachable while alive (bDead returns above); stationary states (Alert/Attack/Hit,
-	// wander pauses) don't translate, so they're naturally silent. The upper guard skips implausibly
-	// large single-frame jumps (respawn / spline snap) so they don't dump a burst of steps.
+	// ANIMATION-SYNCED FOOTSTEPS v2 (dev 2026-08-05 round 2: "I'm seeing it move 4 legs in the
+	// time it takes to do 2" — the v1 world-speed-ratio scheme assumed a planted limb is
+	// world-stationary, which only holds when the clip's stride speed matches actual body
+	// speed; the slices play at knob rates DECOUPLED from CMC speed, so half the plants never
+	// crossed the ratio and got skipped). v2 reads the pure animation signal instead: in
+	// ACTOR-RELATIVE space a limb sweeps FORWARD in swing and BACKWARD through stance — the
+	// forward->backward reversal IS the touchdown. Offline-verified against the master clip
+	// (4 distinct touchdowns per walk loop at ~0/42/54/92%, run at ~0/21/36/90%). Independent
+	// of body speed, play rate, and gait source (navmesh AND teleport-driven spline patrol —
+	// relative space cancels base motion). Arm on forward sweep > AZP_FootstepArmSpeed, fire
+	// on reversal, per-limb min-interval lockout. Stationary = disarmed/silent; the upper
+	// delta guard skips respawn/spline snaps. Distance-metronome fallback if no bone resolves.
 	{
 		const FVector CurLoc = GetActorLocation();
 		const float StepDelta = FVector::Dist2D(CurLoc, LastFootstepLoc);
 		LastFootstepLoc = CurLoc;
 		const float Stride = FMath::Max(20.f, AZP_FootstepStride);
-		if (StepDelta > 0.1f && StepDelta < Stride * 4.f)
+		const bool bTranslating = StepDelta > 0.1f && StepDelta < Stride * 4.f;
+		USkeletalMeshComponent* SM = GetMesh();
+		int32 ValidBones = 0;
+		if (SM && DeltaTime > KINDA_SMALL_NUMBER)
 		{
+			const int32 NumFeet = AZP_FootstepBones.Num();
+			if (FootPrevPos.Num() != NumFeet)
+			{
+				FootPrevPos.Init(FVector::ZeroVector, NumFeet);
+				FootPlanted.Init(true, NumFeet);
+				FootLastStep.Init(0.0, NumFeet);
+			}
+			const FTransform ActorTM = GetActorTransform();
+			for (int32 i = 0; i < NumFeet; ++i)
+			{
+				if (SM->GetBoneIndex(AZP_FootstepBones[i]) == INDEX_NONE) { continue; }
+				++ValidBones;
+				const FVector BoneWorld = SM->GetBoneLocation(AZP_FootstepBones[i]);
+				const FVector RelPos = ActorTM.InverseTransformPosition(BoneWorld);
+				const bool bUnseeded = FootPrevPos[i].IsNearlyZero();
+				const float RelVelFwd = (float)((RelPos.X - FootPrevPos[i].X) / DeltaTime);
+				FootPrevPos[i] = RelPos;
+				if (bUnseeded) { continue; }
+				if (!bTranslating)
+				{
+					FootPlanted[i] = true; // stationary: disarm, no edges, no sounds
+					continue;
+				}
+				if (FootPlanted[i])
+				{
+					// Clear forward swing observed -> armed for the next touchdown.
+					if (RelVelFwd > FMath::Max(AZP_FootstepArmSpeed, 5.f)) { FootPlanted[i] = false; }
+				}
+				else if (RelVelFwd <= 0.f)
+				{
+					FootPlanted[i] = true; // sweep reversed = TOUCHDOWN (Now = Tick's clock above)
+					if (Now - FootLastStep[i] >= FMath::Max(AZP_FootstepMinInterval, 0.f))
+					{
+						FootLastStep[i] = Now;
+						PlayFootstep(BoneWorld);
+					}
+				}
+			}
+		}
+		if (ValidBones == 0 && bTranslating)
+		{
+			// Distance-metronome fallback: bones renamed/missing (mesh swap in a child BP).
 			StepDistanceAccum += StepDelta;
 			if (StepDistanceAccum >= Stride)
 			{
 				StepDistanceAccum -= Stride;
-				PlayFootstep();
+				PlayFootstep(CurLoc);
 			}
 		}
 	}
