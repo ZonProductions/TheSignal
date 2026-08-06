@@ -41,6 +41,7 @@ class UZP_MapComponent;
 class UZP_NoteComponent;
 class AZP_MapVolume;
 class UZP_NotesWidget;
+class FZPTabCycleInputProcessor;
 
 UCLASS()
 class THESIGNAL_API UZP_InventoryTabWidget : public UUserWidget
@@ -85,6 +86,17 @@ public:
 	/** Key that cycles to the next tab while the menu is open. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Input")
 	FKey AZP_TabCycleRightKey = EKeys::E;
+
+	/** Gamepad button that cycles to the PREVIOUS tab (left bumper / LB).
+	 *  Separate from AZP_TabCycleLeftKey because gamepad presses never reach this widget's
+	 *  NativeOnKeyDown while a menu is up — CommonUI consumes them at the Slate preprocessor
+	 *  layer. These two keys are serviced by a dedicated index-0 preprocessor instead. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Input")
+	FKey AZP_TabCycleLeftGamepadKey = EKeys::Gamepad_LeftShoulder;
+
+	/** Gamepad button that cycles to the NEXT tab (right bumper / RB). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Input")
+	FKey AZP_TabCycleRightGamepadKey = EKeys::Gamepad_RightShoulder;
 
 	/** Player-facing label of the Map tab button. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InventoryTab|Text")
@@ -158,10 +170,24 @@ public:
 protected:
 	virtual bool Initialize() override;
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+	virtual void BeginDestroy() override;
 
 private:
+	friend class FZPTabCycleInputProcessor;
+
+	/** Called by the preprocessor (and NativeOnKeyDown) — one tab step per physical press.
+	 *  Returns true if the key was a tab-cycle key and was acted on (i.e. consume it). */
+	bool HandleTabCycleKey(const FKey& Key);
+
+	/** Register/unregister the gamepad preprocessor. Live only while the menu is open. */
+	void RegisterGamepadTabProcessor();
+	void UnregisterGamepadTabProcessor();
+
+	TSharedPtr<FZPTabCycleInputProcessor> GamepadTabProcessor;
+
 	bool bIsOpen = false;
 	bool bUIBuilt = false;
 	bool bTabsWired = false;

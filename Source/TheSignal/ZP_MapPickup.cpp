@@ -55,7 +55,9 @@ void AZP_MapPickup::BeginPlay()
 	// Auto-spawn a MapVolume covering this floor
 	if (bAZP_AutoCreateVolume && AZP_MapTexture)
 	{
-		float MinX, MinY, MaxX, MaxY;
+		// Initialised so the compiler can prove every path sets them (C4701); every branch
+		// below overwrites all four before use.
+		float MinX = 0.f, MinY = 0.f, MaxX = 0.f, MaxY = 0.f;
 		int32 FoundActors = 0;
 		const float MyZ = GetActorLocation().Z;
 		bool bUsedFile = false;
@@ -67,22 +69,43 @@ void AZP_MapPickup::BeginPlay()
 		else if (MyZ > AZP_FloorZThresholds[2]) FloorNum = 3;
 		else if (MyZ > AZP_FloorZThresholds[3]) FloorNum = 2;
 
-		// Try to read bounds from Dev Tools export file
-		FString BoundsPath = FPaths::ProjectDir() / FString::Printf(TEXT("Scripts/FloorPlans/map_bounds_F%d.txt"), FloorNum);
-		FString BoundsContent;
-		if (FFileHelper::LoadFileToString(BoundsContent, *BoundsPath))
+		// Explicit per-pickup bounds (set by the Dev Tools SVG export) win over everything else.
+		// REQUIRED once a level has more than one map pickup: the legacy file path below derives a
+		// Building1 floor NUMBER from Z via AZP_FloorZThresholds and reads a single shared
+		// map_bounds_F<N>.txt, so every pickup above 1400 UU resolves to "floor 5" and they all get
+		// the same bounds. ResearchFacility has two pickups at Z 3237 and Z 2251 - both would land
+		// on F5. This branch is also what the AZP_MapBoundsMin/Max doc comment always promised;
+		// the property existed but nothing ever read it.
+		if (!AZP_MapBoundsMin.IsZero() || !AZP_MapBoundsMax.IsZero())
 		{
-			TArray<FString> Parts;
-			BoundsContent.ParseIntoArray(Parts, TEXT(","));
-			if (Parts.Num() == 4)
+			MinX = AZP_MapBoundsMin.X;
+			MinY = AZP_MapBoundsMin.Y;
+			MaxX = AZP_MapBoundsMax.X;
+			MaxY = AZP_MapBoundsMax.Y;
+			bUsedFile = true;
+			UE_LOG(LogTemp, Log, TEXT("[TheSignal] MapPickup %s: Using explicit AZP_MapBounds: (%.0f,%.0f) to (%.0f,%.0f)"),
+				*GetName(), MinX, MinY, MaxX, MaxY);
+		}
+
+		// Legacy fallback: read bounds from the Dev Tools per-floor export file.
+		FString BoundsPath = FPaths::ProjectDir() / FString::Printf(TEXT("Scripts/FloorPlans/map_bounds_F%d.txt"), FloorNum);
+		if (!bUsedFile)
+		{
+			FString BoundsContent;
+			if (FFileHelper::LoadFileToString(BoundsContent, *BoundsPath))
 			{
-				MinX = FCString::Atof(*Parts[0]);
-				MinY = FCString::Atof(*Parts[1]);
-				MaxX = FCString::Atof(*Parts[2]);
-				MaxY = FCString::Atof(*Parts[3]);
-				bUsedFile = true;
-				UE_LOG(LogTemp, Log, TEXT("[TheSignal] MapPickup %s: Loaded bounds from %s: (%.0f,%.0f) to (%.0f,%.0f)"),
-					*GetName(), *BoundsPath, MinX, MinY, MaxX, MaxY);
+				TArray<FString> Parts;
+				BoundsContent.ParseIntoArray(Parts, TEXT(","));
+				if (Parts.Num() == 4)
+				{
+					MinX = FCString::Atof(*Parts[0]);
+					MinY = FCString::Atof(*Parts[1]);
+					MaxX = FCString::Atof(*Parts[2]);
+					MaxY = FCString::Atof(*Parts[3]);
+					bUsedFile = true;
+					UE_LOG(LogTemp, Log, TEXT("[TheSignal] MapPickup %s: Loaded bounds from %s: (%.0f,%.0f) to (%.0f,%.0f)"),
+						*GetName(), *BoundsPath, MinX, MinY, MaxX, MaxY);
+				}
 			}
 		}
 

@@ -25,6 +25,51 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Framework/Application/IInputProcessor.h"
+#include "HAL/IConsoleManager.h"
+
+static TAutoConsoleVariable<int32> CVarZPTabCycleGamepad(
+	TEXT("zp.TabCycle.Gamepad"), 1,
+	TEXT("1 = L/R bumper cycles the inventory menu tabs (Map/Inventory/Notes) via a Slate input preprocessor. 0 = keyboard only."));
+
+/**
+ * FZPTabCycleInputProcessor
+ *
+ * WHY THIS EXISTS AND NativeOnKeyDown IS NOT ENOUGH:
+ *   While a menu is up, CommonUI's own Slate input preprocessor CONSUMES gamepad key events
+ *   before they are routed to any widget or to the PlayerController. That is the same
+ *   documented failure that forced UZP_GlyphDeviceSubsystem's detection down to the
+ *   preprocessor layer (2026-08-05, log-proven). Q/E work today because real keyboard keys are
+ *   not consumed that way; the bumpers never arrive at all — neither at
+ *   AZP_GraceCharacter::Input_TabCycleRight (Enhanced Input is dead in UI input mode) nor at
+ *   UZP_InventoryTabWidget::NativeOnKeyDown.
+ *
+ *   Registering at index 0 puts us ahead of CommonUI, so we see the raw press. Unlike the glyph
+ *   processor we DO consume (return true) — but only for the two configured bumper keys, and
+ *   only while the tab menu is open and wired. Everything else passes through untouched, and the
+ *   processor is unregistered the moment the menu closes.
+ */
+class FZPTabCycleInputProcessor : public IInputProcessor
+{
+public:
+	explicit FZPTabCycleInputProcessor(UZP_InventoryTabWidget* InOwner) : Owner(InOwner) {}
+
+	virtual void Tick(const float, FSlateApplication&, TSharedRef<ICursor>) override {}
+
+	virtual bool HandleKeyDownEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent) override
+	{
+		// Auto-repeat would spin through tabs while the bumper is held — one step per press.
+		if (InKeyEvent.IsRepeat())
+		{
+			return false;
+		}
+		UZP_InventoryTabWidget* W = Owner.Get();
+		return W ? W->HandleTabCycleKey(InKeyEvent.GetKey()) : false;
+	}
+
+private:
+	TWeakObjectPtr<UZP_InventoryTabWidget> Owner;
+};
 
 // ---------------------------------------------------------------------------
 // Lifecycle
@@ -64,31 +109,99 @@ void UZP_InventoryTabWidget::NativeConstruct()
 	bIsOpen = false;
 }
 
+bool UZP_InventoryTabWidget::HandleTabCycleKey(const FKey& Key)
+{
+	if (!bIsOpen || !bTabsWired)
+	{
+		return false;
+	}
+
+	const bool bLeft = (Key == AZP_TabCycleLeftKey) ||
+		(AZP_TabCycleLeftGamepadKey.IsValid() && Key == AZP_TabCycleLeftGamepadKey);
+	const bool bRight = (Key == AZP_TabCycleRightKey) ||
+		(AZP_TabCycleRightGamepadKey.IsValid() && Key == AZP_TabCycleRightGamepadKey);
+
+	if (bLeft)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Cycling LEFT (%s)"), *Key.ToString());
+		CycleTab(-1);
+		return true;
+	}
+	if (bRight)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Cycling RIGHT (%s)"), *Key.ToString());
+		CycleTab(1);
+		return true;
+	}
+	return false;
+}
+
 FReply UZP_InventoryTabWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 	const FKey Key = InKeyEvent.GetKey();
 	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] NativeOnKeyDown: Key=%s bIsOpen=%d bTabsWired=%d HasFocus=%d"),
 		*Key.ToString(), bIsOpen, bTabsWired, HasKeyboardFocus());
 
-	if (!bIsOpen || !bTabsWired)
+	// Gamepad presses normally never get here (CommonUI consumes them upstream) — the
+	// preprocessor handles those. This path still covers the keyboard keys, and covers the
+	// bumpers too if no one upstream ate them.
+	if (!InKeyEvent.IsRepeat() && HandleTabCycleKey(Key))
 	{
-		return FReply::Unhandled();
-	}
-
-	if (Key == AZP_TabCycleLeftKey)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Cycling LEFT"));
-		CycleTab(-1);
-		return FReply::Handled();
-	}
-	else if (Key == AZP_TabCycleRightKey)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Cycling RIGHT"));
-		CycleTab(1);
 		return FReply::Handled();
 	}
 
 	return FReply::Unhandled();
+}
+
+// ---------------------------------------------------------------------------
+// Gamepad tab cycling (Slate preprocessor — see FZPTabCycleInputProcessor)
+// ---------------------------------------------------------------------------
+
+void UZP_InventoryTabWidget::RegisterGamepadTabProcessor()
+{
+	if (GamepadTabProcessor.IsValid() || !FSlateApplication::IsInitialized())
+	{
+		return;
+	}
+	if (!CVarZPTabCycleGamepad.GetValueOnGameThread())
+	{
+		return;
+	}
+
+	GamepadTabProcessor = MakeShared<FZPTabCycleInputProcessor>(this);
+	// INDEX 0 — must be ahead of CommonUI's preprocessor, which consumes gamepad keys while a
+	// menu is up (same reason UZP_GlyphDeviceSubsystem registers at 0).
+	FSlateApplication::Get().RegisterInputPreProcessor(GamepadTabProcessor, 0);
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Gamepad tab processor registered (%s / %s)"),
+		*AZP_TabCycleLeftGamepadKey.ToString(), *AZP_TabCycleRightGamepadKey.ToString());
+}
+
+void UZP_InventoryTabWidget::UnregisterGamepadTabProcessor()
+{
+	if (!GamepadTabProcessor.IsValid())
+	{
+		return;
+	}
+	if (FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().UnregisterInputPreProcessor(GamepadTabProcessor);
+	}
+	GamepadTabProcessor.Reset();
+	UE_LOG(LogTemp, Warning, TEXT("[INVTAB-KEY] Gamepad tab processor unregistered"));
+}
+
+void UZP_InventoryTabWidget::NativeDestruct()
+{
+	UnregisterGamepadTabProcessor();
+	Super::NativeDestruct();
+}
+
+void UZP_InventoryTabWidget::BeginDestroy()
+{
+	// Belt and braces: the processor holds a weak ptr, but leaving a dead one registered would
+	// keep consuming bumper presses for the rest of the session.
+	UnregisterGamepadTabProcessor();
+	Super::BeginDestroy();
 }
 
 void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -173,6 +286,10 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 			SetKeyboardFocus();
 			UE_LOG(LogTemp, Warning, TEXT("[INVTAB] SetKeyboardFocus called — HasFocus=%d"),
 				HasKeyboardFocus());
+
+			// Focus is not enough for the bumpers: CommonUI eats gamepad keys before any widget
+			// sees them, so L/R go through a Slate preprocessor that only lives while we're open.
+			RegisterGamepadTabProcessor();
 		}
 		else
 		{
@@ -196,6 +313,9 @@ void UZP_InventoryTabWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 		}
 
 		bIsOpen = false;
+
+		// Stop intercepting the bumpers the instant the menu is gone.
+		UnregisterGamepadTabProcessor();
 
 		// Inventory closed by any means — unpause (PlayerController::SetPause override restores
 		// game input/cursor on unpause).

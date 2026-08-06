@@ -20,13 +20,47 @@ OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Flo
 # the building cleanly: each floor owns a 500-tall slab that captures its FLOOR + full-height WALLS
 # (a wall's actor center sits ~250 UU above the floor) and stops just before the next floor's floor.
 # (Old windows were only ~210 above floor_z, so interior SM_Cube walls at floor_z+~250 got dropped.)
-FLOOR_CONFIG = {
-    1: {"z_min": -113,  "z_max": 387,  "floor_z": -13},
-    2: {"z_min": 387,   "z_max": 887,  "floor_z": 487},
-    3: {"z_min": 887,   "z_max": 1387, "floor_z": 987},
-    4: {"z_min": 1387,  "z_max": 1887, "floor_z": 1487},
-    5: {"z_min": 1887,  "z_max": 2387, "floor_z": 1987},
+#
+# LEVEL_FLOORS is keyed by the EDITOR WORLD NAME (what `get_editor_world().get_name()` returns).
+# Every level has its own floor stack — Building1 is a uniform 500 UU tile, ResearchFacility is not
+# (its floors sit at Z 2000 / 2540 / 3020 / 3390 with a separate elevator shaft below).
+# `prefix` namespaces the exported artifacts (F5_map.png / T_Map_F5) so two levels can't collide.
+LEVEL_FLOORS = {
+    "Building1": {
+        "prefix": "F",
+        "floors": {
+            1: {"z_min": -113,  "z_max": 387,  "floor_z": -13,   "label": "Ground"},
+            2: {"z_min": 387,   "z_max": 887,  "floor_z": 487,   "label": "Floor 2"},
+            3: {"z_min": 887,   "z_max": 1387, "floor_z": 987,   "label": "Floor 3"},
+            4: {"z_min": 1387,  "z_max": 1887, "floor_z": 1487,  "label": "Floor 4"},
+            5: {"z_min": 1887,  "z_max": 2387, "floor_z": 1987,  "label": "Floor 5"},
+        },
+    },
+    # Measured from the live level 2026-08-06 (StaticMeshActor Z histogram + SM_Floor_* slab Z):
+    #   z 2000  SM_Floor_1 x17,  walls z2000 (71)          -> sub-basement
+    #   z 2540  SM_Floor_1 x31,  walls z2500 (25)          -> lower / biomass deck
+    #   z 3020  SM_Floor_4 x95,  walls z3050 (925!)        -> MAIN floor (PlayerStart Z 3130)
+    #   z 3390  SM_Floor_4 x18                             -> upper deck / mezzanine
+    # Bands are cut just under each slab and just under the NEXT slab so decks don't bleed together.
+    "ResearchFacility": {
+        "prefix": "RF",
+        "floors": {
+            1: {"z_min": 1900, "z_max": 2400, "floor_z": 2000, "label": "Sub-basement"},
+            2: {"z_min": 2400, "z_max": 2950, "floor_z": 2540, "label": "Lower / Biomass"},
+            3: {"z_min": 2950, "z_max": 3350, "floor_z": 3020, "label": "Main Floor"},
+            4: {"z_min": 3350, "z_max": 3700, "floor_z": 3390, "label": "Upper Deck"},
+        },
+    },
 }
+
+DEFAULT_LEVEL = "Building1"
+
+# Fallback for a level with no entry above: one wide band so Generate still returns something.
+def fallback_level_config(level_name):
+    return {
+        "prefix": (level_name or "MAP")[:6],
+        "floors": {1: {"z_min": -100000, "z_max": 100000, "floor_z": 0, "label": "All (unmapped level)"}},
+    }
 
 
 def run_ue_python(code: str, timeout: int = 600) -> dict:
@@ -46,6 +80,21 @@ def check_connection():
     return result.get("success", False)
 
 
+def get_editor_level(timeout: int = 15):
+    """Name of the map currently open in the editor, or None if not reachable."""
+    code = ("import unreal;"
+            "print('LEVEL:' + unreal.get_editor_subsystem("
+            "unreal.UnrealEditorSubsystem).get_editor_world().get_name())")
+    result = run_ue_python(code, timeout=timeout)
+    if not result.get("success"):
+        return None
+    for entry in result.get("log", []):
+        msg = entry.get("message", "").strip()
+        if msg.startswith("LEVEL:"):
+            return msg[6:].strip()
+    return None
+
+
 class DevToolsApp:
     def __init__(self, root):
         self.root = root
@@ -53,6 +102,11 @@ class DevToolsApp:
         self.root.geometry("1200x800")
         self.root.configure(bg="#0d0d0d")
         self.root.minsize(900, 600)
+
+        # Active level + its floor stack. Repopulated by _apply_level() once the editor answers.
+        self.level_name = DEFAULT_LEVEL
+        self.level_cfg = LEVEL_FLOORS[DEFAULT_LEVEL]
+        self.floor_config = self.level_cfg["floors"]
 
         # Style
         style = ttk.Style()
@@ -237,15 +291,21 @@ class DevToolsApp:
         tk.Label(props, text="GENERATE", font=("Segoe UI", 8, "bold"), fg="#555555",
                  bg="#151515", anchor="w").pack(fill="x", padx=10, pady=(12, 4))
 
+        # Level readout — the floor list below is whatever THIS level defines, so show which
+        # level the bands belong to. Updated by _apply_level() from the live editor.
+        self.level_label = tk.Label(props, text="level: (querying…)", font=("Segoe UI", 8),
+                                    fg="#ff8833", bg="#151515", anchor="w")
+        self.level_label.pack(fill="x", padx=10, pady=(0, 4))
+
         floor_frame = tk.Frame(props, bg="#151515")
         floor_frame.pack(fill="x", padx=10, pady=2)
         tk.Label(floor_frame, text="Floor:", font=("Segoe UI", 9), fg="#888888",
                  bg="#151515").pack(side="left")
-        self.floor_var = tk.StringVar(value="5")
-        floor_menu = ttk.Combobox(floor_frame, textvariable=self.floor_var,
-                                   values=["1", "2", "3", "4", "5"],
-                                   width=4, state="readonly")
-        floor_menu.pack(side="left", padx=4)
+        self.floor_var = tk.StringVar(value="")
+        self.floor_menu = ttk.Combobox(floor_frame, textvariable=self.floor_var,
+                                       values=[], width=16, state="readonly")
+        self.floor_menu.pack(side="left", padx=4)
+        self._refresh_floor_menu()
 
         self.gen_btn = tk.Button(props, text="Generate", font=("Segoe UI", 9, "bold"),
                                  fg="white", bg="#cc6622", bd=0, pady=4,
@@ -547,10 +607,52 @@ class DevToolsApp:
         self.log_text.see("end")
         self.log_text.config(state="disabled")
 
+    # --- Level / floor stack ---
+
+    def _refresh_floor_menu(self):
+        """Rebuild the Floor dropdown from the ACTIVE level's floor stack."""
+        floors = self.floor_config
+        labels = [f"{k} — {floors[k].get('label', 'Floor ' + str(k))}" for k in sorted(floors)]
+        self._floor_labels = {lbl: k for lbl, k in zip(labels, sorted(floors))}
+        self.floor_menu.config(values=labels)
+        if self.floor_var.get() not in self._floor_labels and labels:
+            # Default to the busiest floor: last one is usually the roof, so pick the middle-ish
+            # main deck when the level names one, else the top floor (Building1 behaviour: F5).
+            main = next((l for l in labels if "Main" in l), labels[-1])
+            self.floor_var.set(main)
+
+    def _selected_floor(self):
+        """Int key of the selected floor, tolerant of both '3' and '3 — Main Floor' forms."""
+        raw = self.floor_var.get()
+        if raw in getattr(self, "_floor_labels", {}):
+            return self._floor_labels[raw]
+        try:
+            return int(str(raw).split("—")[0].strip())
+        except (ValueError, AttributeError):
+            return sorted(self.floor_config)[0]
+
+    def _apply_level(self, level_name):
+        """Swap the active floor stack when the editor's open map changes."""
+        if not level_name or level_name == self.level_name:
+            return
+        self.level_name = level_name
+        self.level_cfg = LEVEL_FLOORS.get(level_name) or fallback_level_config(level_name)
+        self.floor_config = self.level_cfg["floors"]
+        known = level_name in LEVEL_FLOORS
+        self.level_label.config(text=f"level: {level_name}" + ("" if known else "  (no floor bands!)"),
+                                fg="#ff8833" if known else "#cc4444")
+        self.floor_var.set("")
+        self._refresh_floor_menu()
+        self._log(f"Level: {level_name} — {len(self.floor_config)} floor band(s)"
+                  + ("" if known else "  [add it to LEVEL_FLOORS in app.py]"))
+
     def _check_status(self):
         def check():
-            connected = check_connection()
+            level = get_editor_level()
+            connected = level is not None
             self.root.after(0, lambda: self._update_status(connected))
+            if connected:
+                self.root.after(0, lambda: self._apply_level(level))
         threading.Thread(target=check, daemon=True).start()
         self.root.after(5000, self._check_status)
 
@@ -565,12 +667,12 @@ class DevToolsApp:
 
     def _on_generate(self):
         self.gen_btn.config(state="disabled", text="Scanning...")
-        self._log(f"Generating floor {self.floor_var.get()}...")
+        self._log(f"Generating {self.level_name} floor {self.floor_var.get()}...")
         threading.Thread(target=self._generate_floorplan, daemon=True).start()
 
     def _generate_floorplan(self):
-        floor = int(self.floor_var.get())
-        cfg = FLOOR_CONFIG[floor]
+        floor = self._selected_floor()
+        cfg = self.floor_config[floor]
 
         # Write scan script to temp file with baked parameters
         script = SCAN_SCRIPT.replace("__Z_MIN__", str(cfg["z_min"]))
@@ -602,7 +704,8 @@ class DevToolsApp:
         self.current_floor = floor
 
         self.root.after(0, lambda: self._draw_floorplan(walls, doors, windows, floor))
-        self.root.after(0, lambda: self._log(f"F{floor}: {len(walls)} walls, {len(doors)} doors, {len(windows)} windows, {len(floors)} floors, {len(ladders)} ladders"))
+        tag = f"{self.level_cfg['prefix']}{floor}"
+        self.root.after(0, lambda: self._log(f"{tag} (z {cfg['z_min']}..{cfg['z_max']}): {len(walls)} walls, {len(doors)} doors, {len(windows)} windows, {len(floors)} floors, {len(ladders)} ladders"))
         self.root.after(0, lambda: self.gen_btn.config(state="normal", text="Generate"))
         self.root.after(0, lambda: self.save_btn.config(state="normal"))
 
@@ -2074,13 +2177,18 @@ class DevToolsApp:
     def _on_export_to_ue5(self):
         """Export PNG → import into UE5 as texture → assign to MapVolume."""
         floor = self.current_floor
-        cfg = FLOOR_CONFIG[floor]
+        if floor not in self.floor_config:
+            self._log(f"ERROR: floor {floor} is not part of {self.level_name}. Generate first.")
+            return
+        cfg = self.floor_config[floor]
+        # Artifacts are namespaced per level (Building1 keeps its historic bare "F" prefix so
+        # existing T_Map_F5 / F5_map.png references stay valid).
+        tag = f"{self.level_cfg['prefix']}{floor}"
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        png_path = os.path.join(OUTPUT_DIR, f"F{floor}_map.png").replace("\\", "/")
+        png_path = os.path.join(OUTPUT_DIR, f"{tag}_map.png").replace("\\", "/")
 
         # Step 0: Query UE5 for the exact same bounds MapPickup will use at runtime
         self._log("Querying UE5 for MapPickup scan bounds...")
-        cfg = FLOOR_CONFIG[floor]
         z_center = (cfg["z_min"] + cfg["z_max"]) / 2
         query_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_temp_scan_bounds.py")
         with open(query_path, "w") as qf:
@@ -2138,21 +2246,21 @@ print("SCAN_BOUNDS:" + str(min_x) + "," + str(min_y) + "," + str(max_x) + "," + 
         self._export_png(png_path, width=2048, force_bounds=export_bounds)
 
         # Write bounds file — MapPickup reads this to create a matching volume
-        bounds_txt = os.path.join(OUTPUT_DIR, f"map_bounds_F{floor}.txt")
+        bounds_txt = os.path.join(OUTPUT_DIR, f"map_bounds_{tag}.txt")
         with open(bounds_txt, 'w') as bf:
             bf.write(f"{export_bounds[0]:.1f},{export_bounds[1]:.1f},{export_bounds[2]:.1f},{export_bounds[3]:.1f}")
         self._log(f"Bounds file: {bounds_txt}")
         self._log(f"Step 1/3: PNG exported to {png_path}")
 
         # Step 2: Import into UE5 via MCP Python
-        ue_asset_path = f"/Game/Core/Maps/T_Map_F{floor}"
+        ue_asset_path = f"/Game/Core/Maps/T_Map_{tag}"
         # Write import script to temp file (avoids JSON/f-string escaping issues)
         import_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_temp_import.py")
         with open(import_script_path, "w") as sf:
             sf.write(f'''import unreal
 
 png_path = "{png_path}"
-asset_name = "T_Map_F{floor}"
+asset_name = "T_Map_{tag}"
 dest_path = "/Game/Core/Maps"
 
 if not unreal.EditorAssetLibrary.does_directory_exist(dest_path):
@@ -2204,11 +2312,11 @@ for a in eas.get_all_level_actors():
     a.set_editor_property("AZP_MapTexture", texture)
     a.set_editor_property("AZP_MapBoundsMin", unreal.Vector2D({bmin_x:.1f}, {bmin_y:.1f}))
     a.set_editor_property("AZP_MapBoundsMax", unreal.Vector2D({bmax_x:.1f}, {bmax_y:.1f}))
-    a.set_editor_property("AZP_AreaDisplayName", unreal.Text("Floor {floor}"))
+    a.set_editor_property("AZP_AreaDisplayName", unreal.Text("{cfg.get('label', 'Floor ' + str(floor))}"))
     found += 1
-    print("Set F{floor} MapPickup: " + a.get_name() + " bounds ({bmin_x:.0f},{bmin_y:.0f}) to ({bmax_x:.0f},{bmax_y:.0f})")
+    print("Set {tag} MapPickup: " + a.get_name() + " bounds ({bmin_x:.0f},{bmin_y:.0f}) to ({bmax_x:.0f},{bmax_y:.0f})")
 if not found:
-    print("WARNING: No MapPickup found on floor {floor} (Z {z_min}-{z_max})")
+    print("WARNING: No MapPickup found on {tag} (Z {z_min}-{z_max})")
 ''')
                     bounds_code = f'exec(open("{bounds_script_path.replace(chr(92), "/")}").read())'
                     bounds_result = run_ue_python(bounds_code)
@@ -2336,36 +2444,183 @@ FLOOR_Z_MIN = __Z_MIN__
 FLOOR_Z_MAX = __Z_MAX__
 FLOOR_LEVEL_Z = __FLOOR_Z__
 
-wall_meshes = {"SM_Cube","SM_Column","SM_Cylinder","SM_WcWall","SM_Securitywall","SM_FrameTall","SM_FrameTallDoor","SM_LastLineEndWall","SM_CenterRoomsinnerWall","SM_ElevatorWall","SM_Elevator","SM_Room2SideGlass","SM_SecuritySilling","SM_SillingTile","SM_SillingCompoDark","SM_ThinBoxHorizen","SM_ThinBoxVertical","SM_ThinBoxHorizenDouble","SM_ThinBoxVerticalDouble","SM_WebPartitionFrame","SM_PartitionWorkSpace","SM_WorkStation_Partition","SM_Fence","SM_Steps","SM_Antena","SM_DoorOfficeFrame","SM_DoorExitFrame","SM_AutoDoorBase","SM_wallBrick"}
+wall_meshes = {"SM_Cube","SM_Column","SM_Cylinder","SM_WcWall","SM_Securitywall","SM_FrameTall","SM_FrameTallDoor","SM_LastLineEndWall","SM_CenterRoomsinnerWall","SM_ElevatorWall","SM_Elevator","SM_Room2SideGlass","SM_SecuritySilling","SM_SillingTile","SM_SillingCompoDark","SM_ThinBoxHorizen","SM_ThinBoxVertical","SM_ThinBoxHorizenDouble","SM_ThinBoxVerticalDouble","SM_WebPartitionFrame","SM_PartitionWorkSpace","SM_WorkStation_Partition","SM_Fence","SM_Steps","SM_Antena","SM_DoorOfficeFrame","SM_DoorExitFrame","SM_AutoDoorBase","SM_wallBrick",
+    # ResearchFacility pack: structural verticals + railings read as plan lines.
+    # (SM_Wall_* is already covered by the "wall" keyword below.)
+    "SM_Colomn_1","SM_Colomn_2","SM_Railing_1","SM_Elevator_Wall_1","SM_Elevator_Wall_4","SM_Elevator_Wall_5"}
 # Any mesh whose name contains one of these (case-insensitive) is treated as a wall: covers
 # SM_wallBrick + other maps' wall meshes without listing every one. Add map-specific keywords here.
 wall_keywords = ("wall", "brick")
 room_meshes = {"SM_RoomManagerA","SM_RoomManagerB","SM_ConferenceSecretaryRoom"}
-floor_meshes = {"SM_Woodfloor","SM_OutsideFloor","SM_KitchenFloor"}
+# ResearchFacility slabs: SM_Floor_4 (main deck, x95) / SM_Floor_1 (lower + sub-basement).
+floor_meshes = {"SM_Woodfloor","SM_OutsideFloor","SM_KitchenFloor","SM_Floor_1","SM_Floor_4","SM_Elevator_Floor_1","SM_Elevator_Floor_2"}
 door_meshes = {"SM_DoorOffice","SM_DoorExit","SM_AutoDoorLeft","SM_AutoDoorRight","SM_RoomManagerDoor"}
 door_bp_classes = {"BP_WCDoor01_C","BP_WCDoor02_C","BP_GlassDoors1_C","BP_ElevatorDoors_C","ZP_InteractDoor"}
 window_meshes = {"SM_WindowWall"}
 ladder_classes = {"ZP_Ladder","BP_Ladder_C"}
 
-def get_rect(actor, comp):
-    loc = actor.get_actor_location()
-    scale = actor.get_actor_scale3d()
-    rot = actor.get_actor_rotation()
+# Monotone chain. Input is <=8 projected corners, so this is trivially cheap.
+def _convex_hull(pts):
+    pts = sorted(set((round(x, 3), round(y, 3)) for x, y in pts))
+    if len(pts) <= 2:
+        return pts
+
+    def cross(o, a, b):
+        return (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0])
+
+    lower = []
+    for p in pts:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
+            lower.pop()
+        lower.append(p)
+    upper = []
+    for p in reversed(pts):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
+            upper.pop()
+        upper.append(p)
+    return lower[:-1] + upper[:-1]
+
+
+# Smallest-area enclosing rectangle (rotating calipers over hull edges). The minimum-area
+# rect always has a side flush with a hull edge, so testing every edge orientation is exact.
+# Returns 4 corners in order, or None if degenerate.
+def _min_area_rect(hull):
+    n = len(hull)
+    if n < 3:
+        return None
+    best = None
+    for i in range(n):
+        x1, y1 = hull[i]
+        x2, y2 = hull[(i + 1) % n]
+        ex, ey = x2 - x1, y2 - y1
+        L = math.hypot(ex, ey)
+        if L < 1e-6:
+            continue
+        ux, uy = ex / L, ey / L      # edge direction
+        vx, vy = -uy, ux             # its normal
+        us = [p[0]*ux + p[1]*uy for p in hull]
+        vs = [p[0]*vx + p[1]*vy for p in hull]
+        umin, umax, vmin, vmax = min(us), max(us), min(vs), max(vs)
+        area = (umax - umin) * (vmax - vmin)
+        if best is None or area < best[0]:
+            best = (area, ux, uy, vx, vy, umin, umax, vmin, vmax)
+    if best is None:
+        return None
+    _, ux, uy, vx, vy, umin, umax, vmin, vmax = best
+    return [(ux*u + vx*v, uy*u + vy*v)
+            for u, v in ((umin, vmin), (umax, vmin), (umax, vmax), (umin, vmax))]
+
+
+# World-space XY footprint of a placed mesh.
+#
+# Pushes all 8 corners of the component's LOCAL bounding box through its full world
+# transform, then takes the minimum-area rectangle of the projected silhouette.
+#
+# This replaces hand-rolled yaw trig that was WRONG for any mesh whose pivot is not
+# centred on its bounds. The old math added the pivot->centre offset along WORLD X/Y
+# while the offset is a LOCAL-space vector, so it had to be rotated first. Every wall
+# mesh in ResearchFacility pivots at an end or corner (SM_Wall_8 local X is 0..280,
+# SM_Wall_12 is 0..480 in both X and Y), which displaced 722 of 973 walls by up to
+# ~680 UU - walls landed metres off their true positions and no run lined up.
+# Measured 2026-08-06: only the yaw==0 walls were ever correct.
+#
+# Using the component's own world transform also fixes, for free:
+#   - pitch (the old code ignored it entirely)
+#   - roll (the old code special-cased +/-90 with a sy/sz swap and nothing else)
+#   - negative / non-uniform scale
+#   - components with a relative transform (the old code read the ACTOR transform,
+#     so any mesh offset inside its Blueprint was placed at the actor's origin)
+def _world_corners(comp):
     bmin, bmax = comp.get_local_bounds()
-    sx, sy, sz = abs(scale.x), abs(scale.y), abs(scale.z)
-    # When roll ~= +/-90, Y and Z axes swap (BigCompany wallBrick pattern)
-    # Roll rotates around X axis: Y becomes height, Z becomes horizontal Y
-    if abs(abs(rot.roll) - 90) < 15:
-        sy, sz = sz, sy
-    half_x = (bmax.x - bmin.x) * sx / 2.0
-    half_y = (bmax.y - bmin.y) * sy / 2.0
-    cx = loc.x + (bmin.x + bmax.x) / 2.0 * scale.x
-    cy = loc.y + (bmin.y + bmax.y) / 2.0 * scale.y
-    yaw_rad = math.radians(rot.yaw)
-    cos_y = math.cos(yaw_rad)
-    sin_y = math.sin(yaw_rad)
-    corners = [(-half_x,-half_y),(half_x,-half_y),(half_x,half_y),(-half_x,half_y)]
-    return [(cx+lx*cos_y-ly*sin_y, cy+lx*sin_y+ly*cos_y) for lx,ly in corners]
+    xf = comp.get_world_transform()
+    pts = []
+    for ix in (bmin.x, bmax.x):
+        for iy in (bmin.y, bmax.y):
+            for iz in (bmin.z, bmax.z):
+                w = xf.transform_location(unreal.Vector(ix, iy, iz))
+                pts.append((w.x, w.y, w.z))
+    return pts
+
+
+def get_rect(actor, comp):
+    pts = [(p[0], p[1]) for p in _world_corners(comp)]
+    rect = _min_area_rect(_convex_hull(pts))
+    if rect is None:
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        rect = [(min(xs), min(ys)), (max(xs), min(ys)),
+                (max(xs), max(ys)), (min(xs), max(ys))]
+    return rect
+
+
+# ---------------------------------------------------------------- surface dividers
+#
+# BP_Surface is the floor/ceiling DIVIDER: it is the deck the player walks on, and
+# nothing beneath it belongs on this floor's plan. A Z band alone cannot express that
+# - geometry tucked just under the deck still has its pivot inside the band, so it got
+# drawn straight over the rooms as a phantom "platform".
+#
+# ResearchFacility has two, stacked:
+#   BP_Surface   Z 3020..3030   <- floor of the main deck
+#   BP_Surface2  Z 3370.8       <- its ceiling / floor of the deck above
+#
+# So each floor is the slab BETWEEN two dividers. We pick the divider nearest this
+# band's FLOOR_LEVEL_Z as the floor, the next one up as the ceiling, and drop anything
+# lying wholly outside that sandwich. Levels with no BP_Surface (Building1) are
+# unaffected - SURFACES stays empty and nothing is culled.
+surface_class_keywords = ("Surface",)
+SURFACE_MATCH_RANGE = 200.0   # how near a divider must be to FLOOR_LEVEL_Z to be "this floor's"
+SURFACE_EPS = 1.0
+
+SURFACES = []
+for _a in eas.get_all_level_actors():
+    if not any(k in _a.get_class().get_name() for k in surface_class_keywords):
+        continue
+    _o, _e = _a.get_actor_bounds(False)
+    SURFACES.append({
+        "label": _a.get_actor_label(),
+        "top": _o.z + _e.z,
+        "x0": _o.x - _e.x, "x1": _o.x + _e.x,
+        "y0": _o.y - _e.y, "y1": _o.y + _e.y,
+    })
+SURFACES.sort(key=lambda s: s["top"])
+
+FLOOR_DIVIDER = None
+CEILING_DIVIDER = None
+for _s in SURFACES:
+    if abs(_s["top"] - FLOOR_LEVEL_Z) <= SURFACE_MATCH_RANGE:
+        if FLOOR_DIVIDER is None or _s["top"] > FLOOR_DIVIDER["top"]:
+            FLOOR_DIVIDER = _s
+if FLOOR_DIVIDER is not None:
+    for _s in SURFACES:
+        if _s["top"] > FLOOR_DIVIDER["top"] + 50.0:
+            CEILING_DIVIDER = _s
+            break
+
+for _s in SURFACES:
+    _role = "floor" if _s is FLOOR_DIVIDER else ("ceiling" if _s is CEILING_DIVIDER else "-")
+    print("SURFACE: %s top=%.1f X %.0f..%.0f Y %.0f..%.0f  role=%s"
+          % (_s["label"], _s["top"], _s["x0"], _s["x1"], _s["y0"], _s["y1"], _role))
+
+
+def _covers(surface, xs, ys):
+    # True if the actor's XY footprint overlaps the divider's footprint, i.e. the
+    # divider is actually over/under it. Geometry off the edge of the deck is left alone.
+    return not (max(xs) < surface["x0"] or min(xs) > surface["x1"] or
+                max(ys) < surface["y0"] or min(ys) > surface["y1"])
+
+
+def hidden_by_surface(pts):
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    zs = [p[2] for p in pts]
+    if FLOOR_DIVIDER is not None and max(zs) <= FLOOR_DIVIDER["top"] + SURFACE_EPS \
+            and _covers(FLOOR_DIVIDER, xs, ys):
+        return True
+    if CEILING_DIVIDER is not None and min(zs) >= CEILING_DIVIDER["top"] - SURFACE_EPS \
+            and _covers(CEILING_DIVIDER, xs, ys):
+        return True
+    return False
 
 walls = []
 doors = []
@@ -2373,6 +2628,7 @@ windows = []
 floors = []
 ladders = []
 rooms = []
+culled = 0
 
 for a in eas.get_all_level_actors():
     loc = a.get_actor_location()
@@ -2384,6 +2640,11 @@ for a in eas.get_all_level_actors():
         sm = comps[0].get_editor_property("static_mesh")
         if not sm: continue
         mn = sm.get_name()
+        # BP_Surface is the floor/ceiling divider - anything wholly beneath the deck
+        # (or above its ceiling) is not part of THIS floor's plan.
+        if hidden_by_surface(_world_corners(comps[0])):
+            culled += 1
+            continue
         if mn == "SM_Cube":
             s = a.get_actor_scale3d()
             if abs(s.x-1.0)<0.1 and abs(s.y-1.0)<0.1 and s.z<0.5 and abs(loc.z-FLOOR_LEVEL_Z)<20: continue
@@ -2417,7 +2678,7 @@ for r in windows:
 print("LADDERS")
 for r in ladders:
     print(f"R:{r[0][0]:.1f},{r[0][1]:.1f},{r[1][0]:.1f},{r[1][1]:.1f},{r[2][0]:.1f},{r[2][1]:.1f},{r[3][0]:.1f},{r[3][1]:.1f}")
-print(f"DONE: {len(walls)} walls, {len(floors)} floors, {len(rooms)} rooms, {len(windows)} windows, {len(ladders)} ladders")
+print(f"DONE: {len(walls)} walls, {len(floors)} floors, {len(rooms)} rooms, {len(windows)} windows, {len(ladders)} ladders, {culled} hidden by surface")
 """
 
 
