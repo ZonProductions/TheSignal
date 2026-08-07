@@ -173,6 +173,41 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
 	float AZP_MarcusBodyScale = 0.869f;
 
+	// --- Chest-on-look-down try-out (dev 2026-08-07: "I kinda like it") ---
+	// The camera rides the Operator's BENT spine while Marcus stays straight, so the camera
+	// slides forward past his chest and look-down shows only legs. This curls Marcus's spine
+	// with the camera pitch so his (janitor) chest comes into view — one mesh with the unarmed
+	// arms, so it joins correctly by construction. UNHOOK = set bAZP_MarcusChestBend false
+	// (Class Defaults, no rebuild needed).
+
+	/** Master switch for the look-down chest bend on the Marcus body.
+	 *  UNHOOKED 2026-08-07 after the dev's try-out verdict: the headless body's NECK STUMP curls
+	 *  into view at full look-down, and the walk clip's torso sway reads as "upper chest bobbing"
+	 *  right at the lens. Code kept for a future revisit — re-enabling needs (a) the neck chain
+	 *  excluded from the bend carry and (b) loco torso-sway damping near the camera. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	bool bAZP_MarcusChestBend = false;
+
+	/** Total forward spine curl (degrees) at full look-down, spread across the bend bones. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	float AZP_MarcusChestBendMaxDegrees = 32.0f;
+
+	/** Look-down pitch (degrees) where the bend starts easing in. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	float AZP_MarcusChestBendStartPitch = 12.0f;
+
+	/** Look-down pitch (degrees) of full bend. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	float AZP_MarcusChestBendEndPitch = 72.0f;
+
+	/** Spine chain the curl distributes across (CCMH = UE5-style spine_01..spine_05, verified). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	TArray<FName> AZP_MarcusChestBendBones = { FName("spine_01"), FName("spine_02"), FName("spine_03"), FName("spine_04"), FName("spine_05") };
+
+	/** Per-bone fraction of the total curl, index-matched to the bones array (sums ~1). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	TArray<float> AZP_MarcusChestBendWeights = { 0.10f, 0.15f, 0.20f, 0.25f, 0.30f };
+
 	/** Camera look-down angle (degrees) below which MarcusBody's spine starts
 	 *  bending forward so the camera never sees inside the chest cavity during
 	 *  Kinemation reload/switch dives. No bend above this threshold. */
@@ -1063,6 +1098,12 @@ public:
 	UFUNCTION(Exec)
 	void BodySlotList();
 
+	/** PIE console: dump every FP-relevant mesh's visibility state (asset, Visible,
+	 *  OnlyOwnerSee, OwnerNoSee). Run it while seeing a wrong body — the one with
+	 *  OwnerNoSee=0 (or an unexpected Visible=1) is the mesh you are looking at. */
+	UFUNCTION(Exec)
+	void FPBodyDump();
+
 	/** Apply one slot's section visibility on the FP body across all LODs. */
 	void SetBodySlotVisible(int32 SlotIndex, bool bVisible);
 
@@ -1712,5 +1753,6 @@ private:
 	void UpdateLadderTopExit(float DeltaTime);
 
 	friend class AZP_Ladder;
+	friend class UZP_MarcusBodyAnimInstance; // chest-bend instance reads knobs + MarcusHead grab marker
 
 };

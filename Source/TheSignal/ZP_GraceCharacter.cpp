@@ -24,6 +24,7 @@
 #include "ZP_NoteComponent.h"
 #include "ZP_SignalSenseComponent.h"
 #include "ZP_InventoryTabTypes.h"
+#include "ZP_MarcusBodyAnimInstance.h"
 #include "ZP_SFXStatics.h"
 #include "ZP_InventoryTabWidget.h"
 #include "GameplayTagContainer.h"
@@ -594,6 +595,40 @@ void AZP_GraceCharacter::BodySlotList()
 	}
 }
 
+void AZP_GraceCharacter::FPBodyDump()
+{
+	// One-command answer to "which mesh am I actually looking at?" — dump every FP-relevant
+	// skeletal mesh's render flags. The kevlar torso = SKM_Operator_Mono with OwnerNoSee=0.
+	const TPair<const TCHAR*, USkeletalMeshComponent*> Comps[] = {
+		{ TEXT("PlayerMesh"),     PlayerMesh },
+		{ TEXT("Mesh(hidden)"),   GetMesh() },
+		{ TEXT("MarcusBody"),     MarcusBody },
+		{ TEXT("MarcusOveralls"), MarcusOveralls },
+		{ TEXT("MarcusSneakers"), MarcusSneakers },
+		{ TEXT("MarcusHead"),     MarcusHead },
+		{ TEXT("MeleeViewMesh"),  MeleeViewMesh },
+		{ TEXT("MeleeViewOveralls"), MeleeViewOveralls },
+		{ TEXT("RangedArms"),     RangedArms },
+		{ TEXT("RangedHands"),    RangedHands },
+		{ TEXT("RangedSleeve"),   RangedSleeve },
+	};
+	int32 Line = 0;
+	for (const auto& Pair : Comps)
+	{
+		USkeletalMeshComponent* C = Pair.Value;
+		const FString Msg = !C
+			? FString::Printf(TEXT("[FPBody] %-18s <null>"), Pair.Key)
+			: FString::Printf(TEXT("[FPBody] %-18s asset=%-24s Visible=%d OnlyOwnerSee=%d OwnerNoSee=%d"),
+				Pair.Key, *GetNameSafe(C->GetSkeletalMeshAsset()),
+				C->IsVisible() ? 1 : 0,
+				C->bOnlyOwnerSee ? 1 : 0,
+				C->bOwnerNoSee ? 1 : 0);
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Msg);
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(9200 + Line, 20.f, FColor::Yellow, Msg); }
+		++Line;
+	}
+}
+
 void AZP_GraceCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -951,6 +986,18 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		// the gun couldn't be tuned. false => GameplayComp uses CameraRanged* (gun at
 		// the pack-authored FPCamera socket); true => Marcus eye offset (CameraExtra*).
 		if (GameplayComp) GameplayComp->bCameraOffsetActive = !bRangedArmed;
+
+		// SELF-HEAL (dev 2026-08-07: "looking down I see a KEVLAR chest" — the Operator body,
+		// which renders to nobody by design). SetupMarcusAppearance sets OwnerNoSee once at
+		// BeginPlay; if ANYTHING clears it later the tactical Operator torso appears in first
+		// person, mismatched against the view-model arms and occluding the janitor body below.
+		// Re-assert it whenever the Marcus shell is active, and say WHO to look for when it trips.
+		if (PlayerMesh && MarcusBody && MarcusBody->IsVisible() && !PlayerMesh->bOwnerNoSee)
+		{
+			PlayerMesh->SetOwnerNoSee(true);
+			UE_LOG(LogTemp, Warning,
+				TEXT("[TheSignal] PlayerMesh OwnerNoSee was CLEARED at runtime — re-hidden. Something is flipping the Operator body visible (FPBodyDump to inspect)."));
+		}
 
 		// Hide Marcus's own arms whenever any weapon arms are shown (melee or ranged).
 		if (MarcusBody && bWeaponArms != bMarcusArmsHidden)
@@ -4660,7 +4707,11 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 		TEXT("/Game/CharacterCustomizer/Characters/CCMH/Meshes/CCMH_Body_Male.CCMH_Body_Male"));
 	if (!Body)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TheSignal] SetupMarcusAppearance — CCMH body failed to load; keeping Operator body."));
+		// STILL hide the Operator from the owner: a load failure must degrade to the old
+		// arms-only first person, never to the tactical kevlar body standing in for Marcus
+		// (dev 2026-08-07: kevlar chest on look-down, mismatched with the view-model arms).
+		PlayerMesh->SetOwnerNoSee(true);
+		UE_LOG(LogTemp, Error, TEXT("[TheSignal] SetupMarcusAppearance — CCMH body FAILED TO LOAD; no Marcus shell this session (arms-only FP, Operator hidden)."));
 		return;
 	}
 
@@ -4673,7 +4724,18 @@ void AZP_GraceCharacter::SetupMarcusAppearance()
 	// RetargetPoseFromMesh node. That node flickered to ref pose every other frame
 	// against our custom dual-mesh source ("shuffle"); native SingleNode playback is
 	// deterministic = no shuffle. Speed-driven in the locomotion update (UpdateLocoAnim).
-	MarcusBody->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	// Chest-on-look-down try-out: install the SingleNode-compatible subclass that adds the
+	// procedural spine curl post-evaluate. Every GetSingleNodeInstance() call site still works
+	// (the subclass IS a UAnimSingleNodeInstance). UNHOOK = bAZP_MarcusChestBend false in
+	// Class Defaults -> plain SingleNode mode, byte-for-byte the old behavior.
+	if (bAZP_MarcusChestBend)
+	{
+		MarcusBody->SetAnimInstanceClass(UZP_MarcusBodyAnimInstance::StaticClass());
+	}
+	else
+	{
+		MarcusBody->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	}
 	AZP_MarcusIdle       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Stand_Idle_Loop.Marcus_M_Neutral_Stand_Idle_Loop"));
 	AZP_MarcusWalk       = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Walk_Loop_F.Marcus_M_Neutral_Walk_Loop_F"));
 	AZP_MarcusRun        = LoadObject<UAnimSequenceBase>(nullptr, TEXT("/Game/Marcus/Anims/Marcus_M_Neutral_Run_Loop_F.Marcus_M_Neutral_Run_Loop_F"));
