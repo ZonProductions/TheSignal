@@ -91,6 +91,16 @@ AZP_InteractDoor::AZP_InteractDoor()
 	static ConstructorHelpers::FObjectFinder<USoundBase> HandleSoundFinder(
 		TEXT("/Game/Audio/SFX_Door_Handle.SFX_Door_Handle"));
 	if (HandleSoundFinder.Succeeded()) { AZP_HandleSound = HandleSoundFinder.Object; }
+
+	// Default open/close movement sounds (overridable per BP/instance). AZP_OpenSound had no
+	// default at all before 2026-08-06 — every door was silent unless someone set it by hand.
+	static ConstructorHelpers::FObjectFinder<USoundBase> OpenSoundFinder(
+		TEXT("/Game/Audio/Signal/SFX_Metal_Door_Open.SFX_Metal_Door_Open"));
+	if (OpenSoundFinder.Succeeded()) { AZP_OpenSound = OpenSoundFinder.Object; }
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> CloseSoundFinder(
+		TEXT("/Game/Audio/Signal/SFX_Metal_Door_Close.SFX_Metal_Door_Close"));
+	if (CloseSoundFinder.Succeeded()) { AZP_CloseSound = CloseSoundFinder.Object; }
 }
 
 void AZP_InteractDoor::BeginPlay()
@@ -253,6 +263,7 @@ void AZP_InteractDoor::CloseDoor()
 {
 	if (!HasDoorTarget() || !bIsOpen) { return; }
 	bIsOpen = false;
+	PlayCloseSound();
 	StartDoorAnimation();
 }
 
@@ -418,8 +429,16 @@ void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 	if (Now - LastInteractTime < AZP_InteractCooldown) { return; }
 	LastInteractTime = Now;
 
-	// The handle always turns/rattles — every accepted attempt is audible, open or not.
-	PlayHandleSound();
+	// The handle rattle used to fire here on EVERY accepted interact, unconditionally. Once the
+	// doors got real open/close movement sounds (2026-08-06) that meant two sounds started on the
+	// same frame from the same attach component — and the handle (Close carry, volume 1.0) buried
+	// the movement sound underneath it, so the doors "sounded the same as before". It is now the
+	// BLOCKED cue: the handle turns and nothing happens. Set bAZP_HandleSoundAlways to restore the
+	// old layer-on-everything behaviour.
+	if (bAZP_HandleSoundAlways)
+	{
+		PlayHandleSound();
+	}
 
 	if (bAZP_Locked)
 	{
@@ -433,8 +452,16 @@ void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 		}
 		else
 		{
-			// Cannot open — surface the locked prompt for ANY blocked reason (manual lock,
-			// missing key item, elevator away).
+			// Cannot open — the handle turns and the door doesn't. This is the one moment the
+			// rattle is the WHOLE story, so it plays here regardless of bAZP_HandleSoundAlways
+			// (guarded so it isn't doubled when that flag already played it above).
+			if (!bAZP_HandleSoundAlways)
+			{
+				PlayHandleSound();
+			}
+
+			// Surface the locked prompt for ANY blocked reason (manual lock, missing key item,
+			// elevator away).
 			ShowTimedHudMessage(Interactor, AZP_LockedPromptText);
 			UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: LOCKED — ignoring interact%s"),
 				*GetName(), AZP_RequiredItem.IsNull() ? TEXT("") : TEXT(" (missing required item)"));
@@ -490,7 +517,7 @@ void AZP_InteractDoor::OnInteract_Implementation(ACharacter* Interactor)
 		OpenRotation.Yaw += Swing;
 	}
 
-	if (bIsOpen) { PlayOpenSound(); }
+	if (bIsOpen) { PlayOpenSound(); } else { PlayCloseSound(); }
 	StartDoorAnimation();
 
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] InteractDoor %s: %s"),
@@ -511,6 +538,14 @@ void AZP_InteractDoor::PlayOpenSound()
 	if (USoundBase* S = AZP_OpenSound)
 	{
 		UZP_SFXStatics::PlaySFXAttached(S, GetSFXAttachComp(), AZP_OpenSoundCarry);
+	}
+}
+
+void AZP_InteractDoor::PlayCloseSound()
+{
+	if (USoundBase* S = AZP_CloseSound)
+	{
+		UZP_SFXStatics::PlaySFXAttached(S, GetSFXAttachComp(), AZP_CloseSoundCarry);
 	}
 }
 

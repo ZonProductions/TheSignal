@@ -86,6 +86,11 @@ UZP_KinemationComponent::UZP_KinemationComponent()
 	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeSwingFinder(
 		TEXT("/Game/Audio/Weapons/SFX_MELEE_SWING.SFX_MELEE_SWING"));
 	if (MeleeSwingFinder.Succeeded()) { AZP_MeleeSwingSound = MeleeSwingFinder.Object; }
+
+	// Per-swing contact fine tune, [0] Forward / [1] Right / [2] Left. Set HERE and not in
+	// InitializeKinemation — that runs at runtime and would overwrite the dev's Details-panel
+	// tuning on every init. Constructor defaults are overridden by BP-saved values as normal.
+	AZP_MeleeContactOffsetByDir = { 0.0f, 0.0f, 0.0f };
 }
 
 // NEVER move PlayerMesh to animate weapon transitions — the first-person
@@ -176,13 +181,18 @@ void UZP_KinemationComponent::InitializeKinemation()
 	// pose (arms mispositioned — "more than a tuning displacement"). Back to the
 	// proven Operator-skeleton A_MeleePipe clips on SKM_Operator_Mono below.
 	AZP_MeleeLightAnims.Reset();
-	for (const FString& Name : { FString(TEXT("A_MeleePipe_Attack_R")),
-	                             FString(TEXT("A_MeleePipe_Attack_L")) })
+	AZP_MeleeSwingDirections.Reset();
+	// Index-matched: Attack_R is a RIGHT swing (dir 1), Attack_L is a LEFT swing (dir 2).
+	// Kept beside the load so the two arrays can never drift apart.
+	for (const TPair<FString, int32>& Entry : {
+			TPair<FString, int32>(TEXT("A_MeleePipe_Attack_R"), 1),
+			TPair<FString, int32>(TEXT("A_MeleePipe_Attack_L"), 2) })
 	{
-		const FString Path = FString::Printf(TEXT("/Game/TheSignal/Animations/Melee/%s.%s"), *Name, *Name);
+		const FString Path = FString::Printf(TEXT("/Game/TheSignal/Animations/Melee/%s.%s"), *Entry.Key, *Entry.Key);
 		if (UAnimSequenceBase* Anim = LoadObject<UAnimSequenceBase>(nullptr, *Path))
 		{
 			AZP_MeleeLightAnims.Add(Anim);
+			AZP_MeleeSwingDirections.Add(Entry.Value);
 		}
 	}
 	AZP_MeleeIdleAnim = LoadObject<UAnimSequenceBase>(nullptr,
@@ -855,6 +865,7 @@ void UZP_KinemationComponent::UnequipWeapon()
 		GetWorld()->GetTimerManager().ClearTimer(MeleeReadyStanceHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeEquipIdleHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeDamageHandle);
+		GetWorld()->GetTimerManager().ClearTimer(MeleeWhooshHandle);
 		GetWorld()->GetTimerManager().ClearTimer(MeleeUnequipHideHandle);
 		GetWorld()->GetTimerManager().ClearTimer(WeaponSwitchAnimHandle);
 		GetWorld()->GetTimerManager().ClearTimer(HeadHideHandle);
@@ -1467,15 +1478,49 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 		return;
 	}
 
-	// --- Pick the swing: cycles F → R → L (variety is dev-approved) ---
+	// --- Pick the swing: alternates R → L (variety is dev-approved) ---
 	UAnimSequenceBase* SwingAnim = nullptr;
 	if (AZP_MeleeLightAnims.Num() > 0)
 	{
 		const int32 UsedIdx = MeleeLightAnimIndex % AZP_MeleeLightAnims.Num();
 		SwingAnim = AZP_MeleeLightAnims[UsedIdx];
-		MeleeCurrentSwingDir = UsedIdx % 3; // 0=Forward, 1=Right, 2=Left (F→R→L order)
+		// Direction comes from the index-matched table, NOT `UsedIdx % 3`. That modulo was written
+		// for the original three-clip F/R/L set; once the forward stab was cut the two remaining
+		// clips reported Forward(0) and Right(1), so Attack_L whipped the camera RIGHT and
+		// Attack_R got no whip at all (dir 0 hits the default case in MeleeCommitImpact).
+		if (AZP_MeleeSwingDirections.Num() == AZP_MeleeLightAnims.Num())
+		{
+			MeleeCurrentSwingDir = AZP_MeleeSwingDirections[UsedIdx];
+		}
+		else
+		{
+			MeleeCurrentSwingDir = UsedIdx % 3;
+			UE_LOG(LogTemp, Warning,
+				TEXT("[TheSignal] Melee: AZP_MeleeSwingDirections (%d) does not match AZP_MeleeLightAnims (%d) — falling back to index%%3, swing direction may be wrong."),
+				AZP_MeleeSwingDirections.Num(), AZP_MeleeLightAnims.Num());
+		}
 		++MeleeLightAnimIndex;
 	}
+
+	// --- Contact frame: when the pipe actually connects ---
+	// Everything audible hangs off this — the impact SFX fires with the damage sweep and the
+	// whoosh is scheduled to land into it. Derived from THIS clip's played length so the two
+	// swings aren't forced to share one flat delay.
+	float SwingDuration = 0.7f; // fallback if the anim is missing
+	if (SwingAnim)
+	{
+		SwingDuration = SwingAnim->GetPlayLength() / FMath::Max(AZP_MeleeSwingRate, 0.1f);
+	}
+	float ContactTime = AZP_MeleeDamageDelay;
+	if (bAZP_MeleeContactFromAnim && SwingAnim && AZP_MeleeContactFraction > 0.0f)
+	{
+		ContactTime = SwingDuration * AZP_MeleeContactFraction;
+	}
+	if (AZP_MeleeContactOffsetByDir.IsValidIndex(MeleeCurrentSwingDir))
+	{
+		ContactTime += AZP_MeleeContactOffsetByDir[MeleeCurrentSwingDir];
+	}
+	ContactTime = FMath::Max(0.0f, ContactTime);
 
 	// Capture the COMMITTED aim now, before the camera whip moves the view — the damage sweep uses this,
 	// so the whip never makes the swing miss. Then hand the swing direction to the character to drive the
@@ -1493,17 +1538,36 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 	}
 
 	// Swing whoosh — own-body foley, fires with the swing regardless of view-model state.
+	// Scheduled to LEAD the contact frame rather than firing at click time: previously it played
+	// at t=0 while the sweep fired at a flat AZP_MeleeDamageDelay, so whoosh and impact sat exactly
+	// that far apart on every swing no matter which clip was playing.
 	if (AZP_MeleeSwingSound)
 	{
-		UGameplayStatics::PlaySound2D(GetOwner(), AZP_MeleeSwingSound, AZP_MeleeSwingVolume);
+		const float WhooshAt = FMath::Max(0.0f, ContactTime - FMath::Max(0.0f, AZP_MeleeWhooshLead));
+		if (WhooshAt <= KINDA_SMALL_NUMBER)
+		{
+			UGameplayStatics::PlaySound2D(GetOwner(), AZP_MeleeSwingSound, AZP_MeleeSwingVolume);
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().SetTimer(MeleeWhooshHandle, [this]()
+			{
+				if (AZP_MeleeSwingSound)
+				{
+					UGameplayStatics::PlaySound2D(GetOwner(), AZP_MeleeSwingSound, AZP_MeleeSwingVolume);
+				}
+			}, WhooshAt, false);
+		}
 	}
 
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee swing dir=%d clip=%s len=%.2fs contact=%.2fs whooshLead=%.2fs"),
+		MeleeCurrentSwingDir, SwingAnim ? *SwingAnim->GetName() : TEXT("none"),
+		SwingDuration, ContactTime, AZP_MeleeWhooshLead);
+
 	// --- Animation: retargeted Kubold swing on the view model (TICKET-054) ---
-	float SwingDuration = 0.7f; // fallback if anim missing
 	if (bMeleeViewModelActive && MeleeViewMeshComponent && SwingAnim)
 	{
 		PlayMeleeViewAnim(SwingAnim, false, AZP_MeleeSwingRate);
-		SwingDuration = SwingAnim->GetPlayLength() / FMath::Max(AZP_MeleeSwingRate, 0.1f);
 
 		bMeleeSwingActive = true;
 		bMeleeSwingTailCancelable = false;
@@ -1533,11 +1597,11 @@ void UZP_KinemationComponent::PerformMeleeSwing()
 
 	// --- Damage: sweep on the impact frame, not at click time ---
 	UE_LOG(LogTemp, Warning, TEXT("[LatchProbe] t=%.2f SWING click — damage sweep queued to fire at t=%.2f (+%.2fs)"),
-		GetWorld()->GetTimeSeconds(), GetWorld()->GetTimeSeconds() + AZP_MeleeDamageDelay, AZP_MeleeDamageDelay);
+		GetWorld()->GetTimeSeconds(), GetWorld()->GetTimeSeconds() + ContactTime, ContactTime);
 	GetWorld()->GetTimerManager().SetTimer(MeleeDamageHandle, [this]()
 	{
 		DoMeleeDamageSweep();
-	}, AZP_MeleeDamageDelay, false);
+	}, ContactTime, false);
 
 	// Cooldown covers the full swing so a re-click can't restart mid-animation
 	bMeleeCooldown = true;
@@ -1610,13 +1674,31 @@ void UZP_KinemationComponent::DoMeleeDamageSweep()
 
 			if (bHitEnemy)
 			{
-				// Pipe is metal — the metal sound always plays — and a flesh impact
-				// layers on top (dev: "impact + hit at the same time"). Close carry: own-melee
-				// foley, always within ~2 m of the listener.
-				UZP_SFXStatics::PlaySFXAtLocation(this, AZP_PipeMetalSound, ImpactLoc, EZP_SFXCarry::Close);
+				// Flesh impact for THIS swing direction — right swing and left swing are meant to
+				// be audibly different strikes. SFX_PIPE_HIT (the metal pipe-on-hard-surface sound)
+				// used to layer over every enemy connect and dominated it, so hitting a Shambler
+				// sounded like hitting a wall; it is opt-in now.
+				// Close carry: own-melee foley, always within ~2 m of the listener.
+				if (bAZP_MeleeLayerPipeMetalOnFlesh)
+				{
+					UZP_SFXStatics::PlaySFXAtLocation(this, AZP_PipeMetalSound, ImpactLoc, EZP_SFXCarry::Close);
+				}
 				if (AZP_MeleeFleshImpactSounds.Num() > 0)
 				{
-					USoundBase* Flesh = AZP_MeleeFleshImpactSounds[FMath::RandRange(0, AZP_MeleeFleshImpactSounds.Num() - 1)];
+					int32 FleshIdx = 0;
+					if (bAZP_MeleeFleshImpactByDirection)
+					{
+						// Swing dir 2 = Left -> [1]; Right (and Forward) -> [0].
+						FleshIdx = (MeleeCurrentSwingDir == 2) ? 1 : 0;
+						FleshIdx = FMath::Min(FleshIdx, AZP_MeleeFleshImpactSounds.Num() - 1);
+					}
+					else
+					{
+						FleshIdx = FMath::RandRange(0, AZP_MeleeFleshImpactSounds.Num() - 1);
+					}
+					USoundBase* Flesh = AZP_MeleeFleshImpactSounds[FleshIdx];
+					UE_LOG(LogTemp, Log, TEXT("[TheSignal] Melee flesh impact: dir=%d -> %s"),
+						MeleeCurrentSwingDir, Flesh ? *Flesh->GetName() : TEXT("none"));
 					UZP_SFXStatics::PlaySFXAtLocation(this, Flesh, ImpactLoc, EZP_SFXCarry::Close);
 				}
 
@@ -1694,6 +1776,9 @@ void UZP_KinemationComponent::CancelPendingMeleeSwing()
 	{
 		const bool bWasPending = W->GetTimerManager().IsTimerActive(MeleeDamageHandle);
 		W->GetTimerManager().ClearTimer(MeleeDamageHandle);
+		// The whoosh now fires on a timer too — a swing cancelled before contact must not still
+		// play the air of a swing that never lands.
+		W->GetTimerManager().ClearTimer(MeleeWhooshHandle);
 		if (bWasPending)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[TheSignal] CancelPendingMeleeSwing — queued melee sweep KILLED (grab latched mid-swing)"));

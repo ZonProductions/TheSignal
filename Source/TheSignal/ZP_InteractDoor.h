@@ -160,6 +160,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	EZP_SFXCarry AZP_OpenSoundCarry = EZP_SFXCarry::Room;
 
+	/** Sound played at the door each time it STARTS closing. Defaults to SFX_Metal_Door_Close.
+	 *  Same rules as AZP_OpenSound: routed through the SFXStatics carry model, NOT played when a
+	 *  save-load applies an already-closed end state, None = silent. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	TObjectPtr<USoundBase> AZP_CloseSound;
+
+	/** How far AZP_CloseSound carries. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	EZP_SFXCarry AZP_CloseSoundCarry = EZP_SFXCarry::Room;
+
 	/** Sound at the door the moment the required key item unlocks it. Defaults to SFX_Door_Unlock. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	TObjectPtr<USoundBase> AZP_UnlockSound;
@@ -180,6 +190,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
 	float AZP_HandleSoundVolume = 1.f;
+
+	/** OFF (default): the handle rattle is the BLOCKED cue only — it plays when the door refuses
+	 *  to move, and stays out of the way when the door actually opens/closes so AZP_OpenSound /
+	 *  AZP_CloseSound are what you hear. ON: the pre-2026-08-06 behaviour, rattle on every
+	 *  accepted interact — which layers it on top of the movement sound and masks it. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door|Audio")
+	bool bAZP_HandleSoundAlways = false;
 
 	/** Unlock this door. Called by AZP_CardReaderPanel or other systems. */
 	UFUNCTION(BlueprintCallable, Category = "Door")
@@ -307,6 +324,9 @@ private:
 
 	/** Play AZP_OpenSound attached to whichever mesh actually moves. */
 	void PlayOpenSound();
+
+	/** Fires on every path that STARTS a close (interact toggle, elevator departure). */
+	void PlayCloseSound();
 
 	/** Begin an open/close animation from the CURRENT pose (captures the fixed-duration start). */
 	void StartDoorAnimation();

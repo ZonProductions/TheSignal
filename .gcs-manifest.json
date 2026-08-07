@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-08-06T12:20:17",
+  "created": "2026-08-06T21:37:42",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -2860,28 +2860,28 @@
       "size": 424559
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_ALERT.uasset": {
-      "hash": "sha256:3a01c8f7828f337124ea6a2dfef0a21cc99b9305ad6f5bc489af8edb7352badc",
-      "size": 396611
+      "hash": "sha256:53f5ccc1283f4e0a82d9ce9211e1cbe99c267882da0cf32cc678681729943c76",
+      "size": 257935
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_ATTACK.uasset": {
-      "hash": "sha256:e0ddce53e0b12841e44234900518f9fa9542f9be8b1d16ba70af249d227d9f93",
-      "size": 212736
+      "hash": "sha256:dec36ab2d9e92166afc7d418042c98c14e3ed65b1dba378a7f6fafbc4ac940c9",
+      "size": 212783
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_ATTACK2.uasset": {
-      "hash": "sha256:617f58ccf7e055dc64c2e06a880db7a74d536cbc46da9e70fa8a91a7ec796646",
-      "size": 77288
+      "hash": "sha256:40e15963ad4a9ad8352027e6e345cf4253ec67905867444b860302a1519dd60b",
+      "size": 98793
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_DEATH.uasset": {
-      "hash": "sha256:6b4362812fd9e09cc9824f8ecb3cf9517ec8e2986a73929e6a8de17f7e898ccf",
-      "size": 193100
+      "hash": "sha256:a7f4119254156ce5c1dd6cd2396a84c5ece82bb6e225f0f918e8dca26344da71",
+      "size": 220122
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_IDLE.uasset": {
       "hash": "sha256:e7403aea33be35763faa7eaeb5134ce41ce96880b3af27ec928d9e4eb583e5a6",
       "size": 953335
     },
     "Content/Audio/Shambler/SFX_ZOMBIE_LURK.uasset": {
-      "hash": "sha256:e4c8ef22976fed38eb55e05892399bb8593da67413a204bfe2d0a798e1b6adb7",
-      "size": 193091
+      "hash": "sha256:e65a7855b27738dcc91104e213573e70928f3d9914a150405aba97049548f088",
+      "size": 1293280
     },
     "Content/Audio/Shambler/Footsteps/SFX_SHAMBLER_FOOTSTEP_01.uasset": {
       "hash": "sha256:20898cc7b46e88b6d48a7fb33f19c4019db4904362ffe1874aaeda124af95df6",
@@ -2951,6 +2951,14 @@
       "hash": "sha256:6399245780c9578191356186a8c2b4dcf13601c647efcef2200c27f2d84a649c",
       "size": 1203716
     },
+    "Content/Audio/Signal/SFX_Metal_Door_Close.uasset": {
+      "hash": "sha256:24486b12041fe4fc88b6bb421126a9b5ac8dded74d804b4a3e33a80b10a9eb63",
+      "size": 88763
+    },
+    "Content/Audio/Signal/SFX_Metal_Door_Open.uasset": {
+      "hash": "sha256:79ba7f13182755cabb6932605f63c90fd5402b952cf30b3f6df12ad7ec568da0",
+      "size": 68922
+    },
     "Content/Audio/Signal/SFX_Phone_Ring.uasset": {
       "hash": "sha256:1a8c8e91afa6de4280f4686c20b5ffedc18e12b30b82586e82fe36b8c17fa091",
       "size": 1127779
@@ -2963,37 +2971,41 @@
       "hash": "sha256:a9403768e4e7bea563e4361aec5c1599ce49569c42f22c92f05fcd61401b6f5e",
       "size": 1105654
     },
+    "Content/Audio/Weapons/SFX_MELEE_BLOCK.uasset": {
+      "hash": "sha256:2325b9c43025c52500714fc9b655f13a3f2d01fe4cf0e44620239c1b870a6495",
+      "size": 68548
+    },
     "Content/Audio/Weapons/SFX_MELEE_IMPACT1.uasset": {
-      "hash": "sha256:5867a2ed3735fd541db7832b2dd326e6729ad840a9e9620500c1e81ccf5058af",
-      "size": 25438
+      "hash": "sha256:6ddbf0e8d4c805ccf5dfc1c074f42094f4af2f23f093dcc6151df740620ea6e5",
+      "size": 68515
     },
     "Content/Audio/Weapons/SFX_MELEE_IMPACT2.uasset": {
-      "hash": "sha256:59a6c10cfe276735f3022525487f10bbb02e60c6342ca2a674023f917633ba21",
-      "size": 25481
+      "hash": "sha256:4a9b20edc32f21fbd5f65518a8fe550fc11f60bf257cedd133369f3244bdc8c5",
+      "size": 68254
     },
     "Content/Audio/Weapons/SFX_MELEE_SWING.uasset": {
-      "hash": "sha256:725185d9d36e2e61acbca8d97247de2d013d51c66796e0e4e760ed8b6a48d916",
-      "size": 90586
+      "hash": "sha256:e2fac6b440aeeedd3f874591a594487a711d210e7b6edf579a410aacf00090b8",
+      "size": 90673
     },
     "Content/Audio/Weapons/SFX_PIPE_HIT.uasset": {
-      "hash": "sha256:94ba364965fb5d2a558e35b737c975255053577e658c3d027f9bba3b80fb3d1e",
-      "size": 32071
+      "hash": "sha256:9bbf61a2c305139b447309de340eece0052695a555f78f7620a555d4a02a9a42",
+      "size": 180684
     },
     "Content/Audio/Weapons/SFX_PIPE_SURFACE_GLASS_IMPACT.uasset": {
-      "hash": "sha256:ab5c065c13c40757571b01a897e2d5f0b93896a568dd19c94ae99692932b0ffc",
-      "size": 117609
+      "hash": "sha256:1a616a84647fc245373ab8531935703554c5daee956a3c5f7d868853242b13b2",
+      "size": 62252
     },
     "Content/Audio/Weapons/SFX_PIPE_SURFACE_METAL_IMPACT.uasset": {
-      "hash": "sha256:5e1a7c99d4b5a0eafa2652a8ab36f4d8402285b47d92bf4612a28611f1ca4589",
-      "size": 100826
+      "hash": "sha256:c7b6ae4d4cf1c413e36ce77001c852b41c68470f8558dfcdd1133b38ef132c5a",
+      "size": 53384
     },
     "Content/Audio/Weapons/SFX_PIPE_SURFACE_WALL_IMPACT.uasset": {
-      "hash": "sha256:0cce4eb50d791113e56e1e0c9c9d94a70dc22ed96f5de5d4727841a3fddef102",
-      "size": 76911
+      "hash": "sha256:7c77df48b45dcd72d76da984aeb11a2e033a0c789d98229dfb318f80f57a3a93",
+      "size": 110809
     },
     "Content/Audio/Weapons/SFX_PIPE_SURFACE_WOOD_IMPACT.uasset": {
-      "hash": "sha256:be249c7287a966a5ff0504b921971918c965864d5f18ee7c8f59e098cacc395e",
-      "size": 62270
+      "hash": "sha256:aba0db643498675a60b9020c932c2d078ac91763cfa616a5d2f2fab983c6e9d7",
+      "size": 68297
     },
     "Content/Audio/Weapons/SFX_RANGE_IMPACT_PISTOL.uasset": {
       "hash": "sha256:5cd4ee7d8dc34905509a82aac2211e55d6e1b57e5327a865ed2ae8640ca5985e",
@@ -15288,8 +15300,8 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:79349edaf29ffd90c63ec30f40f11e839aeb28be41a7ab6fa3ab6659d9759570",
-      "size": 7523197
+      "hash": "sha256:d350f40e3e9060f4866e9c5781c5d76ab15c0c4f75d847c27013a2862385ab73",
+      "size": 7541378
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {
       "hash": "sha256:7d8ebc3e9a27435b62ba02833940b5c5931ca1d803cfdafd6528af9c9bde2355",
@@ -26100,8 +26112,8 @@
       "size": 1353
     },
     "Content/Core/Input/IMC_Grace.uasset": {
-      "hash": "sha256:d789d6f77916fe1811603c562e8db6d76e56617977c4662ff101767a96270192",
-      "size": 32260
+      "hash": "sha256:25841a2ab1fee5497d35bb823676df6da576f2719893090015f077c0fe71f382",
+      "size": 32291
     },
     "Content/Core/Input/Actions/IA_Aim.uasset": {
       "hash": "sha256:2aa39b8438b5e5976a75e8f36f593d7a477d6cda0ca1969173290fb4ca12dd2f",
@@ -26358,6 +26370,10 @@
     "Content/Core/Player/PC_Grace.uasset": {
       "hash": "sha256:ba30e997971b323bf314224d6869a7b6a4b8e4857c8f37e294b1645b7b6530c0",
       "size": 18476
+    },
+    "Content/Core/UI/DT_MapLegendActions.uasset": {
+      "hash": "sha256:fb725c4db4f412d669c4293b8909aa190d72a041f00bb5b00e30110fde869757",
+      "size": 25619
     },
     "Content/Data/DT_Objectives.uasset": {
       "hash": "sha256:884afc1c3a416d4c2754f13315d6b7effc1ae9b7936f51cc72c1968bfe5621fe",
@@ -28292,8 +28308,8 @@
       "size": 22918
     },
     "Content/EasyGameUI/EasyOptionsMenu/Core/WBP_Notes.uasset": {
-      "hash": "sha256:735c8c850bbc9362c19d04f19aa61a5e39649c70787dcb2523dee8dc54158f3d",
-      "size": 1982212
+      "hash": "sha256:782b4e4bb82fcee17f8c75a5c4237fe53399a35145cfddc490a26c4456a6c463",
+      "size": 33832
     },
     "Content/EasyGameUI/EasyOptionsMenu/Core/SettingsWidgets/WBP_EOM_SettingKeybinding.uasset": {
       "hash": "sha256:ad668176897064ad77c31c360df898cabec9ba7b2450b08c91b42962408db859",
@@ -38908,8 +38924,8 @@
       "size": 2320
     },
     "Content/InventorySystemPro/Blueprints/Input/InventoryCharacter/IMC_InventoryCharacter.uasset": {
-      "hash": "sha256:46c70efcfafa4c93f029a30af02328d4a69e6093f9f40cf7eb6b441fa6c52f69",
-      "size": 29770
+      "hash": "sha256:6d859cbbc1941faab26b30c5d26c17502e211c09ee088a7c077a2811a07a0fde",
+      "size": 29801
     },
     "Content/InventorySystemPro/Blueprints/Input/InventoryInspectionMenu/IA_UI_InventoryInspectionInteract.uasset": {
       "hash": "sha256:b25a96cc190abbdb9e1b6d91381e0c1cf18b168187280892ec2c26e2f247c069",
@@ -75323,6 +75339,98 @@
       "hash": "sha256:6b57d81bbfcd3033d60c146e3e0bfdb763d793cc2de14158b548e489ae36ce6a",
       "size": 5481739
     },
+    "Content/NeonGrid/Paper01/Maps/M_Overview.umap": {
+      "hash": "sha256:8ad6ab605d3c0037605e942924fdd67b68353bb11128ad63d8bcf2cc89c2d6db",
+      "size": 49836
+    },
+    "Content/NeonGrid/Paper01/Maps/M_Overview_BuiltData.uasset": {
+      "hash": "sha256:c42281498f0b60c068493d5d2bc0c04cea76e4397193f6de1855159a9c9a3444",
+      "size": 25692
+    },
+    "Content/NeonGrid/Paper01/Materials/Instances/MI_Paper01.uasset": {
+      "hash": "sha256:b0a2b1596e769abd96beef574874506cd13bf14d093e0f230b04f084a44c9c2a",
+      "size": 12536
+    },
+    "Content/NeonGrid/Paper01/Materials/Instances/MI_Paper01_nanite.uasset": {
+      "hash": "sha256:f998a2dd3a31478f68fa888c05480040ae376ec6ec3d0fa675c2a9e4223e4b2a",
+      "size": 12808
+    },
+    "Content/NeonGrid/Paper01/Materials/Masters/MM_AtlasSimple_02.uasset": {
+      "hash": "sha256:6c2ae621815604978a13aa4902ce8a9c2a6b89746c9c2387b990d6764cb971c1",
+      "size": 82934
+    },
+    "Content/NeonGrid/Paper01/Meshes/LOD/SM_Paper01_01_L.uasset": {
+      "hash": "sha256:a187c31e230c4d9b8ca5c310792eecab9c884277093d5047a6f6eb9ca29f909d",
+      "size": 90159
+    },
+    "Content/NeonGrid/Paper01/Meshes/Nanite/SM_Paper01_01_N.uasset": {
+      "hash": "sha256:1e9ea318d509409f161cb5f1f95363f6d2763636483c8bed04a71a2f343f2fe5",
+      "size": 3053172
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_C.uasset": {
+      "hash": "sha256:f513e2f04b6cd1aa80ece25436c4727ef4f13eb236079bfc5a0457371732035a",
+      "size": 1205190
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_CURV.uasset": {
+      "hash": "sha256:c188af4a332ac4e25c71f8feab2a7420ed312f298e677d9a02a7085553143f05",
+      "size": 852285
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_H.uasset": {
+      "hash": "sha256:9e3582aa9962526a2665e22d9425c2d9af650b298b4c5bd6d3e98f15e4a6362e",
+      "size": 275958
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_MASK.uasset": {
+      "hash": "sha256:e69be14bda06421c642eca9b9fdf05a22cea90f424c31c2ff603f950792e42e7",
+      "size": 1671479
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_N.uasset": {
+      "hash": "sha256:dfbfadf146dd02ff3f1c67819cb539cd6e1a063d7db6a711aa3a72d1a6a295cf",
+      "size": 643822
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_O.uasset": {
+      "hash": "sha256:0624a801f0dfc6e95fa68e72817a0253718e503c95e5951b4590271626ee6e07",
+      "size": 100317
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_ORM.uasset": {
+      "hash": "sha256:a7cc01489aa9f77d326da3af1d54921927b6cf9fdd437ffd5fc35c3cd2d91356",
+      "size": 1162390
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_2K_T.uasset": {
+      "hash": "sha256:a65aecd630e9a132021f2859a8299e525c3e0dbaa31dbb01bb57c4d654ebdace",
+      "size": 1606138
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_C.uasset": {
+      "hash": "sha256:53df7b2ec5c8af3f6a9b77e54f95da148a61fe084ec6a40118d8584679a9329c",
+      "size": 4386796
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_CURV.uasset": {
+      "hash": "sha256:147c649541eef68f5009a494ed8af593c8fbdc6ae8302458bde232efda2a230b",
+      "size": 4078601
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_H.uasset": {
+      "hash": "sha256:add0ef51982a9120a3b1e5a8b31fe644eac6590d07f9663bf8223c26d6a02671",
+      "size": 845296
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_MASK.uasset": {
+      "hash": "sha256:5c28aa53c6a145870e09cb016f0db75f3d9bc723eecd33dcf376bcfdfe2c0485",
+      "size": 4863886
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_N.uasset": {
+      "hash": "sha256:3601b33429938b45cd6b0304be49f433fcd865175b271258516d6b7d1b2605f4",
+      "size": 2726904
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_O.uasset": {
+      "hash": "sha256:c5124f2f4f62cd13bf9ec7b6c474311ef300d13a9e4fc5dda32388274e4b4d48",
+      "size": 293935
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_ORM.uasset": {
+      "hash": "sha256:8fe8a851f5e7c56df9af1b3ce0188f6bfcfd623fd9734c571f1c7f1486774aa4",
+      "size": 4559661
+    },
+    "Content/NeonGrid/Paper01/Textures/TX_Paper01_4K_T.uasset": {
+      "hash": "sha256:43c6a30ce9e1420abeeec588e8a9506a57ce2da6613e057b9c67fabb1956a3b7",
+      "size": 5703584
+    },
     "Content/Office/Foliage/MI_PLant02.uasset": {
       "hash": "sha256:1736673000ae346c48822b4425ccbe54e7e32bb35c27e35ffa40c6da81b42c7e",
       "size": 18174
@@ -103232,8 +103340,8 @@
       "size": 3001090
     },
     "Content/User_Interface/WBP_Map.uasset": {
-      "hash": "sha256:6c019d131493434c9566aab1047c569fc24014b972e1e3b680b3308bd53b0613",
-      "size": 41580
+      "hash": "sha256:3699d1aebc7738afae94a7ae9c6a2e38e9f3e21e25b7842893518229fda00162",
+      "size": 35418
     },
     "Content/User_Interface/WB_EscapeMenu.uasset": {
       "hash": "sha256:14f3f0e26c6a6bafcb8ae05a8119a64fae74080c6b329d71d41a47015fd4a537",

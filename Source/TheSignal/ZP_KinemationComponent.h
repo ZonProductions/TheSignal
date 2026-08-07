@@ -167,17 +167,31 @@ public:
 	float AZP_MeleeNoiseAlertRadius = 2000.f;
 
 	// --- Melee impact sounds ---
-	// The pipe is metal: a hit ALWAYS makes the metal sound. Striking an enemy
-	// ALSO layers a flesh impact on top (dev: "impact + hit at the same time").
-	// Striking a wall/hard surface plays the dedicated pipe-on-surface sound instead.
+	// Enemy hit = the FLESH impact for that swing direction (SFX_MELEE_IMPACT1 right /
+	// SFX_MELEE_IMPACT2 left). Striking a wall/hard surface plays the pipe-on-surface sound for
+	// that surface family instead.
+	// 2026-08-06: the metal SFX_PIPE_HIT used to ALSO layer on every enemy connect ("impact + hit
+	// at the same time"); it dominated the flesh impact so hitting a Shambler just sounded like
+	// pipe-on-metal. Off by default now — bAZP_MeleeLayerPipeMetalOnFlesh brings it back.
 
-	/** Metal sound of the pipe itself — plays on any enemy connect (SFX_PIPE_HIT). */
+	/** Metal sound of the pipe itself (SFX_PIPE_HIT). Only used on enemy hits when
+	 *  bAZP_MeleeLayerPipeMetalOnFlesh is true. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	TObjectPtr<USoundBase> AZP_PipeMetalSound;
 
-	/** Flesh impacts, randomized — layered over the metal sound on enemy hits (SFX_MELEE_IMPACT1/2). */
+	/** Layer AZP_PipeMetalSound over the flesh impact on enemy hits. Off: flesh impact only. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	bool bAZP_MeleeLayerPipeMetalOnFlesh = false;
+
+	/** Flesh impacts, index-matched to swing direction (SFX_MELEE_IMPACT1/2).
+	 *  [0] = right swing, [1] = left swing. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	TArray<TObjectPtr<USoundBase>> AZP_MeleeFleshImpactSounds;
+
+	/** Pick the flesh impact by swing DIRECTION (right -> [0], left -> [1]) instead of at random.
+	 *  Random made left and right sound interchangeable — the swings read as one move. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	bool bAZP_MeleeFleshImpactByDirection = true;
 
 	/** Pipe striking a wall / hard non-enemy surface — the CONCRETE/default family
 	 *  (SFX_PIPE_SURFACE_WALL_IMPACT). Also the fallback whenever a per-surface slot below is
@@ -222,13 +236,40 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	float AZP_MeleeBlockCancelFraction = 0.75f;
 
-	/** Whoosh played at every swing start (own-body foley, 2D). Defaults to SFX_MELEE_SWING. */
+	/** Whoosh for the swing (own-body foley, 2D). Defaults to SFX_MELEE_SWING.
+	 *  Timed to LAND ON the contact frame, not fired at click time — see AZP_MeleeWhooshLead. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
 	TObjectPtr<USoundBase> AZP_MeleeSwingSound;
 
 	/** Volume of the swing whoosh. Knob lives on BP_GraceCharacter -> KinemationComp Details. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
 	float AZP_MeleeSwingVolume = 1.f;
+
+	/** Seconds BEFORE the contact frame that the whoosh starts, so the swoosh peaks into the hit
+	 *  instead of leading it by the whole wind-up. The whoosh used to fire at click time, which
+	 *  fixed the whoosh->impact gap at exactly AZP_MeleeDamageDelay for every swing. Raise to
+	 *  start the air earlier; 0 fires it exactly on contact. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	float AZP_MeleeWhooshLead = 0.18f;
+
+	/** Contact frame as a FRACTION of the swing clip's played length. Only used when
+	 *  bAZP_MeleeContactFromAnim is on. NOTE (measured 2026-08-06): Attack_R and Attack_L are the
+	 *  SAME length (1.617s raw, 1.155s played at rate 1.4), so this cannot by itself make the two
+	 *  swings differ — it would put contact at 0.404s for both. Per-swing differences have to come
+	 *  from AZP_MeleeContactOffsetByDir. Useful if clips of differing length are added later. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	float AZP_MeleeContactFraction = 0.35f;
+
+	/** Derive the contact frame from the swing clip (above) instead of the flat
+	 *  AZP_MeleeDamageDelay. OFF by default: with today's equal-length clips it would only move
+	 *  the damage sweep 0.35 -> 0.404s and change combat feel for no timing benefit. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	bool bAZP_MeleeContactFromAnim = false;
+
+	/** Per-direction fine tune (seconds) added to the contact frame. Indexed by swing direction:
+	 *  [0] Forward, [1] Right, [2] Left. Moves the damage sweep AND both impact/whoosh with it. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Melee")
+	TArray<float> AZP_MeleeContactOffsetByDir;
 
 	/** Play-rate for the equip (raise) animation (1.93s source → ~1.0s at 2.0). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kinemation|Melee")
@@ -369,6 +410,16 @@ public:
 	 *  by design (session 62) — swing fires immediately on press. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
 	TArray<TObjectPtr<UAnimSequenceBase>> AZP_MeleeLightAnims;
+
+	/** Swing direction for each entry of AZP_MeleeLightAnims, index-matched.
+	 *  0 = Forward, 1 = Right, 2 = Left. Defaults to {1, 2} for the shipped {Attack_R, Attack_L}.
+	 *  This used to be derived as `index % 3`, which was correct only for the original three-clip
+	 *  F/R/L set. After the forward stab was cut the two remaining clips reported Forward and
+	 *  Right — so the LEFT swing whipped the camera right and the RIGHT swing got no whip at all.
+	 *  If the array size does not match AZP_MeleeLightAnims the old modulo is used and a warning
+	 *  is logged. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
+	TArray<int32> AZP_MeleeSwingDirections;
 
 	/** Melee view-model idle loop (Kubold FPP). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kinemation|Animation")
@@ -638,6 +689,8 @@ private:
 	FTimerHandle MeleeEquipIdleHandle;
 	/** Timer: delayed damage sweep at the swing's impact frame. */
 	FTimerHandle MeleeDamageHandle;
+	/** Timer: swing whoosh, fired AZP_MeleeWhooshLead before the contact frame. */
+	FTimerHandle MeleeWhooshHandle;
 	/** Timer: hide view mesh after unequip lower animation. */
 	FTimerHandle MeleeUnequipHideHandle;
 

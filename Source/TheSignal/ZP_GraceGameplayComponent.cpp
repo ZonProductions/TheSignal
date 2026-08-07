@@ -400,12 +400,56 @@ void UZP_GraceGameplayComponent::UpdateInteractionTrace()
 
 // --- Peek System ---
 
+FCollisionQueryParams UZP_GraceGameplayComponent::MakePeekQueryParams() const
+{
+	FCollisionQueryParams Params;
+	if (AActor* Owner = GetOwner())
+	{
+		Params.AddIgnoredActor(Owner);
+		// The Kinemation weapon is a SEPARATE actor attached to the player. Left unignored, the
+		// right-side wall fan swept into the gun and read it as a wall — the reason peek "only
+		// worked from the left". Ignore everything hanging off the player.
+		TArray<AActor*> Attached;
+		Owner->GetAttachedActors(Attached, /*bResetArray*/ true, /*bRecursivelyIncludeAttached*/ true);
+		Params.AddIgnoredActors(Attached);
+	}
+	return Params;
+}
+
+bool UZP_GraceGameplayComponent::IsValidPeekWall(const FHitResult& Hit) const
+{
+	// Surface must be vertical-ish (a wall face, not a floor/ceiling/ramp).
+	const float MaxWallAngle = AZP_MovementConfig->AZP_PeekMaxWallAngleFromVertical;
+	const float AngleFromVertical = FMath::RadiansToDegrees(
+		FMath::Acos(FMath::Abs(FVector::DotProduct(Hit.ImpactNormal, FVector::UpVector))));
+	if (AngleFromVertical <= (90.0f - MaxWallAngle))
+	{
+		return false;
+	}
+
+	// The COMPONENT must be wall-like. A lamp, pipe or prop has a vertical face too — what it
+	// does not have is a wall's footprint. (Dev report: a nearby lamp could provoke the lean.)
+	const UPrimitiveComponent* Comp = Hit.GetComponent();
+	if (!Comp)
+	{
+		return false;
+	}
+	if (AZP_MovementConfig->bAZP_PeekRequireStaticWall && Comp->Mobility != EComponentMobility::Static)
+	{
+		return false;
+	}
+	const FBoxSphereBounds& Bounds = Comp->Bounds;
+	const float MaxHorizontal = FMath::Max(Bounds.BoxExtent.X, Bounds.BoxExtent.Y) * 2.0f;
+	const float Height = Bounds.BoxExtent.Z * 2.0f;
+	return MaxHorizontal >= AZP_MovementConfig->AZP_PeekMinWallExtent
+		&& Height >= AZP_MovementConfig->AZP_PeekMinWallHeight;
+}
+
 int32 UZP_GraceGameplayComponent::TracePeekSide(const FVector& Origin, const FVector& Forward, const FVector& Right, float DirectionSign) const
 {
 	const float TraceRange = AZP_MovementConfig->AZP_PeekWallDetectionRange;
 	const float TraceRadius = AZP_MovementConfig->AZP_PeekTraceRadius;
 	const float FanHalfAngle = AZP_MovementConfig->AZP_PeekTraceFanHalfAngle;
-	const float MaxWallAngle = AZP_MovementConfig->AZP_PeekMaxWallAngleFromVertical;
 
 	const FVector SideDir = Right * DirectionSign;
 
@@ -413,9 +457,7 @@ int32 UZP_GraceGameplayComponent::TracePeekSide(const FVector& Origin, const FVe
 	const float Angles[] = { 0.0f, -FanHalfAngle * 0.5f, FanHalfAngle * 0.5f, -FanHalfAngle, FanHalfAngle };
 
 	int32 HitCount = 0;
-
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(GetOwner());
+	const FCollisionQueryParams Params = MakePeekQueryParams();
 
 	for (int32 i = 0; i < 5; ++i)
 	{
@@ -424,13 +466,10 @@ int32 UZP_GraceGameplayComponent::TracePeekSide(const FVector& Origin, const FVe
 
 		FHitResult Hit;
 		if (GetWorld()->SweepSingleByChannel(Hit, Origin, TraceEnd, FQuat::Identity, ECC_Visibility,
-			FCollisionShape::MakeSphere(TraceRadius), Params))
+			FCollisionShape::MakeSphere(TraceRadius), Params)
+			&& IsValidPeekWall(Hit))
 		{
-			const float AngleFromVertical = FMath::RadiansToDegrees(FMath::Acos(FMath::Abs(FVector::DotProduct(Hit.ImpactNormal, FVector::UpVector))));
-			if (AngleFromVertical > (90.0f - MaxWallAngle))
-			{
-				++HitCount;
-			}
+			++HitCount;
 		}
 	}
 
@@ -450,6 +489,42 @@ EZP_PeekDirection UZP_GraceGameplayComponent::DetectPeekDirection() const
 	const FVector Forward = FRotationMatrix(FRotator(0.0f, ControlRot.Yaw, 0.0f)).GetUnitAxis(EAxis::X);
 	const FVector Right = FRotationMatrix(FRotator(0.0f, ControlRot.Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
 
+	// --- PRIMARY: open-corner test (dev: "it should always be at the open corner") ---
+	// Three parallel forward eye-lines: centre and one per shoulder. Centre blocked by a wall
+	// with ONE shoulder's line open = you are at the wall's edge; the corner opens on the open
+	// side — lean THERE. Works identically for left and right corners.
+	{
+		const float BlockRange = AZP_MovementConfig->AZP_PeekForwardBlockRange;
+		const float TraceRadius = AZP_MovementConfig->AZP_PeekTraceRadius;
+		const float Shoulder = AZP_MovementConfig->AZP_PeekShoulderOffset;
+		const FCollisionQueryParams Params = MakePeekQueryParams();
+
+		auto ForwardBlocked = [&](const FVector& From) -> bool
+		{
+			FHitResult Hit;
+			return GetWorld()->SweepSingleByChannel(Hit, From, From + Forward * BlockRange,
+					FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(TraceRadius), Params)
+				&& IsValidPeekWall(Hit);
+		};
+
+		if (ForwardBlocked(Origin))
+		{
+			const bool bLeftBlocked = ForwardBlocked(Origin - Right * Shoulder);
+			const bool bRightBlocked = ForwardBlocked(Origin + Right * Shoulder);
+			if (bLeftBlocked && !bRightBlocked)
+			{
+				return EZP_PeekDirection::Right; // corner opens right
+			}
+			if (bRightBlocked && !bLeftBlocked)
+			{
+				return EZP_PeekDirection::Left; // corner opens left
+			}
+			// Fully blocked (flat wall) or symmetric — fall through to the flanking test.
+		}
+	}
+
+	// --- SECONDARY: flanking wall (corridor edge) — wall beside you on ONE side only, lean to
+	// the open side. ---
 	const int32 LeftHits = TracePeekSide(Origin, Forward, Right, -1.0f);
 	const int32 RightHits = TracePeekSide(Origin, Forward, Right, 1.0f);
 

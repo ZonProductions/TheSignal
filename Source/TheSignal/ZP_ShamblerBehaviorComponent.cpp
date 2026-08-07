@@ -3291,13 +3291,22 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 		if (UCapsuleComponent* Cap = Owner->GetCapsuleComponent()) { Cap->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
 		if (UCharacterMovementComponent* CM = Owner->GetCharacterMovement()) { CM->StopMovementImmediately(); CM->DisableMovement(); }
 
+		// A slumped body KILLED MID-RISE is a different animal (dev 2026-08-06: "a slump to stand
+		// shambler dies in t-pose not facedown"): IsDormantSlumped() stays true until
+		// FinishSlumpRise sets bCrawlStoodUp, so a shot landed during the ~2.3s rise used to take
+		// the died-in-place branch below — which assumes the frozen slump hold still owns the
+		// slot. But StartSlumpRise already STOPPED that hold; nothing owned the pose, the rise
+		// montage ran out on the corpse and the mesh fell back to REF POSE (the T-pose). A body
+		// killed mid-rise is upright(ish) — it takes the standing directional fall instead.
+		const bool bKilledMidRise = bStandingUpNow;
+
 		// PRONE / DORMANT-SLUMPED DEATH (dev 2026-08-05: "crawling shambler rise and fall
 		// after dying" — the standing fall clips STAND the body UP first). A prone body dies
 		// IN PLACE: crossfade into the flat corpse pose over the crawl pose (reads as going
 		// limp); a dormant slumped body just freezes in its slump. No death-drop Z either —
 		// AZP_DeathDropZ is calibrated for a standing hip height and would bury a body that is
 		// already on the ground.
-		if (IsCrawlingNow() || IsDormantSlumped())
+		if ((IsCrawlingNow() || IsDormantSlumped()) && !bKilledMidRise)
 		{
 			if (USkeletalMeshComponent* M = Owner->GetMesh())
 			{
@@ -3317,6 +3326,22 @@ void UZP_ShamblerBehaviorComponent::OnOwnerDied()
 			bDropping = false;
 			UE_LOG(LogTemp, Warning, TEXT("[Shambler] DEATH (prone/slumped — died in place, no fall clip)"));
 			return;
+		}
+
+		if (bKilledMidRise)
+		{
+			// Shut the rise machinery down so nothing fights the death clip: the pending
+			// FinishSlumpRise would early-return on bDead anyway, but the ground-clamp window
+			// must release NOW so the dead-tick drop owns mesh Z instead of the rise clamp.
+			bStandingUpNow = false;
+			bCrawlStandWindow = false;
+			// Counts as "stood" from here: save-restore then rebuilds this corpse through the
+			// STANDING corpse path (death clip end pose + full drop), matching how it fell —
+			// otherwise a reload would re-seat it as a slumped corpse.
+			bCrawlStoodUp = true;
+			GetWorld()->GetTimerManager().ClearTimer(CrawlStandUpTimer);
+			// The rise slot montage dies with the animation-mode switch in PlayAnimation below.
+			UE_LOG(LogTemp, Warning, TEXT("[Shambler] DEATH mid slump-rise — taking the standing fall clip"));
 		}
 
 		UAnimSequence* DeathAnim = bLastHitFront ? AZP_DeathFrontAnim : AZP_DeathBackAnim;

@@ -27,6 +27,10 @@ class THESIGNAL_API UZP_GlyphDeviceSubsystem : public UTickableWorldSubsystem
 	GENERATED_BODY()
 
 public:
+	/** Latest device verdict (gamepad vs KBM) from the Slate preprocessor. Public so other UI
+	 *  (e.g. the map legend's glyph brushes) can swap on the SAME signal the EGUI prompts use. */
+	bool IsGamepadActive() const { return bGamepadActive; }
+
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;

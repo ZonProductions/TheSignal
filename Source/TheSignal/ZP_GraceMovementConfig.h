@@ -216,4 +216,27 @@ public:
 	/** Max angle (degrees) from vertical a surface can be and still count as wall. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Peek")
 	float AZP_PeekMaxWallAngleFromVertical = 20.0f;
+
+	/** Open-corner test: how far ahead (cm) the centre/shoulder eye-lines look for the blocking
+	 *  wall. Centre blocked + one shoulder open = a corner; peek goes to the OPEN side. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Peek")
+	float AZP_PeekForwardBlockRange = 250.0f;
+
+	/** Lateral distance (cm) of the two shoulder eye-lines from the camera centre. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Peek")
+	float AZP_PeekShoulderOffset = 40.0f;
+
+	/** A blocker only counts as WALL if its component's horizontal footprint is at least this wide
+	 *  (cm). Filters lamps, pipes, props — a floor lamp is tall but has no wall-like footprint. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Peek")
+	float AZP_PeekMinWallExtent = 100.0f;
+
+	/** A blocker only counts as WALL if its component is at least this tall (cm). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Peek")
+	float AZP_PeekMinWallHeight = 150.0f;
+
+	/** Only STATIC-mobility components count as peek walls. Movable props (doors mid-swing,
+	 *  physics junk, lights) never anchor a lean. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Peek")
+	bool bAZP_PeekRequireStaticWall = true;
 };

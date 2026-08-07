@@ -49,7 +49,15 @@ public class TheSignal : ModuleRules
 			// FSlateApplication (ZP_GlyphDeviceSubsystem — hardware-level input-device
 			// detection; PlayerController polling is blind to menu-consumed gamepad keys).
 			// GAME module, not a plugin Build.cs — the 777006 crash rule does not apply.
-			"Slate"
+			"Slate",
+			// FLAGGED FOR REVIEW (2026-08-06): CommonUI/CommonInput = ENGINE plugins already
+			// enabled and in use by Moonville (CommonBoundActionBar, CommonActionWidget in
+			// WBP_InventoryMenu_Horror). Added for the map-tab legend, which instantiates the SAME
+			// UCommonActionWidget/UCommonTextBlock the inventory action bar uses (1:1 glyphs).
+			// GAME module linking engine-default runtime plugin modules is documented usage —
+			// the NightShadow 777006 rule targets plugin Build.cs files, not this one.
+			"CommonUI",
+			"CommonInput"
 		});
 
 		// OVRLipSync C API — ThirdParty lib, NOT a UE plugin module dependency.

@@ -146,6 +146,39 @@ void UZP_NotesWidget::SelectNote(int32 Index)
 	}
 }
 
+void UZP_NotesWidget::NavigateSelection(int32 Delta)
+{
+	if (EntryWidgets.Num() == 0)
+	{
+		return;
+	}
+	// No selection yet -> first entry regardless of direction.
+	const int32 NewIndex = (SelectedIndex < 0)
+		? 0
+		: FMath::Clamp(SelectedIndex + Delta, 0, EntryWidgets.Num() - 1);
+	if (NewIndex == SelectedIndex)
+	{
+		return;
+	}
+	SelectNote(NewIndex);
+	if (NoteListScrollBox && EntryWidgets.IsValidIndex(NewIndex) && EntryWidgets[NewIndex])
+	{
+		NoteListScrollBox->ScrollWidgetIntoView(EntryWidgets[NewIndex], true,
+			EDescendantScrollDestination::IntoView);
+	}
+}
+
+void UZP_NotesWidget::ScrollContent(float Delta)
+{
+	if (!NoteContentScroll)
+	{
+		return;
+	}
+	const float End = NoteContentScroll->GetScrollOffsetOfEnd();
+	NoteContentScroll->SetScrollOffset(
+		FMath::Clamp(NoteContentScroll->GetScrollOffset() + Delta, 0.0f, End));
+}
+
 void UZP_NotesWidget::ClearEntries()
 {
 	for (UZP_NoteEntryWidget* Entry : EntryWidgets)

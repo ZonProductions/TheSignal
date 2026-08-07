@@ -642,6 +642,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Block")
 	float AZP_BlockDamageReductionMul = 0.25f;
 
+	/** Sound of an attack being CAUGHT ON THE GUARD — plays with the block-impact reaction.
+	 *  Ships as SFX_MELEE_BLOCK, a duplicate of SFX_MELEE_IMPACT1; replace the asset's wave with
+	 *  the real block sound (same pattern as the per-surface pipe impacts). Set it on
+	 *  BP_GraceCharacter -> Class Defaults -> Combat|Block. Null = silent, no fallback: a wrong
+	 *  sound here would read as a hit landing on Marcus. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
+	TObjectPtr<USoundBase> AZP_BlockImpactSound;
+
+	/** Volume multiplier for AZP_BlockImpactSound. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
+	float AZP_BlockImpactVolume = 1.0f;
+
 	/** Ground speed above which the held block switches from BlockLoop to BlockWalk. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Block")
 	float AZP_BlockWalkSpeedThreshold = 50.f;

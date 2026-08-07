@@ -275,10 +275,19 @@ private:
 	bool bPeekFromAim = false;
 	float CurrentPeekRoll = 0.0f;
 
-	/** Cast 5 sphere traces on one side. Returns number of hits on roughly vertical surfaces. */
+	/** Cast 5 sphere traces on one side. Returns number of hits on valid peek walls. */
 	int32 TracePeekSide(const FVector& Origin, const FVector& Forward, const FVector& Right, float DirectionSign) const;
 
-	/** Evaluate both sides and return which direction to peek. */
+	/** True if this hit is a real WALL: vertical-ish surface on a static, wall-sized component.
+	 *  Filters lamps/props/attached actors that used to fake a peek anchor. */
+	bool IsValidPeekWall(const FHitResult& Hit) const;
+
+	/** Query params that ignore the owner AND everything attached to it (the Kinemation weapon is
+	 *  a separate attached ACTOR — unignored it poisoned the right-side wall test, which is why
+	 *  peek "only worked from the left"). */
+	FCollisionQueryParams MakePeekQueryParams() const;
+
+	/** Evaluate the surroundings and return which direction to peek. */
 	EZP_PeekDirection DetectPeekDirection() const;
 
 	/** Per-frame peek interpolation and camera offset. Called in TickComponent. */

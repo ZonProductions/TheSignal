@@ -77,6 +77,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Notes")
 	void SelectNote(int32 Index);
 
+	/** Step the selection by Delta (+1 next / -1 previous), clamped to the list. Scrolls the
+	 *  selected entry into view — gamepad left-stick navigation goes through here. */
+	UFUNCTION(BlueprintCallable, Category = "Notes")
+	void NavigateSelection(int32 Delta);
+
+	/** Scroll the note CONTENT panel by Delta pixels (clamped) — gamepad d-pad scrolling. */
+	UFUNCTION(BlueprintCallable, Category = "Notes")
+	void ScrollContent(float Delta);
+
 private:
 	UPROPERTY()
 	TWeakObjectPtr<UZP_NoteComponent> CachedNoteComp;

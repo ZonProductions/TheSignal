@@ -24,6 +24,7 @@
 #include "ZP_NoteComponent.h"
 #include "ZP_SignalSenseComponent.h"
 #include "ZP_InventoryTabTypes.h"
+#include "ZP_SFXStatics.h"
 #include "ZP_InventoryTabWidget.h"
 #include "GameplayTagContainer.h"
 #include "UObject/UnrealType.h"
@@ -404,6 +405,13 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact2.A_MeleePipe_BlockImpact2")));
 	AZP_BlockImpact3Anim = TSoftObjectPtr<UAnimSequenceBase>(
 		FSoftObjectPath(TEXT("/Game/TheSignal/Animations/Melee/A_MeleePipe_BlockImpact3.A_MeleePipe_BlockImpact3")));
+
+	// Block-impact SFX. Ships as SFX_MELEE_BLOCK — a duplicate of SFX_MELEE_IMPACT1 created
+	// 2026-08-06 so the slot has something audible; replace the asset's wave with the real block
+	// sound. Same "ships as a duplicate, dev swaps the file" pattern as the per-surface pipe impacts.
+	static ConstructorHelpers::FObjectFinder<USoundBase> BlockImpactSfxFinder(
+		TEXT("/Game/Audio/Weapons/SFX_MELEE_BLOCK.SFX_MELEE_BLOCK"));
+	if (BlockImpactSfxFinder.Succeeded()) { AZP_BlockImpactSound = BlockImpactSfxFinder.Object; }
 	// MUST match Kinemation's AZP_MeleeIdleAnim (A_MeleePipe_Idle). Pointing this
 	// at FPP_Longs_Idle (Kubold longsword) made block-release / non-forward
 	// dodge return to a chest-forward longsword pose that persisted forever —
@@ -4059,6 +4067,15 @@ float AZP_GraceCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 			// Random FPP_Longs_BlockImpact 1/2/3 plays on the view mesh.
 			PlayBlockImpactAnim();
+
+			// Guard caught it — own-melee foley at the player, same Close carry the pipe's own
+			// impacts use. Silent if unset: no fallback sound, because the wrong one here would
+			// read as the hit having LANDED on Marcus.
+			if (AZP_BlockImpactSound)
+			{
+				UZP_SFXStatics::PlaySFXAtLocation(this, AZP_BlockImpactSound, GetActorLocation(),
+					EZP_SFXCarry::Close, AZP_BlockImpactVolume);
+			}
 
 			// Stagger the attacker on a successful block — rate-limited by AZP_BlockStaggerCooldown so
 			// blocking can't permanently stun-lock an enemy. Routed through IZP_Staggerable so it
