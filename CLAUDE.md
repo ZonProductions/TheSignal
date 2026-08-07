@@ -288,7 +288,8 @@ Exec input pins accept **only ONE connection.** Connecting a new wire **silently
 - **Purchased environment packs often ship with oversimplified convex hull collision.** A single convex hull on a complex mesh (silos, generators, buildings) creates invisible walls where there should be walkable gaps.
 - **Fix:** Set `CollisionTraceFlag` to `CTF_USE_COMPLEX_AS_SIMPLE` on the mesh asset's BodySetup. This uses actual mesh geometry for collision traces.
 - **Script:** `Scripts/fix_all_generators2.py` — scans ALL static meshes in the level, finds any with convex hull collision larger than 300 UU, and switches to complex-as-simple. Run this on any new level that uses purchased environment assets.
-- **When to run:** After placing a new purchased environment level, or if player/creature gets stuck on invisible walls near large structures.
+- **SECOND MANDATORY PASS — single-sided collision:** pack meshes ship complex collision with `double_sided_geometry=False` — rays only hit triangles from the side they face, so audio occlusion / peek / AI sight see a wall from one side and sail through it from the other (2026-08-07: shambler lurks at full volume through sub-basement walls). Run `Scripts/Python/fix_wall_collision_doublesided.py` (edit `PACK_ROOTS`) on every new purchased pack. `UZP_SFXStatics::IsOccludedFromListener` also traces both directions as a safety net, but fix the assets.
+- **When to run:** After placing a new purchased environment level, or if player/creature gets stuck on invisible walls near large structures, or if any trace-based system (audio, peek, AI sight) behaves direction-dependently near walls.
 - Removing collision to "fix" pathing is a DEAD END — creatures need BlockAll surfaces to climb on.
 
 ---

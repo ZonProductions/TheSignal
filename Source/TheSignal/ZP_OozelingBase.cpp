@@ -3,7 +3,9 @@
 #include "ZP_OozelingBase.h"
 #include "ZP_ScytheerClimbPath.h"
 #include "ZP_HealthComponent.h"
+#include "ZP_BloodFXComponent.h"
 #include "ZP_SFXStatics.h"
+#include "Materials/MaterialInterface.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -72,8 +74,45 @@ AZP_OozelingBase::AZP_OozelingBase()
 	}
 	bUseControllerRotationYaw = false;
 
+	// Color-variant material defaults — SOFT paths only (no load happens at CDO construction;
+	// they resolve in ApplyOozeColor at OnConstruction/BeginPlay).
+	AZP_GreenMaterial  = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(
+		TEXT("/Game/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD17.MI_Blob_UPD17")));
+	AZP_PurpleMaterial = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(
+		TEXT("/Game/BigBlob/Materials/Material_Update1/Material_Instances/MI_Blob_UPD4.MI_Blob_UPD4")));
+
 	// NOTE: anim/SFX defaults load lazily in BeginPlay (LoadAssetDefaults), NOT here —
 	// ConstructorHelpers /Game loads during CDO construction crash the editor (Shambler lesson).
+}
+
+void AZP_OozelingBase::ApplyOozeColor()
+{
+	const bool bPurple = (AZP_OozeColor == EOozelingColor::Purple);
+
+	// Body: variant MI onto slot 0 (SKM_BigBlob's only real slot — slot 1 is an empty stub).
+	const TSoftObjectPtr<UMaterialInterface>& Pick = bPurple ? AZP_PurpleMaterial : AZP_GreenMaterial;
+	if (UMaterialInterface* Mat = Pick.LoadSynchronous())
+	{
+		if (USkeletalMeshComponent* M = GetMesh())
+		{
+			M->SetMaterial(0, Mat);
+		}
+	}
+
+	// Blood follows the body (dev 2026-08-07: green oozes bled the enemy-default purple).
+	// Smoke/decal/wound derive from the main tint with the same darkening ratios the purple
+	// defaults use (0.45 / 0.37 / 0.44), so both variants keep the calibrated read.
+	if (bAZP_BloodFollowsColor)
+	{
+		if (UZP_BloodFXComponent* Blood = FindComponentByClass<UZP_BloodFXComponent>())
+		{
+			const FLinearColor T = bPurple ? AZP_PurpleBloodTint : AZP_GreenBloodTint;
+			Blood->AZP_BloodColor = T;
+			Blood->AZP_SmokeColor = FLinearColor(T.R * 0.45f, T.G * 0.45f, T.B * 0.45f, 1.f);
+			Blood->AZP_DecalColor = FLinearColor(T.R * 0.37f, T.G * 0.37f, T.B * 0.37f, 1.f);
+			Blood->AZP_WoundColor = FLinearColor(T.R * 0.44f, T.G * 0.44f, T.B * 0.44f, 1.f);
+		}
+	}
 }
 
 void AZP_OozelingBase::LoadAssetDefaults()
@@ -113,6 +152,9 @@ void AZP_OozelingBase::LoadAssetDefaults()
 void AZP_OozelingBase::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
+	// Color variant previews live in the editor viewport (flip the Details dropdown, see it).
+	ApplyOozeColor();
 #if WITH_EDITOR
 	// EDITOR AUTHORING PREVIEW (dev 2026-08-05): the placed Oozeling showed only its ref pose
 	// in the viewport (single-node mode with no clip assigned until BeginPlay). Pose the idle
@@ -168,6 +210,9 @@ void AZP_OozelingBase::OnConstruction(const FTransform& Transform)
 void AZP_OozelingBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Variant material + matching blood tints (BP-added BloodFX exists by now).
+	ApplyOozeColor();
 
 	// The editor preview grounds the mesh cosmetically — restore the AUTHORED mesh Z from the
 	// archetype so the preview offset never leaks into runtime placement.

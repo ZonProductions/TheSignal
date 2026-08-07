@@ -190,6 +190,33 @@ void FKinemationBridge::AnimEnsureActiveSettings(UObject* AnimComp)
 		*SettingsClass->GetName(), *AnimComp->GetName());
 }
 
+void FKinemationBridge::AnimResetActiveSettings(UObject* AnimComp)
+{
+	if (!AnimComp)
+	{
+		return;
+	}
+	FObjectPropertyBase* ObjProp = CastField<FObjectPropertyBase>(
+		AnimComp->GetClass()->FindPropertyByName(TEXT("ActiveSettings")));
+	if (!ObjProp)
+	{
+		return;
+	}
+	UClass* SettingsClass = ObjProp->PropertyClass;
+	if (!SettingsClass || SettingsClass->HasAnyClassFlags(CLASS_Abstract))
+	{
+		return;
+	}
+	// Unconditional, unlike Ensure(): evict the outgoing weapon's settings so the graph
+	// drops its gun stance and returns to the class-default (spawn-unarmed) pose.
+	void* ValuePtr = ObjProp->ContainerPtrToValuePtr<void>(AnimComp);
+	UObject* Fallback = NewObject<UObject>(AnimComp, SettingsClass);
+	ObjProp->SetObjectPropertyValue(ValuePtr, Fallback);
+	UE_LOG(LogKinemation, Log,
+		TEXT("Reset ActiveSettings on %s to default %s (melee/throwable equip — evicts the outgoing gun's stance)."),
+		*AnimComp->GetName(), *SettingsClass->GetName());
+}
+
 void FKinemationBridge::AnimToggleReadyPose(UObject* AnimComp, bool bUseHighReady)
 {
 	if (!AnimComp) return;

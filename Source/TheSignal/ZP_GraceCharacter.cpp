@@ -237,6 +237,22 @@ AZP_GraceCharacter::AZP_GraceCharacter()
 	MarcusSneakers->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MarcusSneakers->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
+	// First-person meshes NEVER receive world decals (dev 2026-08-07: floor blood pools were
+	// projecting up onto the weapon/arms when walking over them). Decal projection boxes on
+	// skinned view-models is the proven dead end (2026-07-02) — enemy meshes already run
+	// ReceivesDecals=false via ZP_BloodFXComponent; this is the same policy for the player.
+	{
+		USkeletalMeshComponent* const FPMeshes[] = {
+			PlayerMesh, MeleeViewMesh, MeleeViewOveralls, MeleeHands,
+			RangedArms, RangedHands, RangedSleeve,
+			MarcusBody, MarcusOveralls, MarcusPants, MarcusHead,
+			MarcusHair, MarcusBrows, MarcusSneakers };
+		for (USkeletalMeshComponent* M : FPMeshes)
+		{
+			if (M) { M->SetReceivesDecals(false); }
+		}
+	}
+
 	// Gameplay component — stamina, peek, head bob, interaction trace
 	GameplayComp = CreateDefaultSubobject<UZP_GraceGameplayComponent>(TEXT("GameplayComp"));
 
@@ -946,7 +962,14 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 	// block-specific placement (AZP_BlockViewOffset) so the arms can sit differently in a guard.
 	if (MeleeViewMesh)
 	{
-		const FVector ViewLoc = AZP_MeleeViewOffset + (bIsBlocking ? AZP_BlockViewOffset : FVector::ZeroVector);
+		FVector ViewLoc = AZP_MeleeViewOffset + (bIsBlocking ? AZP_BlockViewOffset : FVector::ZeroVector);
+		// Bob lag: counter a fraction of the head bob so the pipe+arms read as carried by the
+		// bobbing body instead of welded to the lens (knob AZP_MeleeViewBobScale, 0 = off).
+		if (GameplayComp && AZP_MeleeViewBobScale != 0.f)
+		{
+			ViewLoc.Y -= GameplayComp->GetHeadBobOffsetY() * AZP_MeleeViewBobScale;
+			ViewLoc.Z -= GameplayComp->GetHeadBobOffsetZ() * AZP_MeleeViewBobScale;
+		}
 		MeleeViewMesh->SetRelativeLocation(ViewLoc);
 		MeleeViewMesh->SetRelativeRotation(AZP_MeleeViewRotation);
 		MeleeViewMesh->SetRelativeScale3D(FVector(AZP_MeleeViewScale));
@@ -972,6 +995,21 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		const bool bMeleeUp     = KinemationComp->IsMeleeViewModelActive();
 		const bool bRangedArmed = KinemationComp->ActiveWeapon != nullptr && !bMeleeUp;
 		const bool bWeaponArms  = bMeleeUp || bRangedArmed;
+
+		// ADS zoom — drive the REAL view camera directly (the pack camera-comp FOV route
+		// visibly did nothing; dev 2026-08-07). Live: edit AZP_AdsFOVPistol/Shotgun/Rifle
+		// on KinemationComp mid-ADS and the view zooms immediately. 90 = pose zoom only,
+		// lower = more zoom.
+		if (FirstPersonCamera)
+		{
+			const float Target = KinemationComp->GetDesiredFOV();
+			const float NewFOV = FMath::FInterpTo(FirstPersonCamera->FieldOfView, Target,
+				DeltaTime, KinemationComp->AZP_AdsFOVInterpSpeed);
+			if (!FMath::IsNearlyEqual(NewFOV, FirstPersonCamera->FieldOfView, 0.001f))
+			{
+				FirstPersonCamera->SetFieldOfView(NewFOV);
+			}
+		}
 
 		if (bRangedArmed != bRangedArmedState)
 		{
@@ -1000,26 +1038,67 @@ void AZP_GraceCharacter::Tick(float DeltaTime)
 		}
 
 		// Hide Marcus's own arms whenever any weapon arms are shown (melee or ranged).
+		// Bones come from the AZP_MarcusWeaponArmHideBones knob (default upperarm_l/r —
+		// clavicle hides pinched the bent chest's silhouette, 2026-08-07). Unhide uses the
+		// snapshot taken at hide time so a live knob edit can't strand hidden bones.
 		if (MarcusBody && bWeaponArms != bMarcusArmsHidden)
 		{
 			bMarcusArmsHidden = bWeaponArms;
-			const FName ArmRoots[] = { FName("clavicle_l"), FName("clavicle_r") };
-			for (const FName& Bone : ArmRoots)
+			if (bWeaponArms)
 			{
-				if (bWeaponArms)
+				MarcusArmHiddenBones = AZP_MarcusWeaponArmHideBones;
+				for (const FName& Bone : MarcusArmHiddenBones)
 				{
 					MarcusBody->HideBoneByName(Bone, EPhysBodyOp::PBO_None);
 					if (MarcusOveralls) MarcusOveralls->HideBoneByName(Bone, EPhysBodyOp::PBO_None);
 				}
-				else
+			}
+			else
+			{
+				for (const FName& Bone : MarcusArmHiddenBones)
 				{
 					MarcusBody->UnHideBoneByName(Bone);
 					if (MarcusOveralls) MarcusOveralls->UnHideBoneByName(Bone);
 				}
+				MarcusArmHiddenBones.Reset();
 			}
 		}
 		// Melee CCMH sleeves show only for melee.
 		if (MeleeViewOveralls) MeleeViewOveralls->SetVisibility(bMeleeUp);
+
+		// RANGED body anchor (dev 2026-08-07: "range has no chest showing" then "arms aren't
+		// attached to my body"). The ranged arms belong to the Operator (PlayerMesh) — its
+		// OwnerNoSee torso already rides the aim pose at the exact spot the arms connect. Pin
+		// the visible janitor chest there: slide MarcusBody forward/back so its anchor bone
+		// tracks PlayerMesh's same bone along actor-forward. Converges incrementally (bone
+		// positions are last frame's — the interp absorbs the lag). Outside ranged the offset
+		// interps home to 0, so a swap can never strand the body forward under the pipe view.
+		// Skipped while the body is off its capsule attachment (grab beats) or the head is
+		// visible — the same guards as the bend itself.
+		if (MarcusBody &&
+			(bAZP_MarcusRangedBodyAnchor || MarcusBody->GetRelativeLocation().X != 0.f) &&
+			MarcusBody->GetAttachParent() == GetCapsuleComponent() &&
+			!(MarcusHead && MarcusHead->IsVisible()))
+		{
+			FVector RelLoc = MarcusBody->GetRelativeLocation();
+			float DesiredX = 0.f;
+			if (bAZP_MarcusRangedBodyAnchor && bAZP_MarcusChestBend && bRangedArmed && PlayerMesh &&
+				PlayerMesh->GetBoneIndex(AZP_MarcusRangedAnchorBone) != INDEX_NONE &&
+				MarcusBody->GetBoneIndex(AZP_MarcusRangedAnchorBone) != INDEX_NONE)
+			{
+				const FVector OperatorChest = PlayerMesh->GetBoneLocation(AZP_MarcusRangedAnchorBone);
+				const FVector MarcusChest   = MarcusBody->GetBoneLocation(AZP_MarcusRangedAnchorBone);
+				const float DeltaFwd = FVector::DotProduct(OperatorChest - MarcusChest, GetActorForwardVector());
+				DesiredX = FMath::Clamp(RelLoc.X + DeltaFwd,
+					-AZP_MarcusRangedAnchorMaxSlide, AZP_MarcusRangedAnchorMaxSlide);
+			}
+			const float NewX = FMath::FInterpTo(RelLoc.X, DesiredX, DeltaTime, AZP_MarcusRangedAnchorInterpSpeed);
+			if (!FMath::IsNearlyEqual(RelLoc.X, NewX, 0.001f))
+			{
+				RelLoc.X = NewX;
+				MarcusBody->SetRelativeLocation(RelLoc);
+			}
+		}
 	}
 
 	// Force a fresh, deterministic retarget evaluation of Marcus AFTER PlayerMesh's

@@ -23,6 +23,8 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Controller.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/AnimSingleNodeInstance.h"
+#include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
 #include "Materials/MaterialInterface.h"
 #include "UObject/ConstructorHelpers.h"
@@ -454,6 +456,17 @@ void UZP_KinemationComponent::SpawnAndEquipWeapon()
 	ActiveWeapon->AttachToComponent(PlayerMeshComponent,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 
+	// View-model hygiene: the gun must NEVER receive world decals — walking over a floor
+	// blood pool projected the pool up onto the weapon (dev 2026-08-07). Same policy as
+	// enemy meshes (ZP_BloodFXComponent) and the player view meshes.
+	{
+		TInlineComponentArray<UPrimitiveComponent*> WeaponPrims(ActiveWeapon);
+		for (UPrimitiveComponent* Prim : WeaponPrims)
+		{
+			if (Prim) { Prim->SetReceivesDecals(false); }
+		}
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent: Spawned %s, attached to %s at socket %s"),
 		*ActiveWeapon->GetName(), *PlayerMeshComponent->GetName(), *WeaponSocket.ToString());
 
@@ -774,6 +787,26 @@ void UZP_KinemationComponent::ApplyWeaponConfig(TSubclassOf<AActor> InWeaponClas
 	// right after equip (OnWeaponChanged), so we don't seed it here.
 	MaxReserveAmmo = GetReserveCapForIcon(CurrentWeaponIcon);
 
+	// REVERTED 2026-08-07: a melee-equip ranged-layer stand-down (AnimToggleReadyPose(false)
+	// here) was tried for the pistol→pipe camera break — it did NOT fix it ("same failure
+	// point") and left every ranged draw starting from low ready ("range weapons are ducked
+	// down when pulling out"). ToggleReadyPose state persists across equips; do not lower it
+	// on behalf of a future draw.
+
+	// THE MEASURED FIX (probe round 3, 2026-08-07): with every transform identical, the broken
+	// state's camera sat ~19 uu lower because the OUTGOING GUN'S ActiveSettings stayed installed
+	// (Ensure() early-returns on non-null) and the Kinemation graph kept rendering that gun's
+	// hunched stance under the melee view — the FPCamera socket rides that pose. Evict the
+	// settings so PlayerMesh returns to the class-default pose spawn-unarmed runs (the state
+	// the melee camera framing is calibrated against). Settings ONLY — ready pose untouched.
+	if (CurrentWeaponType == EZP_WeaponType::Melee || CurrentWeaponType == EZP_WeaponType::Throwable)
+	{
+		if (TacticalAnimComp)
+		{
+			FKinemationBridge::AnimResetActiveSettings(TacticalAnimComp);
+		}
+	}
+
 	// View model lifecycle (TICKET-054): the Kubold mesh replaces PlayerMesh
 	// arms while a melee weapon (both arms + pipe) or a throwable (right arm
 	// + grenade in the same fist) is held.
@@ -923,23 +956,28 @@ void UZP_KinemationComponent::SetAiming(bool bAiming)
 		FKinemationBridge::RecoilSetAiming(RecoilAnimComp, bAiming);
 	}
 
-	// Per-weapon ADS FOV — the aim pose pulls the gun to the eye (the "zoom"); a wider
-	// FOV counteracts it. Widen shotgun/rifle to dial their zoom back. Hip-fire = default.
-	float TargetFOV = AZP_DefaultFOV;
-	if (bAiming)
+	// FOV is owned by the character tick now: it interps FirstPersonCamera straight to
+	// GetDesiredFOV() — no pack camera-comp round trip (it produced no visible change).
+	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::SetAiming(%s)"),
+		bAiming ? TEXT("true") : TEXT("false"));
+}
+
+float UZP_KinemationComponent::GetDesiredFOV() const
+{
+	// The aim pose pulls the gun to the eye (the built-in "zoom"); the per-weapon FOV adds
+	// optical zoom on top (90 = pose zoom only, LOWER = MORE zoom; shotgun/rifle 98 dial
+	// their pose zoom back). Hip-fire and melee/unarmed sit at AZP_DefaultFOV.
+	if (bIsAiming && CurrentWeaponType == EZP_WeaponType::Ranged)
 	{
 		switch (CurrentWeaponIcon)
 		{
-			case EZP_WeaponIcon::Shotgun: TargetFOV = AZP_AdsFOVShotgun; break;
-			case EZP_WeaponIcon::Rifle:   TargetFOV = AZP_AdsFOVRifle;   break;
-			case EZP_WeaponIcon::Pistol:  TargetFOV = AZP_AdsFOVPistol;  break;
+			case EZP_WeaponIcon::Shotgun: return AZP_AdsFOVShotgun;
+			case EZP_WeaponIcon::Rifle:   return AZP_AdsFOVRifle;
+			case EZP_WeaponIcon::Pistol:  return AZP_AdsFOVPistol;
 			default: break;
 		}
 	}
-	SetTargetFOV(TargetFOV, AZP_AdsFOVInterpSpeed);
-
-	UE_LOG(LogTemp, Log, TEXT("[TheSignal] KinemationComponent::SetAiming(%s)"),
-		bAiming ? TEXT("true") : TEXT("false"));
+	return AZP_DefaultFOV;
 }
 
 // --- Weapon ---
@@ -1825,6 +1863,89 @@ void UZP_KinemationComponent::UpdateMeleeGrip(float DeltaSeconds, bool bBlocking
 	MeleeWeaponMeshComp->SetRelativeRotation(Rot);
 }
 
+// [SwapProbe] 2026-08-07 — the pistol→pipe transition breaks the melee POV every time ("camera
+// is now in the chest") and the first theory (ranged layer never stood down) was falsified by
+// test. This sampler runs at fixed delays after every melee-view activation and logs WHERE
+// everything actually is, so the broken state diagnoses itself from Saved/Logs the next time the
+// dev reproduces it — no live-probe timing needed. Read the deltas:
+//   camMgr vs camComp      -> differ = something re-targeted the view (camera manager/view target)
+//   camComp vs FPCamera    -> differ = camera component moved off its socket (offsets)
+//   FPCamera vs head       -> socket displaced = PlayerMesh POSE is driving it (montage/aim)
+//   MarcusBody relX        -> body slid (should be 0 outside ranged anchor)
+static void ZPSwapProbeSample(TWeakObjectPtr<AActor> WeakOwner, int32 Idx, float Delay)
+{
+	AActor* Owner = WeakOwner.Get();
+	if (!Owner || !Owner->GetWorld()) { return; }
+	UWorld* W = Owner->GetWorld();
+	const APlayerCameraManager* CamMgr = UGameplayStatics::GetPlayerCameraManager(W, 0);
+	const FVector CamLoc = CamMgr ? CamMgr->GetCameraLocation() : FVector::ZeroVector;
+
+	USceneComponent* CamComp = nullptr; USkeletalMeshComponent* PM = nullptr;
+	USkeletalMeshComponent* MB = nullptr; USkeletalMeshComponent* MV = nullptr;
+	USceneComponent* MHead = nullptr;
+	TInlineComponentArray<USceneComponent*> Scenes(Owner);
+	for (USceneComponent* C : Scenes)
+	{
+		const FString N = C->GetName();
+		if (N == TEXT("FirstPersonCamera")) { CamComp = C; }
+		else if (N == TEXT("PlayerMesh"))   { PM = Cast<USkeletalMeshComponent>(C); }
+		else if (N == TEXT("MarcusBody"))   { MB = Cast<USkeletalMeshComponent>(C); }
+		else if (N == TEXT("MeleeViewMesh")){ MV = Cast<USkeletalMeshComponent>(C); }
+		else if (N == TEXT("MarcusHead"))   { MHead = C; }
+	}
+	const FVector CamCompLoc = CamComp ? CamComp->GetComponentLocation() : FVector::ZeroVector;
+	const FVector SockLoc = PM ? PM->GetSocketLocation(TEXT("FPCamera")) : FVector::ZeroVector;
+	const FVector HeadLoc = PM ? PM->GetSocketLocation(TEXT("head")) : FVector::ZeroVector;
+	const FVector Fwd = Owner->GetActorForwardVector();
+	auto FwdUp = [&](const FVector& A, const FVector& B)
+	{
+		const FVector D = A - B;
+		return FString::Printf(TEXT("fwd=%.0f up=%.0f"), FVector::DotProduct(D, Fwd), D.Z);
+	};
+	// Z-chain fields (round 3): at MATCHED pitch the camera sat 20 uu lower relative to
+	// MarcusBody in the broken state — one of these four must carry it.
+	const UCapsuleComponent* Cap = Owner->FindComponentByClass<UCapsuleComponent>();
+	UE_LOG(LogTemp, Warning,
+		TEXT("[SwapProbe] +%.1fs #%d camMgr=(%.0f,%.0f,%.0f) camMgr-camComp(%s) camComp-sock(%s) sock-head(%s) MarcusBodyRelX=%.1f meleeView-cam(%s) pawnZ=%.0f capH=%.0f PMrel=(%.1f,%.1f,%.1f) MBrelZ=%.1f"),
+		Delay, Idx, CamLoc.X, CamLoc.Y, CamLoc.Z,
+		*FwdUp(CamLoc, CamCompLoc), *FwdUp(CamCompLoc, SockLoc), *FwdUp(SockLoc, HeadLoc),
+		MB ? MB->GetRelativeLocation().X : -999.f,
+		MV ? *FwdUp(MV->GetComponentLocation(), CamLoc) : TEXT("n/a"),
+		Owner->GetActorLocation().Z,
+		Cap ? Cap->GetScaledCapsuleHalfHeight() : -1.f,
+		PM ? PM->GetRelativeLocation().X : -999.f,
+		PM ? PM->GetRelativeLocation().Y : -999.f,
+		PM ? PM->GetRelativeLocation().Z : -999.f,
+		MB ? MB->GetRelativeLocation().Z : -999.f);
+
+	// Line 2: rendered-state sample — the transform chain proved IDENTICAL good-vs-broken
+	// (2026-08-07 log), so the break must live in pose/anim/visibility. Bone positions are
+	// world-space relative to the CAMERA (fwd/up): a chest bone near (0,0) = geometry AT the
+	// lens = "seeing into my inners".
+	auto PoseStr = [&](USkeletalMeshComponent* S)
+	{
+		if (!S) { return FString(TEXT("n/a")); }
+		UAnimSingleNodeInstance* SN = S->GetSingleNodeInstance();
+		UAnimationAsset* Asset = SN ? SN->GetAnimationAsset() : nullptr;
+		return FString::Printf(TEXT("vis=%d spine05[%s] head[%s] anim=%s"),
+			S->IsVisible() ? 1 : 0,
+			*FwdUp(S->GetSocketLocation(TEXT("spine_05")), CamLoc),
+			*FwdUp(S->GetSocketLocation(TEXT("head")), CamLoc),
+			Asset ? *Asset->GetName() : TEXT("NONE"));
+	};
+	UE_LOG(LogTemp, Warning,
+		TEXT("[SwapProbe2] #%d MB{%s hidUA=%d%d} MV{%s} PMhid neck=%d clav=%d%d MarcusHeadVis=%d"),
+		Idx,
+		*PoseStr(MB),
+		MB && MB->IsBoneHiddenByName(TEXT("upperarm_l")) ? 1 : 0,
+		MB && MB->IsBoneHiddenByName(TEXT("upperarm_r")) ? 1 : 0,
+		*PoseStr(MV),
+		PM && PM->IsBoneHiddenByName(TEXT("neck_01")) ? 1 : 0,
+		PM && PM->IsBoneHiddenByName(TEXT("clavicle_l")) ? 1 : 0,
+		PM && PM->IsBoneHiddenByName(TEXT("clavicle_r")) ? 1 : 0,
+		MHead && MHead->IsVisible() ? 1 : 0);
+}
+
 void UZP_KinemationComponent::ActivateMeleeViewModel()
 {
 	// [EquipProbe] 2026-08-04: dev-felt 1.5s stall on first pipe pull — time this path so the
@@ -1851,6 +1972,22 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 	bMeleeViewModelActive = true;
 	GetWorld()->GetTimerManager().ClearTimer(MeleeUnequipHideHandle);
 
+	// [SwapProbe] sample the POV chain at fixed delays after every melee raise (see the
+	// sampler above for how to read the deltas).
+	{
+		TWeakObjectPtr<AActor> WeakOwner = GetOwner();
+		int32 Idx = 0;
+		for (const float Delay : { 0.05f, 0.5f, 1.5f, 3.0f })
+		{
+			FTimerHandle Th;
+			GetWorld()->GetTimerManager().SetTimer(Th, [WeakOwner, Idx, Delay]()
+			{
+				ZPSwapProbeSample(WeakOwner, Idx, Delay);
+			}, Delay, false);
+			++Idx;
+		}
+	}
+
 	// Kinemation arms off — the view model IS the arms while melee is held.
 	// Same HideBoneByName pattern as the throwable one-handed clavicle hide.
 	if (PlayerMeshComponent)
@@ -1874,6 +2011,7 @@ void UZP_KinemationComponent::ActivateMeleeViewModel()
 		MeleeWeaponMeshComp = NewObject<UStaticMeshComponent>(GetOwner(), TEXT("MeleeViewWeapon"));
 		MeleeWeaponMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		MeleeWeaponMeshComp->SetOnlyOwnerSee(true);
+		MeleeWeaponMeshComp->SetReceivesDecals(false); // floor blood must not paint the pipe
 		MeleeWeaponMeshComp->bCastDynamicShadow = false;
 		MeleeWeaponMeshComp->CastShadow = false;
 		MeleeWeaponMeshComp->RegisterComponent();

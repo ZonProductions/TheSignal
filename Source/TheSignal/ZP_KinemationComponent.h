@@ -558,6 +558,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Camera|Kinemation")
 	void SetTargetFOV(float NewFOV, float InterpSpeed = 5.0f);
 
+	/** The FOV the view camera should be at RIGHT NOW, from the live knobs: per-weapon ADS
+	 *  value while aiming a ranged weapon, AZP_DefaultFOV otherwise. The owning character
+	 *  interps its FirstPersonCamera to this every frame — the REAL camera, directly; the
+	 *  pack camera-comp route (SetTargetFOV/UpdateTargetFOV) produced no visible change
+	 *  (dev 2026-08-07: halving AZP_AdsFOVPistol did nothing). */
+	float GetDesiredFOV() const;
+
 	// --- Initialization ---
 
 	/**

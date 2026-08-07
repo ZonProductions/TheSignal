@@ -111,24 +111,37 @@ public:
 	/** Detour ratio (nav path length / straight line) above which "around the corner" stops being
 	 *  believable and the sound counts as through-wall. */
 	static constexpr float AZP_MaxDiffractionDetour   = 2.4f;
-	static constexpr float AZP_DiffractedVolumeMin    = 1.0f;   // detour ratio ~1: same as Direct (seamless blend)
-	static constexpr float AZP_DiffractedVolumeMax    = 0.5f;   // long detour, several corners
-	static constexpr float AZP_DiffractedLPFMinHz     = 15000.f; // inaudible filtering at ratio ~1
-	static constexpr float AZP_DiffractedLPFMaxHz     = 3200.f;
+	// RETUNED 2026-08-07 (dev: shambler lurk "clearly" audible from the next room; measured tier
+	// was Diffracted at ratio 1.43 -> 0.85 vol / 11.4 kHz — effectively transparent for a growl,
+	// whose energy sits far below any of these filters). A BLOCKED SIGHTLINE must never sound
+	// like the same room: even a near-straight open route through an aperture starts at a clear
+	// "other room" level now. Direct tier is untouched.
+	static constexpr float AZP_DiffractedVolumeMin    = 0.65f;  // detour ratio ~1: audible, but unmistakably around a corner
+	static constexpr float AZP_DiffractedVolumeMax    = 0.3f;   // long detour, several corners
+	static constexpr float AZP_DiffractedLPFMinHz     = 7000.f;
+	static constexpr float AZP_DiffractedLPFMaxHz     = 1800.f;
 	/** ONE-BEND aperture (2026-08-05: "muffled until I stepped through the door"): when some point
 	 *  on the open-air route can see BOTH the listener and the source, the sound bends exactly once
 	 *  (an open doorway / single corner) and arrives nearly clean — the detour RATIO is meaningless
 	 *  there (a doorway route can read 2x+ while acoustically wide open). Near-full level, barely
 	 *  audible filtering. */
-	static constexpr float AZP_OneBendVolume          = 0.92f;
-	static constexpr float AZP_OneBendLPFHz           = 12000.f;
+	// RETUNED 2026-08-07 with the diffraction bands: an open door LEAKS — noticeably louder and
+	// brighter than the through-wall thump (0.3 / 500 Hz) — but the sound still reads as "coming
+	// from the next room", never as sharing your room. (Was 0.92 / 12 kHz = near-transparent.)
+	static constexpr float AZP_OneBendVolume          = 0.6f;
+	static constexpr float AZP_OneBendLPFHz           = 5000.f;
 	/** Height (UU) above a nav path point for the one-bend pivot probe — mid-door-opening. */
 	static constexpr float AZP_OneBendPivotHeight     = 80.f;
 	static constexpr float AZP_TransmittedVolumeScale = 0.3f;
 	static constexpr float AZP_TransmittedLowPassHz   = 500.f;
-	/** A blocker within this many UU of the source is the source's OWN perch/contact geometry
-	 *  (e.g. a crawler clinging to the wall it's heard through), not a wall between rooms. */
-	static constexpr float AZP_OcclusionSelfSkin      = 150.f;
+	/** RETIRED 2026-08-07 (kept for the record): the "blocker hugging the source is its own
+	 *  perch" exemption. Built for the DEPRECATED wall-clinging crawler; caused full-volume
+	 *  leaks three ways as it shrank (150: enemies near thin walls; 40: an enemy pressed against
+	 *  the far side of a closed door). Occlusion now counts ANY geometry between listener and
+	 *  source — the enemy's own body is excluded via IgnoreActor. Do not resurrect; if a future
+	 *  climber needs to be heard through its perch, solve it with a per-sound bPropagate=false
+	 *  or a surface-identity check, never a distance skin. */
+	static constexpr float AZP_OcclusionSelfSkin      = 0.f;
 
 	/** Play a world SFX following a component (enemy voice, machine hum burst, etc.).
 	 *  bPropagate: run the 3-tier Direct/Diffracted/Transmitted model (default ON for every world

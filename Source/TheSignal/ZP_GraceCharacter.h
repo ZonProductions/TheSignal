@@ -181,12 +181,28 @@ public:
 	// (Class Defaults, no rebuild needed).
 
 	/** Master switch for the look-down chest bend on the Marcus body.
-	 *  UNHOOKED 2026-08-07 after the dev's try-out verdict: the headless body's NECK STUMP curls
-	 *  into view at full look-down, and the walk clip's torso sway reads as "upper chest bobbing"
-	 *  right at the lens. Code kept for a future revisit — re-enabling needs (a) the neck chain
-	 *  excluded from the bend carry and (b) loco torso-sway damping near the camera. */
+	 *  Round 2 (dev: "attempt at real version needs") — the two try-out killers are addressed:
+	 *  the neck chain is counter-rotated to stay upright (no stump curling into the lens) and the
+	 *  loco torso sway is damped toward ref pose while bent (no chest bobbing at close range). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
-	bool bAZP_MarcusChestBend = false;
+	bool bAZP_MarcusChestBend = true;
+
+	/** How much of the walk/idle clip's torso animation is flattened while the bend is active
+	 *  (scales with the bend alpha). 1 = chest rides the pelvis rigidly at full look-down —
+	 *  which is how your own chest behaves relative to your eyes; 0 = raw clip sway (the
+	 *  try-out's "upper chest bobbing"). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	float AZP_MarcusChestSwayDamping = 0.85f;
+
+	/** Fraction of the applied bend counter-rotated back out at the neck, keeping the headless
+	 *  body's neck stump pointing UP instead of curling into the camera. 1 = stump stays fully
+	 *  upright (out of frame above the lens); 0 = the try-out behavior. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	float AZP_MarcusChestNeckUpright = 1.0f;
+
+	/** Root of the neck chain the counter-rotation (and its sway damp) applies from. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	FName AZP_MarcusChestNeckBone = TEXT("neck_01");
 
 	/** Total forward spine curl (degrees) at full look-down, spread across the bend bones. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
@@ -203,6 +219,41 @@ public:
 	/** Spine chain the curl distributes across (CCMH = UE5-style spine_01..spine_05, verified). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
 	TArray<FName> AZP_MarcusChestBendBones = { FName("spine_01"), FName("spine_02"), FName("spine_03"), FName("spine_04"), FName("spine_05") };
+
+	/** Bones hidden on the Marcus body + overalls while WEAPON arms are shown. Default = the
+	 *  UPPERARMS: hiding at the clavicles collapsed every arm/sleeve vertex into pinch-lumps ON
+	 *  the chest silhouette — invisible while the chest was hidden, but the 2026-08-07 "blending
+	 *  issue with the pipe hand" once the bend put the chest in frame. Upperarm hides keep the
+	 *  chest's own shoulder caps; the view-model arms draw over the stumps. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	TArray<FName> AZP_MarcusWeaponArmHideBones = { FName("upperarm_l"), FName("upperarm_r") };
+
+	/** RANGED body anchor — UNHOOKED (default false), 2026-08-07, after BOTH mechanisms failed
+	 *  in PIE and proved the conflict is geometric: the ranged camera rides the pack gun socket
+	 *  ~70 cm AHEAD of the torso the arms connect to. Slide the body under the camera -> arms
+	 *  detach ("arms aren't attached to my body"); pin the body to the arms' torso (this anchor)
+	 *  -> chest stays behind the lens (invisible) and swaps drag the offset through the melee
+	 *  camera ("camera is now in the chest", "I see into my inners"). NO body placement satisfies
+	 *  both while the camera sits out there. The real lever is the CAMERA: pull
+	 *  GameplayComp->AZP_CameraRangedForward toward -70 (live knob) so ranged frames from
+	 *  Marcus's head like unarmed — chest in frame, arms attached for free — then re-tune gun
+	 *  framing via AZP_RangedArmsOffset / weapon offsets by eye. Do NOT re-enable this bool
+	 *  except for experiments. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	bool bAZP_MarcusRangedBodyAnchor = false;
+
+	/** Bone matched between PlayerMesh (Operator) and MarcusBody (CCMH) — both skeletons are
+	 *  UE5-style, spine_05 = chest top where the clavicles hang. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	FName AZP_MarcusRangedAnchorBone = FName("spine_05");
+
+	/** Interp speed for the anchor offset (both engaging and returning to 0). Live. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	float AZP_MarcusRangedAnchorInterpSpeed = 10.0f;
+
+	/** Safety clamp (cm) on the forward anchor offset. Live. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
+	float AZP_MarcusRangedAnchorMaxSlide = 120.0f;
 
 	/** Per-bone fraction of the total curl, index-matched to the bones array (sums ~1). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance|ChestBend")
@@ -319,6 +370,10 @@ public:
 	/** Tracks whether Marcus's body arms are currently hidden (weapon view-model up). */
 	bool bMarcusArmsHidden = false;
 
+	/** The exact bones currently hidden by the weapon-arms hide (snapshot of the
+	 *  AZP_MarcusWeaponArmHideBones knob at hide time, so live knob edits unhide cleanly). */
+	TArray<FName> MarcusArmHiddenBones;
+
 	/** Tracks ranged-weapon state: when armed ranged, the Operator PlayerMesh is shown
 	 *  (its Kinemation arms hold the gun) and Marcus is hidden. */
 	bool bRangedArmedState = false;
@@ -332,6 +387,13 @@ public:
 	FRotator AZP_MeleeViewRotation = FRotator(0.0f, -90.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
 	float AZP_MeleeViewScale = 1.0f;
+
+	/** View-model bob lag (dev 2026-08-07: "the body bobs but the pipe doesn't when moving").
+	 *  A camera-child mesh rides the head bob screen-static; subtracting this fraction of the
+	 *  bob offsets makes the pipe+arms LAG the camera like a held object — reads as moving
+	 *  with the body. 0 = off (screen-locked, old behavior); 1 = fully world-stable. Live. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	float AZP_MeleeViewBobScale = 0.6f;
 
 	/** Extra placement applied to the melee weapon-arm view-model (the ARM RIG —
 	 *  MeleeViewMesh + sleeves + hands) ONLY while blocking — added on top of

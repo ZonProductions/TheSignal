@@ -215,12 +215,28 @@ bool UZP_SFXStatics::IsOccludedFromListener(UWorld* World, const FVector& Source
 	FCollisionQueryParams P(FName(TEXT("ZPSFXOcclusion")), /*bTraceComplex=*/false);
 	if (IgnoreActor) { P.AddIgnoredActor(IgnoreActor); }
 	if (APawn* Pawn = PC->GetPawn()) { P.AddIgnoredActor(Pawn); }
+	// ANY blocker strictly between the listener and the source = occluded. The old "self-skin"
+	// exemption (a blocker within N uu of the source doesn't count) existed for the DEPRECATED
+	// wall-clinging crawler and caused three separate full-volume-through-geometry failures as N
+	// shrank (150: any enemy within 1.5 m of a thin wall; 40: an enemy pressed against the far
+	// side of a closed DOOR — the 2026-08-07 "sounds the same as walking through" report, source
+	// ~2 uu behind the leaf). The enemy's own body is excluded via IgnoreActor, so a hit here is
+	// real world geometry in the path — occlusion, full stop. Over-muffling edge cases fall to
+	// the nav-route stage (diffraction/one-bend), which reopens anything genuinely connected.
 	if (World->LineTraceSingleByChannel(Hit, CamLoc, SourceLoc, ECC_WorldStatic, P))
 	{
-		// Only a REAL between-room wall counts. A blocker hugging the source (its own perch/contact
-		// geometry — e.g. a crawler clinging to a wall) is not occlusion.
-		const float DistToSource = FVector::Dist(CamLoc, SourceLoc);
-		return Hit.Distance < DistToSource - AZP_OcclusionSelfSkin;
+		return true;
+	}
+
+	// BIDIRECTIONAL (2026-08-07): pack meshes ship SINGLE-SIDED complex collision — a ray only
+	// hits triangles from the side they face, so a forward miss can simply mean the dividing
+	// wall's triangles face the OTHER way (measured: player->shambler hit the divider,
+	// shambler->player sailed through the same wall). The asset sweep
+	// (fix_wall_collision_doublesided.py) fixes ResearchMegaPack, but any other pack/level still
+	// gets caught here: on a forward miss, look again from the source's side.
+	if (World->LineTraceSingleByChannel(Hit, SourceLoc, CamLoc, ECC_WorldStatic, P))
+	{
+		return true;
 	}
 	return false;
 }
@@ -347,9 +363,15 @@ void UZP_SFXStatics::ComputePropagationUncached(UWorld* World, const FVector& So
 						for (int32 i = 1; i < Pts.Num() - 1; i += Stride)
 						{
 							const FVector Pivot = Pts[i] + FVector(0.f, 0.f, AZP_OneBendPivotHeight);
+							// BOTH directions of BOTH legs must be clear (2026-08-07): single-sided
+							// pack collision lets a one-direction ray pass through a wall's back
+							// face, faking an open doorway and clearing the aperture through solid
+							// geometry. A real opening is clear from every direction.
 							FHitResult HitA, HitB;
 							if (!World->LineTraceSingleByChannel(HitA, CamLoc, Pivot, ECC_WorldStatic, PivotParams) &&
-								!World->LineTraceSingleByChannel(HitB, Pivot, SrcEar, ECC_WorldStatic, PivotParams))
+								!World->LineTraceSingleByChannel(HitA, Pivot, CamLoc, ECC_WorldStatic, PivotParams) &&
+								!World->LineTraceSingleByChannel(HitB, Pivot, SrcEar, ECC_WorldStatic, PivotParams) &&
+								!World->LineTraceSingleByChannel(HitB, SrcEar, Pivot, ECC_WorldStatic, PivotParams))
 							{
 								OutVolumeMul = AZP_OneBendVolume;
 								OutLowPassHz = AZP_OneBendLPFHz;
@@ -357,18 +379,29 @@ void UZP_SFXStatics::ComputePropagationUncached(UWorld* World, const FVector& So
 							}
 						}
 					}
-					const float Ratio = Path->GetPathLength() / StraightDist;
-					if (Ratio <= AZP_MaxDiffractionDetour)
+					// PARTIAL paths NEVER enter the ratio math (2026-08-07, the closing bug of the
+					// lurk saga): a partial path's length is the distance to WHERE IT GAVE UP (a
+					// closed door's nav carve, a navmesh gap), not a route to the source. Measured
+					// live: closed door -> partial path len 571 vs straight 685 -> ratio 0.83 ->
+					// clamped to the diffraction MINIMUM -> 0.65 vol "practically same room"
+					// through a sealed doorway. The one-bend pivots above already ran (they are
+					// geometric and legitimately decide open apertures on partial paths); a
+					// partial path past them means NO known open route -> through-wall muffle.
+					if (!Path->IsPartial())
 					{
-						// DIFFRACTED — around the corner / down the connecting hall. Level drops
-						// with the detour, top end mostly survives. NOT a muffle.
-						const float T = FMath::Clamp((Ratio - 1.f) / (AZP_MaxDiffractionDetour - 1.f), 0.f, 1.f);
-						OutVolumeMul = FMath::Lerp(AZP_DiffractedVolumeMin, AZP_DiffractedVolumeMax, T);
-						OutLowPassHz = FMath::Lerp(AZP_DiffractedLPFMinHz, AZP_DiffractedLPFMaxHz, T);
-						return;
+						const float Ratio = Path->GetPathLength() / StraightDist;
+						if (Ratio <= AZP_MaxDiffractionDetour)
+						{
+							// DIFFRACTED — around the corner / down the connecting hall. Level drops
+							// with the detour, top end mostly survives. NOT a muffle.
+							const float T = FMath::Clamp((Ratio - 1.f) / (AZP_MaxDiffractionDetour - 1.f), 0.f, 1.f);
+							OutVolumeMul = FMath::Lerp(AZP_DiffractedVolumeMin, AZP_DiffractedVolumeMax, T);
+							OutLowPassHz = FMath::Lerp(AZP_DiffractedLPFMinHz, AZP_DiffractedLPFMaxHz, T);
+							return;
+						}
+						// Valid full path with a huge detour: CONFIDENTLY the long way around a wall.
+						if (bOutTransmitConfident) { *bOutTransmitConfident = true; }
 					}
-					// Valid full path with a huge detour: CONFIDENTLY the long way around a wall.
-					if (bOutTransmitConfident) { *bOutTransmitConfident = true; }
 				}
 				// Failed/partial path = UNKNOWN route (pawn off-navmesh, unbuilt region) — still
 				// muffle the audio (safe default) but do NOT report confidence: gameplay callers
@@ -403,6 +436,17 @@ UAudioComponent* UZP_SFXStatics::PlaySFXAttached(USoundBase* Sound, USceneCompon
 		if (Prop)
 		{
 			Prop->Track(AC, AttachTo->GetOwner(), Volume, ForceLowPassHz);
+		}
+		else if (bPropagate)
+		{
+			// A propagated sound with NO subsystem plays permanently un-occluded — fail LOUD.
+			UE_LOG(LogTemp, Error, TEXT("[SFX] '%s' asked for propagation but UZP_SFXPropagationSubsystem is MISSING — playing raw (full volume through walls)."),
+				*Sound->GetName());
+			if (ForceLowPassHz > 0.f)
+			{
+				AC->SetLowPassFilterEnabled(true);
+				AC->SetLowPassFilterFrequency(ForceLowPassHz);
+			}
 		}
 		else if (ForceLowPassHz > 0.f)
 		{

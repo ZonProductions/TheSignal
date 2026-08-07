@@ -51,6 +51,15 @@ struct FKinemationBridge
 	 *  spammed "Accessed None ... ActiveSettings" per frame (message log + callstack format cost).
 	 *  A neutral settings object silences it with default grip-pose values (2026-08-04). */
 	static void AnimEnsureActiveSettings(UObject* AnimComp);
+
+	/** FORCE-install a fresh default-constructed settings object, replacing whatever weapon's
+	 *  settings are live. Ensure() early-returns on non-null, so after any gun its settings
+	 *  stay installed forever — and the graph keeps rendering that gun's STANCE (head ~19 uu
+	 *  lower than the unarmed rest pose, measured 2026-08-07) under the melee view model,
+	 *  putting the FP camera inside the visible chest. Call on melee/throwable equips to
+	 *  return PlayerMesh to the same class-default pose spawn-unarmed runs. */
+	static void AnimResetActiveSettings(UObject* AnimComp);
+
 	static void AnimToggleReadyPose(UObject* AnimComp, bool bUseHighReady);
 
 	// ── AC_RecoilAnimation ──────────────────────────────────

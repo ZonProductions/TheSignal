@@ -63,12 +63,21 @@
 
 class UAnimSequence;
 class UZP_HealthComponent;
+class UZP_BloodFXComponent;
 class UDamageType;
 class UPrimitiveComponent;
 class USoundBase;
 class AController;
 class AAIController;
 class AZP_ScytheerClimbPath;
+class UMaterialInterface;
+
+UENUM(BlueprintType)
+enum class EOozelingColor : uint8
+{
+	Green,   // pack default look (MI_Blob_UPD17)
+	Purple   // pack violet variant (MI_Blob_UPD4 — same M_Blob_UPD master, recolored)
+};
 
 UENUM(BlueprintType)
 enum class EOozelingState : uint8
@@ -98,6 +107,38 @@ public:
 	// IZP_Revivable — death-state persistence + objective-driven revival (UZP_DeathSaveComponent).
 	virtual void ApplyDeadStateInstant_Implementation() override;
 	virtual void ReviveEnemy_Implementation() override;
+
+	// ── Color variant ───────────────────────────────────────────────
+	/** Body color, per placed Oozeling (dev 2026-08-07: the pack preview's purple blobs as a
+	 *  Details option). Applies the matching material below to mesh slot 0 in BOTH the editor
+	 *  preview (OnConstruction) and PIE (BeginPlay); blood color follows unless
+	 *  bAZP_BloodFollowsColor is off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Color")
+	EOozelingColor AZP_OozeColor = EOozelingColor::Green;
+
+	/** Material for the Green variant. Default = the pack's own MI_Blob_UPD17 (the mesh default). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Color")
+	TSoftObjectPtr<UMaterialInterface> AZP_GreenMaterial;
+
+	/** Material for the Purple variant. Default = pack MI_Blob_UPD4 — the clean violet twin of
+	 *  UPD17 (same master, base color (0.38,0,0.60), all colorize layers neutral). Swap for
+	 *  MI_Blob_UPD13 (darker) or UPD3 (softer) here if the read is wrong in the level. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Color")
+	TSoftObjectPtr<UMaterialInterface> AZP_PurpleMaterial;
+
+	/** Blood/gib tint follows the body color (dev 2026-08-07: "green ooze's have purple blood,
+	 *  probably should be green"). Sets the BloodFX component's blood/smoke/decal/wound colors
+	 *  from the variant tint below at BeginPlay. Turn OFF to hand-tune blood in the BP instead. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Color")
+	bool bAZP_BloodFollowsColor = true;
+
+	/** Green-variant blood tint (same luminance family as the enemy-default purple). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Color")
+	FLinearColor AZP_GreenBloodTint = FLinearColor(0.03f, 0.22f, 0.05f, 1.f);
+
+	/** Purple-variant blood tint (= UZP_BloodFXComponent's enemy default). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oozeling|Color")
+	FLinearColor AZP_PurpleBloodTint = FLinearColor(0.14f, 0.015f, 0.22f, 1.f);
 
 	// ── Detection ───────────────────────────────────────────────────
 	/** Straight-line distance to consider the player for aggro. Grounded aggro is additionally
@@ -475,6 +516,11 @@ private:
 	/** Fill any anim/SFX slot the Blueprint hasn't overridden. BeginPlay-lazy LoadObject —
 	 *  ConstructorHelpers /Game loads during CDO construction crash the editor (Shambler lesson). */
 	void LoadAssetDefaults();
+
+	/** Apply AZP_OozeColor: variant material onto mesh slot 0 + (optionally) the matching blood
+	 *  tints onto the BloodFX component. Editor preview + runtime. Soft refs load here, never
+	 *  at CDO construction. */
+	void ApplyOozeColor();
 	void PlayFootstep();
 	void PickNewWanderPoint();
 	void SetMaxWalkSpeed(float Speed);

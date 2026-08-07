@@ -43,11 +43,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
 	float AZP_FadeInTime = 3.0f;
 
-	/** Fade out duration in seconds. Starts this many seconds before the sound ends. */
+	/** Fade out duration in seconds. Starts this many seconds before the sound ends.
+	 *  Only applies when an interval of SILENCE follows (Min/Max > 0) — in gapless mode
+	 *  (both intervals 0) the track plays to its natural end and restarts immediately. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
 	float AZP_FadeOutTime = 3.0f;
 
-	/** Minimum silence between plays (seconds). */
+	/** Minimum silence between plays (seconds). BOTH intervals 0 = GAPLESS: the track loops
+	 *  back-to-back with no fade-out and no dead air. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
 	float AZP_MinInterval = 10.0f;
 
@@ -74,9 +77,25 @@ private:
 	FTimerHandle PlayTimerHandle;
 	FTimerHandle FadeOutTimerHandle;
 
+	/** True while EndPlay tears down — OnAudioFinished fires synchronously from Stop() and must
+	 *  not restart playback into a dying actor. */
+	bool bShuttingDown = false;
+
+	/** First cycle fades in; gapless repeats restart at full volume with no fade. */
+	bool bFirstCycle = true;
+
+	/** Both intervals zero = loop the track back-to-back, no fade-out, no dead air. */
+	bool IsGapless() const { return AZP_MinInterval <= 0.0f && AZP_MaxInterval <= 0.0f; }
+
 	void StartPlay();
 	void BeginFadeOut();
-	void OnPlaybackFinished();
+
+	/** Bound to the audio component's OnAudioFinished — the NATURAL end of playback replaces the
+	 *  old Duration+0.5s hard-coded timer pad (which added half a second of unconfigured dead air
+	 *  to every cycle and drifted from the real end). */
+	UFUNCTION()
+	void HandleAudioFinished();
+
 	void ScheduleNextPlay();
 
 	float GetSoundDuration() const;
