@@ -1,7 +1,7 @@
 {
   "version": 1,
   "bucket": "thesignal-game",
-  "created": "2026-08-07T11:51:16",
+  "created": "2026-08-08T14:54:37",
   "files": {
     "Content/Building1_3rdFloor.umap": {
       "hash": "sha256:61ec20fba957fc61cac6368253620f7fdf21c26fc9319bd42e90cc9441308852",
@@ -15300,7 +15300,7 @@
       "size": 4690111
     },
     "Content/Campaign/ResearchFacility.umap": {
-      "hash": "sha256:a8dc3ae3aae44655a5d312d92707829d03658fdc35246e7701935044f5a449db",
+      "hash": "sha256:350a93358c6b9095d48d6f46d4422a6d73563d42349f9e2c3e55b8a85de0d59b",
       "size": 7498281
     },
     "Content/Campaign/UI/WBP_TransitMenu.uasset": {

@@ -2329,7 +2329,7 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 		// produced; camera sees it = Interact() proceeds (the pack still requires the
 		// InteractionArea overlap, so range is unchanged). The grab-all sweep (tick path)
 		// stays ungated on purpose — it's a deliberate radius sweep behind the first grab.
-		if (bAZP_CameraInteractLOS)
+		if (bAZP_CameraInteractLOS || AZP_InteractFacingDot > -1.f)
 		{
 			if (FObjectProperty* GateProp = CastField<FObjectProperty>(
 				MoonvilleInteractionComp->GetClass()->FindPropertyByName(TEXT("ClosestInteractable"))))
@@ -2343,29 +2343,108 @@ void AZP_GraceCharacter::Input_Interact(const FInputActionValue& Value)
 					FVector GateCamLoc;
 					FRotator GateCamRot;
 					GatePC->GetPlayerViewPoint(GateCamLoc, GateCamRot);
-					// Aim at the same point the pack's ray targeted: the item's
-					// InteractionCollision sphere (fallback: actor location).
-					FVector GateTarget = GateOwner->GetActorLocation();
-					for (UActorComponent* C : GateOwner->GetComponents())
+
+					// Visible-geometry anchor: bounds origin/top. The old single target — the
+					// InteractionCollision sphere center — sits at the item's BASE, fractionally
+					// inside whatever it rests on, so every elevated placement read "hidden
+					// behind <the shelf>" and the press was refused (dev 2026-08-08,
+					// BP_ItemPickup11: "cannot pick it up unless it's on the floor";
+					// log-measured: StaticMeshActor_481 ate the gate trace every press).
+					FVector BoundsOrigin, BoundsExtent;
+					GateOwner->GetActorBounds(/*bOnlyCollidingComponents=*/false, BoundsOrigin, BoundsExtent);
+
+					// Facing cone (dev 2026-08-08: "picked up a pistol while it was directly
+					// behind me" — the overlap sphere doesn't care where you look).
+					// Round 2 (same day, log-measured on the locker bank): (a) aim at the
+					// VISIBLE mesh center — GetActorBounds includes the fat invisible
+					// interaction sphere, which displaces "its center" off the actual locker
+					// at point-blank; (b) YAW-ONLY dot — flatten both vectors to the ground
+					// plane so looking down at a floor item can't fail the cone and turning
+					// your back can't pass it, no matter how close you stand.
+					if (AZP_InteractFacingDot > -1.f)
 					{
-						if (C && C->GetFName() == FName(TEXT("InteractionCollision")))
+						FBox VisBox(ForceInit);
+						for (UActorComponent* C : GateOwner->GetComponents())
 						{
-							if (USceneComponent* SC = Cast<USceneComponent>(C))
+							if (UMeshComponent* MC = Cast<UMeshComponent>(C))
 							{
-								GateTarget = SC->GetComponentLocation();
+								if (MC->IsVisible())
+								{
+									VisBox += MC->Bounds.GetBox();
+								}
 							}
-							break;
+						}
+						const FVector FaceTarget = VisBox.IsValid ? VisBox.GetCenter() : BoundsOrigin;
+						FVector ToTarget2D = FaceTarget - GateCamLoc;
+						ToTarget2D.Z = 0.f;
+						FVector Fwd2D = GateCamRot.Vector();
+						Fwd2D.Z = 0.f;
+						// Degenerate only when the item is directly underfoot — no defined
+						// "behind" there; let the press through.
+						if (ToTarget2D.Normalize() && Fwd2D.Normalize())
+						{
+							const float FacingDot = FVector::DotProduct(Fwd2D, ToTarget2D);
+							if (FacingDot < AZP_InteractFacingDot)
+							{
+								UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 3 facing gate: %s at yawDot=%.2f (< %.2f) — press refused, not looking at it"),
+									*GateOwner->GetName(), FacingDot, AZP_InteractFacingDot);
+								return;
+							}
 						}
 					}
-					FHitResult GateHit;
-					FCollisionQueryParams GateParams;
-					GateParams.AddIgnoredActor(this);
-					GateParams.AddIgnoredActor(GateOwner);
-					if (GetWorld()->LineTraceSingleByChannel(GateHit, GateCamLoc, GateTarget, ECC_Visibility, GateParams))
+
+					if (bAZP_CameraInteractLOS)
 					{
-						UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 3 camera-LOS gate: %s hidden behind %s — press refused"),
-							*GateOwner->GetName(), GateHit.GetActor() ? *GateHit.GetActor()->GetName() : TEXT("?"));
-						return;
+						// Multi-point visibility: the press passes if the camera can see ANY of
+						// the item's bounds center, bounds top, or the InteractionCollision
+						// center — and a blocker within a hair of the target point (the shelf
+						// surface it sits on) counts as visible.
+						FVector SphereCenter = GateOwner->GetActorLocation();
+						for (UActorComponent* C : GateOwner->GetComponents())
+						{
+							if (C && C->GetFName() == FName(TEXT("InteractionCollision")))
+							{
+								if (USceneComponent* SC = Cast<USceneComponent>(C))
+								{
+									SphereCenter = SC->GetComponentLocation();
+								}
+								break;
+							}
+						}
+						const FVector GateTargets[] = {
+							BoundsOrigin,
+							BoundsOrigin + FVector(0.f, 0.f, BoundsExtent.Z),
+							SphereCenter };
+
+						FCollisionQueryParams GateParams;
+						GateParams.AddIgnoredActor(this);
+						GateParams.AddIgnoredActor(GateOwner);
+
+						bool bAnyVisible = false;
+						FHitResult LastHit;
+						for (const FVector& GateTarget : GateTargets)
+						{
+							FHitResult GateHit;
+							if (!GetWorld()->LineTraceSingleByChannel(GateHit, GateCamLoc, GateTarget, ECC_Visibility, GateParams))
+							{
+								bAnyVisible = true;
+								break;
+							}
+							// Blocked a hair short of the target = the surface it's resting
+							// on / its own shelf lip. That is not "behind a wall".
+							if (FVector::Dist(GateHit.ImpactPoint, GateTarget) < 20.f)
+							{
+								bAnyVisible = true;
+								break;
+							}
+							LastHit = GateHit;
+						}
+						if (!bAnyVisible)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("[ZP-BUG] Layer 3 camera-LOS gate: %s hidden behind %s (all 3 points) — press refused"),
+								*GateOwner->GetName(), LastHit.GetActor() ? *LastHit.GetActor()->GetName() : TEXT("?"));
+							return;
+						}
 					}
 				}
 			}

@@ -1133,6 +1133,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bAZP_CameraInteractLOS = true;
 
+	/** Facing cone for PROXIMITY interacts (Moonville pickups/lockers). The overlap sphere
+	 *  fires regardless of view direction — dev 2026-08-08: "picked up a pistol while it was
+	 *  directly behind me". The E press requires the YAW-ONLY dot (both vectors flattened to
+	 *  the ground plane — looking down at a floor item never fails, turning your back always
+	 *  does) toward the target's VISIBLE mesh center to exceed this. 0.5 = within 60° of
+	 *  screen center, matching the door cone. -1 = no facing requirement (old behavior).
+	 *  Crosshair-traced interacts are unaffected. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float AZP_InteractFacingDot = 0.5f;
+
 	/** Hide under-outfit FP body sections at BeginPlay (dev 2026-08-05: "my actor's skin is
 	 *  breaking through the pants" on look-down). The Operator body carries full skin geometry
 	 *  BENEATH the outfit, and the FBX import also left an unassigned leftover slot
